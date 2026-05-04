@@ -9,5 +9,9 @@ FROM eclipse-temurin:21-jre
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-# Adding memory limits to stay within Render's 512MB free tier
-ENTRYPOINT ["java", "-Xmx384m", "-Xms384m", "-jar", "app.jar"]
+# Adding memory limits and forcing Spring properties from Env Vars
+ENTRYPOINT ["java", \
+            "-Dspring.datasource.url=${SPRING_DATASOURCE_URL}", \
+            "-Dspring.datasource.username=${SPRING_DATASOURCE_USERNAME}", \
+            "-Dspring.datasource.password=${SPRING_DATASOURCE_PASSWORD}", \
+            "-Xmx384m", "-Xms384m", "-jar", "app.jar"]
