@@ -1,0 +1,163 @@
+package com.rentzy.backend.controller;
+
+import com.rentzy.backend.domain.User;
+import com.rentzy.backend.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/users")
+@RequiredArgsConstructor
+public class UserController {
+
+    private final UserRepository userRepository;
+    private final com.rentzy.backend.security.JwtService jwtService;
+
+    // Get current user profile
+    @GetMapping("/me")
+    public ResponseEntity<?> getProfile(Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(Map.ofEntries(
+                Map.entry("id", user.getId()),
+                Map.entry("name", user.getName() != null ? user.getName() : ""),
+                Map.entry("email", user.getEmail() != null ? user.getEmail() : ""),
+                Map.entry("role", user.getRole().name()),
+                Map.entry("phone", user.getPhone() != null ? user.getPhone() : ""),
+                Map.entry("dob", user.getDob() != null ? user.getDob() : ""),
+                Map.entry("gender", user.getGender() != null ? user.getGender() : ""),
+                Map.entry("occupation", user.getOccupation() != null ? user.getOccupation() : ""),
+                Map.entry("profilePhoto", user.getProfilePhoto() != null ? user.getProfilePhoto() : ""),
+                Map.entry("profileCompleted", user.getProfileCompleted() != null ? user.getProfileCompleted() : false),
+                Map.entry("educationLevel", user.getEducationLevel() != null ? user.getEducationLevel() : ""),
+                Map.entry("collegeName", user.getCollegeName() != null ? user.getCollegeName() : ""),
+                Map.entry("courseName", user.getCourseName() != null ? user.getCourseName() : ""),
+                Map.entry("currentYear", user.getCurrentYear() != null ? user.getCurrentYear() : ""),
+                Map.entry("companyName", user.getCompanyName() != null ? user.getCompanyName() : ""),
+                Map.entry("jobRole", user.getJobRole() != null ? user.getJobRole() : ""),
+                Map.entry("businessDescription", user.getBusinessDescription() != null ? user.getBusinessDescription() : ""),
+                Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
+                Map.entry("kycStatus", user.getKycStatus()),
+                Map.entry("kycDocumentUrl", user.getKycDocumentUrl() != null ? user.getKycDocumentUrl() : ""),
+                Map.entry("kycDocumentType", user.getKycDocumentType() != null ? user.getKycDocumentType() : ""),
+                Map.entry("kycDocumentNumber", user.getKycDocumentNumber() != null ? user.getKycDocumentNumber() : ""),
+                Map.entry("isVerified", user.getIsVerified() != null ? user.getIsVerified() : false)
+        ));
+    }
+
+    // Submit KYC Document
+    @PostMapping("/kyc")
+    public ResponseEntity<?> submitKyc(@RequestBody Map<String, String> body, Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        if (!body.containsKey("documentUrl") || body.get("documentUrl").trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Document URL is required"));
+        }
+
+        user.setKycDocumentUrl(body.get("documentUrl"));
+        
+        if (body.containsKey("documentType")) {
+            user.setKycDocumentType(body.get("documentType"));
+        }
+        if (body.containsKey("documentNumber")) {
+            user.setKycDocumentNumber(body.get("documentNumber"));
+        }
+        
+        user.setKycStatus("PENDING");
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "KYC Document submitted successfully", "kycStatus", "PENDING"));
+    }
+
+    // Update current user profile
+    @PutMapping("/me")
+    public ResponseEntity<?> updateProfile(
+            @RequestBody Map<String, String> body,
+            Authentication authentication) {
+        User user = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (body.containsKey("name")) user.setName(body.get("name"));
+        if (body.containsKey("phone") && body.get("phone") != null && !body.get("phone").isEmpty() && !body.get("phone").equals(user.getPhone())) {
+            String newPhone = body.get("phone");
+            if (userRepository.findByPhone(newPhone).isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Phone number is already in use by another account."));
+            }
+            user.setPhone(newPhone);
+        }
+        if (body.containsKey("dob")) user.setDob(body.get("dob"));
+        if (body.containsKey("gender")) user.setGender(body.get("gender"));
+        if (body.containsKey("occupation")) user.setOccupation(body.get("occupation"));
+        if (body.containsKey("profilePhoto")) user.setProfilePhoto(body.get("profilePhoto"));
+        
+        if (body.containsKey("educationLevel")) user.setEducationLevel(body.get("educationLevel"));
+        if (body.containsKey("collegeName")) user.setCollegeName(body.get("collegeName"));
+        if (body.containsKey("courseName")) user.setCourseName(body.get("courseName"));
+        if (body.containsKey("currentYear")) user.setCurrentYear(body.get("currentYear"));
+        if (body.containsKey("companyName")) user.setCompanyName(body.get("companyName"));
+        if (body.containsKey("jobRole")) user.setJobRole(body.get("jobRole"));
+        if (body.containsKey("businessDescription")) user.setBusinessDescription(body.get("businessDescription"));
+
+        if (body.containsKey("role")) {
+            try {
+                User.Role newRole = User.Role.valueOf(body.get("role").toUpperCase());
+                if (newRole != User.Role.ADMIN) { // Prevent privilege escalation
+                    user.setRole(newRole);
+                }
+            } catch (IllegalArgumentException e) {
+                // Ignore invalid role strings
+            }
+        }
+        
+        String newToken = null;
+        if (body.containsKey("email") && !body.get("email").equals(user.getEmail())) {
+            String newEmail = body.get("email");
+            if (userRepository.findByEmail(newEmail).isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Email is already in use by another account."));
+            }
+            user.setEmail(newEmail);
+            
+            // Generate new token since email (username) has changed
+            var extraClaims = new java.util.HashMap<String, Object>();
+            extraClaims.put("role", user.getRole().name());
+            extraClaims.put("name", user.getName());
+            newToken = jwtService.generateToken(extraClaims, user);
+        }
+        
+        // Mark profile as completed once updated
+        user.setProfileCompleted(true);
+
+        userRepository.save(user);
+        
+        return ResponseEntity.ok(Map.ofEntries(
+                Map.entry("id", user.getId()),
+                Map.entry("name", user.getName() != null ? user.getName() : ""),
+                Map.entry("email", user.getEmail() != null ? user.getEmail() : ""),
+                Map.entry("role", user.getRole().name()),
+                Map.entry("phone", user.getPhone() != null ? user.getPhone() : ""),
+                Map.entry("dob", user.getDob() != null ? user.getDob() : ""),
+                Map.entry("gender", user.getGender() != null ? user.getGender() : ""),
+                Map.entry("occupation", user.getOccupation() != null ? user.getOccupation() : ""),
+                Map.entry("profilePhoto", user.getProfilePhoto() != null ? user.getProfilePhoto() : ""),
+                Map.entry("profileCompleted", user.getProfileCompleted() != null ? user.getProfileCompleted() : false),
+                Map.entry("educationLevel", user.getEducationLevel() != null ? user.getEducationLevel() : ""),
+                Map.entry("collegeName", user.getCollegeName() != null ? user.getCollegeName() : ""),
+                Map.entry("courseName", user.getCourseName() != null ? user.getCourseName() : ""),
+                Map.entry("currentYear", user.getCurrentYear() != null ? user.getCurrentYear() : ""),
+                Map.entry("companyName", user.getCompanyName() != null ? user.getCompanyName() : ""),
+                Map.entry("jobRole", user.getJobRole() != null ? user.getJobRole() : ""),
+                Map.entry("businessDescription", user.getBusinessDescription() != null ? user.getBusinessDescription() : ""),
+                Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
+                Map.entry("kycStatus", user.getKycStatus()),
+                Map.entry("kycDocumentUrl", user.getKycDocumentUrl() != null ? user.getKycDocumentUrl() : ""),
+                Map.entry("isVerified", user.getIsVerified() != null ? user.getIsVerified() : false),
+                Map.entry("message", "Profile updated successfully"),
+                Map.entry("token", newToken != null ? newToken : "")
+        ));
+    }
+}

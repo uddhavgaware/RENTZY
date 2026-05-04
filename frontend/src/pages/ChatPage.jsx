@@ -1,0 +1,246 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Send, MoreVertical, Phone, Video, Info } from 'lucide-react';
+import { chatService } from '../services/chatService';
+import { useAuth } from '../context/AuthContext';
+import { useSearchParams } from 'react-router-dom';
+
+const ChatPage = () => {
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [activeChat, setActiveChat] = useState(null);
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [loading, setLoading] = useState(true);
+  const messagesEndRef = useRef(null);
+
+  // Auto-fill message from URL
+  useEffect(() => {
+    const text = searchParams.get('text');
+    if (text) {
+      setNewMessage(text);
+    }
+  }, [searchParams]);
+
+  // Scroll to bottom when messages update
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Fetch conversations
+  useEffect(() => {
+    const fetchConvos = async () => {
+      try {
+        const convos = await chatService.getConversations();
+        setConversations(convos);
+        
+        // If coming from a direct message link (e.g. ?user=3)
+        const userId = searchParams.get('user');
+        if (userId) {
+          const uId = parseInt(userId);
+          setActiveChat(uId);
+          // Add dummy conversation if not in list yet so UI shows them
+          if (!convos.find(c => c.id === uId)) {
+            setConversations([{ id: uId, name: 'New User', role: 'USER' }, ...convos]);
+          }
+        } else if (convos.length > 0 && !activeChat) {
+          setActiveChat(convos[0].id);
+        }
+      } catch (err) {
+        console.error('Error fetching conversations', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchConvos();
+  }, []);
+
+  // Fetch chat history with active user + Polling
+  useEffect(() => {
+    if (!activeChat) return;
+
+    const fetchHistory = async () => {
+      try {
+        const history = await chatService.getChatHistory(activeChat);
+        setMessages(history);
+      } catch (err) {
+        console.error('Error fetching history', err);
+      }
+    };
+
+    fetchHistory();
+
+    // Short Polling every 3 seconds
+    const intervalId = setInterval(fetchHistory, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [activeChat]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!newMessage.trim() || !activeChat) return;
+
+    const tempMessage = {
+      id: Date.now(), // temporary ID
+      content: newMessage,
+      sender: { email: user?.email },
+      timestamp: new Date().toISOString()
+    };
+    
+    // Optimistic UI update
+    setMessages(prev => [...prev, tempMessage]);
+    const messageToSend = newMessage;
+    setNewMessage('');
+
+    try {
+      await chatService.sendMessage(activeChat, messageToSend);
+    } catch (err) {
+      console.error('Failed to send message', err);
+      // Optional: Handle failure (e.g., remove from optimistic UI)
+    }
+  };
+
+  return (
+    <div className="bg-gray-50 h-[calc(100vh-64px)] flex overflow-hidden">
+      {/* Sidebar - Contacts List */}
+      <div className="w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+        <div className="p-4 border-b border-gray-100">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">Messages</h2>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search conversations..." 
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+            />
+          </div>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto">
+          {loading ? (
+            <div className="p-4 text-center text-sm text-gray-500">Loading conversations...</div>
+          ) : conversations.length === 0 ? (
+            <div className="p-4 text-center text-sm text-gray-500">No active conversations.</div>
+          ) : (
+            conversations.map((contact) => (
+              <button 
+                key={contact.id}
+                onClick={() => setActiveChat(contact.id)}
+                className={`w-full flex items-start p-4 border-b border-gray-50 transition-colors text-left ${activeChat === contact.id ? 'bg-primary-50' : 'hover:bg-gray-50'}`}
+              >
+                <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-4 border-2 border-white shadow-sm flex-shrink-0">
+                  {contact.name?.charAt(0) || 'U'}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between items-baseline mb-1">
+                    <h3 className={`font-semibold truncate ${activeChat === contact.id ? 'text-primary-900' : 'text-gray-900'}`}>{contact.name}</h3>
+                  </div>
+                  <p className="text-xs text-primary-600 mb-1">{contact.role}</p>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Main Chat Area */}
+      <div className="hidden md:flex flex-1 flex-col bg-white">
+        {!activeChat ? (
+           <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 text-gray-400">
+             <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+               <Info size={32} className="text-gray-300" />
+             </div>
+             <p className="font-medium text-lg">Select a conversation to start chatting</p>
+           </div>
+        ) : (
+          <>
+            {/* Chat Header */}
+            <div className="h-16 border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
+              <div className="flex items-center">
+                <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-3 border-2 border-white shadow-sm">
+                  {conversations.find(c => c.id === activeChat)?.name?.charAt(0) || 'U'}
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900">{conversations.find(c => c.id === activeChat)?.name || 'User'}</h3>
+                  <p className="text-xs text-green-500 font-medium">Active now</p>
+                </div>
+              </div>
+              <div className="flex items-center space-x-4 text-gray-400">
+                <button className="hover:text-primary-600 transition-colors" title="Info"><Info size={20} /></button>
+                <button className="hover:text-gray-600 transition-colors"><MoreVertical size={20} /></button>
+              </div>
+            </div>
+
+            {/* Chat Messages */}
+            <div className="flex-1 overflow-y-auto p-6 bg-gray-50 flex flex-col">
+              {conversations.find(c => c.id === activeChat)?.phone && (
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-6 text-center shadow-sm">
+                  <p className="text-sm text-blue-800">
+                    <span className="font-medium">Direct Contact:</span> You can call {conversations.find(c => c.id === activeChat).name} at{' '}
+                    <a href={`tel:${conversations.find(c => c.id === activeChat).phone}`} className="font-bold text-primary-600 hover:underline">
+                      {conversations.find(c => c.id === activeChat).phone}
+                    </a>
+                  </p>
+                </div>
+              )}
+              <div className="space-y-6">
+                {messages.length === 0 ? (
+                  <div className="text-center text-sm text-gray-500 mt-10">No messages yet. Say hi!</div>
+                ) : (
+                  messages.map((msg, idx) => {
+                    const isMe = msg.sender.email === user?.email;
+                    const timeString = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    
+                    if (isMe) {
+                      return (
+                        <div key={msg.id || idx} className="flex items-end justify-end">
+                          <div className="bg-primary-600 text-white p-3.5 rounded-2xl rounded-br-sm max-w-[70%] shadow-sm">
+                            <p>{msg.content}</p>
+                            <span className="text-[10px] text-primary-200 block mt-1 text-right">{timeString}</span>
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div key={msg.id || idx} className="flex items-end">
+                          <div className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center font-bold text-xs mr-2 mb-1 shadow-sm border border-gray-100 flex-shrink-0">
+                            {msg.sender?.name?.charAt(0) || 'U'}
+                          </div>
+                          <div className="bg-white border border-gray-100 p-3.5 rounded-2xl rounded-bl-sm max-w-[70%] shadow-sm">
+                            <p className="text-gray-800">{msg.content}</p>
+                            <span className="text-[10px] text-gray-400 block mt-1 text-right">{timeString}</span>
+                          </div>
+                        </div>
+                      );
+                    }
+                  })
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            </div>
+
+            {/* Message Input */}
+            <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex-shrink-0">
+              <div className="flex items-end bg-gray-50 border border-gray-200 rounded-2xl focus-within:border-primary-400 focus-within:ring-1 focus-within:ring-primary-400 transition-all">
+                <input 
+                  type="text" 
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a message..." 
+                  className="flex-1 bg-transparent border-none outline-none resize-none p-3 text-gray-800 placeholder-gray-400 h-12"
+                />
+                <div className="p-1 flex-shrink-0">
+                  <button type="submit" disabled={!newMessage.trim()} className="w-10 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-sm shadow-primary-600/30 disabled:opacity-50 disabled:cursor-not-allowed">
+                    <Send size={18} className="ml-1" />
+                  </button>
+                </div>
+              </div>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ChatPage;

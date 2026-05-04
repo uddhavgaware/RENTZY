@@ -1,0 +1,27 @@
+# Java
+backend/target/
+backend/*.jar
+backend/.mvn/wrapper/maven-wrapper.jar
+backend/.metadata
+backend/bin/
+backend/tmp/
+backend/*.class
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.DS_Store
+
+# Env
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local

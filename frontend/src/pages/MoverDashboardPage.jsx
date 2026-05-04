@@ -1,0 +1,263 @@
+import React, { useState, useEffect } from 'react';
+import { Truck, MapPin, Calendar, Package, CheckCircle2, ShieldCheck, PhoneCall, AlertCircle } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
+import Modal from '../components/Modal';
+
+const MoverDashboardPage = () => {
+  const { user, isAuthenticated, loading } = useAuth();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('available');
+  const [availableLeads, setAvailableLeads] = useState([]);
+  const [myJobs, setMyJobs] = useState([]);
+  const [profile, setProfile] = useState(null);
+  const [dataLoading, setDataLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [modalConfig, setModalConfig] = useState({ isOpen: false });
+
+  const showModal = (config) => setModalConfig({ ...config, isOpen: true });
+  const closeModal = () => setModalConfig({ isOpen: false });
+
+  useEffect(() => {
+    if (!loading) {
+      if (!isAuthenticated) navigate('/auth');
+      else if (user?.role !== 'MOVER') navigate('/');
+    }
+  }, [isAuthenticated, loading, user, navigate]);
+
+  useEffect(() => {
+    if (user?.role !== 'MOVER') return;
+    fetchData();
+    api.get('/users/me').then(res => setProfile(res.data)).catch(() => {});
+  }, [user, activeTab]);
+
+  const fetchData = async () => {
+    setDataLoading(true);
+    setError(null);
+    try {
+      if (activeTab === 'available') {
+        const res = await api.get('/moving/vendor/available');
+        setAvailableLeads(res.data);
+      } else {
+        const res = await api.get('/moving/vendor/my');
+        setMyJobs(res.data);
+      }
+    } catch (err) {
+      setError('Failed to fetch moving data.');
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
+  const handleAcceptJob = async (id) => {
+    try {
+      await api.put(`/moving/vendor/${id}/accept`);
+      showModal({ type: 'alert', title: 'Success', message: 'Job Accepted successfully!', onConfirm: () => { closeModal(); fetchData(); } });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: err.response?.data?.message || 'Failed to accept job.', onConfirm: closeModal });
+    }
+  };
+
+  const handleCompleteJob = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Complete Job',
+      message: 'Mark this move as completed?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.put(`/moving/vendor/${id}/complete`);
+          fetchData();
+        } catch (err) {
+          showModal({ type: 'alert', title: 'Error', message: err.response?.data?.message || 'Failed to complete job.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  if (loading || user?.role !== 'MOVER') return null;
+
+  return (
+    <div className="bg-gray-50 min-h-screen pb-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        
+        {/* Header */}
+        <div className="mb-8 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gray-900 rounded-2xl flex items-center justify-center shadow-lg">
+              <Truck size={24} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Vendor Portal</h1>
+              <p className="text-gray-500 text-sm mt-0.5">Welcome, {user?.name}</p>
+            </div>
+          </div>
+          {profile?.kycStatus === 'APPROVED' && (
+            <div className="hidden sm:flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-xl font-semibold border border-green-200">
+              <ShieldCheck size={18} /> Verified Partner
+            </div>
+          )}
+        </div>
+
+        {error && (
+          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl flex items-center gap-2">
+            <AlertCircle size={20} /> {error}
+          </div>
+        )}
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-8">
+          <button
+            onClick={() => setActiveTab('available')}
+            className={`px-6 py-3 rounded-xl font-bold transition-all ${
+              activeTab === 'available'
+                ? 'bg-primary-600 text-white shadow-md shadow-primary-600/30'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            Available Leads ({activeTab === 'available' && !dataLoading ? availableLeads.length : '...'})
+          </button>
+          <button
+            onClick={() => setActiveTab('my_jobs')}
+            className={`px-6 py-3 rounded-xl font-bold transition-all ${
+              activeTab === 'my_jobs'
+                ? 'bg-gray-900 text-white shadow-md'
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            My Jobs ({activeTab === 'my_jobs' && !dataLoading ? myJobs.length : '...'})
+          </button>
+        </div>
+
+        {/* Content */}
+        {dataLoading ? (
+          <div className="flex justify-center items-center py-20">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-6">
+            
+            {activeTab === 'available' && (
+              <>
+                {availableLeads.length === 0 ? (
+                  <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center">
+                    <Truck size={48} className="mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900">No leads right now</h3>
+                    <p className="text-gray-500 mt-2">New moving requests will appear here instantly.</p>
+                  </div>
+                ) : (
+                  availableLeads.map(lead => (
+                    <div key={lead.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow flex flex-col md:flex-row items-center justify-between gap-6">
+                      <div className="flex-1 w-full">
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">New Lead</span>
+                          <span className="text-gray-400 text-xs font-medium">Requested: {new Date(lead.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><MapPin size={12}/> From</p>
+                            <p className="font-bold text-gray-900">{lead.fromLocation}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><MapPin size={12}/> To</p>
+                            <p className="font-bold text-gray-900">{lead.toLocation}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Calendar size={12}/> Date</p>
+                            <p className="font-bold text-gray-900">{lead.movingDate}</p>
+                            {lead.movingTime && <p className="text-xs text-primary-600 font-medium mt-0.5">{lead.movingTime}</p>}
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Package size={12}/> Size</p>
+                            <p className="font-bold text-gray-900">{lead.propertySize}</p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="w-full md:w-auto flex flex-col items-center md:items-end gap-3 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
+                        <p className="text-sm text-gray-500">Est. Payout</p>
+                        <p className="text-3xl font-black text-green-600">₹{lead.estimatedPrice?.toLocaleString('en-IN')}</p>
+                        <button onClick={() => handleAcceptJob(lead.id)} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-xl transition-transform active:scale-95 shadow-lg shadow-primary-600/20">
+                          Accept Job
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </>
+            )}
+
+            {activeTab === 'my_jobs' && (
+              <>
+                {myJobs.length === 0 ? (
+                  <div className="bg-white rounded-3xl border border-gray-100 p-12 text-center">
+                    <CheckCircle2 size={48} className="mx-auto text-gray-300 mb-4" />
+                    <h3 className="text-xl font-bold text-gray-900">You haven't accepted any jobs</h3>
+                    <p className="text-gray-500 mt-2">Go to the Available Leads tab to grab some work!</p>
+                  </div>
+                ) : (
+                  myJobs.map(job => (
+                    <div key={job.id} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 hover:shadow-md transition-shadow">
+                      <div className="flex flex-col md:flex-row justify-between gap-6 border-b border-gray-100 pb-6 mb-6">
+                        <div className="grid grid-cols-2 gap-4 flex-1">
+                           <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><MapPin size={12}/> From</p>
+                            <p className="font-bold text-gray-900">{job.fromLocation}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><MapPin size={12}/> To</p>
+                            <p className="font-bold text-gray-900">{job.toLocation}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Calendar size={12}/> Date</p>
+                            <p className="font-bold text-gray-900">{job.movingDate}</p>
+                            {job.movingTime && <p className="text-xs text-primary-600 font-medium mt-0.5">{job.movingTime}</p>}
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1 flex items-center gap-1"><Package size={12}/> Size</p>
+                            <p className="font-bold text-gray-900">{job.propertySize}</p>
+                          </div>
+                        </div>
+                        <div className="text-center md:text-right">
+                          <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                            job.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                          }`}>
+                            {job.status}
+                          </span>
+                          <p className="text-2xl font-black text-gray-900 mt-3">₹{job.estimatedPrice?.toLocaleString('en-IN')}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl w-full md:w-auto">
+                          <div className="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold">
+                            {job.user?.name?.charAt(0)}
+                          </div>
+                          <div>
+                            <p className="font-bold text-gray-900 text-sm">Customer: {job.user?.name}</p>
+                            <a href={`tel:${job.user?.phone}`} className="text-primary-600 font-medium text-sm flex items-center gap-1 hover:underline">
+                              <PhoneCall size={14} /> {job.user?.phone || 'No phone provided'}
+                            </a>
+                          </div>
+                        </div>
+                        {job.status === 'ASSIGNED' && (
+                          <button onClick={() => handleCompleteJob(job.id)} className="w-full md:w-auto bg-gray-900 hover:bg-black text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
+                            <CheckCircle2 size={18} /> Mark as Completed
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </>
+            )}
+          </div>
+        )}
+      </div>
+      <Modal {...modalConfig} onCancel={closeModal} />
+    </div>
+  );
+};
+
+export default MoverDashboardPage;
