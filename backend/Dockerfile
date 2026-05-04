@@ -10,4 +10,4 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 # Use shell form to allow environment variable expansion and set memory limits
-ENTRYPOINT ["sh", "-c", "java -Xmx300m -Xms300m -jar app.jar"]
+ENTRYPOINT ["sh", "-c", "java -Xmx300m -Xms200m Dspring.profiles.active=prod -jar app.jar"]
