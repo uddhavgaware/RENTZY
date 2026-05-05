@@ -41,7 +41,16 @@ public class OtpService {
 
     @PostConstruct
     public void init() {
-        Twilio.init(accountSid, authToken);
+        try {
+            if (accountSid != null && !accountSid.equals("placeholder")) {
+                Twilio.init(accountSid, authToken);
+                System.out.println("✅ Twilio initialized successfully.");
+            } else {
+                System.out.println("⚠️ Twilio credentials not configured. SMS OTP will not work.");
+            }
+        } catch (Exception e) {
+            System.out.println("⚠️ Twilio initialization failed: " + e.getMessage() + ". SMS OTP will not work.");
+        }
     }
 
     public void sendOtp(String phone) {
