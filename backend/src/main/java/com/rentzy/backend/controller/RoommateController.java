@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/roommates")
@@ -19,10 +19,13 @@ public class RoommateController {
     private final RoommateService service;
 
     @GetMapping
-    public ResponseEntity<List<RoommatePostDTO>> getAllPosts(@RequestParam(required = false) String location) {
-        List<RoommatePostDTO> dtos = service.getAllPosts(location).stream()
-                .map(RoommatePostDTO::fromEntity)
-                .collect(Collectors.toList());
+    public ResponseEntity<Page<RoommatePostDTO>> getAllPosts(
+            @RequestParam(required = false) String location,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        Page<RoommatePostDTO> dtos = service.getAllPosts(location, page, size)
+                .map(RoommatePostDTO::fromEntity);
         return ResponseEntity.ok(dtos);
     }
 

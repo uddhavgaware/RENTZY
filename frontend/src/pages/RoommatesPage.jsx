@@ -8,6 +8,8 @@ const RoommatesPage = () => {
   const { isAuthenticated, user } = useAuth();
   const [roommates, setRoommates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [activeImageIndexes, setActiveImageIndexes] = useState({});
@@ -100,10 +102,20 @@ const RoommatesPage = () => {
     });
   };
 
-  const fetchRoommates = async () => {
+  const fetchRoommates = async (pageNum = 0, isAppend = false) => {
+    setLoading(true);
     try {
-      const response = await api.get('/roommates', { params: { location: searchInput } });
-      setRoommates(response.data);
+      const response = await api.get('/roommates', { 
+        params: { location: searchInput, page: pageNum, size: 20 } 
+      });
+      const results = response.data.content || [];
+      setHasMore(!response.data.last);
+      
+      if (isAppend) {
+        setRoommates(prev => [...prev, ...results]);
+      } else {
+        setRoommates(results);
+      }
     } catch (error) {
       console.error('Failed to fetch roommates', error);
     } finally {
@@ -112,11 +124,13 @@ const RoommatesPage = () => {
   };
 
   useEffect(() => {
-    fetchRoommates();
+    setPage(0);
+    fetchRoommates(0, false);
   }, [searchInput]); // Re-fetch when searchInput changes
 
   const handleSearch = () => {
-    fetchRoommates();
+    setPage(0);
+    fetchRoommates(0, false);
   };
 
   const handlePostSubmit = async (e) => {
@@ -421,6 +435,22 @@ const RoommatesPage = () => {
               );
             })}
           </div>
+          {hasMore && (
+            <div className="mt-10 flex justify-center">
+              <button
+                onClick={() => {
+                  const nextPage = page + 1;
+                  setPage(nextPage);
+                  fetchRoommates(nextPage, true);
+                }}
+                disabled={loading}
+                className="bg-white border-2 border-primary-100 text-primary-700 px-8 py-3 rounded-xl font-bold hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm disabled:opacity-50"
+              >
+                {loading ? 'Loading...' : 'Load More Roommates'}
+              </button>
+            </div>
+          )}
+          </>
         )}
 
       </div>

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 @RestController
@@ -17,16 +18,18 @@ public class ListingController {
     private final ListingService service;
 
     @GetMapping
-    public ResponseEntity<List<Listing>> getAllListings(
+    public ResponseEntity<Page<Listing>> getAllListings(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String location,
             @RequestParam(required = false) Double minPrice,
             @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String configuration,
             @RequestParam(required = false) String furnishing,
-            @RequestParam(required = false) String sortBy
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size
     ) {
-        return ResponseEntity.ok(service.searchListings(type, location, minPrice, maxPrice, configuration, furnishing, sortBy));
+        return ResponseEntity.ok(service.searchListings(type, location, minPrice, maxPrice, configuration, furnishing, sortBy, page, size));
     }
 
     @GetMapping("/{id}")

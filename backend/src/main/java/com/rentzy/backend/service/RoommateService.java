@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -19,9 +22,10 @@ public class RoommateService {
     private final UserRepository userRepository;
     private final LocationExpansionService locationExpansionService;
 
-    public List<RoommatePost> getAllPosts(String location) {
+    public Page<RoommatePost> getAllPosts(String location, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
         if (location == null || location.trim().isEmpty()) {
-            return repository.findAll();
+            return repository.findAll(pageable);
         }
 
         List<String> expandedLocations = locationExpansionService.getExpandedLocations(location);
@@ -36,7 +40,7 @@ public class RoommateService {
             return cb.or(locPredicates);
         };
 
-        return repository.findAll(spec);
+        return repository.findAll(spec, pageable);
     }
 
     public RoommatePost createPost(RoommatePost post, String userEmail) {

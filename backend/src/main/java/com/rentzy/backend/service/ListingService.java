@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Service
@@ -23,7 +26,7 @@ public class ListingService {
         return listingRepository.findAll();
     }
 
-    public List<Listing> searchListings(String type, String location, Double minPrice, Double maxPrice, String configuration, String furnishing, String sortBy) {
+    public Page<Listing> searchListings(String type, String location, Double minPrice, Double maxPrice, String configuration, String furnishing, String sortBy, int page, int size) {
         List<String> expandedLocations = locationExpansionService.getExpandedLocations(location);
 
         Specification<Listing> spec = (root, query, cb) -> {
@@ -76,7 +79,8 @@ public class ListingService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        return listingRepository.findAll(spec);
+        Pageable pageable = PageRequest.of(page, size);
+        return listingRepository.findAll(spec, pageable);
     }
 
     public Listing getListingById(Long id) {

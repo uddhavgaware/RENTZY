@@ -46,6 +46,8 @@ const ListingsPage = () => {
   const [appliedLocation, setAppliedLocation] = useState(searchParams.get('location') || '');
   const [listings, setListings] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
   const [wishlistIds, setWishlistIds] = useState([]);
   const [isMapView, setIsMapView] = useState(false);
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
@@ -124,17 +126,18 @@ const ListingsPage = () => {
     }
   }, [searchInput]);
 
-  const fetchListings = async () => {
+  const fetchListings = async (pageNum = 0, isAppend = false) => {
     setLoading(true);
     try {
-      const params = {};
+      const params = { page: pageNum, size: 20 };
       if (appliedLocation) params.location = appliedLocation;
       if (minPrice) params.minPrice = parseFloat(minPrice);
       if (maxPrice) params.maxPrice = parseFloat(maxPrice);
       if (sortBy) params.sortBy = sortBy;
 
       const response = await api.get('/listings', { params });
-      let results = response.data;
+      let results = response.data.content || [];
+      setHasMore(!response.data.last);
 
       // Client-side category filter
       if (activeType === 'pg') {
@@ -150,8 +153,13 @@ const ListingsPage = () => {
         );
       }
 
-      setListings(results);
-      if (results.length > 0 && results[0].latitude && results[0].longitude) {
+      if (isAppend) {
+        setListings(prev => [...prev, ...results]);
+      } else {
+        setListings(results);
+      }
+      
+      if (pageNum === 0 && results.length > 0 && results[0].latitude && results[0].longitude) {
         setMapCenter([results[0].latitude, results[0].longitude]);
       }
     } catch (error) {
@@ -162,7 +170,8 @@ const ListingsPage = () => {
   };
 
   useEffect(() => {
-    fetchListings();
+    setPage(0);
+    fetchListings(0, false);
   }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities]);
 
   // Load wishlist IDs
@@ -496,17 +505,34 @@ const ListingsPage = () => {
             </MapContainer>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {listings.map(listing => (
-              <ListingCard 
-                key={listing.id} 
-                listing={listing} 
-                wishlisted={wishlistIds.includes(listing.id)}
-                onWishlistChange={(id, added) => {
-                  setWishlistIds(prev => added ? [...prev, id] : prev.filter(x => x !== id));
-                }}
-              />
-            ))}
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {listings.map(listing => (
+                <ListingCard 
+                  key={listing.id} 
+                  listing={listing} 
+                  wishlisted={wishlistIds.includes(listing.id)}
+                  onWishlistChange={(id, added) => {
+                    setWishlistIds(prev => added ? [...prev, id] : prev.filter(x => x !== id));
+                  }}
+                />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  onClick={() => {
+                    const nextPage = page + 1;
+                    setPage(nextPage);
+                    fetchListings(nextPage, true);
+                  }}
+                  disabled={loading}
+                  className="bg-white border-2 border-primary-100 text-primary-700 px-8 py-3 rounded-xl font-bold hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm disabled:opacity-50"
+                >
+                  {loading ? 'Loading...' : 'Load More Properties'}
+                </button>
+              </div>
+            )}
           </div>
         )}
 
