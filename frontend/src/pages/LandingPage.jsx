@@ -1,6 +1,91 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, MapPin, Home, Users, ArrowRight, Building2 } from 'lucide-react';
+import {
+  Search, MapPin, Home, Users, ArrowRight, Building2, Shield,
+  Star, CheckCircle2, Zap, Truck, MessageSquare, BadgeCheck, ChevronRight
+} from 'lucide-react';
+
+const STATS = [
+  { value: '2,500+', label: 'Properties Listed' },
+  { value: '10,000+', label: 'Happy Tenants' },
+  { value: '25+', label: 'Cities Covered' },
+  { value: '4.9★', label: 'Average Rating' },
+];
+
+const CATEGORIES = [
+  {
+    to: '/listings?type=pg',
+    label: 'PGs & Hostels',
+    tag: 'Budget-Friendly',
+    img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
+    color: 'from-violet-600/80 to-purple-900/90',
+    emoji: '🏨',
+  },
+  {
+    to: '/listings?type=flat',
+    label: 'Flats & Apartments',
+    tag: 'Independent',
+    img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
+    color: 'from-blue-600/80 to-indigo-900/90',
+    emoji: '🏢',
+  },
+  {
+    to: '/roommates',
+    label: 'Find Roommates',
+    tag: 'Community',
+    img: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
+    color: 'from-rose-500/80 to-pink-900/90',
+    emoji: '🤝',
+  },
+  {
+    to: '/movers',
+    label: 'Packing & Moving',
+    tag: 'Relocation',
+    img: 'https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=800&q=80',
+    color: 'from-orange-500/80 to-amber-900/90',
+    emoji: '🚚',
+  },
+];
+
+const HOW_IT_WORKS = [
+  { step: '01', icon: Search, title: 'Search Your Area', desc: 'Filter by locality, price, amenities and property type — all in one place.' },
+  { step: '02', icon: BadgeCheck, title: 'Verified Listings', desc: 'Every owner is KYC verified. What you see is what you get — zero fake listings.' },
+  { step: '03', icon: MessageSquare, title: 'Chat Directly', desc: 'Message owners or tenants directly without any broker in between.' },
+  { step: '04', icon: Home, title: 'Move In!', desc: 'Book your visit, confirm the deal, and move into your new home.' },
+];
+
+const FEATURES = [
+  { icon: Shield, title: 'Zero Brokerage', desc: 'Direct owner-tenant connections. Keep your money for what matters.' },
+  { icon: Zap, title: 'Instant Listings', desc: 'New properties go live in minutes. Never miss a good deal.' },
+  { icon: BadgeCheck, title: 'KYC Verified', desc: 'All owners verified with govt. ID. Stay safe, stay smart.' },
+  { icon: Truck, title: 'Moving Help', desc: 'Book professional packers & movers right from the platform.' },
+  { icon: Users, title: 'Roommate Match', desc: 'Find compatible roommates filtered by gender, diet, lifestyle and more.' },
+  { icon: Star, title: 'Rated & Reviewed', desc: 'Real reviews from real tenants. Make informed decisions every time.' },
+];
+
+const TESTIMONIALS = [
+  {
+    name: 'Priya Sharma',
+    role: 'Software Engineer, Pune',
+    text: 'Found my perfect PG in Koregaon Park within 2 days. No broker fees, no hidden charges. RentXY is simply the best!',
+    avatar: '👩‍💻',
+    rating: 5,
+  },
+  {
+    name: 'Rohit Desai',
+    role: 'MBA Student, Mumbai',
+    text: 'The roommate finder is a game changer. Met my roommate through RentXY and we get along great. Saved ₹8,000/month on rent!',
+    avatar: '👨‍🎓',
+    rating: 5,
+  },
+  {
+    name: 'Ananya Kulkarni',
+    role: 'Property Owner, Bangalore',
+    text: 'Listed my flat and got 12 enquiries in 3 days. The platform is clean, fast and the tenants are genuine. Highly recommend!',
+    avatar: '👩‍💼',
+    rating: 5,
+  },
+];
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -15,136 +100,333 @@ const LandingPage = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Hero Section */}
-      <section className="relative pt-24 pb-32 md:pt-32 md:pb-40 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-purple-50 -z-10"></div>
-        
-        {/* Abstract background shapes */}
-        <div className="absolute top-10 left-10 w-96 h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-40 animate-blob"></div>
-        <div className="absolute top-20 right-10 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-40 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-1/3 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-40 animate-blob animation-delay-4000"></div>
+    <div className="flex flex-col min-h-screen overflow-x-hidden">
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 w-full">
-          <div className="inline-flex items-center px-4 py-2 rounded-full glass-premium text-sm font-medium text-primary-700 mb-8 animate-slide-up shadow-sm">
-            <span className="flex h-2 w-2 rounded-full bg-primary-600 mr-2 animate-pulse"></span>
-            The New Way to Find Homes
+      {/* ═══════════════════════════════════════
+          HERO SECTION
+      ═══════════════════════════════════════ */}
+      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-16 pb-24">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-purple-50 -z-10" />
+
+        {/* Floating blobs */}
+        <div className="absolute top-16 left-8 w-72 h-72 sm:w-96 sm:h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-35 animate-blob pointer-events-none" />
+        <div className="absolute top-32 right-8 w-72 h-72 sm:w-96 sm:h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-35 animate-blob animation-delay-2000 pointer-events-none" />
+        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-blob animation-delay-4000 pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center w-full z-10">
+
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 glass-premium rounded-full text-sm font-semibold text-primary-700 mb-7 animate-slide-up shadow-sm border border-primary-100/50">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            India's #1 Zero-Brokerage Rental Platform
           </div>
-          
-          <h1 className="text-5xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 animate-slide-up leading-tight" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
-            Find Your <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-purple-600">Perfect Stay</span>
+
+          {/* Headline */}
+          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-gray-900 tracking-tight leading-[1.05] mb-5 animate-slide-up animation-delay-100">
+            Find Your{' '}
+            <span className="relative inline-block">
+              <span className="gradient-text">Perfect Stay</span>
+              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 9C60 3 180 3 298 9" stroke="#818cf8" strokeWidth="3.5" strokeLinecap="round"/>
+              </svg>
+            </span>
           </h1>
-          <p className="mt-4 max-w-2xl text-lg md:text-xl text-gray-600 mx-auto mb-12 animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-            Discover premium PGs, flats, hostels, or find the ideal roommate. Your next home is just a search away.
+
+          {/* Subheadline */}
+          <p className="text-base sm:text-xl text-gray-500 max-w-2xl mx-auto mb-10 animate-slide-up animation-delay-200 leading-relaxed font-medium">
+            PGs · Flats · Hostels · Roommates — No brokers, no hidden fees.
+            <br className="hidden sm:block" /> Just verified listings and direct connections.
           </p>
 
-          {/* Search Bar - Glassmorphism & Mobile First */}
-          <div className="max-w-4xl mx-auto glass-premium rounded-3xl p-3 md:p-4 flex flex-col md:flex-row gap-3 animate-slide-up w-full" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-            <div className="flex-1 flex items-center bg-white/80 backdrop-blur-md rounded-2xl px-4 py-3.5 border border-white/50 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent transition-all shadow-sm">
-              <MapPin className="text-primary-500 mr-3" size={22} />
-              <input 
+          {/* Search box */}
+          <div className="max-w-3xl mx-auto glass-premium rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl shadow-primary-500/10 border border-white/60">
+            {/* Location input */}
+            <div className="flex-1 flex items-center bg-white/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 focus-within:ring-2 focus-within:ring-primary-400 transition-all">
+              <MapPin size={20} className="text-primary-500 flex-shrink-0" />
+              <input
                 type="text"
                 value={heroLocation}
                 onChange={(e) => setHeroLocation(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleHeroSearch()}
-                placeholder="Where do you want to live?" 
-                className="bg-transparent border-none outline-none w-full text-gray-800 placeholder-gray-400 font-medium"
+                placeholder="Enter city, locality or landmark…"
+                className="bg-transparent border-none outline-none w-full text-gray-800 placeholder-gray-400 font-medium text-sm sm:text-base"
               />
             </div>
-            <div className="flex-1 flex items-center bg-white/80 backdrop-blur-md rounded-2xl px-4 py-3.5 border border-white/50 focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-transparent transition-all shadow-sm">
-              <Home className="text-primary-500 mr-3" size={22} />
-              <select 
+
+            {/* Property type */}
+            <div className="flex items-center bg-white/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 sm:w-48 focus-within:ring-2 focus-within:ring-primary-400 transition-all">
+              <Home size={20} className="text-primary-500 flex-shrink-0" />
+              <select
                 value={heroType}
                 onChange={(e) => setHeroType(e.target.value)}
-                className="bg-transparent border-none outline-none w-full text-gray-800 cursor-pointer font-medium appearance-none"
+                className="bg-transparent border-none outline-none w-full text-gray-700 font-medium cursor-pointer text-sm sm:text-base appearance-none"
               >
-                <option value="">All Property Types</option>
+                <option value="">All Types</option>
                 <option value="pg">PG / Hostel</option>
                 <option value="flat">Flat / Apartment</option>
               </select>
             </div>
-            <button 
+
+            {/* Search button */}
+            <button
               onClick={handleHeroSearch}
-              className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-2xl px-8 py-4 font-bold flex items-center justify-center shadow-lg shadow-primary-600/30 transition-all active:scale-95 md:w-auto w-full text-lg"
+              className="btn-primary rounded-xl sm:rounded-2xl px-7 py-3.5 text-base gap-2 shine-hover flex-shrink-0"
             >
-              <Search className="mr-2" size={20} />
+              <Search size={20} />
               Search
             </button>
           </div>
-        </div>
-      </section>
 
-      {/* Categories Section */}
-      <section className="py-24 bg-white relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">Explore by Category</h2>
-            <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">Everything you need for a comfortable stay, tailored to your lifestyle.</p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Category Card 1 */}
-            <Link to="/listings?type=pg" className="group block h-[350px] rounded-[2rem] overflow-hidden relative shadow-lg animate-slide-up transform transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl">
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
-              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="PGs & Hostels" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className="absolute bottom-0 left-0 p-8 z-20 w-full">
-                <div className="glass-premium inline-block px-3 py-1 rounded-full mb-3 border-white/20">
-                  <span className="text-white text-xs font-bold tracking-wider uppercase">Co-living</span>
-                </div>
-                <h3 className="text-3xl font-bold text-white mb-2 transform transition-transform duration-300 group-hover:translate-x-2">PGs & Hostels</h3>
-                <p className="text-gray-300 flex items-center font-medium transform transition-transform duration-300 delay-75 group-hover:translate-x-2">
-                  Explore options <ArrowRight size={18} className="ml-2 text-primary-400 group-hover:translate-x-2 transition-transform duration-300" />
-                </p>
-              </div>
-            </Link>
-            
-            {/* Category Card 2 */}
-            <Link to="/listings?type=flat" className="group block h-[350px] rounded-[2rem] overflow-hidden relative shadow-lg animate-slide-up transform transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
-              <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" alt="Flats & Apartments" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className="absolute bottom-0 left-0 p-8 z-20 w-full">
-                <div className="glass-premium inline-block px-3 py-1 rounded-full mb-3 border-white/20">
-                  <span className="text-white text-xs font-bold tracking-wider uppercase">Independent</span>
-                </div>
-                <h3 className="text-3xl font-bold text-white mb-2 transform transition-transform duration-300 group-hover:translate-x-2">Flats</h3>
-                <p className="text-gray-300 flex items-center font-medium transform transition-transform duration-300 delay-75 group-hover:translate-x-2">
-                  Explore options <ArrowRight size={18} className="ml-2 text-primary-400 group-hover:translate-x-2 transition-transform duration-300" />
-                </p>
-              </div>
-            </Link>
-
-            {/* Category Card 3 */}
-            <Link to="/roommates" className="group block h-[350px] rounded-[2rem] overflow-hidden relative shadow-lg animate-slide-up transform transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/40 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-90"></div>
-              <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Find Roommates" className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-              <div className="absolute bottom-0 left-0 p-8 z-20 w-full">
-                <div className="glass-premium inline-block px-3 py-1 rounded-full mb-3 border-white/20">
-                  <span className="text-white text-xs font-bold tracking-wider uppercase">Community</span>
-                </div>
-                <h3 className="text-3xl font-bold text-white mb-2 transform transition-transform duration-300 group-hover:translate-x-2">Find Roommates</h3>
-                <p className="text-gray-300 flex items-center font-medium transform transition-transform duration-300 delay-75 group-hover:translate-x-2">
-                  Connect now <ArrowRight size={18} className="ml-2 text-primary-400 group-hover:translate-x-2 transition-transform duration-300" />
-                </p>
-              </div>
-            </Link>
+          {/* Quick pills */}
+          <div className="flex flex-wrap justify-center gap-2 mt-6 animate-slide-up animation-delay-400">
+            {[
+              { to: '/listings', label: '🏠 Browse All', },
+              { to: '/listings?type=pg', label: '🏨 PGs & Hostels' },
+              { to: '/listings?type=flat', label: '🏢 Flats' },
+              { to: '/roommates', label: '🤝 Roommates' },
+            ].map(({ to, label }) => (
+              <Link
+                key={to}
+                to={to}
+                className="inline-flex items-center px-4 py-2 bg-white/85 hover:bg-white border border-gray-200 hover:border-primary-300 text-gray-600 hover:text-primary-700 rounded-full text-sm font-semibold shadow-sm hover:shadow-md transition-all active:scale-95"
+              >
+                {label}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-24 bg-gradient-to-br from-primary-900 to-primary-800 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
-        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
-          <h2 className="text-4xl font-bold text-white mb-6">Are you a Property Owner?</h2>
-          <p className="text-primary-100 text-lg mb-10">
-            List your property on RentXY and reach thousands of verified tenants looking for their next home.
-          </p>
-          <Link to="/post-property" className="inline-flex items-center bg-white text-primary-700 px-8 py-4 rounded-xl font-bold text-lg hover:bg-gray-50 shadow-xl shadow-primary-900/50 transition-all active:scale-95">
-            <Building2 className="mr-2" size={24} />
-            Post Property for Free
-          </Link>
+      {/* ═══════════════════════════════════════
+          STATS BAR
+      ═══════════════════════════════════════ */}
+      <section className="bg-primary-600 py-5">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-0 sm:divide-x sm:divide-primary-500">
+            {STATS.map(({ value, label }) => (
+              <div key={label} className="text-center px-4 py-1">
+                <div className="text-2xl sm:text-3xl font-black text-white">{value}</div>
+                <div className="text-primary-200 text-xs sm:text-sm font-medium mt-0.5">{label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════
+          CATEGORIES
+      ═══════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <div className="section-badge mb-4">✦ Explore</div>
+            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight">
+              Everything You Need,<br className="hidden sm:block" /> In One Place
+            </h2>
+            <p className="mt-4 text-gray-500 text-base sm:text-lg max-w-xl mx-auto">
+              From student PGs to luxury flats — find exactly what fits your lifestyle.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            {CATEGORIES.map(({ to, label, tag, img, color, emoji }, i) => (
+              <Link
+                key={to}
+                to={to}
+                className="group relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[3/4] shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'both' }}
+              >
+                <img
+                  src={img}
+                  alt={label}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                />
+                <div className={`absolute inset-0 bg-gradient-to-t ${color} opacity-80 group-hover:opacity-90 transition-opacity duration-300`} />
+
+                <div className="absolute inset-0 flex flex-col justify-end p-4 sm:p-6">
+                  <span className="text-2xl sm:text-3xl mb-2">{emoji}</span>
+                  <div className="inline-block px-2 py-0.5 bg-white/20 backdrop-blur-sm rounded-full text-[10px] sm:text-xs font-bold text-white uppercase tracking-widest mb-2 w-fit">
+                    {tag}
+                  </div>
+                  <h3 className="text-lg sm:text-2xl font-black text-white leading-tight group-hover:translate-x-1 transition-transform">
+                    {label}
+                  </h3>
+                  <p className="text-white/70 text-xs sm:text-sm mt-1 flex items-center gap-1 group-hover:translate-x-1 transition-transform delay-75">
+                    Explore <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          HOW IT WORKS
+      ═══════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 bg-gradient-to-br from-gray-50 to-primary-50/40">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <div className="section-badge mb-4">✦ Process</div>
+            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight">
+              How It Works
+            </h2>
+            <p className="mt-4 text-gray-500 text-base sm:text-lg">
+              From search to move-in in 4 simple steps.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {HOW_IT_WORKS.map(({ step, icon: Icon, title, desc }, i) => (
+              <div
+                key={step}
+                className="relative bg-white rounded-2xl sm:rounded-3xl p-6 shadow-sm border border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all duration-300 group"
+              >
+                {/* Step number watermark */}
+                <div className="absolute top-4 right-5 text-6xl font-black text-gray-50 select-none leading-none pointer-events-none">{step}</div>
+
+                <div className="w-12 h-12 rounded-2xl bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 mb-5 group-hover:bg-primary-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
+                  <Icon size={22} />
+                </div>
+                <h3 className="font-bold text-gray-900 text-lg mb-2">{title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+
+                {/* Connector arrow — hide on last item */}
+                {i < HOW_IT_WORKS.length - 1 && (
+                  <div className="hidden lg:block absolute -right-3 top-1/2 -translate-y-1/2 z-10 text-primary-300">
+                    <ChevronRight size={24} />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          WHY RENTXY (FEATURES)
+      ═══════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <div className="section-badge mb-4">✦ Why Us</div>
+            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight">
+              Why Choose <span className="gradient-text">RentXY?</span>
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+              <div
+                key={title}
+                className="flex gap-4 p-5 sm:p-6 rounded-2xl border border-gray-100 hover:border-primary-200 hover:bg-primary-50/30 transition-all duration-300 group cursor-default"
+              >
+                <div className="w-11 h-11 rounded-xl bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 flex-shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300">
+                  <Icon size={20} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-gray-900 mb-1">{title}</h3>
+                  <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          TESTIMONIALS
+      ═══════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-900 relative overflow-hidden">
+        {/* Decorative circles */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3 pointer-events-none" />
+
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="text-center mb-14">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/10 border border-white/20 rounded-full text-white/80 text-xs font-bold uppercase tracking-widest mb-4">
+              ✦ Testimonials
+            </div>
+            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+              Loved by Thousands
+            </h2>
+            <p className="mt-3 text-primary-200 text-base sm:text-lg">Real stories from real people</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {TESTIMONIALS.map(({ name, role, text, avatar, rating }) => (
+              <div key={name} className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl sm:rounded-3xl p-6 hover:bg-white/15 transition-all duration-300">
+                {/* Stars */}
+                <div className="flex gap-1 mb-4">
+                  {[...Array(rating)].map((_, i) => (
+                    <Star key={i} size={14} className="text-amber-400 fill-amber-400" />
+                  ))}
+                </div>
+                <p className="text-white/90 text-sm sm:text-base leading-relaxed mb-5">"{text}"</p>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl">
+                    {avatar}
+                  </div>
+                  <div>
+                    <div className="font-bold text-white text-sm">{name}</div>
+                    <div className="text-primary-300 text-xs">{role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
+          OWNER CTA
+      ═══════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 via-primary-700 to-indigo-800 p-10 sm:p-16 text-center shadow-2xl shadow-primary-500/30">
+            {/* Decorative blobs inside card */}
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -translate-x-1/3 translate-y-1/3 pointer-events-none" />
+
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-white/15 border border-white/25 rounded-full text-white/90 text-xs font-bold uppercase tracking-widest mb-6">
+                🏠 For Property Owners
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-black text-white mb-5 tracking-tight">
+                List Your Property<br className="hidden sm:block" /> for Free
+              </h2>
+              <p className="text-primary-100 text-base sm:text-lg mb-8 max-w-xl mx-auto leading-relaxed">
+                Reach thousands of verified tenants across India. No commission, no broker, no nonsense.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link
+                  to="/post-property"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-primary-700 font-black text-base rounded-2xl shadow-xl shadow-black/20 hover:bg-gray-50 transition-all active:scale-95 shine-hover"
+                >
+                  <Building2 size={20} />
+                  Post Property — It's Free
+                </Link>
+                <Link
+                  to="/about"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white/15 backdrop-blur text-white font-bold text-base rounded-2xl border border-white/30 hover:bg-white/25 transition-all active:scale-95"
+                >
+                  Learn More <ArrowRight size={18} />
+                </Link>
+              </div>
+
+              {/* Trust signals */}
+              <div className="flex flex-wrap justify-center gap-4 mt-8 text-white/70 text-sm">
+                {['✅ No broker fees', '✅ Verified tenants', '✅ Live in minutes'].map(t => (
+                  <span key={t} className="font-medium">{t}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 };

@@ -138,23 +138,43 @@ const DashboardPage = () => {
   const [kycPhotoDataUrl, setKycPhotoDataUrl] = useState(null);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
+  const streamRef = useRef(null); // Holds the MediaStream so we can attach it after video mounts
+
+  // Attach stream to <video> element AFTER it mounts (when kycCameraActive becomes true)
+  useEffect(() => {
+    if (kycCameraActive && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      videoRef.current.play().catch(() => {});
+    }
+  }, [kycCameraActive]);
 
   const startCamera = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        videoRef.current.play();
+      // Try back camera first (mobile), fall back to any camera (desktop)
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+      } catch {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
       }
+      // Store stream in ref BEFORE setting state.
+      // The <video> element only mounts after kycCameraActive=true,
+      // so we cannot access videoRef.current yet — the useEffect above handles attachment.
+      streamRef.current = stream;
       setKycCameraActive(true);
     } catch (err) {
-      showModal({ type: 'alert', title: 'Camera Error', message: 'Camera access denied or unavailable. Please use a device with a camera.', onConfirm: closeModal });
+      showModal({ type: 'alert', title: 'Camera Error', message: 'Camera access denied. Please allow camera permission in your browser settings and try again.', onConfirm: closeModal });
     }
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      videoRef.current.srcObject.getTracks().forEach(track => track.stop());
+    // Stop all tracks via streamRef (videoRef may be null after unmount)
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
     }
     setKycCameraActive(false);
   };
