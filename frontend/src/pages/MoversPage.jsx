@@ -70,7 +70,7 @@ const MoversPage = () => {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="md:w-1/2">
-            <span className="bg-primary-800 text-primary-200 px-3 py-1 rounded-full text-sm font-semibold tracking-wide uppercase mb-6 inline-block border border-primary-700">RENTZY Premium Services</span>
+            <span className="bg-primary-800 text-primary-200 px-3 py-1 rounded-full text-sm font-semibold tracking-wide uppercase mb-6 inline-block border border-primary-700">RENTXY Premium Services</span>
             <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">Stress-Free Packing & Moving</h1>
             <p className="text-lg text-primary-100 mb-8 max-w-lg">
               Relocating doesn't have to be a nightmare. Get instant quotes, top-rated professional movers, and 100% damage protection.
@@ -146,7 +146,7 @@ const MoversPage = () => {
       {/* Features Section */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Why choose RENTZY Movers?</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">Why choose RENTXY Movers?</h2>
           <p className="text-gray-500 max-w-2xl mx-auto">We've partnered with the best in the business to ensure your belongings reach safely.</p>
         </div>
         

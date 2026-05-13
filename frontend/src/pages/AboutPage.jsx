@@ -12,13 +12,13 @@ const AboutPage = () => {
         </div>
         <div className="max-w-5xl mx-auto px-4 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm mb-6">
-            <Building2 size={16} /> About Rentzy
+            <Building2 size={16} /> About RentXY
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
             Making Renting <span className="text-primary-200">Simple & Secure</span>
           </h1>
           <p className="text-lg text-primary-100 max-w-2xl mx-auto leading-relaxed">
-            Rentzy is a premium marketplace that connects property owners with tenants, 
+            RentXY is a premium marketplace that connects property owners with tenants, 
             roommates with compatible matches, and movers with those who need help relocating.
           </p>
         </div>
@@ -30,13 +30,13 @@ const AboutPage = () => {
           <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Mission</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              We believe finding a home should be as easy as ordering food online. Rentzy was built
+              We believe finding a home should be as easy as ordering food online. RentXY was built
               to eliminate the hassle of traditional rental hunting — no brokers, no hidden fees, 
               just direct connections between owners and tenants.
             </p>
             <p className="text-gray-600 leading-relaxed">
               Whether you're a student looking for a PG near your college, a professional searching 
-              for a flat near your office, or a family looking for a spacious villa — Rentzy has you covered.
+              for a flat near your office, or a family looking for a spacious villa — RentXY has you covered.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-4">

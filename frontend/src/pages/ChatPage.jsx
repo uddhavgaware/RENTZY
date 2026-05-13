@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Send, MoreVertical, Phone, Video, Info } from 'lucide-react';
+import { Search, Send, MoreVertical, Phone, Video, Info, ArrowLeft } from 'lucide-react';
 import { chatService } from '../services/chatService';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
@@ -8,6 +8,7 @@ const ChatPage = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeChat, setActiveChat] = useState(null);
+  const [showMobileChat, setShowMobileChat] = useState(false);
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -39,6 +40,7 @@ const ChatPage = () => {
         if (userId) {
           const uId = parseInt(userId);
           setActiveChat(uId);
+          setShowMobileChat(true);
           // Add dummy conversation if not in list yet so UI shows them
           if (!convos.find(c => c.id === uId)) {
             setConversations([{ id: uId, name: 'New User', role: 'USER' }, ...convos]);
@@ -103,7 +105,7 @@ const ChatPage = () => {
   return (
     <div className="bg-gray-50 h-[calc(100vh-64px)] flex overflow-hidden">
       {/* Sidebar - Contacts List */}
-      <div className="w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex flex-col flex-shrink-0">
+      <div className={`w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex-col flex-shrink-0 ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Messages</h2>
           <div className="relative">
@@ -125,8 +127,8 @@ const ChatPage = () => {
             conversations.map((contact) => (
               <button 
                 key={contact.id}
-                onClick={() => setActiveChat(contact.id)}
-                className={`w-full flex items-start p-4 border-b border-gray-50 transition-colors text-left ${activeChat === contact.id ? 'bg-primary-50' : 'hover:bg-gray-50'}`}
+                onClick={() => { setActiveChat(contact.id); setShowMobileChat(true); }}
+                className={`w-full flex items-start p-4 border-b border-gray-50 transition-colors text-left ${activeChat === contact.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'border-l-4 border-l-transparent hover:bg-gray-50'}`}
               >
                 <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-4 border-2 border-white shadow-sm flex-shrink-0">
                   {contact.name?.charAt(0) || 'U'}
@@ -144,24 +146,31 @@ const ChatPage = () => {
       </div>
 
       {/* Main Chat Area */}
-      <div className="hidden md:flex flex-1 flex-col bg-white">
+      <div className={`${showMobileChat ? 'flex' : 'hidden'} md:flex flex-1 flex-col bg-white w-full h-full`}>
         {!activeChat ? (
            <div className="flex-1 flex flex-col items-center justify-center bg-gray-50 text-gray-400">
-             <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-               <Info size={32} className="text-gray-300" />
+             <div className="w-24 h-24 rounded-full bg-white shadow-sm flex items-center justify-center mb-6">
+               <Info size={40} className="text-gray-300" />
              </div>
-             <p className="font-medium text-lg">Select a conversation to start chatting</p>
+             <p className="font-medium text-xl text-gray-600">Select a conversation</p>
+             <p className="text-sm mt-2 text-gray-400">Choose a contact to start chatting</p>
            </div>
         ) : (
           <>
             {/* Chat Header */}
-            <div className="h-16 border-b border-gray-100 flex items-center justify-between px-6 flex-shrink-0">
+            <div className="h-20 border-b border-gray-100 flex items-center justify-between px-4 md:px-6 flex-shrink-0 bg-white z-10 shadow-sm">
               <div className="flex items-center">
-                <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-3 border-2 border-white shadow-sm">
+                <button 
+                  className="md:hidden mr-4 text-gray-500 hover:text-gray-900 transition-colors bg-gray-50 hover:bg-gray-100 p-2.5 rounded-full active:scale-95"
+                  onClick={() => setShowMobileChat(false)}
+                >
+                  <ArrowLeft size={20} />
+                </button>
+                <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xl mr-4 border border-primary-200 shadow-sm">
                   {conversations.find(c => c.id === activeChat)?.name?.charAt(0) || 'U'}
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">{conversations.find(c => c.id === activeChat)?.name || 'User'}</h3>
+                  <h3 className="font-bold text-gray-900 text-lg">{conversations.find(c => c.id === activeChat)?.name || 'User'}</h3>
                   <p className="text-xs text-green-500 font-medium">Active now</p>
                 </div>
               </div>
@@ -193,22 +202,22 @@ const ChatPage = () => {
                     
                     if (isMe) {
                       return (
-                        <div key={msg.id || idx} className="flex items-end justify-end">
-                          <div className="bg-primary-600 text-white p-3.5 rounded-2xl rounded-br-sm max-w-[70%] shadow-sm">
-                            <p>{msg.content}</p>
-                            <span className="text-[10px] text-primary-200 block mt-1 text-right">{timeString}</span>
+                        <div key={msg.id || idx} className="flex items-end justify-end mb-2">
+                          <div className="bg-gradient-to-br from-primary-600 to-primary-700 text-white px-5 py-3.5 rounded-2xl rounded-br-sm max-w-[75%] shadow-md shadow-primary-600/20 transform transition-all hover:-translate-y-0.5">
+                            <p className="text-[15px] leading-relaxed">{msg.content}</p>
+                            <span className="text-[10px] text-primary-200 block mt-1.5 text-right font-medium">{timeString}</span>
                           </div>
                         </div>
                       );
                     } else {
                       return (
-                        <div key={msg.id || idx} className="flex items-end">
-                          <div className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center font-bold text-xs mr-2 mb-1 shadow-sm border border-gray-100 flex-shrink-0">
+                        <div key={msg.id || idx} className="flex items-end mb-2">
+                          <div className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center font-bold text-xs mr-3 mb-1 shadow-sm border border-gray-200 flex-shrink-0">
                             {msg.sender?.name?.charAt(0) || 'U'}
                           </div>
-                          <div className="bg-white border border-gray-100 p-3.5 rounded-2xl rounded-bl-sm max-w-[70%] shadow-sm">
-                            <p className="text-gray-800">{msg.content}</p>
-                            <span className="text-[10px] text-gray-400 block mt-1 text-right">{timeString}</span>
+                          <div className="bg-white border border-gray-100 px-5 py-3.5 rounded-2xl rounded-bl-sm max-w-[75%] shadow-md transform transition-all hover:-translate-y-0.5">
+                            <p className="text-[15px] text-gray-800 leading-relaxed">{msg.content}</p>
+                            <span className="text-[10px] text-gray-400 block mt-1.5 text-right font-medium">{timeString}</span>
                           </div>
                         </div>
                       );

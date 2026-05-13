@@ -1,5 +1,45 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon } from 'lucide-react';
+import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon, Map as MapIcon, List, Home, Building2 } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { divIcon } from 'leaflet';
+
+function MapUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
+  return null;
+}
+
+const createCustomIcon = (type) => {
+  let IconComponent = Building2;
+  let colorClass = 'text-gray-500';
+  let borderClass = 'border-gray-500';
+
+  if (type === 'Flat') {
+    IconComponent = Home;
+    colorClass = 'text-blue-500';
+    borderClass = 'border-blue-500';
+  } else if (type === 'PG') {
+    IconComponent = Users;
+    colorClass = 'text-purple-500';
+    borderClass = 'border-purple-500';
+  } else if (type === 'Hostel') {
+    IconComponent = Building2;
+    colorClass = 'text-orange-500';
+    borderClass = 'border-orange-500';
+  }
+
+  const iconHtml = renderToStaticMarkup(<IconComponent size={20} className={colorClass} />);
+
+  return divIcon({
+    html: `<div class="bg-white p-1.5 rounded-full shadow-lg border-2 ${borderClass}">${iconHtml}</div>`,
+    className: 'custom-leaflet-icon',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+  });
+};
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
@@ -15,6 +55,8 @@ const RoommatesPage = () => {
   const [activeImageIndexes, setActiveImageIndexes] = useState({});
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const [searchInput, setSearchInput] = useState('');
+  const [isMapView, setIsMapView] = useState(false);
+  const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => setModalConfig({ isOpen: false });
@@ -63,6 +105,29 @@ const RoommatesPage = () => {
     });
   };
 
+  const handlePostLiveLocation = () => {
+    if (!navigator.geolocation) {
+      showModal({ type: 'alert', title: 'Location Error', message: "Geolocation is not supported by your browser.", onConfirm: closeModal });
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(async (position) => {
+      try {
+        const { latitude, longitude } = position.coords;
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`);
+        const data = await res.json();
+        
+        let neighborhood = data.address.neighbourhood || data.address.suburb || data.address.city_district || data.address.city;
+        if (neighborhood) {
+          setPostFormData(prev => ({...prev, location: neighborhood, latitude, longitude}));
+          setMapCenter([latitude, longitude]);
+        }
+      } catch (err) {
+        console.error("Failed to reverse geocode", err);
+      }
+    });
+  };
+
   const [postFormData, setPostFormData] = useState({
     location: '',
     budget: '',
@@ -71,21 +136,28 @@ const RoommatesPage = () => {
     vacancies: 1,
     totalCapacity: 2,
     targetOccupation: 'Any',
+    targetGender: 'Any',
+    maintenanceIncluded: false,
+    availableFrom: 'Immediately',
     agePreference: '',
+    dietaryPref: 'Any',
     smokingPref: 'Non-Smoking',
     drinkingPref: 'Non-Drinking',
     petsPref: 'No Pets',
     sleepSchedule: 'Flexible',
     cleanlinessLevel: 'Moderate',
-    images: []
+    images: [],
+    latitude: null,
+    longitude: null,
+    propertyType: 'Flat'
   });
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const currentImagesCount = postFormData.images ? postFormData.images.length : 0;
     
-    if (currentImagesCount + files.length > 5) {
-      showModal({ type: 'alert', title: 'Limit Exceeded', message: "You can only upload up to 5 photos for your room/flat.", onConfirm: closeModal });
+    if (currentImagesCount + files.length > 3) {
+      showModal({ type: 'alert', title: 'Limit Exceeded', message: "You can only upload up to 3 photos for your room/flat.", onConfirm: closeModal });
       return;
     }
 
@@ -97,7 +169,7 @@ const RoommatesPage = () => {
         reader.onerror = error => reject(error);
       });
     })).then(base64Images => {
-      const newImages = [...(postFormData.images || []), ...base64Images].slice(0, 5);
+      const newImages = [...(postFormData.images || []), ...base64Images].slice(0, 3);
       setPostFormData({...postFormData, images: newImages});
     });
   };
@@ -144,13 +216,20 @@ const RoommatesPage = () => {
         totalCapacity: parseInt(postFormData.totalCapacity) || null,
         preferences: postFormData.preferences ? postFormData.preferences.split(',').map(p => p.trim()) : [],
         targetOccupation: postFormData.targetOccupation,
+        targetGender: postFormData.targetGender,
+        maintenanceIncluded: postFormData.maintenanceIncluded,
+        availableFrom: postFormData.availableFrom,
         agePreference: postFormData.agePreference,
+        dietaryPref: postFormData.dietaryPref,
         smokingPref: postFormData.smokingPref,
         drinkingPref: postFormData.drinkingPref,
         petsPref: postFormData.petsPref,
         sleepSchedule: postFormData.sleepSchedule,
         cleanlinessLevel: postFormData.cleanlinessLevel,
-        images: postFormData.images
+        images: postFormData.images,
+        latitude: postFormData.latitude,
+        longitude: postFormData.longitude,
+        propertyType: postFormData.propertyType
       };
       await api.post('/roommates', payload);
       setIsModalOpen(false);
@@ -185,8 +264,11 @@ const RoommatesPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header Section */}
-        <div className="text-center py-12 relative">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Find Your Perfect Roommate</h1>
+        <div className="text-center py-16 relative">
+          <div className="inline-flex items-center px-4 py-2 rounded-full glass-premium text-sm font-medium text-primary-700 mb-6 shadow-sm">
+            Community Matching
+          </div>
+          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight">Find Your Perfect Roommate</h1>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
             Connect with like-minded people looking to share a space in your preferred location.
           </p>
@@ -202,7 +284,7 @@ const RoommatesPage = () => {
         </div>
 
         {/* 💡 Split Rent Info Banner */}
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-5 mb-8 flex items-start gap-4">
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-3xl p-6 mb-10 flex items-start gap-5 shadow-sm hover:shadow-md transition-shadow">
           <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
             <Users size={20} className="text-green-600" />
           </div>
@@ -218,7 +300,7 @@ const RoommatesPage = () => {
         </div>
 
         {/* Search & Filters */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 mb-10">
+        <div className="glass-card rounded-3xl p-4 md:p-6 mb-12 border border-white/40 shadow-sm relative z-20">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative">
               <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -248,10 +330,29 @@ const RoommatesPage = () => {
                 <option value="15k+">₹15,000+</option>
               </select>
             </div>
-            <button onClick={handleSearch} className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-xl font-medium flex items-center justify-center transition-colors shadow-sm">
-              <Search className="mr-2" size={20} />
-              Search
-            </button>
+            
+            <div className="flex items-center gap-3">
+              <div className="bg-gray-100 p-1 rounded-xl flex items-center shadow-sm h-full">
+                <button 
+                  onClick={() => setIsMapView(false)}
+                  className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${!isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  <List size={18} className="md:mr-2" />
+                  <span className="hidden md:inline">List</span>
+                </button>
+                <button 
+                  onClick={() => setIsMapView(true)}
+                  className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                >
+                  <MapIcon size={18} className="md:mr-2" />
+                  <span className="hidden md:inline">Map</span>
+                </button>
+              </div>
+              <button onClick={handleSearch} className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 h-full rounded-xl font-medium flex items-center justify-center transition-colors shadow-sm">
+                <Search className="md:mr-2" size={20} />
+                <span className="hidden md:inline">Search</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -266,6 +367,39 @@ const RoommatesPage = () => {
           </div>
         ) : (
           <>
+          {isMapView ? (
+            <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
+              <MapContainer center={mapCenter} zoom={12} style={{ height: "100%", width: "100%" }}>
+                <MapUpdater center={mapCenter} />
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
+                {roommates.map(roommate => {
+                  if (!roommate.latitude || !roommate.longitude) return null;
+                  return (
+                    <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon(roommate.propertyType)}>
+                      <Popup className="roommate-popup">
+                         <div className="p-2 min-w-[200px]">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="font-bold text-lg text-gray-900">{roommate.user?.name || 'User'}</div>
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 border border-gray-200 text-gray-700">
+                                {roommate.propertyType || 'Room'}
+                              </span>
+                            </div>
+                            <div className="text-sm text-gray-600 mb-2 font-medium">{roommate.location}</div>
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {roommate.targetGender !== 'Any' && <span className="bg-primary-50 text-primary-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.targetGender}</span>}
+                              {roommate.dietaryPref !== 'Any' && <span className="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.dietaryPref}</span>}
+                            </div>
+                            {roommate.availableFrom && <div className="text-xs text-green-600 font-bold mb-2">⏱ Move-in: {roommate.availableFrom}</div>}
+                            <div className="text-primary-700 font-bold mb-3 text-lg">₹{roommate.budget}/mo</div>
+                            <button onClick={() => window.location.href = `/messages?user=${roommate.user?.id}`} className="w-full bg-primary-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm">Message</button>
+                         </div>
+                      </Popup>
+                    </Marker>
+                  )
+                })}
+              </MapContainer>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {roommates.map(roommate => {
               const isOwner = user?.email === roommate.user?.email;
@@ -289,22 +423,25 @@ const RoommatesPage = () => {
               const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
 
               return (
-                <div key={roommate.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-lg transition-shadow relative overflow-hidden">
+                <div key={roommate.id} className="glass-card bg-white/80 rounded-3xl p-6 border border-gray-100 relative overflow-hidden group">
                   <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-100 to-transparent rounded-bl-full -z-10 opacity-50"></div>
                   
                   {/* Header */}
-                  <div className="flex items-center justify-between mb-4 relative z-10">
+                  <div className="flex items-start justify-between mb-6">
                     <div className="flex items-center">
-                      <div className="w-16 h-16 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm">
+                      <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-2xl flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm shadow-primary-200/50">
                         {roommate.user?.name?.charAt(0) || 'U'}
                       </div>
                       <div>
-                        <h3 className="font-bold text-lg text-gray-900 flex items-center gap-1">
-                          {roommate.user?.name || 'Unknown User'}
+                        <div className="flex items-center gap-1.5">
+                          <h3 className="text-xl font-bold text-gray-900">{roommate.user?.name || 'User'}</h3>
                           {roommate.user?.kycStatus === 'APPROVED' && (
-                            <span className="flex items-center gap-1 text-green-600 text-sm font-medium ml-2"><BadgeCheck size={18} className="text-green-500 fill-green-100" /> Verified</span>
+                            <div className="group relative flex items-center">
+                              <BadgeCheck size={20} className="text-blue-500 fill-blue-50" />
+                              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-gray-900 text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">ID Verified</span>
+                            </div>
                           )}
-                        </h3>
+                        </div>
                         <p className="text-gray-500 text-sm">
                           {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
                         </p>
@@ -383,7 +520,7 @@ const RoommatesPage = () => {
                     <div className="flex items-start">
                       <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
                       <div>
-                        <span className="text-xs text-gray-500 block">Total Rent</span>
+                        <span className="text-xs text-gray-500 block">Total Rent {roommate.maintenanceIncluded ? '(Inc. Maintenance)' : '(Plus Maintenance)'}</span>
                         <span className="font-medium text-gray-800">₹{displayBudget}</span>
                       </div>
                     </div>
@@ -409,7 +546,11 @@ const RoommatesPage = () => {
                   <div className="mb-6">
                     <span className="text-xs text-gray-500 block mb-2">Preferences & Lifestyle</span>
                     <div className="flex flex-wrap gap-2">
+                      {roommate.availableFrom && <span className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200 flex items-center gap-1 font-medium">⏱ Move-in: {roommate.availableFrom}</span>}
                       {roommate.targetOccupation && <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">Prefers {roommate.targetOccupation}</span>}
+                      {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="px-3 py-1 bg-pink-50 text-pink-700 text-xs rounded-full border border-pink-200">Prefers {roommate.targetGender}</span>}
+                      {roommate.agePreference && <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-200">Age: {roommate.agePreference}</span>}
+                      {roommate.dietaryPref && roommate.dietaryPref !== 'Any' && <span className="px-3 py-1 bg-orange-50 text-orange-700 text-xs rounded-full border border-orange-200">{roommate.dietaryPref}</span>}
                       {roommate.smokingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.smokingPref}</span>}
                       {roommate.drinkingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.drinkingPref}</span>}
                       {roommate.petsPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.petsPref}</span>}
@@ -435,7 +576,8 @@ const RoommatesPage = () => {
                 </div>
               );
             })}
-          </div>
+            </div>
+          )}
           {hasMore && (
             <div className="mt-10 flex justify-center">
               <button
@@ -458,15 +600,15 @@ const RoommatesPage = () => {
       {/* Post Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-fadeIn">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+          <div className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-fadeIn">
+            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
               <h2 className="text-xl font-bold text-gray-900">Post Roommate Request</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
                 <X size={24} />
               </button>
             </div>
             
-            <form onSubmit={handlePostSubmit} className="p-6 space-y-5">
+            <form onSubmit={handlePostSubmit} className="p-6 space-y-5 overflow-y-auto">
               {/* Split rent preview inside modal */}
               {postFormData.budget && postFormData.totalCapacity > 1 && (
                 <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-700 flex items-center gap-2">
@@ -477,19 +619,45 @@ const RoommatesPage = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Target Location</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                  <input 
-                    type="text" 
-                    required
-                    value={postFormData.location}
-                    onChange={(e) => setPostFormData({...postFormData, location: e.target.value})}
-                    placeholder="e.g. Hinjewadi, Pune" 
-                    className="w-full pl-10 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                  />
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                    <input 
+                      type="text" 
+                      required
+                      value={postFormData.location}
+                      onChange={(e) => setPostFormData({...postFormData, location: e.target.value})}
+                      placeholder="e.g. Hinjewadi, Pune" 
+                      className="w-full pl-10 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
+                    />
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={handlePostLiveLocation}
+                    className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl flex items-center justify-center transition-colors shadow-sm"
+                    title="Use my current location"
+                  >
+                    <Navigation size={18} />
+                  </button>
                 </div>
               </div>
               
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Property Type</label>
+                  <select 
+                    value={postFormData.propertyType || 'Flat'}
+                    onChange={(e) => setPostFormData({...postFormData, propertyType: e.target.value})}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all appearance-none bg-white"
+                  >
+                    <option value="Flat">Flat / Apartment</option>
+                    <option value="PG">Paying Guest (PG)</option>
+                    <option value="Hostel">Hostel</option>
+                    <option value="Room">Private Room</option>
+                  </select>
+                </div>
+              </div>
+
               <div className="flex gap-4">
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Total Rent</label>
@@ -556,6 +724,42 @@ const RoommatesPage = () => {
                   </select>
                 </div>
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Target Gender</label>
+                  <select value={postFormData.targetGender} onChange={(e) => setPostFormData({...postFormData, targetGender: e.target.value})} className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none">
+                    <option value="Any">Any</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Age Preference</label>
+                  <input type="text" value={postFormData.agePreference} onChange={(e) => setPostFormData({...postFormData, agePreference: e.target.value})} placeholder="e.g. 20-30" className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Maintenance</label>
+                  <select value={postFormData.maintenanceIncluded ? 'Included' : 'Not Included'} onChange={(e) => setPostFormData({...postFormData, maintenanceIncluded: e.target.value === 'Included'})} className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none">
+                    <option value="Not Included">Not Included</option>
+                    <option value="Included">Included</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Move-in Date</label>
+                  <select value={postFormData.availableFrom} onChange={(e) => setPostFormData({...postFormData, availableFrom: e.target.value})} className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none">
+                    <option value="Immediately">Immediately</option>
+                    <option value="Within 15 Days">Within 15 Days</option>
+                    <option value="Next Month">Next Month</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Dietary Pref</label>
+                  <select value={postFormData.dietaryPref} onChange={(e) => setPostFormData({...postFormData, dietaryPref: e.target.value})} className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none">
+                    <option value="Any">Any</option>
+                    <option value="Vegetarian">Vegetarian</option>
+                    <option value="Non-Vegetarian">Non-Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Smoking</label>
                   <select value={postFormData.smokingPref} onChange={(e) => setPostFormData({...postFormData, smokingPref: e.target.value})} className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none">
                     <option value="Non-Smoking">Non-Smoking</option>
@@ -569,7 +773,7 @@ const RoommatesPage = () => {
                     <option value="Drinking Okay">Drinking Okay</option>
                   </select>
                 </div>
-                <div>
+                <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">Pets</label>
                   <select value={postFormData.petsPref} onChange={(e) => setPostFormData({...postFormData, petsPref: e.target.value})} className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none">
                     <option value="No Pets">No Pets</option>

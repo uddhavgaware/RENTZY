@@ -110,7 +110,7 @@ const AuthPage = () => {
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          {activeTab === 'mobile' ? 'Welcome to Rentzy' : isLogin ? 'Welcome back to Rentzy' : 'Create your Rentzy account'}
+          {activeTab === 'mobile' ? 'Welcome to RentXY' : isLogin ? 'Welcome back to RentXY' : 'Create your RentXY account'}
         </h2>
         {activeTab === 'email' && (
           <p className="mt-2 text-center text-sm text-gray-600">

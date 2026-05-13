@@ -6,11 +6,11 @@ const faqs = [
     category: 'Getting Started',
     items: [
       {
-        q: 'How do I create an account on Rentzy?',
+        q: 'How do I create an account on RentXY?',
         a: 'Click the "Login / Signup" button in the top-right corner of the page. You can sign up using your email and password, your mobile number via OTP, or your Google account. After signing up, you\'ll need to complete your profile before accessing all features.'
       },
       {
-        q: 'Is Rentzy free to use?',
+        q: 'Is RentXY free to use?',
         a: 'Yes! Browsing properties, finding roommates, and creating an account is completely free. Property owners can list their properties at no cost. We only charge a small service fee when a booking is confirmed through our platform.'
       },
       {
@@ -61,7 +61,7 @@ const faqs = [
         a: 'Visit the "Movers" page to submit a moving request with your current location, destination, moving date, and property size. Registered movers on our platform will be able to view and accept your request, providing quotes for the service.'
       },
       {
-        q: 'How do I become a mover on Rentzy?',
+        q: 'How do I become a mover on RentXY?',
         a: 'Register with the "Mover" role during signup. Once your profile is complete, you\'ll have access to the Mover Dashboard where you can view and manage incoming moving requests.'
       },
     ]
@@ -104,7 +104,7 @@ const FaqPage = () => {
             <HelpCircle size={16} /> Help Center
           </div>
           <h1 className="text-4xl font-bold mb-4">Frequently Asked Questions</h1>
-          <p className="text-primary-100 mb-8">Everything you need to know about using Rentzy</p>
+          <p className="text-primary-100 mb-8">Everything you need to know about using RentXY</p>
           <div className="relative max-w-lg mx-auto">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input

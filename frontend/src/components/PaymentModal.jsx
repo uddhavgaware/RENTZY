@@ -21,7 +21,7 @@ const PaymentModal = ({ listing, bookingId, onClose }) => {
         key: keyId,
         amount: amount,
         currency: currency,
-        name: 'RENTZY',
+        name: 'RENTXY',
         description: listing.title,
         order_id: orderId,
         handler: async (response) => {
@@ -87,7 +87,7 @@ const PaymentModal = ({ listing, bookingId, onClose }) => {
               <CreditCard size={22} />
             </div>
             <div>
-              <p className="text-white/70 text-xs uppercase tracking-wider">RENTZY Secure Checkout</p>
+              <p className="text-white/70 text-xs uppercase tracking-wider">RENTXY Secure Checkout</p>
               <p className="font-bold text-lg">{listing.title}</p>
             </div>
           </div>

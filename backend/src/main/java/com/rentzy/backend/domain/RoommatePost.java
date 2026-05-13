@@ -29,6 +29,11 @@ public class RoommatePost {
     private Double deposit;
 
     private String location;
+    
+    private String propertyType;
+    
+    private Double latitude;
+    private Double longitude;
 
     private Integer vacancies;
     
@@ -39,9 +44,14 @@ public class RoommatePost {
 
     // Demographic preferences
     private String targetOccupation; // Student, Professional, Any
+    private String targetGender; // Male, Female, Any
     private String agePreference;
+    
+    private Boolean maintenanceIncluded;
+    private String availableFrom; // Immediately, Within 15 Days, Next Month
 
     // Lifestyle preferences
+    private String dietaryPref; // Any, Vegetarian, Non-Vegetarian, Vegan
     private String smokingPref;
     private String drinkingPref;
     private String petsPref;

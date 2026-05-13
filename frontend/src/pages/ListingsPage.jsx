@@ -217,7 +217,7 @@ const ListingsPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Search Header */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-6 mb-6 mt-4">
+        <div className="glass-card rounded-3xl p-4 md:p-6 mb-6 mt-4 relative z-20">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1 relative" ref={suggestionsRef}>
               <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -450,7 +450,7 @@ const ListingsPage = () => {
           <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-sm z-0 relative">
             
             {/* Map Search Overlay */}
-            <div className="absolute top-4 left-16 z-[1000] bg-white rounded-xl shadow-lg border border-gray-200 p-2 flex items-center w-64 md:w-80 transition-all focus-within:ring-2 focus-within:ring-primary-500">
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-2.5 flex items-center w-[90%] md:w-80 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50">
               <Search size={18} className="text-gray-400 ml-2 mr-2" />
               <input 
                 type="text" 

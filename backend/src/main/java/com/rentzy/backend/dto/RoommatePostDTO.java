@@ -12,11 +12,18 @@ public class RoommatePostDTO {
     private Double budget;
     private Double deposit;
     private String location;
+    private String propertyType;
+    private Double latitude;
+    private Double longitude;
     private Integer vacancies;
     private Integer totalCapacity;
     private List<String> preferences;
     private String targetOccupation;
+    private String targetGender;
+    private Boolean maintenanceIncluded;
+    private String availableFrom;
     private String agePreference;
+    private String dietaryPref;
     private String smokingPref;
     private String drinkingPref;
     private String petsPref;
@@ -44,11 +51,18 @@ public class RoommatePostDTO {
             .budget(post.getBudget())
             .deposit(post.getDeposit())
             .location(post.getLocation())
+            .propertyType(post.getPropertyType())
+            .latitude(post.getLatitude())
+            .longitude(post.getLongitude())
             .vacancies(post.getVacancies())
             .totalCapacity(post.getTotalCapacity())
             .preferences(post.getPreferences())
             .targetOccupation(post.getTargetOccupation())
+            .targetGender(post.getTargetGender())
+            .maintenanceIncluded(post.getMaintenanceIncluded())
+            .availableFrom(post.getAvailableFrom())
             .agePreference(post.getAgePreference())
+            .dietaryPref(post.getDietaryPref())
             .smokingPref(post.getSmokingPref())
             .drinkingPref(post.getDrinkingPref())
             .petsPref(post.getPetsPref())

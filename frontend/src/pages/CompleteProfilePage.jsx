@@ -99,7 +99,7 @@ const CompleteProfilePage = () => {
                 <div className="mt-1">
                   <input type="email" name="email" value={formData.email} onChange={handleChange} required
                     className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-primary-500 focus:border-primary-500" placeholder="you@example.com" />
-                  {formData.email.endsWith('@rentzy.local') && (
+                  {formData.email.endsWith('@rentxy.local') && (
                     <p className="text-xs text-red-500 mt-1">Please provide a valid email address.</p>
                   )}
                 </div>

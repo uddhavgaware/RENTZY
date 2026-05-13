@@ -13,7 +13,7 @@ const Footer = () => {
                 <Building2 size={24} />
               </div>
               <span className="font-bold text-2xl tracking-tight text-white">
-                RENTZY
+                RENTXY
               </span>
             </Link>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">
@@ -79,7 +79,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm text-center md:text-left mb-4 md:mb-0">
-            &copy; {new Date().getFullYear()} Rentzy. All rights reserved.
+            &copy; {new Date().getFullYear()} RentXY. All rights reserved.
           </p>
           <div className="flex space-x-6 text-sm text-gray-500">
             <span>Built with React & Spring Boot</span>

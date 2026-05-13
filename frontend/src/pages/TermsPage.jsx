@@ -5,31 +5,31 @@ const TermsPage = () => {
   const sections = [
     {
       title: '1. Acceptance of Terms',
-      content: `By accessing and using the Rentzy platform ("Service"), you agree to be legally bound by these Terms of Service. If you do not agree to these terms, please refrain from using our platform immediately. Rentzy reserves the right to update or modify these terms at any time without prior notice. Your continued use of the Service after any such modifications constitutes your legally binding acceptance of the new terms.`
+      content: `By accessing and using the RentXY platform ("Service"), you agree to be legally bound by these Terms of Service. If you do not agree to these terms, please refrain from using our platform immediately. RentXY reserves the right to update or modify these terms at any time without prior notice. Your continued use of the Service after any such modifications constitutes your legally binding acceptance of the new terms.`
     },
     {
       title: '2. Liability & Dispute Disclaimer',
-      content: `Rentzy functions solely as an introductory marketplace to connect prospective tenants with property owners and movers. We are strictly not a party to any lease, rental, or moving agreements signed between users. RENTZY IS NOT RESPONSIBLE FOR ANY PROBLEMS, DISPUTES, OR FINANCIAL LOSSES AFTER BOOKING AND PAYMENT ARE DONE. Any disputes regarding property condition, unpaid rent, or breach of contract must be resolved directly between the tenant and the owner/vendor.`
+      content: `RentXY functions solely as an introductory marketplace to connect prospective tenants with property owners and movers. We are strictly not a party to any lease, rental, or moving agreements signed between users. RENTXY IS NOT RESPONSIBLE FOR ANY PROBLEMS, DISPUTES, OR FINANCIAL LOSSES AFTER BOOKING AND PAYMENT ARE DONE. Any disputes regarding property condition, unpaid rent, or breach of contract must be resolved directly between the tenant and the owner/vendor.`
     },
     {
       title: '3. Booking & Payment Policies',
-      content: `All monetary transactions, deposits, and rent payments are direct agreements between the tenant and the owner. WE EXPRESSLY DISCLAIM ALL LIABILITY FOR REFUNDS. Once a booking or payment is processed, whether online or offline, Rentzy assumes zero responsibility for refunds, partial returns, or chargebacks under any circumstances.`
+      content: `All monetary transactions, deposits, and rent payments are direct agreements between the tenant and the owner. WE EXPRESSLY DISCLAIM ALL LIABILITY FOR REFUNDS. Once a booking or payment is processed, whether online or offline, RentXY assumes zero responsibility for refunds, partial returns, or chargebacks under any circumstances.`
     },
     {
       title: '4. Property Listings and Accuracy',
-      content: `Property owners and agents who list on Rentzy must ensure that all listing information is accurate, up-to-date, and not misleading. Rentzy does not verify the physical condition, legality, or safety of listed properties. Listing fraudulent or misrepresented properties constitutes a violation of these terms and may result in immediate account termination, withholding of funds, and legal action.`
+      content: `Property owners and agents who list on RentXY must ensure that all listing information is accurate, up-to-date, and not misleading. RentXY does not verify the physical condition, legality, or safety of listed properties. Listing fraudulent or misrepresented properties constitutes a violation of these terms and may result in immediate account termination, withholding of funds, and legal action.`
     },
     {
       title: '5. KYC Verification',
-      content: `Rentzy offers an optional KYC (Know Your Customer) verification system utilizing government-issued identification. A "Verified" badge strictly indicates that the user's uploaded identity matches public records at the time of verification. It DOES NOT constitute an endorsement, guarantee, or warranty of the user's character, financial stability, or reliability. You must conduct your own independent background checks.`
+      content: `RentXY offers an optional KYC (Know Your Customer) verification system utilizing government-issued identification. A "Verified" badge strictly indicates that the user's uploaded identity matches public records at the time of verification. It DOES NOT constitute an endorsement, guarantee, or warranty of the user's character, financial stability, or reliability. You must conduct your own independent background checks.`
     },
     {
       title: '6. Roommate Matching Risk Acknowledgment',
-      content: `The roommate matching feature is provided entirely "as-is". Rentzy does not verify the accuracy of roommate preferences, lifestyle information, or criminal backgrounds of users. Users assume all risks associated with meeting and cohabitating with individuals found through this platform. Users are advised to exercise extreme caution and due diligence.`
+      content: `The roommate matching feature is provided entirely "as-is". RentXY does not verify the accuracy of roommate preferences, lifestyle information, or criminal backgrounds of users. Users assume all risks associated with meeting and cohabitating with individuals found through this platform. Users are advised to exercise extreme caution and due diligence.`
     },
     {
       title: '7. Indemnification',
-      content: `You agree to indemnify, defend, and hold harmless Rentzy, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including, without limitation, reasonable legal and accounting fees, arising out of or in any way connected with your access to or use of the Platform or your violation of these Terms.`
+      content: `You agree to indemnify, defend, and hold harmless RentXY, its officers, directors, employees, and agents from and against any claims, liabilities, damages, losses, and expenses, including, without limitation, reasonable legal and accounting fees, arising out of or in any way connected with your access to or use of the Platform or your violation of these Terms.`
     },
     {
       title: '8. Governing Law',
@@ -56,7 +56,7 @@ const TermsPage = () => {
           <div className="flex items-start gap-3 p-4 bg-amber-50 border border-amber-100 rounded-xl mb-8">
             <AlertTriangle className="text-amber-500 flex-shrink-0 mt-0.5" size={20} />
             <p className="text-sm text-amber-800">
-              Please read these terms carefully before using the Rentzy platform. By using our service, you agree to be bound by these terms and conditions.
+              Please read these terms carefully before using the RentXY platform. By using our service, you agree to be bound by these terms and conditions.
             </p>
           </div>
 
@@ -73,7 +73,7 @@ const TermsPage = () => {
 
           <div className="mt-12 pt-8 border-t border-gray-100 flex items-center gap-3 text-sm text-gray-500">
             <Shield size={16} className="text-primary-500" />
-            <span>Rentzy is committed to protecting your rights and ensuring a safe marketplace experience.</span>
+            <span>RentXY is committed to protecting your rights and ensuring a safe marketplace experience.</span>
           </div>
         </div>
       </div>

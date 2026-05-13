@@ -89,7 +89,7 @@ const Navbar = () => {
           </div>
         </div>
       )}
-    <nav className="sticky top-0 z-50 w-full glass bg-white/80">
+    <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -97,7 +97,7 @@ const Navbar = () => {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
                 <Building2 size={24} />
               </div>
-              <span className="font-bold text-2xl tracking-tight text-gray-900">RENTZY</span>
+              <span className="font-bold text-2xl tracking-tight text-gray-900">RENTXY</span>
             </Link>
             <div className="hidden md:ml-10 md:flex md:space-x-8">
               {navLinks.map((link) => (
@@ -174,7 +174,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden glass absolute top-16 w-full border-t border-gray-100">
+        <div className="md:hidden absolute top-16 left-0 right-0 w-full border-t border-gray-100 bg-white/95 backdrop-blur-xl shadow-2xl z-[100]">
           <div className="pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
               <Link key={link.name} to={link.path} className={cn("block pl-3 pr-4 py-2 border-l-4 text-base font-medium", location.pathname === link.path ? "border-primary-500 text-primary-700 bg-primary-50" : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700")} onClick={() => setIsOpen(false)}>{link.name}</Link>
