@@ -31,10 +31,10 @@ const createCustomIcon = (type) => {
     IconComponent = Home;
     colorClass = 'text-blue-500';
     borderClass = 'border-blue-500';
-  } else if (type === 'PG') {
+  } else if (type === 'Room') {
     IconComponent = Users;
-    colorClass = 'text-purple-500';
-    borderClass = 'border-purple-500';
+    colorClass = 'text-red-500';
+    borderClass = 'border-red-500';
   } else if (type === 'Hostel') {
     IconComponent = Building2;
     colorClass = 'text-orange-500';
@@ -396,6 +396,14 @@ const RoommatesPage = () => {
           {isMapView ? (
             <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
               {/* Map Search Overlay */}
+              <div className="absolute top-4 right-4 z-[1000] glass-premium rounded-xl p-3 flex flex-col gap-2 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-700">
+                 <div className="flex items-center gap-2">
+                   <div className="w-3 h-3 rounded-full bg-blue-500 border border-white shadow-sm"></div> Flat
+                 </div>
+                 <div className="flex items-center gap-2">
+                   <div className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm"></div> Roommate Request
+                 </div>
+              </div>
               <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
                 <div className="pl-3 pr-2 text-gray-400">
                   <MapPin size={18} className="text-primary-500" />
@@ -709,6 +717,23 @@ const RoommatesPage = () => {
                   </div>
                 </div>
 
+                {/* Embedded Post Map */}
+                <div className="mt-4 h-[200px] w-full rounded-xl overflow-hidden border-2 border-primary-200 relative z-0">
+                  <MapContainer center={mapCenter} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
+                    <CustomZoomControl />
+                    <MapUpdater center={mapCenter} />
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <Marker 
+                       position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter} 
+                       icon={createCustomIcon(postFormData.propertyType)}
+                    />
+                  </MapContainer>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-primary-700 shadow-md border border-primary-100 flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${postFormData.propertyType === 'Room' ? 'bg-red-500' : 'bg-blue-500'}`}></div>
+                    {postFormData.propertyType === 'Room' ? 'Roommate Request' : 'Flat'}
+                  </div>
+                </div>
+
                 {/* Section: Property */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
@@ -717,11 +742,11 @@ const RoommatesPage = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     {/* Property Type as cards */}
-                    {['Flat', 'PG', 'Hostel', 'Room'].map(type => (
+                    {['Flat', 'Room'].map(type => (
                       <button key={type} type="button"
                         onClick={() => setPostFormData({...postFormData, propertyType: type})}
                         className={`py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all ${postFormData.propertyType === type ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
-                        {type === 'Flat' ? '🏠 Flat' : type === 'PG' ? '👥 PG' : type === 'Hostel' ? '🏨 Hostel' : '🚪 Room'}
+                        {type === 'Flat' ? '🏠 Flat' : '🚪 Room'}
                       </button>
                     ))}
                   </div>

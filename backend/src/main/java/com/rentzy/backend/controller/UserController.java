@@ -197,4 +197,19 @@ public class UserController {
                 Map.entry("kycStatus", user.getKycStatus())
         ));
     }
+
+    // Request account deletion
+    @PostMapping("/request-delete")
+    public ResponseEntity<?> requestDelete(@RequestHeader("Authorization") String token) {
+        try {
+            String jwt = token.substring(7);
+            String email = jwtUtil.extractUsername(jwt);
+            User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+            user.setDeleteRequested(true);
+            userRepository.save(user);
+            return ResponseEntity.ok(Map.of("message", "Account deletion request submitted. An admin will process it shortly."));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("message", "Unauthorized"));
+        }
+    }
 }

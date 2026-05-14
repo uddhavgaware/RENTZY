@@ -28,6 +28,38 @@ const DashboardPage = () => {
   const [movingRequests, setMovingRequests] = useState([]);
   const [loadingMoving, setLoadingMoving] = useState(false);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
+  const [userSettings, setUserSettings] = useState({
+    emailNotifications: true,
+    smsAlerts: false,
+    darkMode: localStorage.getItem('theme') === 'dark'
+  });
+
+  useEffect(() => {
+    if (userSettings.darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [userSettings.darkMode]);
+
+  const handleDeleteAccount = async () => {
+    try {
+      await api.post('/users/request-delete');
+      showModal({ 
+        type: 'alert', 
+        title: 'Request Submitted', 
+        message: 'Your account deletion request has been submitted to the admin team and will be processed shortly. You will be logged out now.',
+        onConfirm: () => {
+          closeModal();
+          logout();
+        }
+      });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to submit deletion request.', onConfirm: closeModal });
+    }
+  };
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => setModalConfig({ isOpen: false });
@@ -763,7 +795,10 @@ const DashboardPage = () => {
                           <p className="text-sm text-gray-500">Receive booking and property updates via email.</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" defaultChecked />
+                          <input type="checkbox" className="sr-only peer" 
+                            checked={userSettings.emailNotifications}
+                            onChange={(e) => setUserSettings({...userSettings, emailNotifications: e.target.checked})}
+                          />
                           <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
                       </div>
@@ -773,7 +808,10 @@ const DashboardPage = () => {
                           <p className="text-sm text-gray-500">Get important updates delivered to your phone.</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" />
+                          <input type="checkbox" className="sr-only peer"
+                            checked={userSettings.smsAlerts}
+                            onChange={(e) => setUserSettings({...userSettings, smsAlerts: e.target.checked})}
+                          />
                           <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
                       </div>
@@ -783,7 +821,10 @@ const DashboardPage = () => {
                           <p className="text-sm text-gray-500">Toggle dark mode for a better nighttime experience.</p>
                         </div>
                         <label className="relative inline-flex items-center cursor-pointer">
-                          <input type="checkbox" className="sr-only peer" />
+                          <input type="checkbox" className="sr-only peer" 
+                            checked={userSettings.darkMode}
+                            onChange={(e) => setUserSettings({...userSettings, darkMode: e.target.checked})}
+                          />
                           <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
                         </label>
                       </div>
@@ -823,7 +864,7 @@ const DashboardPage = () => {
                         <p className="font-medium text-red-800">Delete Account</p>
                         <p className="text-sm text-red-600">Permanently remove your account and all data.</p>
                       </div>
-                      <button onClick={() => showModal({ type: 'confirm', title: 'Delete Account', message: 'Are you sure you want to delete your account? This action cannot be undone.', onConfirm: closeModal, onCancel: closeModal })} className="text-sm font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg shadow-sm transition-colors active:scale-95">Delete Account</button>
+                      <button onClick={() => showModal({ type: 'confirm', title: 'Delete Account', message: 'Are you sure you want to request account deletion? Your data will be permanently removed.', onConfirm: () => { closeModal(); handleDeleteAccount(); }, onCancel: closeModal })} className="text-sm font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg shadow-sm transition-colors active:scale-95">Delete Account</button>
                     </div>
                   </div>
                 </div>

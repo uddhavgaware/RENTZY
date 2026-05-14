@@ -72,6 +72,10 @@ public class User implements UserDetails {
 
     @Column
     @Builder.Default
+    private Boolean deleteRequested = false;
+
+    @Column
+    @Builder.Default
     private Boolean isEmailVerified = false;
 
     @Column

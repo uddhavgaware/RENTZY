@@ -264,6 +264,7 @@ const AdminDashboardPage = () => {
   const tabs = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'users', label: 'Users', icon: Users },
+    { id: 'delete-requests', label: 'Delete Requests', icon: Trash2 },
     { id: 'listings', label: 'Listings', icon: Home },
     { id: 'bookings', label: 'Bookings', icon: DollarSign },
     { id: 'moving', label: 'Movers', icon: Truck },
@@ -571,6 +572,63 @@ const AdminDashboardPage = () => {
                                 </div>
                               </div>
                             )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Delete Requests Tab */}
+            {activeTab === 'delete-requests' && (
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-6">
+                <div className="p-6 border-b border-gray-100">
+                  <h2 className="text-lg font-bold text-red-600 flex items-center gap-2">
+                    <Trash2 size={20} /> Account Deletion Requests
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-1">Users who have requested their accounts to be deleted.</p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Info</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50">
+                      {users.filter(u => u.deleteRequested).length === 0 ? (
+                        <tr>
+                          <td colSpan={3} className="text-center py-12 text-gray-400">No pending deletion requests.</td>
+                        </tr>
+                      ) : users.filter(u => u.deleteRequested).map(u => (
+                        <tr key={u.id} className="hover:bg-red-50/30 transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-9 h-9 rounded-full bg-red-100 text-red-700 flex items-center justify-center font-bold text-sm">
+                                {u.name?.charAt(0)}
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">{u.name}</p>
+                                <p className="text-xs text-gray-500">{u.email}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                              {u.role}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => deleteUser(u.id)}
+                              className="text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors text-xs font-bold flex items-center gap-1 shadow-sm"
+                            >
+                              <Trash2 size={14} /> Process Deletion
+                            </button>
                           </td>
                         </tr>
                       ))}

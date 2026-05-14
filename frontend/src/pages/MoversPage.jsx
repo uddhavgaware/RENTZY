@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Truck, MapPin, Calendar, Package, ArrowRight, ShieldCheck, Clock, CreditCard, Map as MapIcon, Plus, Minus } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { Truck, MapPin, Calendar, Package, ArrowRight, ShieldCheck, Clock, CreditCard, Map as MapIcon, Plus, Minus, CheckCircle2 } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap, Polyline } from 'react-leaflet';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -35,6 +35,8 @@ const MoversPage = () => {
   });
 
   const [activeMapField, setActiveMapField] = useState(null);
+  const [fromCoords, setFromCoords] = useState(null);
+  const [toCoords, setToCoords] = useState(null);
   const [mapPosition, setMapPosition] = useState([18.5204, 73.8567]);
 
   function LocationMarker() {
@@ -44,7 +46,14 @@ const MoversPage = () => {
           showModal({ type: 'alert', title: 'Select Field', message: 'Please click "Pick on Map" for either Moving From or Moving To first.', onConfirm: closeModal });
           return;
         }
-        setMapPosition([e.latlng.lat, e.latlng.lng]);
+        const coords = [e.latlng.lat, e.latlng.lng];
+        if (activeMapField === 'from') {
+           setFromCoords(coords);
+        } else {
+           setToCoords(coords);
+        }
+        setMapPosition(coords);
+        
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&zoom=14&addressdetails=1`);
           const data = await res.json();
@@ -60,13 +69,23 @@ const MoversPage = () => {
         } catch(err) {}
       },
     });
-    return <Marker position={mapPosition} />;
+    return (
+      <>
+        {fromCoords && <Marker position={fromCoords} />}
+        {toCoords && <Marker position={toCoords} />}
+        {fromCoords && toCoords && <Polyline positions={[fromCoords, toCoords]} color="blue" weight={4} dashArray="5, 10" />}
+      </>
+    );
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isAuthenticated) {
       navigate('/auth?redirect=/movers');
+      return;
+    }
+    if (!fromCoords || !toCoords) {
+      showModal({ type: 'alert', title: 'Location Required', message: 'You must select both Pickup and Drop locations on the map.', onConfirm: closeModal });
       return;
     }
     
@@ -126,7 +145,9 @@ const MoversPage = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
                 <div className="flex justify-between items-end mb-1">
-                  <label className="text-sm font-medium text-gray-700">Moving From</label>
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    Moving From {fromCoords && <CheckCircle2 size={14} className="text-green-500" />}
+                  </label>
                   <button type="button" onClick={() => setActiveMapField(activeMapField === 'from' ? null : 'from')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'from' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
                 </div>
                 <div className="relative">
@@ -138,7 +159,9 @@ const MoversPage = () => {
               </div>
               <div className="space-y-1">
                 <div className="flex justify-between items-end mb-1">
-                  <label className="text-sm font-medium text-gray-700">Moving To</label>
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
+                    Moving To {toCoords && <CheckCircle2 size={14} className="text-green-500" />}
+                  </label>
                   <button type="button" onClick={() => setActiveMapField(activeMapField === 'to' ? null : 'to')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'to' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
                 </div>
                 <div className="relative">
