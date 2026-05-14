@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon, Map as MapIcon, List, Home, Building2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -57,6 +57,22 @@ const RoommatesPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [isMapView, setIsMapView] = useState(false);
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
+
+  const mapSearchInputRef = useRef(null);
+
+  const handleMapSearch = async () => {
+    const query = mapSearchInputRef.current?.value;
+    if (!query || query.trim() === '') return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+         setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+      } else {
+         showModal({ type: 'alert', title: 'Not Found', message: 'Location not found on map.', onConfirm: closeModal });
+      }
+    } catch(err) {}
+  };
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => setModalConfig({ isOpen: false });
@@ -369,6 +385,28 @@ const RoommatesPage = () => {
           <>
           {isMapView ? (
             <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
+              {/* Map Search Overlay */}
+              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
+                <div className="pl-3 pr-2 text-gray-400">
+                  <MapPin size={18} className="text-primary-500" />
+                </div>
+                <input 
+                  ref={mapSearchInputRef}
+                  type="text" 
+                  placeholder="Search map location..." 
+                  className="w-full outline-none text-sm bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') handleMapSearch();
+                  }}
+                />
+                <button 
+                  onClick={handleMapSearch}
+                  className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-4 py-2 text-sm font-bold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                >
+                  Search
+                </button>
+              </div>
+
               <MapContainer center={mapCenter} zoom={12} style={{ height: "100%", width: "100%" }}>
                 <MapUpdater center={mapCenter} />
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
@@ -599,48 +637,234 @@ const RoommatesPage = () => {
       </div>
       {/* Post Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-2xl animate-fadeIn">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center flex-shrink-0">
-              <h2 className="text-xl font-bold text-gray-900">Post Roommate Request</h2>
-              <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600 transition-colors">
-                <X size={24} />
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden shadow-2xl shadow-gray-900/20" style={{animation: 'slideUp 0.3s ease-out'}}>
+            
+            {/* Premium Gradient Header */}
+            <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-purple-700 px-6 py-5 flex justify-between items-start flex-shrink-0 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
+              <div className="absolute bottom-0 left-20 w-20 h-20 bg-white/5 rounded-full translate-y-8"></div>
+              <div className="relative z-10">
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-7 h-7 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Users size={14} className="text-white" />
+                  </div>
+                  <span className="text-white/80 text-xs font-medium uppercase tracking-wider">Roommate Finder</span>
+                </div>
+                <h2 className="text-2xl font-extrabold text-white">Post a Request</h2>
+                <p className="text-white/70 text-sm mt-0.5">Find your perfect flatmate in minutes</p>
+              </div>
+              <button onClick={() => setIsModalOpen(false)} className="relative z-10 text-white/70 hover:text-white hover:bg-white/20 p-2 rounded-xl transition-all">
+                <X size={20} />
               </button>
             </div>
-            
-            <form onSubmit={handlePostSubmit} className="p-6 space-y-5 overflow-y-auto">
-              {/* Split rent preview inside modal */}
-              {postFormData.budget && postFormData.totalCapacity > 1 && (
-                <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-sm text-green-700 flex items-center gap-2">
-                  <Users size={16} className="flex-shrink-0" />
-                  <span>Each member pays <strong>₹{Math.round(parseFloat(postFormData.budget) / parseInt(postFormData.totalCapacity)).toLocaleString('en-IN')}/mo</strong> rent</span>
-                </div>
-              )}
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Target Location</label>
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                    <input 
-                      type="text" 
-                      required
-                      value={postFormData.location}
-                      onChange={(e) => setPostFormData({...postFormData, location: e.target.value})}
-                      placeholder="e.g. Hinjewadi, Pune" 
-                      className="w-full pl-10 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all"
-                    />
+            <form onSubmit={handlePostSubmit} className="flex-1 overflow-y-auto">
+              <div className="p-6 space-y-6">
+
+                {/* Live Split Rent Preview */}
+                {postFormData.budget && postFormData.totalCapacity > 1 && (
+                  <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl p-4 flex items-center gap-3 animate-fadeIn">
+                    <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                      <Users size={18} className="text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-green-600 font-medium">Per person estimate</p>
+                      <p className="text-green-800 font-bold text-lg">₹{Math.round(parseFloat(postFormData.budget) / parseInt(postFormData.totalCapacity)).toLocaleString('en-IN')}<span className="text-sm font-normal">/mo</span></p>
+                    </div>
                   </div>
-                  <button 
-                    type="button"
-                    onClick={handlePostLiveLocation}
-                    className="px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl flex items-center justify-center transition-colors shadow-sm"
-                    title="Use my current location"
-                  >
-                    <Navigation size={18} />
-                  </button>
+                )}
+
+                {/* Section: Location */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center"><MapPin size={12} className="text-primary-600" /></div>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Location</h3>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                      <input
+                        type="text" required value={postFormData.location}
+                        onChange={(e) => setPostFormData({...postFormData, location: e.target.value})}
+                        placeholder="e.g. Hinjewadi, Pune"
+                        className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-sm"
+                      />
+                    </div>
+                    <button type="button" onClick={handlePostLiveLocation}
+                      className="px-4 bg-primary-50 hover:bg-primary-100 text-primary-600 border border-primary-200 rounded-xl flex items-center justify-center transition-colors" title="Use my location">
+                      <Navigation size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Section: Property */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center"><Home size={12} className="text-blue-600" /></div>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Property</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Property Type as cards */}
+                    {['Flat', 'PG', 'Hostel', 'Room'].map(type => (
+                      <button key={type} type="button"
+                        onClick={() => setPostFormData({...postFormData, propertyType: type})}
+                        className={`py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all ${postFormData.propertyType === type ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
+                        {type === 'Flat' ? '🏠 Flat' : type === 'PG' ? '👥 PG' : type === 'Hostel' ? '🏨 Hostel' : '🚪 Room'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Section: Budget */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-green-100 rounded-lg flex items-center justify-center"><IndianRupee size={12} className="text-green-600" /></div>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Budget & Capacity</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Total Rent</label>
+                      <div className="relative">
+                        <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                        <input type="number" required value={postFormData.budget}
+                          onChange={(e) => setPostFormData({...postFormData, budget: e.target.value})}
+                          placeholder="15000"
+                          className="w-full pl-8 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Deposit</label>
+                      <div className="relative">
+                        <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                        <input type="number" value={postFormData.deposit}
+                          onChange={(e) => setPostFormData({...postFormData, deposit: e.target.value})}
+                          placeholder="50000"
+                          className="w-full pl-8 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Vacancies</label>
+                      <input type="number" min="1" value={postFormData.vacancies}
+                        onChange={(e) => setPostFormData({...postFormData, vacancies: e.target.value})}
+                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Total Capacity</label>
+                      <input type="number" min="1" value={postFormData.totalCapacity}
+                        onChange={(e) => setPostFormData({...postFormData, totalCapacity: e.target.value})}
+                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Preferences */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center"><Briefcase size={12} className="text-purple-600" /></div>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Preferences</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { label: 'Gender', key: 'targetGender', options: ['Any', 'Male', 'Female'] },
+                      { label: 'Occupation', key: 'targetOccupation', options: ['Any', 'Student', 'Working Professional'] },
+                      { label: 'Move-in', key: 'availableFrom', options: ['Immediately', 'Within 15 Days', 'Next Month'] },
+                      { label: 'Maintenance', key: 'maintenanceIncluded', isBoolean: true, options: ['Not Included', 'Included'] },
+                      { label: 'Dietary', key: 'dietaryPref', options: ['Any', 'Vegetarian', 'Non-Vegetarian', 'Vegan'] },
+                      { label: 'Smoking', key: 'smokingPref', options: ['Non-Smoking', 'Smoking Okay'] },
+                      { label: 'Drinking', key: 'drinkingPref', options: ['Non-Drinking', 'Drinking Okay'] },
+                      { label: 'Pets', key: 'petsPref', options: ['No Pets', 'Pets Welcome'] },
+                    ].map(({ label, key, options, isBoolean }) => (
+                      <div key={key}>
+                        <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
+                        <select
+                          value={isBoolean ? (postFormData[key] ? 'Included' : 'Not Included') : postFormData[key]}
+                          onChange={(e) => setPostFormData({...postFormData, [key]: isBoolean ? e.target.value === 'Included' : e.target.value})}
+                          className="w-full py-3 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none cursor-pointer">
+                          {options.map(o => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      </div>
+                    ))}
+                    <div className="col-span-2">
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Age Preference (optional)</label>
+                      <input type="text" value={postFormData.agePreference}
+                        onChange={(e) => setPostFormData({...postFormData, agePreference: e.target.value})}
+                        placeholder="e.g. 20-30"
+                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Photos */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center"><ImageIcon size={12} className="text-orange-600" /></div>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Photos (max 3)</h3>
+                  </div>
+
+                  {/* Tip */}
+                  <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 flex items-start gap-3">
+                    <BadgeCheck size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
+                    <p className="text-xs text-blue-700 leading-relaxed">
+                      The <strong>first photo</strong> you upload will be the <strong>Main Photo</strong> on your request card.
+                    </p>
+                  </div>
+
+                  <label className="block w-full border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-xl p-4 text-center cursor-pointer transition-all bg-gray-50 hover:bg-primary-50">
+                    <ImageIcon size={24} className="text-gray-400 mx-auto mb-1" />
+                    <span className="text-sm text-gray-500">Click to upload photos</span>
+                    <input type="file" multiple accept="image/*" onChange={handleImageChange} className="hidden" />
+                  </label>
+                  {postFormData.images && postFormData.images.length > 0 && (
+                    <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
+                      {postFormData.images.map((img, i) => (
+                        <div key={i} className="relative flex-shrink-0">
+                          <img src={img} alt={`Preview ${i}`} className="h-20 w-20 object-cover rounded-xl border-2 border-white shadow-md" />
+                          {i === 0 && (
+                            <div className="absolute top-1 left-1 bg-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shadow-sm">
+                              Main Photo
+                            </div>
+                          )}
+                          <button type="button"
+                            onClick={() => setPostFormData({...postFormData, images: postFormData.images.filter((_, idx) => idx !== i)})}
+                            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors">
+                            <X size={10} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Custom Preferences */}
+                <div>
+                  <label className="block text-xs font-medium text-gray-500 mb-1">Other Notes (optional)</label>
+                  <input type="text" value={postFormData.preferences}
+                    onChange={(e) => setPostFormData({...postFormData, preferences: e.target.value})}
+                    placeholder="e.g. Early riser, gym buddy preferred"
+                    className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
               </div>
+
+              {/* Sticky Submit Footer */}
+              <div className="px-6 pb-6 flex-shrink-0">
+                <button type="submit"
+                  className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-2xl py-4 font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary-600/30 transition-all active:scale-95">
+                  <Plus size={20} /> Post Roommate Request
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      <Modal {...modalConfig} onCancel={closeModal} />
+    </div>
+  );
+};
+
+export default RoommatesPage;
+
+
               
               <div className="flex gap-4">
                 <div className="flex-1">

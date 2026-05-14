@@ -67,6 +67,21 @@ const ListingsPage = () => {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [filteredLocations, setFilteredLocations] = useState([]);
   const suggestionsRef = useRef(null);
+  const mapSearchInputRef = useRef(null);
+
+  const handleMapSearch = async () => {
+    const query = mapSearchInputRef.current?.value;
+    if (!query || query.trim() === '') return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+         setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+      } else {
+         showModal({ type: 'alert', title: 'Not Found', message: 'Location not found on map.', onConfirm: closeModal });
+      }
+    } catch(err) {}
+  };
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -450,26 +465,25 @@ const ListingsPage = () => {
           <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-sm z-0 relative">
             
             {/* Map Search Overlay */}
-            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-2.5 flex items-center w-[90%] md:w-80 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50">
-              <Search size={18} className="text-gray-400 ml-2 mr-2" />
+            <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
+              <div className="pl-3 pr-2 text-gray-400">
+                <MapPin size={18} className="text-primary-500" />
+              </div>
               <input 
+                ref={mapSearchInputRef}
                 type="text" 
-                placeholder="Search map directly..." 
-                className="w-full outline-none text-sm bg-transparent"
-                onKeyDown={async (e) => {
-                  if (e.key === 'Enter' && e.target.value.trim() !== '') {
-                    try {
-                      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(e.target.value)}`);
-                      const data = await res.json();
-                      if (data && data.length > 0) {
-                         setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
-                      } else {
-                         showModal({ type: 'alert', title: 'Not Found', message: 'Location not found on map.', onConfirm: closeModal });
-                      }
-                    } catch(err) {}
-                  }
+                placeholder="Search map location..." 
+                className="w-full outline-none text-sm bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleMapSearch();
                 }}
               />
+              <button 
+                onClick={handleMapSearch}
+                className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-4 py-2 text-sm font-bold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+              >
+                Search
+              </button>
             </div>
 
             <MapContainer 
