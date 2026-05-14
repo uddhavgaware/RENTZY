@@ -26,9 +26,18 @@ const Navbar = () => {
   ];
 
   useEffect(() => {
-    if (isAuthenticated) {
-      api.get('/notifications/unread-count').then(res => setUnreadCount(res.data.count)).catch(() => {});
-    }
+    if (!isAuthenticated) return;
+
+    const fetchCount = async () => {
+      try {
+        const res = await api.get('/notifications/unread-count');
+        setUnreadCount(res.data.count || 0);
+      } catch {}
+    };
+
+    fetchCount(); // Immediate fetch on mount / route change
+    const interval = setInterval(fetchCount, 30000); // Poll every 30s
+    return () => clearInterval(interval);
   }, [isAuthenticated, location.pathname]);
 
   useEffect(() => {

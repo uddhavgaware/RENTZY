@@ -6,6 +6,7 @@ import com.rentzy.backend.repository.ListingRepository;
 import com.rentzy.backend.repository.MovingRequestRepository;
 import com.rentzy.backend.repository.UserRepository;
 import com.rentzy.backend.service.BookingService;
+import com.rentzy.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +28,7 @@ public class AdminController {
     private final BookingService bookingService;
     private final com.rentzy.backend.service.EmailService emailService;
     private final MovingRequestRepository movingRequestRepository;
+    private final NotificationService notificationService;
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -86,7 +88,15 @@ public class AdminController {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setKycStatus("APPROVED");
         user.setIsVerified(true);
-        return ResponseEntity.ok(userRepository.save(user));
+        User saved = userRepository.save(user);
+
+        // Notify user that KYC was approved
+        notificationService.createNotification(
+                user.getEmail(),
+                "✅ Congratulations! Your KYC has been approved. Your account is now Verified — the verified badge will appear on your listings.",
+                "SYSTEM"
+        );
+        return ResponseEntity.ok(saved);
     }
 
     @PostMapping("/users/{id}/kyc/reject")
@@ -94,7 +104,15 @@ public class AdminController {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setKycStatus("REJECTED");
         user.setIsVerified(false);
-        return ResponseEntity.ok(userRepository.save(user));
+        User saved = userRepository.save(user);
+
+        // Notify user that KYC was rejected
+        notificationService.createNotification(
+                user.getEmail(),
+                "❌ Your KYC submission was rejected. Please ensure the document is clearly visible and the details are accurate, then resubmit.",
+                "SYSTEM"
+        );
+        return ResponseEntity.ok(saved);
     }
 
     @PostMapping("/users/{id}/kyc/undo")

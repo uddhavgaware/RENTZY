@@ -4,6 +4,7 @@ import com.rentzy.backend.domain.MovingRequest;
 import com.rentzy.backend.domain.User;
 import com.rentzy.backend.repository.MovingRequestRepository;
 import com.rentzy.backend.repository.UserRepository;
+import com.rentzy.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,7 @@ public class MovingController {
 
     private final MovingRequestRepository movingRequestRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     // User submits a moving request
     @PostMapping("/request")
@@ -42,7 +44,16 @@ public class MovingController {
         if (request.getPropertySize() != null && request.getPropertySize().contains("3BHK")) estimatedPrice = 12000.0;
         request.setEstimatedPrice(estimatedPrice);
 
-        return ResponseEntity.ok(movingRequestRepository.save(request));
+        MovingRequest saved = movingRequestRepository.save(request);
+
+        // Notify user that request was received
+        notificationService.createNotification(
+                user.getEmail(),
+                "🚚 Your moving request from " + request.getFromLocation() + " to " + request.getToLocation() + " has been submitted! We'll assign a verified mover shortly.",
+                "SYSTEM"
+        );
+
+        return ResponseEntity.ok(saved);
     }
 
     // User gets their own moving requests
@@ -131,7 +142,16 @@ public class MovingController {
         
         request.setMover(mover);
         request.setStatus("ASSIGNED");
-        return ResponseEntity.ok(movingRequestRepository.save(request));
+        MovingRequest saved = movingRequestRepository.save(request);
+
+        // Notify the customer that a mover has been assigned
+        notificationService.createNotification(
+                request.getUser().getEmail(),
+                "👍 Great news! Your moving request has been assigned to " + mover.getName() + ". They will contact you shortly.",
+                "SYSTEM"
+        );
+
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/vendor/{id}/complete")
@@ -146,6 +166,15 @@ public class MovingController {
         }
         
         request.setStatus("COMPLETED");
-        return ResponseEntity.ok(movingRequestRepository.save(request));
+        MovingRequest saved = movingRequestRepository.save(request);
+
+        // Notify user the move is complete
+        notificationService.createNotification(
+                request.getUser().getEmail(),
+                "✅ Your move from " + request.getFromLocation() + " to " + request.getToLocation() + " is complete! We hope it went smoothly.",
+                "SYSTEM"
+        );
+
+        return ResponseEntity.ok(saved);
     }
 }

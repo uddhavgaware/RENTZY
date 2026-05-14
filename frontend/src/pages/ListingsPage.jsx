@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation, Plus, Minus } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 
 function MapUpdater({ center }) {
@@ -9,6 +9,16 @@ function MapUpdater({ center }) {
     map.setView(center, map.getZoom());
   }, [center, map]);
   return null;
+}
+
+function CustomZoomControl() {
+  const map = useMap();
+  return (
+    <div className="absolute top-20 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-xl rounded-xl overflow-hidden">
+      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomIn(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors border-b border-gray-200 active:bg-gray-200" title="Zoom In"><Plus size={18} /></button>
+      <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomOut(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors active:bg-gray-200" title="Zoom Out"><Minus size={18} /></button>
+    </div>
+  );
 }
 import ListingCard from '../components/ListingCard';
 import { useAuth } from '../context/AuthContext';
@@ -490,8 +500,10 @@ const ListingsPage = () => {
               center={mapCenter} 
               zoom={12} 
               scrollWheelZoom={true} 
+              zoomControl={false}
               className="h-full w-full"
             >
+              <CustomZoomControl />
               <MapUpdater center={mapCenter} />
               <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

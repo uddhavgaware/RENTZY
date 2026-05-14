@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { User, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck } from 'lucide-react';
+import { User, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import api from '../services/api';
@@ -497,7 +497,7 @@ const DashboardPage = () => {
                 ) : (
                   <div className="space-y-4">
                     {bookings.map(booking => (
-                      <div key={booking.id} className="border border-gray-100 rounded-2xl p-5 flex items-center justify-between hover:shadow-md transition-shadow">
+                      <div key={booking.id} className="border border-gray-100 rounded-2xl p-5 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white group/card">
                         <Link to={`/listings/${booking.listing?.id}`} className="flex items-center gap-4 group cursor-pointer">
                           <div className="w-16 h-16 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors"><Home size={24} className="text-primary-600" /></div>
                           <div>
@@ -552,7 +552,7 @@ const DashboardPage = () => {
                 ) : (
                   <div className="space-y-4">
                     {myListings.map(listing => (
-                      <div key={listing.id} className="border border-gray-100 rounded-2xl p-5 hover:shadow-md transition-shadow">
+                      <div key={listing.id} className="border border-gray-100 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white">
                         {editingListing === listing.id ? (
                           <div className="space-y-3">
                             <input value={editForm.title || ''} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))} className="w-full border rounded-xl px-4 py-2 text-sm" placeholder="Title" />
@@ -679,7 +679,7 @@ const DashboardPage = () => {
                 ) : (
                   <div className="space-y-4">
                     {movingRequests.map(req => (
-                      <div key={req.id} className="border border-gray-100 rounded-2xl p-5 hover:shadow-md transition-shadow">
+                      <div key={req.id} className="border border-gray-100 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <span className={`px-3 py-1 text-xs font-bold rounded-full ${req.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
@@ -747,9 +747,86 @@ const DashboardPage = () => {
             )}
 
             {activeTab === 'settings' && (
-              <div className="animate-fadeIn text-center py-12">
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Settings</h3>
-                <p className="text-gray-500">This feature is coming soon.</p>
+              <div className="animate-fadeIn">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
+                
+                <div className="space-y-6">
+                  {/* Preferences */}
+                  <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <Settings className="text-primary-500" size={20} /> App Preferences
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between pb-4 border-b border-gray-50">
+                        <div>
+                          <p className="font-medium text-gray-800">Email Notifications</p>
+                          <p className="text-sm text-gray-500">Receive booking and property updates via email.</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" defaultChecked />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                        </label>
+                      </div>
+                      <div className="flex items-center justify-between pb-4 border-b border-gray-50">
+                        <div>
+                          <p className="font-medium text-gray-800">SMS Alerts</p>
+                          <p className="text-sm text-gray-500">Get important updates delivered to your phone.</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                        </label>
+                      </div>
+                      <div className="flex items-center justify-between pb-4 border-b border-gray-50">
+                        <div>
+                          <p className="font-medium text-gray-800">Dark Mode</p>
+                          <p className="text-sm text-gray-500">Toggle dark mode for a better nighttime experience.</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input type="checkbox" className="sr-only peer" />
+                          <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-600"></div>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Security */}
+                  <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                      <ShieldCheck className="text-green-500" size={20} /> Security & Privacy
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between pb-4 border-b border-gray-50">
+                        <div>
+                          <p className="font-medium text-gray-800">Change Password</p>
+                          <p className="text-sm text-gray-500">Update your account password regularly.</p>
+                        </div>
+                        <button className="text-sm font-medium text-primary-600 hover:text-primary-700 bg-primary-50 px-4 py-2 rounded-lg transition-colors active:scale-95">Update</button>
+                      </div>
+                      <div className="flex items-center justify-between pb-4 border-b border-gray-50">
+                        <div>
+                          <p className="font-medium text-gray-800">Two-Factor Authentication</p>
+                          <p className="text-sm text-gray-500">Add an extra layer of security to your account.</p>
+                        </div>
+                        <button className="text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 px-4 py-2 rounded-lg transition-colors active:scale-95">Enable</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Danger Zone */}
+                  <div className="bg-red-50 border border-red-100 rounded-2xl p-6 shadow-sm">
+                    <h3 className="text-lg font-bold text-red-700 mb-4 flex items-center gap-2">
+                      <Trash2 className="text-red-500" size={20} /> Danger Zone
+                    </h3>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-medium text-red-800">Delete Account</p>
+                        <p className="text-sm text-red-600">Permanently remove your account and all data.</p>
+                      </div>
+                      <button onClick={() => showModal({ type: 'confirm', title: 'Delete Account', message: 'Are you sure you want to delete your account? This action cannot be undone.', onConfirm: closeModal, onCancel: closeModal })} className="text-sm font-bold text-white bg-red-600 hover:bg-red-700 px-4 py-2 rounded-lg shadow-sm transition-colors active:scale-95">Delete Account</button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>

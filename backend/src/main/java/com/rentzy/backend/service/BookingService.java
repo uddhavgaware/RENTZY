@@ -70,7 +70,25 @@ public class BookingService {
             throw new RuntimeException("Not authorized to cancel this booking");
         }
         booking.setStatus(Booking.BookingStatus.CANCELLED);
-        return bookingRepository.save(booking);
+        Booking saved = bookingRepository.save(booking);
+
+        String propertyTitle = booking.getListing().getTitle();
+        if (isTenant) {
+            // Tenant cancelled → notify owner
+            notificationService.createNotification(
+                    booking.getListing().getOwner().getEmail(),
+                    "❌ " + booking.getTenant().getName() + " cancelled their booking request for '" + propertyTitle + "'.",
+                    "BOOKING"
+            );
+        } else {
+            // Owner cancelled → notify tenant
+            notificationService.createNotification(
+                    booking.getTenant().getEmail(),
+                    "❌ Your booking for '" + propertyTitle + "' was cancelled by the owner.",
+                    "BOOKING"
+            );
+        }
+        return saved;
     }
 
     public List<Booking> getMyBookings(String email) {

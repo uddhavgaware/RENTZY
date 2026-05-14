@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Building2, Users, Shield, Heart, MapPin, Phone, Mail, ArrowRight, Star, Zap, BadgeCheck, Truck } from 'lucide-react';
+import { Building2, Users, Shield, Heart, MapPin, Phone, Mail, ArrowRight, Zap, BadgeCheck, Truck } from 'lucide-react';
 
 const STATS = [
   { value: '2,500+', label: 'Properties Listed', icon: Building2 },
   { value: '10,000+', label: 'Happy Tenants', icon: Users },
   { value: '25+', label: 'Cities Covered', icon: MapPin },
-  { value: '4.9★', label: 'Average Rating', icon: Star },
+  { value: '₹0', label: 'Brokerage Fee', icon: Shield },
 ];
 
 const VALUES = [

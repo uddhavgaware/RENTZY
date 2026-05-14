@@ -36,7 +36,7 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
     : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
 
   const typeGradient = TYPE_COLORS[listing.type] || 'from-primary-500 to-primary-700';
-  const rating = listing.averageRating || listing.rating || '4.8';
+  const rating = listing.averageRating > 0 ? listing.averageRating.toFixed(1) : null;
   const amenities = listing.amenities || [];
 
   const handleWishlistToggle = async (e) => {
@@ -111,11 +111,15 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
           <h3 className="font-bold text-base text-gray-900 line-clamp-1 group-hover:text-primary-700 transition-colors flex-1">
             {listing.title}
           </h3>
-          {/* Rating */}
-          <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg flex-shrink-0">
-            <Star size={12} className="text-amber-400 fill-amber-400" />
-            <span className="text-xs font-bold text-amber-700">{rating}</span>
-          </div>
+          {/* Rating — only shown if real reviews exist */}
+          {rating ? (
+            <div className="flex items-center gap-1 bg-amber-50 border border-amber-100 px-2 py-1 rounded-lg flex-shrink-0">
+              <Star size={12} className="text-amber-400 fill-amber-400" />
+              <span className="text-xs font-bold text-amber-700">{rating}</span>
+            </div>
+          ) : (
+            <span className="text-[10px] font-semibold text-gray-400 bg-gray-50 border border-gray-100 px-2 py-1 rounded-lg">New</span>
+          )}
         </div>
 
         {/* Verified badge */}

@@ -2,6 +2,7 @@ package com.rentzy.backend.controller;
 
 import com.rentzy.backend.domain.User;
 import com.rentzy.backend.repository.UserRepository;
+import com.rentzy.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -16,6 +17,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final com.rentzy.backend.security.JwtService jwtService;
+    private final NotificationService notificationService;
 
     // Get current user profile
     @GetMapping("/me")
@@ -70,6 +72,13 @@ public class UserController {
         
         user.setKycStatus("PENDING");
         userRepository.save(user);
+
+        // Notify the user that their KYC is under review
+        notificationService.createNotification(
+                user.getEmail(),
+                "📋 Your KYC document has been submitted and is under review. You'll hear back in 2–3 working days.",
+                "SYSTEM"
+        );
 
         return ResponseEntity.ok(Map.of("message", "KYC Document submitted successfully", "kycStatus", "PENDING"));
     }
@@ -159,5 +168,18 @@ public class UserController {
                 Map.entry("message", "Profile updated successfully"),
                 Map.entry("token", newToken != null ? newToken : "")
         ));
+    }
+
+    // Get admin contact info — used by the floating support button
+    @GetMapping("/admin")
+    public ResponseEntity<?> getAdminContact() {
+        return userRepository.findAll().stream()
+                .filter(u -> u.getRole() == User.Role.ADMIN)
+                .findFirst()
+                .map(admin -> ResponseEntity.ok(Map.of(
+                        "id", admin.getId(),
+                        "name", admin.getName() != null ? admin.getName() : "Support"
+                )))
+                .orElse(ResponseEntity.ok(Map.of("id", 1L, "name", "Support")));
     }
 }

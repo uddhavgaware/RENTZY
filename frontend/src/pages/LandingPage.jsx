@@ -9,7 +9,7 @@ const STATS = [
   { value: '2,500+', label: 'Properties Listed' },
   { value: '10,000+', label: 'Happy Tenants' },
   { value: '25+', label: 'Cities Covered' },
-  { value: '4.9★', label: 'Average Rating' },
+  { value: '₹0', label: 'Brokerage Fee' },
 ];
 
 const CATEGORIES = [

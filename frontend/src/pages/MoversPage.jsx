@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
-import { Truck, MapPin, Calendar, Package, ArrowRight, ShieldCheck, Clock, CreditCard } from 'lucide-react';
+import { Truck, MapPin, Calendar, Package, ArrowRight, ShieldCheck, Clock, CreditCard, Map as MapIcon, Plus, Minus } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
+
+function CustomZoomControl() {
+  const map = useMap();
+  return (
+    <div className="absolute top-2 left-2 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-sm rounded-lg overflow-hidden">
+      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomIn(); }} className="p-1.5 hover:bg-gray-100 text-gray-700 transition-colors border-b border-gray-200"><Plus size={14} /></button>
+      <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomOut(); }} className="p-1.5 hover:bg-gray-100 text-gray-700 transition-colors"><Minus size={14} /></button>
+    </div>
+  );
+}
 
 const MoversPage = () => {
   const { isAuthenticated } = useAuth();
@@ -22,6 +33,35 @@ const MoversPage = () => {
     propertySize: '1BHK',
     additionalNotes: ''
   });
+
+  const [activeMapField, setActiveMapField] = useState(null);
+  const [mapPosition, setMapPosition] = useState([18.5204, 73.8567]);
+
+  function LocationMarker() {
+    useMapEvents({
+      async click(e) {
+        if (!activeMapField) {
+          showModal({ type: 'alert', title: 'Select Field', message: 'Please click "Pick on Map" for either Moving From or Moving To first.', onConfirm: closeModal });
+          return;
+        }
+        setMapPosition([e.latlng.lat, e.latlng.lng]);
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&zoom=14&addressdetails=1`);
+          const data = await res.json();
+          let neighborhood = data.address.neighbourhood || data.address.suburb || data.address.city_district || data.address.city || data.display_name;
+          if (neighborhood) {
+             if (activeMapField === 'from') {
+                setFormData(prev => ({...prev, fromLocation: neighborhood}));
+             } else {
+                setFormData(prev => ({...prev, toLocation: neighborhood}));
+             }
+             setActiveMapField(null);
+          }
+        } catch(err) {}
+      },
+    });
+    return <Marker position={mapPosition} />;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -85,20 +125,39 @@ const MoversPage = () => {
             <h2 className="text-2xl font-bold mb-6 text-center">Get a Free Quote</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Moving From</label>
+                <div className="flex justify-between items-end mb-1">
+                  <label className="text-sm font-medium text-gray-700">Moving From</label>
+                  <button type="button" onClick={() => setActiveMapField(activeMapField === 'from' ? null : 'from')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'from' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
+                </div>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-gray-400" size={18} />
-                  <input type="text" required value={formData.fromLocation} onChange={e => setFormData({...formData, fromLocation: e.target.value})} placeholder="e.g. Andheri East, Mumbai (include landmarks)" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" />
+                  <input type="text" required value={formData.fromLocation} onChange={e => setFormData({...formData, fromLocation: e.target.value})} placeholder="e.g. Andheri East, Mumbai" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" />
                 </div>
-                <p className="text-xs text-gray-500 ml-1">Please provide accurate details so verified agents can locate you.</p>
+                {activeMapField === 'from' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse">Click on the map below to select location</p>}
+                {!activeMapField && <p className="text-xs text-gray-500 ml-1">Please provide accurate details.</p>}
               </div>
               <div className="space-y-1">
-                <label className="text-sm font-medium text-gray-700">Moving To</label>
+                <div className="flex justify-between items-end mb-1">
+                  <label className="text-sm font-medium text-gray-700">Moving To</label>
+                  <button type="button" onClick={() => setActiveMapField(activeMapField === 'to' ? null : 'to')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'to' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
+                </div>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-primary-400" size={18} />
-                  <input type="text" required value={formData.toLocation} onChange={e => setFormData({...formData, toLocation: e.target.value})} placeholder="e.g. Indiranagar, Bangalore (include landmarks)" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" />
+                  <input type="text" required value={formData.toLocation} onChange={e => setFormData({...formData, toLocation: e.target.value})} placeholder="e.g. Indiranagar, Bangalore" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" />
                 </div>
+                {activeMapField === 'to' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse">Click on the map below to select location</p>}
               </div>
+
+              {activeMapField && (
+                 <div className="h-[200px] rounded-xl overflow-hidden border-2 border-primary-300 shadow-inner z-0 relative animate-fadeIn mb-4">
+                    <MapContainer center={mapPosition} zoom={11} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
+                      <CustomZoomControl />
+                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                      <LocationMarker />
+                    </MapContainer>
+                 </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-gray-700">Date</label>
