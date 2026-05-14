@@ -106,7 +106,7 @@ const Navbar = () => {
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
                 <Building2 size={24} />
               </div>
-              <span className="font-bold text-2xl tracking-tight text-gray-900">RENTXY</span>
+              <span className="font-bold text-2xl tracking-tight text-gray-900">RentXY</span>
             </Link>
             <div className="hidden md:ml-10 md:flex md:space-x-8">
               {navLinks.map((link) => (

@@ -10,6 +10,7 @@ const CompleteProfilePage = () => {
   
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [uploadingImage, setUploadingImage] = useState(false);
   
   const [formData, setFormData] = useState({
     name: user?.name?.includes('User') ? '' : (user?.name || ''),
@@ -26,11 +27,34 @@ const CompleteProfilePage = () => {
     serviceCity: '',
     companyName: '',
     jobRole: '',
-    businessDescription: ''
+    businessDescription: '',
+    profilePhoto: user?.profilePhoto || ''
   });
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    const formDataUpload = new FormData();
+    formDataUpload.append('files', file);
+
+    try {
+      const res = await api.post('/upload', formDataUpload, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data && res.data.length > 0) {
+        setFormData(prev => ({ ...prev, profilePhoto: res.data[0] }));
+      }
+    } catch (err) {
+      setError('Failed to upload image. Try again later.');
+    } finally {
+      setUploadingImage(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -74,6 +98,29 @@ const CompleteProfilePage = () => {
           
           <form className="space-y-6" onSubmit={handleSubmit}>
             
+            {/* Profile Photo Upload */}
+            <div className="flex flex-col items-center justify-center mb-6">
+              <div className="relative w-24 h-24 mb-3">
+                <div className="w-full h-full rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                  {formData.profilePhoto ? (
+                    <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="text-gray-400" size={32} />
+                  )}
+                </div>
+                {uploadingImage && (
+                  <div className="absolute inset-0 bg-white/70 rounded-full flex items-center justify-center">
+                    <div className="w-5 h-5 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
+                <label className="absolute bottom-0 right-0 bg-primary-600 hover:bg-primary-700 text-white p-1.5 rounded-full cursor-pointer shadow-md transition-colors">
+                  <Camera size={14} />
+                  <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploadingImage} />
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 font-medium">Upload Profile Picture (Optional)</p>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Full Name *</label>

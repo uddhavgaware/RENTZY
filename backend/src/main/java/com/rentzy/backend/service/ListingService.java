@@ -99,6 +99,12 @@ public class ListingService {
         return listingRepository.findByOwnerEmail(ownerEmail);
     }
 
+    public List<Listing> getListingsByOwnerId(Long ownerId) {
+        return listingRepository.findAll().stream()
+                .filter(l -> l.getOwner().getId().equals(ownerId) && ("ACTIVE".equals(l.getStatus()) || l.getStatus() == null))
+                .toList();
+    }
+
     public void deleteListing(Long id) {
         listingRepository.deleteById(id);
     }

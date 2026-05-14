@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Send, MoreVertical, Phone, Video, Info, ArrowLeft } from 'lucide-react';
 import { chatService } from '../services/chatService';
+import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 
@@ -43,7 +44,14 @@ const ChatPage = () => {
           setShowMobileChat(true);
           // Add dummy conversation if not in list yet so UI shows them
           if (!convos.find(c => c.id === uId)) {
-            setConversations([{ id: uId, name: 'New User', role: 'USER' }, ...convos]);
+            try {
+              // Fetch real user details
+              const res = await api.get(`/users/${uId}`);
+              const fetchedUser = res.data;
+              setConversations([{ id: uId, name: fetchedUser.name, role: fetchedUser.role, profilePhoto: fetchedUser.profilePhoto }, ...convos]);
+            } catch (userErr) {
+              setConversations([{ id: uId, name: 'User', role: 'USER' }, ...convos]);
+            }
           }
         } else if (convos.length > 0 && !activeChat) {
           setActiveChat(convos[0].id);
@@ -131,11 +139,13 @@ const ChatPage = () => {
                 className={`w-full flex items-start p-4 border-b border-gray-50 transition-colors text-left ${activeChat === contact.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'border-l-4 border-l-transparent hover:bg-gray-50'}`}
               >
                 <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-4 border-2 border-white shadow-sm flex-shrink-0">
-                  {contact.name?.charAt(0) || 'U'}
+                  {contact.profilePhoto ? <img src={contact.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (contact.name?.charAt(0) || 'U')}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
-                    <h3 className={`font-semibold truncate ${activeChat === contact.id ? 'text-primary-900' : 'text-gray-900'}`}>{contact.name}</h3>
+                    <h3 className={`font-semibold truncate ${activeChat === contact.id ? 'text-primary-900' : 'text-gray-900'}`}>
+                      {contact.name} <span className="text-gray-400 text-xs font-normal ml-1">#{contact.id}</span>
+                    </h3>
                   </div>
                   <p className="text-xs text-primary-600 mb-1">{contact.role}</p>
                 </div>
@@ -167,10 +177,13 @@ const ChatPage = () => {
                   <ArrowLeft size={20} />
                 </button>
                 <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xl mr-4 border border-primary-200 shadow-sm">
-                  {conversations.find(c => c.id === activeChat)?.name?.charAt(0) || 'U'}
+                  {conversations.find(c => c.id === activeChat)?.profilePhoto ? <img src={conversations.find(c => c.id === activeChat).profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (conversations.find(c => c.id === activeChat)?.name?.charAt(0) || 'U')}
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 text-lg">{conversations.find(c => c.id === activeChat)?.name || 'User'}</h3>
+                  <h3 className="font-bold text-gray-900 text-lg">
+                    {conversations.find(c => c.id === activeChat)?.name || 'User'} 
+                    <span className="text-gray-400 text-sm font-normal ml-1">#{activeChat}</span>
+                  </h3>
                   <p className="text-xs text-green-500 font-medium">Active now</p>
                 </div>
               </div>
@@ -213,7 +226,7 @@ const ChatPage = () => {
                       return (
                         <div key={msg.id || idx} className="flex items-end mb-2">
                           <div className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center font-bold text-xs mr-3 mb-1 shadow-sm border border-gray-200 flex-shrink-0">
-                            {msg.sender?.name?.charAt(0) || 'U'}
+                            {msg.sender?.profilePhoto ? <img src={msg.sender.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (msg.sender?.name?.charAt(0) || 'U')}
                           </div>
                           <div className="bg-white border border-gray-100 px-5 py-3.5 rounded-2xl rounded-bl-sm max-w-[75%] shadow-md transform transition-all hover:-translate-y-0.5">
                             <p className="text-[15px] text-gray-800 leading-relaxed">{msg.content}</p>

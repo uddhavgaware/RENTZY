@@ -280,7 +280,7 @@ const AdminDashboardPage = () => {
           </div>
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Manage your RENTXY platform</p>
+            <p className="text-gray-500 text-sm mt-0.5">Manage your RentXY platform</p>
           </div>
         </div>
         

@@ -153,16 +153,34 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
 
         {/* Footer */}
         <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
-          <div className="text-xs text-gray-400 font-medium">
-            {listing.status === 'ACTIVE' ? (
-              <span className="inline-flex items-center gap-1 text-emerald-600">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Available
+          {listing.owner ? (
+            <div 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/owner/${listing.owner.id}`; }}
+              className="flex items-center gap-2 z-10 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-lg transition-colors -ml-2"
+            >
+              <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden border border-primary-200">
+                {listing.owner.profilePhoto ? (
+                  <img src={listing.owner.profilePhoto} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-[10px] font-bold text-primary-700">{listing.owner.name?.charAt(0) || 'U'}</span>
+                )}
+              </div>
+              <span className="text-xs font-semibold text-gray-700 hover:text-primary-600 truncate max-w-[100px]">
+                {listing.owner.name}
               </span>
-            ) : listing.status === 'RENTED' ? (
-              <span className="text-red-400">Rented</span>
-            ) : null}
-          </div>
+            </div>
+          ) : (
+            <div className="text-xs text-gray-400 font-medium">
+              {listing.status === 'ACTIVE' ? (
+                <span className="inline-flex items-center gap-1 text-emerald-600">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Available
+                </span>
+              ) : listing.status === 'RENTED' ? (
+                <span className="text-red-400">Rented</span>
+              ) : null}
+            </div>
+          )}
           <span className="text-xs font-semibold text-primary-600 group-hover:underline transition-all">
             View Details →
           </span>

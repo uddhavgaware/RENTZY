@@ -13,7 +13,7 @@ const Footer = () => {
                 <Building2 size={24} />
               </div>
               <span className="font-bold text-2xl tracking-tight text-white">
-                RENTXY
+                RentXY
               </span>
             </Link>
             <p className="text-gray-400 text-sm mb-6 leading-relaxed">

@@ -182,4 +182,19 @@ public class UserController {
                 )))
                 .orElse(ResponseEntity.ok(Map.of("id", 1L, "name", "Support")));
     }
+
+    // Get public user profile by ID
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(Map.ofEntries(
+                Map.entry("id", user.getId()),
+                Map.entry("name", user.getName() != null ? user.getName() : "Unknown User"),
+                Map.entry("role", user.getRole().name()),
+                Map.entry("profilePhoto", user.getProfilePhoto() != null ? user.getProfilePhoto() : ""),
+                Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
+                Map.entry("kycStatus", user.getKycStatus())
+        ));
+    }
 }

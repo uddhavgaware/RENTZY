@@ -9,7 +9,7 @@ const TermsPage = () => {
     },
     {
       title: '2. Liability & Dispute Disclaimer',
-      content: `RentXY functions solely as an introductory marketplace to connect prospective tenants with property owners and movers. We are strictly not a party to any lease, rental, or moving agreements signed between users. RENTXY IS NOT RESPONSIBLE FOR ANY PROBLEMS, DISPUTES, OR FINANCIAL LOSSES AFTER BOOKING AND PAYMENT ARE DONE. Any disputes regarding property condition, unpaid rent, or breach of contract must be resolved directly between the tenant and the owner/vendor.`
+      content: `RentXY functions solely as an introductory marketplace to connect prospective tenants with property owners and movers. We are strictly not a party to any lease, rental, or moving agreements signed between users. RentXY IS NOT RESPONSIBLE FOR ANY PROBLEMS, DISPUTES, OR FINANCIAL LOSSES AFTER BOOKING AND PAYMENT ARE DONE. Any disputes regarding property condition, unpaid rent, or breach of contract must be resolved directly between the tenant and the owner/vendor.`
     },
     {
       title: '3. Booking & Payment Policies',

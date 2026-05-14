@@ -42,6 +42,11 @@ public class ListingController {
         return ResponseEntity.ok(service.getListingsByOwner(authentication.getName()));
     }
 
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<List<Listing>> getListingsByOwnerId(@PathVariable Long ownerId) {
+        return ResponseEntity.ok(service.getListingsByOwnerId(ownerId));
+    }
+
     @PostMapping
     public ResponseEntity<Listing> createListing(@RequestBody Listing listing, Authentication authentication) {
         return ResponseEntity.ok(service.createListing(listing, authentication.getName()));

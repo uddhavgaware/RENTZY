@@ -16,6 +16,7 @@ import ResetPasswordPage from './pages/ResetPasswordPage';
 import CompleteProfilePage from './pages/CompleteProfilePage';
 import MoversPage from './pages/MoversPage';
 import MoverDashboardPage from './pages/MoverDashboardPage';
+import OwnerProfilePage from './pages/OwnerProfilePage';
 import AboutPage from './pages/AboutPage';
 import FaqPage from './pages/FaqPage';
 import TermsPage from './pages/TermsPage';
@@ -73,6 +74,7 @@ function App() {
               <Route path="/about" element={<AboutPage />} />
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/terms" element={<TermsPage />} />
+              <Route path="/owner/:id" element={<OwnerProfilePage />} />
 
               {/* Protected routes — must be logged in */}
               <Route path="/post-property" element={<ProtectedRoute><PostPropertyPage /></ProtectedRoute>} />
