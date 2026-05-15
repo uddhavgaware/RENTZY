@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
+import CinematicHero from '../components/CinematicHero';
 
 function CustomZoomControl() {
   const map = useMap();
@@ -114,34 +115,28 @@ const MoversPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Hero Section */}
-      <div className="bg-primary-900 text-white py-20 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-20">
-          <svg className="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-            <path d="M0,0 L100,0 L100,100 L0,100 Z" fill="url(#grid)" />
-            <defs>
-              <pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse">
-                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.5" />
-              </pattern>
-            </defs>
-          </svg>
+    <>
+      <CinematicHero
+        videoSrc="https://cdn.pixabay.com/video/2021/08/25/86266-592659341_large.mp4"
+        fallbackImg="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80"
+        title={
+          <>
+            Stress-Free <span className="text-primary-400">Moving</span>
+          </>
+        }
+        subtitle="Get instant quotes, top-rated professional movers, and 100% damage protection."
+      >
+        <div className="flex gap-4 justify-center mt-6">
+          <div className="flex items-center gap-2 text-sm font-medium bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20"><ShieldCheck className="text-green-400" size={18} /> Verified Partners</div>
+          <div className="flex items-center gap-2 text-sm font-medium bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20"><Clock className="text-green-400" size={18} /> On-Time Guarantee</div>
         </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="md:w-1/2">
-            <span className="bg-primary-800 text-primary-200 px-3 py-1 rounded-full text-sm font-semibold tracking-wide uppercase mb-6 inline-block border border-primary-700">RentXY Premium Services</span>
-            <h1 className="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">Stress-Free Packing & Moving</h1>
-            <p className="text-lg text-primary-100 mb-8 max-w-lg">
-              Relocating doesn't have to be a nightmare. Get instant quotes, top-rated professional movers, and 100% damage protection.
-            </p>
-            <div className="flex gap-4">
-              <div className="flex items-center gap-2 text-sm font-medium"><ShieldCheck className="text-green-400" size={18} /> Verified Partners</div>
-              <div className="flex items-center gap-2 text-sm font-medium"><Clock className="text-green-400" size={18} /> On-Time Guarantee</div>
-            </div>
-          </div>
+      </CinematicHero>
+
+    <div className="min-h-screen bg-gray-50 pb-20 pt-12">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32">
           
-          <div className="md:w-1/2 w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl text-gray-900">
-            <h2 className="text-2xl font-bold mb-6 text-center">Get a Free Quote</h2>
+          <div className="w-full bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 text-gray-900">
+            <h2 className="text-3xl font-extrabold mb-6 text-center text-gray-900">Get a Free Quote</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
                 <div className="flex justify-between items-end mb-1">
@@ -217,12 +212,11 @@ const MoversPage = () => {
                   </div>
                 </div>
               </div>
-              <button type="submit" disabled={loading} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 mt-4 transition-transform active:scale-95 disabled:opacity-70">
+              <button type="submit" disabled={loading} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 mt-4 transition-transform active:scale-95 disabled:opacity-70 shadow-lg shadow-primary-600/30">
                 {loading ? 'Submitting...' : <>Get Instant Quote <ArrowRight size={20} /></>}
               </button>
             </form>
           </div>
-        </div>
       </div>
 
       {/* Features Section */}
@@ -258,6 +252,7 @@ const MoversPage = () => {
       </div>
       <Modal {...modalConfig} onCancel={closeModal} />
     </div>
+    </>
   );
 };
 

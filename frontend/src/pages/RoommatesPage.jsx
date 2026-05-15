@@ -53,6 +53,7 @@ const createCustomIcon = (type) => {
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
+import CinematicHero from '../components/CinematicHero';
 
 const RoommatesPage = () => {
   const { isAuthenticated, user } = useAuth();
@@ -224,7 +225,7 @@ const RoommatesPage = () => {
   useEffect(() => {
     setPage(0);
     fetchRoommates(0, false);
-  }, [searchInput]); // Re-fetch when searchInput changes
+  }, [searchInput]);
 
   const handleSearch = () => {
     setPage(0);
@@ -286,374 +287,388 @@ const RoommatesPage = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen pt-4 pb-12 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Header Section */}
-        <div className="text-center py-16 relative">
-          <div className="inline-flex items-center px-4 py-2 rounded-full glass-premium text-sm font-medium text-primary-700 mb-6 shadow-sm">
-            Community Matching
-          </div>
-          <h1 className="text-5xl md:text-6xl font-extrabold text-gray-900 mb-6 tracking-tight">Find Your Perfect Roommate</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-6">
-            Connect with like-minded people looking to share a space in your preferred location.
-          </p>
+    <>
+      <CinematicHero
+        videoSrc="https://cdn.pixabay.com/video/2020/05/26/40149-425126019_large.mp4"
+        fallbackImg="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1920&q=80"
+        title={
+          <>
+            Find Your <span className="text-pink-400">Perfect Match</span>
+          </>
+        }
+        subtitle="Connect with like-minded people, split the rent, and make lifelong friends in your new city."
+      >
+        <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full max-w-lg mx-auto">
+          <button 
+            onClick={() => {
+              window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+            }}
+            className="bg-white/10 backdrop-blur-md border border-white/30 hover:bg-white/20 text-white rounded-2xl px-8 py-4 font-bold text-lg transition-all shadow-lg hover:scale-105 active:scale-95"
+          >
+            Browse Roommates
+          </button>
           {isAuthenticated && (
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center px-6 py-3 bg-primary-600 text-white rounded-xl font-medium hover:bg-primary-700 shadow-md shadow-primary-600/20 transition-all active:scale-95"
+              className="bg-pink-600 hover:bg-pink-500 text-white rounded-2xl px-8 py-4 font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 shadow-pink-500/30"
             >
-              <Plus className="mr-2" size={20} />
+              <Plus size={20} />
               Post a Request
             </button>
           )}
         </div>
+      </CinematicHero>
 
-        {/* 💡 Split Rent Info Banner */}
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-3xl p-6 mb-10 flex items-start gap-5 shadow-sm hover:shadow-md transition-shadow">
-          <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
-            <Users size={20} className="text-green-600" />
-          </div>
-          <div>
-            <h3 className="font-bold text-green-800 text-base mb-1 flex items-center gap-2">
-              <Info size={16} /> Split Rent Among All Members
-            </h3>
-            <p className="text-green-700 text-sm leading-relaxed">
-              Each listing shows the <strong>total rent & deposit</strong> for the entire flat. The <strong>per-member split</strong> is automatically calculated based on total capacity. 
-              For example, a ₹15,000/mo flat with 3 members = <strong>₹5,000/mo per person</strong>. Connect with the poster to confirm the final arrangement.
-            </p>
-          </div>
-        </div>
-
-        {/* Search & Filters */}
-        <div className="glass-card rounded-3xl p-4 md:p-6 mb-12 border border-white/40 shadow-sm relative z-20">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <input 
-                type="text" 
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                placeholder="Preferred Location (e.g. Hinjewadi)" 
-                className="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-              />
-              <button 
-                onClick={handleLiveLocation}
-                disabled={isLocating}
-                title="Use my current location"
-                className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors ${isLocating ? 'text-primary-500 animate-pulse' : 'text-gray-400 hover:text-primary-600 hover:bg-primary-50'}`}
-              >
-                <Navigation size={18} className={isLocating ? 'animate-spin' : ''} />
-              </button>
+      <div className="bg-gray-50 min-h-screen pt-12 pb-12 relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* 💡 Split Rent Info Banner */}
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-3xl p-6 mb-10 flex items-start gap-5 shadow-sm hover:shadow-md transition-shadow">
+            <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
+              <Users size={20} className="text-green-600" />
             </div>
-            <div className="flex-1 relative">
-              <IndianRupee className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-              <select className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all appearance-none cursor-pointer">
-                <option value="">Budget range</option>
-                <option value="5k-10k">₹5,000 - ₹10,000</option>
-                <option value="10k-15k">₹10,000 - ₹15,000</option>
-                <option value="15k+">₹15,000+</option>
-              </select>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <div className="bg-gray-100 p-1 rounded-xl flex items-center shadow-sm h-full">
-                <button 
-                  onClick={() => setIsMapView(false)}
-                  className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${!isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                  <List size={18} className="md:mr-2" />
-                  <span className="hidden md:inline">List</span>
-                </button>
-                <button 
-                  onClick={() => setIsMapView(true)}
-                  className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
-                >
-                  <MapIcon size={18} className="md:mr-2" />
-                  <span className="hidden md:inline">Map</span>
-                </button>
-              </div>
-              <button onClick={handleSearch} className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 h-full rounded-xl font-medium flex items-center justify-center transition-colors shadow-sm">
-                <Search className="md:mr-2" size={20} />
-                <span className="hidden md:inline">Search</span>
-              </button>
+            <div>
+              <h3 className="font-bold text-green-800 text-base mb-1 flex items-center gap-2">
+                <Info size={16} /> Split Rent Among All Members
+              </h3>
+              <p className="text-green-700 text-sm leading-relaxed">
+                Each listing shows the <strong>total rent & deposit</strong> for the entire flat. The <strong>per-member split</strong> is automatically calculated based on total capacity. 
+                For example, a ₹15,000/mo flat with 3 members = <strong>₹5,000/mo per person</strong>. Connect with the poster to confirm the final arrangement.
+              </p>
             </div>
           </div>
-        </div>
 
-        {/* Roommates Grid */}
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
-          </div>
-        ) : roommates.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            No roommate requests found. Be the first to post!
-          </div>
-        ) : (
-          <>
-          {isMapView ? (
-            <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
-              {/* Map Search Overlay */}
-              <div className="absolute top-4 right-4 z-[1000] glass-premium rounded-xl p-3 flex flex-col gap-2 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-700">
-                 <div className="flex items-center gap-2">
-                   <div className="w-3 h-3 rounded-full bg-blue-500 border border-white shadow-sm"></div> Flat
-                 </div>
-                 <div className="flex items-center gap-2">
-                   <div className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm"></div> Roommate Request
-                 </div>
-              </div>
-              <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
-                <div className="pl-3 pr-2 text-gray-400">
-                  <MapPin size={18} className="text-primary-500" />
-                </div>
+          {/* Search & Filters */}
+          <div className="glass-card rounded-3xl p-4 md:p-6 mb-12 border border-white/40 shadow-sm relative z-20">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
                 <input 
-                  ref={mapSearchInputRef}
                   type="text" 
-                  placeholder="Search map location..." 
-                  className="w-full outline-none text-sm bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') handleMapSearch();
-                  }}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                  placeholder="Preferred Location (e.g. Hinjewadi)" 
+                  className="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                 />
                 <button 
-                  onClick={handleMapSearch}
-                  className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-4 py-2 text-sm font-bold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                  onClick={handleLiveLocation}
+                  disabled={isLocating}
+                  title="Use my current location"
+                  className={`absolute right-3 top-1/2 transform -translate-y-1/2 p-2 rounded-lg transition-colors ${isLocating ? 'text-primary-500 animate-pulse' : 'text-gray-400 hover:text-primary-600 hover:bg-primary-50'}`}
                 >
-                  Search
+                  <Navigation size={18} className={isLocating ? 'animate-spin' : ''} />
                 </button>
               </div>
+              <div className="flex-1 relative">
+                <IndianRupee className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <select className="w-full pl-12 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all appearance-none cursor-pointer">
+                  <option value="">Budget range</option>
+                  <option value="5k-10k">₹5,000 - ₹10,000</option>
+                  <option value="10k-15k">₹10,000 - ₹15,000</option>
+                  <option value="15k+">₹15,000+</option>
+                </select>
+              </div>
+              
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 p-1 rounded-xl flex items-center shadow-sm h-full">
+                  <button 
+                    onClick={() => setIsMapView(false)}
+                    className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${!isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    <List size={18} className="md:mr-2" />
+                    <span className="hidden md:inline">List</span>
+                  </button>
+                  <button 
+                    onClick={() => setIsMapView(true)}
+                    className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
+                  >
+                    <MapIcon size={18} className="md:mr-2" />
+                    <span className="hidden md:inline">Map</span>
+                  </button>
+                </div>
+                <button onClick={handleSearch} className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 h-full rounded-xl font-medium flex items-center justify-center transition-colors shadow-sm">
+                  <Search className="md:mr-2" size={20} />
+                  <span className="hidden md:inline">Search</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
-              <MapContainer center={mapCenter} zoom={12} zoomControl={false} style={{ height: "100%", width: "100%" }}>
-                <CustomZoomControl />
-                <MapUpdater center={mapCenter} />
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
-                {roommates.map(roommate => {
-                  if (!roommate.latitude || !roommate.longitude) return null;
-                  return (
-                    <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon(roommate.propertyType)}>
-                      <Popup className="roommate-popup">
-                         <div className="p-2 min-w-[200px]">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="font-bold text-lg text-gray-900">{roommate.user?.name || 'User'}</div>
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 border border-gray-200 text-gray-700">
-                                {roommate.propertyType || 'Room'}
-                              </span>
-                            </div>
-                            <div className="text-sm text-gray-600 mb-2 font-medium">{roommate.location}</div>
-                            <div className="flex flex-wrap gap-1 mb-2">
-                              {roommate.targetGender !== 'Any' && <span className="bg-primary-50 text-primary-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.targetGender}</span>}
-                              {roommate.dietaryPref !== 'Any' && <span className="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.dietaryPref}</span>}
-                            </div>
-                            {roommate.availableFrom && <div className="text-xs text-green-600 font-bold mb-2">⏱ Move-in: {roommate.availableFrom}</div>}
-                            <div className="text-primary-700 font-bold mb-3 text-lg">₹{roommate.budget}/mo</div>
-                            <button onClick={() => window.location.href = `/messages?user=${roommate.user?.id}`} className="w-full bg-primary-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm">Message</button>
-                         </div>
-                      </Popup>
-                    </Marker>
-                  )
-                })}
-              </MapContainer>
+          {/* Roommates Grid */}
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+            </div>
+          ) : roommates.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              No roommate requests found. Be the first to post!
             </div>
           ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {roommates.map(roommate => {
-              const isOwner = user?.email === roommate.user?.email;
-              const myPost = roommates.find(r => r.user?.email === user?.email);
-              
-              let matchScore = null;
-              if (!isOwner && myPost) {
-                let score = 0;
-                let total = 4;
-                if (myPost.smokingPref === roommate.smokingPref || myPost.smokingPref === 'Smoking Okay' || roommate.smokingPref === 'Smoking Okay') score++;
-                if (myPost.drinkingPref === roommate.drinkingPref || myPost.drinkingPref === 'Drinking Okay' || roommate.drinkingPref === 'Drinking Okay') score++;
-                if (myPost.petsPref === roommate.petsPref || myPost.petsPref === 'Pets Welcome' || roommate.petsPref === 'Pets Welcome') score++;
-                if (myPost.targetOccupation === 'Any' || roommate.targetOccupation === 'Any' || myPost.targetOccupation === roommate.targetOccupation) score++;
-                matchScore = Math.round((score / total) * 100);
-              }
-
-              const splitRent = roommate.totalCapacity > 1 && roommate.budget ? Math.round(roommate.budget / roommate.totalCapacity) : null;
-              const splitDeposit = roommate.totalCapacity > 1 && roommate.deposit > 0 ? Math.round(roommate.deposit / roommate.totalCapacity) : null;
-
-              const displayBudget = roommate.budget ? roommate.budget.toLocaleString('en-IN') : 'N/A';
-              const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
-
-              return (
-                <div key={roommate.id} className="glass-card bg-white/80 rounded-3xl p-6 border border-gray-100 relative overflow-hidden group">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-100 to-transparent rounded-bl-full -z-10 opacity-50"></div>
-                  
-                  {/* Header */}
-                  <div className="flex items-start justify-between mb-6">
-                    <div className="flex items-center">
-                      <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-2xl flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm shadow-primary-200/50">
-                        {roommate.user?.name?.charAt(0) || 'U'}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <h3 className="text-xl font-bold text-gray-900">{roommate.user?.name || 'User'}</h3>
-                          {roommate.user?.kycStatus === 'APPROVED' && (
-                            <div className="group relative flex items-center">
-                              <BadgeCheck size={20} className="text-blue-500 fill-blue-50" />
-                              <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-gray-900 text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">ID Verified</span>
-                            </div>
-                          )}
-                        </div>
-                        <p className="text-gray-500 text-sm">
-                          {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
-                        </p>
-                      </div>
-                    </div>
-                    {/* Delete own post */}
-                    {isOwner && (
-                      <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Found Roommate (Close Post)">
-                        <Trash2 size={16} />
-                      </button>
-                    )}
+            <>
+            {isMapView ? (
+              <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
+                {/* Map Search Overlay */}
+                <div className="absolute top-4 right-4 z-[1000] glass-premium rounded-xl p-3 flex flex-col gap-2 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-700">
+                   <div className="flex items-center gap-2">
+                     <div className="w-3 h-3 rounded-full bg-blue-50 border border-white shadow-sm"></div> Flat
+                   </div>
+                   <div className="flex items-center gap-2">
+                     <div className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm"></div> Roommate Request
+                   </div>
+                </div>
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
+                  <div className="pl-3 pr-2 text-gray-400">
+                    <MapPin size={18} className="text-primary-500" />
                   </div>
+                  <input 
+                    ref={mapSearchInputRef}
+                    type="text" 
+                    placeholder="Search map location..." 
+                    className="w-full outline-none text-sm bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleMapSearch();
+                    }}
+                  />
+                  <button 
+                    onClick={handleMapSearch}
+                    className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-4 py-2 text-sm font-bold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                  >
+                    Search
+                  </button>
+                </div>
 
-                  {/* 🟢 Match Score Badge */}
-                  {matchScore !== null && (
-                    <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold shadow-sm border z-10 ${
-                      matchScore >= 75 ? 'bg-green-100 text-green-700 border-green-200' :
-                      matchScore >= 50 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                      'bg-red-100 text-red-700 border-red-200'
-                    }`}>
-                      {matchScore}% Match
-                    </div>
-                  )}
+                <MapContainer center={mapCenter} zoom={12} zoomControl={false} style={{ height: "100%", width: "100%" }}>
+                  <CustomZoomControl />
+                  <MapUpdater center={mapCenter} />
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
+                  {roommates.map(roommate => {
+                    if (!roommate.latitude || !roommate.longitude) return null;
+                    return (
+                      <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon(roommate.propertyType)}>
+                        <Popup className="roommate-popup">
+                           <div className="p-2 min-w-[200px]">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="font-bold text-lg text-gray-900">{roommate.user?.name || 'User'}</div>
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 border border-gray-200 text-gray-700">
+                                  {roommate.propertyType || 'Room'}
+                                </span>
+                              </div>
+                              <div className="text-sm text-gray-600 mb-2 font-medium">{roommate.location}</div>
+                              <div className="flex flex-wrap gap-1 mb-2">
+                                {roommate.targetGender !== 'Any' && <span className="bg-primary-50 text-primary-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.targetGender}</span>}
+                                {roommate.dietaryPref !== 'Any' && <span className="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.dietaryPref}</span>}
+                              </div>
+                              {roommate.availableFrom && <div className="text-xs text-green-600 font-bold mb-2">⏱ Move-in: {roommate.availableFrom}</div>}
+                              <div className="text-primary-700 font-bold mb-3 text-lg">₹{roommate.budget}/mo</div>
+                              <button onClick={() => window.location.href = `/messages?user=${roommate.user?.id}`} className="w-full bg-primary-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm">Message</button>
+                           </div>
+                        </Popup>
+                      </Marker>
+                    )
+                  })}
+                </MapContainer>
+              </div>
+            ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {roommates.map(roommate => {
+                const isOwner = user?.email === roommate.user?.email;
+                const myPost = roommates.find(r => r.user?.email === user?.email);
+                
+                let matchScore = null;
+                if (!isOwner && myPost) {
+                  let score = 0;
+                  let total = 4;
+                  if (myPost.smokingPref === roommate.smokingPref || myPost.smokingPref === 'Smoking Okay' || roommate.smokingPref === 'Smoking Okay') score++;
+                  if (myPost.drinkingPref === roommate.drinkingPref || myPost.drinkingPref === 'Drinking Okay' || roommate.drinkingPref === 'Drinking Okay') score++;
+                  if (myPost.petsPref === roommate.petsPref || myPost.petsPref === 'Pets Welcome' || roommate.petsPref === 'Pets Welcome') score++;
+                  if (myPost.targetOccupation === 'Any' || roommate.targetOccupation === 'Any' || myPost.targetOccupation === roommate.targetOccupation) score++;
+                  matchScore = Math.round((score / total) * 100);
+                }
 
-                  {/* Image Carousel */}
-                  {roommate.images && roommate.images.length > 0 && (
-                    <div className="relative h-48 w-full mb-4 rounded-xl overflow-hidden group bg-gray-100 border border-gray-200">
-                      <img 
-                        src={roommate.images[activeImageIndexes[roommate.id] || 0]} 
-                        alt="Room" 
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                      
-                      {roommate.images.length > 1 && (
-                        <>
-                          <button 
-                            onClick={() => prevImage(roommate.id, roommate.images.length - 1)}
-                            className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <ChevronLeft size={18} />
-                          </button>
-                          <button 
-                            onClick={() => nextImage(roommate.id, roommate.images.length - 1)}
-                            className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <ChevronRight size={18} />
-                          </button>
-                          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
-                            {(activeImageIndexes[roommate.id] || 0) + 1} / {roommate.images.length}
+                const splitRent = roommate.totalCapacity > 1 && roommate.budget ? Math.round(roommate.budget / roommate.totalCapacity) : null;
+                const splitDeposit = roommate.totalCapacity > 1 && roommate.deposit > 0 ? Math.round(roommate.deposit / roommate.totalCapacity) : null;
+
+                const displayBudget = roommate.budget ? roommate.budget.toLocaleString('en-IN') : 'N/A';
+                const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
+
+                return (
+                  <div key={roommate.id} className="glass-card bg-white/80 rounded-3xl p-6 border border-gray-100 relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-100 to-transparent rounded-bl-full -z-10 opacity-50"></div>
+                    
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-6">
+                      <div className="flex items-center">
+                        <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-2xl flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm shadow-primary-200/50">
+                          {roommate.user?.name?.charAt(0) || 'U'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <h3 className="text-xl font-bold text-gray-900">{roommate.user?.name || 'User'}</h3>
+                            {roommate.user?.kycStatus === 'APPROVED' && (
+                              <div className="group relative flex items-center">
+                                <BadgeCheck size={20} className="text-blue-500 fill-blue-50" />
+                                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-gray-900 text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">ID Verified</span>
+                              </div>
+                            )}
                           </div>
-                        </>
+                          <p className="text-gray-500 text-sm">
+                            {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
+                          </p>
+                        </div>
+                      </div>
+                      {/* Delete own post */}
+                      {isOwner && (
+                        <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Found Roommate (Close Post)">
+                          <Trash2 size={16} />
+                        </button>
                       )}
                     </div>
-                  )}
 
-                  {/* 🟢 Split Rent Badge */}
-                  {splitRent && (
-                    <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-3 mb-4 flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-green-600 font-medium">💰 Split Rent Among {roommate.totalCapacity} Members</p>
-                        <p className="text-lg font-extrabold text-green-700">₹{splitRent.toLocaleString('en-IN')}<span className="text-sm font-medium"> / person / mo</span></p>
-                        {splitDeposit && <p className="text-xs text-green-600 mt-0.5">Deposit: ₹{splitDeposit.toLocaleString('en-IN')} / person</p>}
+                    {/* 🟢 Match Score Badge */}
+                    {matchScore !== null && (
+                      <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold shadow-sm border z-10 ${
+                        matchScore >= 75 ? 'bg-green-100 text-green-700 border-green-200' :
+                        matchScore >= 50 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                        'bg-red-100 text-red-700 border-red-200'
+                      }`}>
+                        {matchScore}% Match
                       </div>
-                      <Users size={24} className="text-green-400 flex-shrink-0" />
-                    </div>
-                  )}
-                  
-                  <div className="space-y-3 mb-6">
-                    <div className="flex items-start">
-                      <MapPin size={18} className="text-gray-400 mr-2 mt-0.5" />
-                      <div>
-                        <span className="text-xs text-gray-500 block">Looking in</span>
-                        <span className="font-medium text-gray-800">{roommate.location}</span>
+                    )}
+
+                    {/* Image Carousel */}
+                    {roommate.images && roommate.images.length > 0 && (
+                      <div className="relative h-48 w-full mb-4 rounded-xl overflow-hidden group bg-gray-100 border border-gray-200">
+                        <img 
+                          src={roommate.images[activeImageIndexes[roommate.id] || 0]} 
+                          alt="Room" 
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        
+                        {roommate.images.length > 1 && (
+                          <>
+                            <button 
+                              onClick={() => prevImage(roommate.id, roommate.images.length - 1)}
+                              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <ChevronLeft size={18} />
+                            </button>
+                            <button 
+                              onClick={() => nextImage(roommate.id, roommate.images.length - 1)}
+                              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <ChevronRight size={18} />
+                            </button>
+                            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                              {(activeImageIndexes[roommate.id] || 0) + 1} / {roommate.images.length}
+                            </div>
+                          </>
+                        )}
                       </div>
-                    </div>
-                    <div className="flex items-start">
-                      <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
-                      <div>
-                        <span className="text-xs text-gray-500 block">Total Rent {roommate.maintenanceIncluded ? '(Inc. Maintenance)' : '(Plus Maintenance)'}</span>
-                        <span className="font-medium text-gray-800">₹{displayBudget}</span>
+                    )}
+
+                    {/* 🟢 Split Rent Badge */}
+                    {splitRent && (
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+                        <div>
+                          <p className="text-xs text-green-600 font-medium">💰 Split Rent Among {roommate.totalCapacity} Members</p>
+                          <p className="text-lg font-extrabold text-green-700">₹{splitRent.toLocaleString('en-IN')}<span className="text-sm font-medium"> / person / mo</span></p>
+                          {splitDeposit && <p className="text-xs text-green-600 mt-0.5">Deposit: ₹{splitDeposit.toLocaleString('en-IN')} / person</p>}
+                        </div>
+                        <Users size={24} className="text-green-400 flex-shrink-0" />
                       </div>
-                    </div>
-                    {roommate.deposit > 0 && (
+                    )}
+                    
+                    <div className="space-y-3 mb-6">
+                      <div className="flex items-start">
+                        <MapPin size={18} className="text-gray-400 mr-2 mt-0.5" />
+                        <div>
+                          <span className="text-xs text-gray-500 block">Looking in</span>
+                          <span className="font-medium text-gray-800">{roommate.location}</span>
+                        </div>
+                      </div>
                       <div className="flex items-start">
                         <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
                         <div>
-                          <span className="text-xs text-gray-500 block">Total Deposit</span>
-                          <span className="font-medium text-gray-800">₹{displayDeposit}</span>
+                          <span className="text-xs text-gray-500 block">Total Rent {roommate.maintenanceIncluded ? '(Inc. Maintenance)' : '(Plus Maintenance)'}</span>
+                          <span className="font-medium text-gray-800">₹{displayBudget}</span>
                         </div>
                       </div>
-                    )}
-                    {roommate.vacancies != null && roommate.totalCapacity != null && (
-                      <div className="flex items-start">
-                        <div className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-bold border border-primary-100 flex items-center">
-                          <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                          {roommate.vacancies} Vacanc{roommate.vacancies === 1 ? 'y' : 'ies'} of {roommate.totalCapacity} Total
+                      {roommate.deposit > 0 && (
+                        <div className="flex items-start">
+                          <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
+                          <div>
+                            <span className="text-xs text-gray-500 block">Total Deposit</span>
+                            <span className="font-medium text-gray-800">₹{displayDeposit}</span>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mb-6">
-                    <span className="text-xs text-gray-500 block mb-2">Preferences & Lifestyle</span>
-                    <div className="flex flex-wrap gap-2">
-                      {roommate.availableFrom && <span className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200 flex items-center gap-1 font-medium">⏱ Move-in: {roommate.availableFrom}</span>}
-                      {roommate.targetOccupation && <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">Prefers {roommate.targetOccupation}</span>}
-                      {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="px-3 py-1 bg-pink-50 text-pink-700 text-xs rounded-full border border-pink-200">Prefers {roommate.targetGender}</span>}
-                      {roommate.agePreference && <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-200">Age: {roommate.agePreference}</span>}
-                      {roommate.dietaryPref && roommate.dietaryPref !== 'Any' && <span className="px-3 py-1 bg-orange-50 text-orange-700 text-xs rounded-full border border-orange-200">{roommate.dietaryPref}</span>}
-                      {roommate.smokingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.smokingPref}</span>}
-                      {roommate.drinkingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.drinkingPref}</span>}
-                      {roommate.petsPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.petsPref}</span>}
-                      {roommate.sleepSchedule && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.sleepSchedule}</span>}
-                      {roommate.cleanlinessLevel && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.cleanlinessLevel} Clean</span>}
-                      {roommate.preferences?.map((pref, idx) => (
-                        <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">
-                          {pref}
-                        </span>
-                      ))}
+                      )}
+                      {roommate.vacancies != null && roommate.totalCapacity != null && (
+                        <div className="flex items-start">
+                          <div className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-bold border border-primary-100 flex items-center">
+                            <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                            {roommate.vacancies} Vacanc{roommate.vacancies === 1 ? 'y' : 'ies'} of {roommate.totalCapacity} Total
+                          </div>
+                        </div>
+                      )}
                     </div>
+
+                    <div className="mb-6">
+                      <span className="text-xs text-gray-500 block mb-2">Preferences & Lifestyle</span>
+                      <div className="flex flex-wrap gap-2">
+                        {roommate.availableFrom && <span className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200 flex items-center gap-1 font-medium">⏱ Move-in: {roommate.availableFrom}</span>}
+                        {roommate.targetOccupation && <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">Prefers {roommate.targetOccupation}</span>}
+                        {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="px-3 py-1 bg-pink-50 text-pink-700 text-xs rounded-full border border-pink-200">Prefers {roommate.targetGender}</span>}
+                        {roommate.agePreference && <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-200">Age: {roommate.agePreference}</span>}
+                        {roommate.dietaryPref && roommate.dietaryPref !== 'Any' && <span className="px-3 py-1 bg-orange-50 text-orange-700 text-xs rounded-full border border-orange-200">{roommate.dietaryPref}</span>}
+                        {roommate.smokingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.smokingPref}</span>}
+                        {roommate.drinkingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.drinkingPref}</span>}
+                        {roommate.petsPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.petsPref}</span>}
+                        {roommate.sleepSchedule && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.sleepSchedule}</span>}
+                        {roommate.cleanlinessLevel && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.cleanlinessLevel} Clean</span>}
+                        {roommate.preferences?.map((pref, idx) => (
+                          <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">
+                            {pref}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    {!isOwner && (
+                      <button 
+                        onClick={() => window.location.href = `/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${roommate.user?.name || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`}
+                        className="w-full bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors mt-4"
+                      >
+                        <MessageCircle size={18} className="mr-2" />
+                        Message to Join
+                      </button>
+                    )}
                   </div>
-
-                  {!isOwner && (
-                    <button 
-                      onClick={() => window.location.href = `/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${roommate.user?.name || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`}
-                      className="w-full bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors mt-4"
-                    >
-                      <MessageCircle size={18} className="mr-2" />
-                      Message to Join
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-            </div>
+                );
+              })}
+              </div>
+            )}
+            {hasMore && (
+              <div className="mt-10 flex justify-center">
+                <button
+                  onClick={() => {
+                    const nextPage = page + 1;
+                    setPage(nextPage);
+                    fetchRoommates(nextPage, true);
+                  }}
+                  disabled={loading}
+                  className="bg-white border-2 border-primary-100 text-primary-700 px-8 py-3 rounded-xl font-bold hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm disabled:opacity-50"
+                >
+                  {loading ? 'Loading...' : 'Load More Roommates'}
+                </button>
+              </div>
+            )}
+            </>
           )}
-          {hasMore && (
-            <div className="mt-10 flex justify-center">
-              <button
-                onClick={() => {
-                  const nextPage = page + 1;
-                  setPage(nextPage);
-                  fetchRoommates(nextPage, true);
-                }}
-                disabled={loading}
-                className="bg-white border-2 border-primary-100 text-primary-700 px-8 py-3 rounded-xl font-bold hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm disabled:opacity-50"
-              >
-                {loading ? 'Loading...' : 'Load More Roommates'}
-              </button>
-            </div>
-          )}
-          </>
-        )}
 
+        </div>
       </div>
+      
       {/* Post Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
@@ -800,101 +815,70 @@ const RoommatesPage = () => {
                     <div className="w-6 h-6 bg-purple-100 rounded-lg flex items-center justify-center"><Briefcase size={12} className="text-purple-600" /></div>
                     <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Preferences</h3>
                   </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {[
-                      { label: 'Gender', key: 'targetGender', options: ['Any', 'Male', 'Female'] },
-                      { label: 'Occupation', key: 'targetOccupation', options: ['Any', 'Student', 'Working Professional'] },
-                      { label: 'Move-in', key: 'availableFrom', options: ['Immediately', 'Within 15 Days', 'Next Month'] },
-                      { label: 'Maintenance', key: 'maintenanceIncluded', isBoolean: true, options: ['Not Included', 'Included'] },
-                      { label: 'Dietary', key: 'dietaryPref', options: ['Any', 'Vegetarian', 'Non-Vegetarian', 'Vegan'] },
-                      { label: 'Smoking', key: 'smokingPref', options: ['Non-Smoking', 'Smoking Okay'] },
-                      { label: 'Drinking', key: 'drinkingPref', options: ['Non-Drinking', 'Drinking Okay'] },
-                      { label: 'Pets', key: 'petsPref', options: ['No Pets', 'Pets Welcome'] },
-                    ].map(({ label, key, options, isBoolean }) => (
-                      <div key={key}>
-                        <label className="block text-xs font-medium text-gray-500 mb-1">{label}</label>
-                        <select
-                          value={isBoolean ? (postFormData[key] ? 'Included' : 'Not Included') : postFormData[key]}
-                          onChange={(e) => setPostFormData({...postFormData, [key]: isBoolean ? e.target.value === 'Included' : e.target.value})}
-                          className="w-full py-3 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none cursor-pointer">
-                          {options.map(o => <option key={o} value={o}>{o}</option>)}
-                        </select>
-                      </div>
-                    ))}
-                    <div className="col-span-2">
-                      <label className="block text-xs font-medium text-gray-500 mb-1">Age Preference (optional)</label>
-                      <input type="text" value={postFormData.agePreference}
-                        onChange={(e) => setPostFormData({...postFormData, agePreference: e.target.value})}
-                        placeholder="e.g. 20-30"
-                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
-                    </div>
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <select value={postFormData.targetGender} onChange={(e) => setPostFormData({...postFormData, targetGender: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                      <option value="Any">Any Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                    <select value={postFormData.dietaryPref} onChange={(e) => setPostFormData({...postFormData, dietaryPref: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                      <option value="Any">Any Diet</option>
+                      <option value="Veg">Vegetarian</option>
+                      <option value="Non-Veg">Non-Vegetarian</option>
+                    </select>
+                    <select value={postFormData.smokingPref} onChange={(e) => setPostFormData({...postFormData, smokingPref: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                      <option value="Non-Smoking">Non-Smoking</option>
+                      <option value="Smoking Okay">Smoking Okay</option>
+                    </select>
+                    <select value={postFormData.drinkingPref} onChange={(e) => setPostFormData({...postFormData, drinkingPref: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                      <option value="Non-Drinking">Non-Drinking</option>
+                      <option value="Drinking Okay">Drinking Okay</option>
+                    </select>
                   </div>
+                  <input type="text" value={postFormData.preferences}
+                    onChange={(e) => setPostFormData({...postFormData, preferences: e.target.value})}
+                    placeholder="Other Tags (e.g. IT Professional, Night Shift)"
+                    className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
 
                 {/* Section: Photos */}
                 <div>
                   <div className="flex items-center gap-2 mb-3">
                     <div className="w-6 h-6 bg-orange-100 rounded-lg flex items-center justify-center"><ImageIcon size={12} className="text-orange-600" /></div>
-                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Photos (max 3)</h3>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Photos <span className="text-xs text-gray-400 normal-case font-medium">(Max 3)</span></h3>
                   </div>
-
-                  {/* Tip */}
-                  <div className="bg-blue-50 border border-blue-100 rounded-xl px-4 py-3 mb-4 flex items-start gap-3">
-                    <BadgeCheck size={16} className="text-blue-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-blue-700 leading-relaxed">
-                      The <strong>first photo</strong> you upload will be the <strong>Main Photo</strong> on your request card.
-                    </p>
+                  <div className="flex items-center justify-center w-full">
+                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors">
+                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                        <ImageIcon className="w-8 h-8 text-gray-400 mb-2" />
+                        <p className="text-sm text-gray-500"><span className="font-semibold">Click to upload</span></p>
+                      </div>
+                      <input type="file" multiple accept="image/*" className="hidden" onChange={handleImageChange} />
+                    </label>
                   </div>
-
-                  <label className="block w-full border-2 border-dashed border-gray-300 hover:border-primary-400 rounded-xl p-4 text-center cursor-pointer transition-all bg-gray-50 hover:bg-primary-50">
-                    <ImageIcon size={24} className="text-gray-400 mx-auto mb-1" />
-                    <span className="text-sm text-gray-500">Click to upload photos</span>
-                    <input type="file" multiple accept="image/*" onChange={handleImageChange} className="hidden" />
-                  </label>
                   {postFormData.images && postFormData.images.length > 0 && (
-                    <div className="flex gap-2 mt-3 overflow-x-auto pb-1">
-                      {postFormData.images.map((img, i) => (
-                        <div key={i} className="relative flex-shrink-0">
-                          <img src={img} alt={`Preview ${i}`} className="h-20 w-20 object-cover rounded-xl border-2 border-white shadow-md" />
-                          {i === 0 && (
-                            <div className="absolute top-1 left-1 bg-yellow-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1 shadow-sm">
-                              Main Photo
-                            </div>
-                          )}
-                          <button type="button"
-                            onClick={() => setPostFormData({...postFormData, images: postFormData.images.filter((_, idx) => idx !== i)})}
-                            className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center shadow-sm hover:bg-red-600 transition-colors">
-                            <X size={10} />
-                          </button>
+                    <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
+                      {postFormData.images.map((img, idx) => (
+                        <div key={idx} className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
+                          <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => setPostFormData({...postFormData, images: postFormData.images.filter((_, i) => i !== idx)})} className="absolute top-1 right-1 bg-red-500 text-white p-0.5 rounded-full"><X size={12}/></button>
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
 
-                {/* Custom Preferences */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Other Notes (optional)</label>
-                  <input type="text" value={postFormData.preferences}
-                    onChange={(e) => setPostFormData({...postFormData, preferences: e.target.value})}
-                    placeholder="e.g. Early riser, gym buddy preferred"
-                    className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
-                </div>
               </div>
-
-              {/* Sticky Submit Footer */}
-              <div className="px-6 pb-6 flex-shrink-0">
-                <button type="submit"
-                  className="w-full bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white rounded-2xl py-4 font-bold text-base flex items-center justify-center gap-2 shadow-lg shadow-primary-600/30 transition-all active:scale-95">
-                  <Plus size={20} /> Post Roommate Request
-                </button>
+              <div className="p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 px-4 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors">Cancel</button>
+                <button type="submit" className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-md shadow-primary-600/20">Post Request</button>
               </div>
             </form>
           </div>
         </div>
       )}
       <Modal {...modalConfig} onCancel={closeModal} />
-    </div>
+    </>
   );
 };
 

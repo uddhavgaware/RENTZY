@@ -14,16 +14,28 @@ const Navbar = () => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const notifRef = useRef(null);
   const location = useLocation();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
 
+  const isCinematicPage = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
+
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Listings', path: '/listings' },
+    { name: 'Flats', path: '/flats' },
+    { name: 'PG/Hostels', path: '/pgs' },
     { name: 'Roommates', path: '/roommates' },
     { name: 'Movers', path: '/movers' },
   ];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -71,10 +83,19 @@ const Navbar = () => {
     window.location.href = '/';
   };
 
+  const navClass = isCinematicPage 
+    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20 py-1" : "bg-transparent py-4")
+    : "sticky top-0 z-[100] w-full bg-white shadow-sm border-b border-gray-100";
+
+  const textColorClass = isCinematicPage && !isScrolled ? "text-white" : "text-gray-900";
+  const linkColorClass = isCinematicPage && !isScrolled ? "text-white/80 hover:text-white" : "text-gray-500 hover:text-gray-900";
+  const logoBgClass = isCinematicPage && !isScrolled ? "bg-white/20 backdrop-blur-sm" : "bg-gradient-to-br from-primary-500 to-primary-700";
+  const logoIconColorClass = isCinematicPage && !isScrolled ? "text-white" : "text-white";
+
   return (
     <>
       {showLogoutConfirm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center border border-gray-100">
             <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <LogOut size={32} className="text-red-500" />
@@ -98,25 +119,25 @@ const Navbar = () => {
           </div>
         </div>
       )}
-    <nav className="sticky top-0 z-50 w-full bg-white shadow-sm border-b border-gray-100">
+    <nav className={navClass}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white shadow-lg shadow-primary-500/30">
-                <Building2 size={24} />
+              <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center shadow-lg transition-colors", logoBgClass)}>
+                <Building2 size={24} className={logoIconColorClass} />
               </div>
-              <span className="font-bold text-2xl tracking-tight text-gray-900">RentXY</span>
+              <span className={cn("font-bold text-2xl tracking-tight transition-colors", textColorClass)}>RentXY</span>
             </Link>
             <div className="hidden md:ml-10 md:flex md:space-x-8">
               {navLinks.map((link) => (
-                <Link key={link.name} to={link.path} className={cn("inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200", location.pathname === link.path ? "border-primary-500 text-gray-900" : "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700")}>{link.name}</Link>
+                <Link key={link.name} to={link.path} className={cn("inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200", location.pathname === link.path ? cn("border-primary-500", textColorClass) : cn("border-transparent", linkColorClass))}>{link.name}</Link>
               ))}
             </div>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Link to="/post-property" className="text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors">Post Property</Link>
+            <Link to="/post-property" className={cn("text-sm font-medium transition-colors", linkColorClass)}>Post Property</Link>
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
                 {isAdmin && (
@@ -131,7 +152,7 @@ const Navbar = () => {
                 )}
                 {/* Notifications Bell */}
                 <div className="relative" ref={notifRef}>
-                  <button onClick={toggleNotifs} className="relative text-gray-500 hover:text-primary-600 transition-colors">
+                  <button onClick={toggleNotifs} className={cn("relative transition-colors", linkColorClass)}>
                     <Bell size={20} />
                     {unreadCount > 0 && (
                       <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-pulse">
@@ -159,11 +180,11 @@ const Navbar = () => {
                     </div>
                   )}
                 </div>
-                <Link to="/messages" className="text-gray-500 hover:text-primary-600"><MessageSquare size={20} /></Link>
-                <Link to="/dashboard?tab=saved" className="text-gray-500 hover:text-primary-600"><Heart size={20} /></Link>
+                <Link to="/messages" className={cn("transition-colors", linkColorClass)}><MessageSquare size={20} /></Link>
+                <Link to="/dashboard?tab=saved" className={cn("transition-colors", linkColorClass)}><Heart size={20} /></Link>
                 <div className="flex items-center space-x-2">
                   <Link to="/dashboard" className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center overflow-hidden border border-primary-200" title={user?.name}><User size={18} /></Link>
-                  <button onClick={handleLogout} className="text-gray-500 hover:text-red-600 transition-colors" title="Log out"><LogOut size={20} /></button>
+                  <button onClick={handleLogout} className={cn("transition-colors hover:text-red-600", linkColorClass)} title="Log out"><LogOut size={20} /></button>
                 </div>
               </div>
             ) : (

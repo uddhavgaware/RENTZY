@@ -14,7 +14,7 @@ const STATS = [
 
 const CATEGORIES = [
   {
-    to: '/listings?type=pg',
+    to: '/pgs',
     label: 'PGs & Hostels',
     tag: 'Budget-Friendly',
     img: 'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80',
@@ -22,7 +22,7 @@ const CATEGORIES = [
     emoji: '🏨',
   },
   {
-    to: '/listings?type=flat',
+    to: '/flats',
     label: 'Flats & Apartments',
     tag: 'Independent',
     img: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80',
@@ -44,6 +44,22 @@ const CATEGORIES = [
     img: 'https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=800&q=80',
     color: 'from-orange-500/80 to-amber-900/90',
     emoji: '🚚',
+  },
+  {
+    to: '/offices',
+    label: 'Office Spaces',
+    tag: 'Commercial',
+    img: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=800&q=80',
+    color: 'from-teal-600/80 to-emerald-900/90',
+    emoji: '💼',
+  },
+  {
+    to: '/warehouses',
+    label: 'Warehouses',
+    tag: 'Storage',
+    img: 'https://images.unsplash.com/photo-1586528116311-ad8ed7c80a30?auto=format&fit=crop&w=800&q=80',
+    color: 'from-yellow-600/80 to-orange-900/90',
+    emoji: '🏭',
   },
 ];
 
@@ -182,8 +198,8 @@ const LandingPage = () => {
           <div className="flex flex-wrap justify-center gap-2 mt-6 animate-slide-up animation-delay-400">
             {[
               { to: '/listings', label: '🏠 Browse All', },
-              { to: '/listings?type=pg', label: '🏨 PGs & Hostels' },
-              { to: '/listings?type=flat', label: '🏢 Flats' },
+              { to: '/pgs', label: '🏨 PGs & Hostels' },
+              { to: '/flats', label: '🏢 Flats' },
               { to: '/roommates', label: '🤝 Roommates' },
             ].map(({ to, label }) => (
               <Link
@@ -229,7 +245,7 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {CATEGORIES.map(({ to, label, tag, img, color, emoji }, i) => (
               <Link
                 key={to}

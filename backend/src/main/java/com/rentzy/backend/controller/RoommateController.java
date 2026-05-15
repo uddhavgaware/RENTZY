@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import java.util.List;
 
 @RestController
@@ -19,6 +21,7 @@ public class RoommateController {
     private final RoommateService service;
 
     @GetMapping
+    @Cacheable("roommates")
     public ResponseEntity<Page<RoommatePostDTO>> getAllPosts(
             @RequestParam(required = false) String location,
             @RequestParam(defaultValue = "0") int page,
@@ -30,12 +33,14 @@ public class RoommateController {
     }
 
     @PostMapping
+    @CacheEvict(value = "roommates", allEntries = true)
     public ResponseEntity<RoommatePostDTO> createPost(@RequestBody RoommatePost post, Authentication authentication) {
         RoommatePost savedPost = service.createPost(post, authentication.getName());
         return ResponseEntity.ok(RoommatePostDTO.fromEntity(savedPost));
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "roommates", allEntries = true)
     public ResponseEntity<Void> deletePost(@PathVariable Long id, Authentication authentication) {
         service.deletePost(id, authentication.getName());
         return ResponseEntity.noContent().build();

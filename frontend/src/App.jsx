@@ -20,6 +20,10 @@ import OwnerProfilePage from './pages/OwnerProfilePage';
 import AboutPage from './pages/AboutPage';
 import FaqPage from './pages/FaqPage';
 import TermsPage from './pages/TermsPage';
+import FlatRentalPortal from './pages/FlatRentalPortal';
+import PgHostelPortal from './pages/PgHostelPortal';
+import OfficeSpacePortal from './pages/OfficeSpacePortal';
+import WarehousePortal from './pages/WarehousePortal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 // ✅ Scroll to top on EVERY page navigation — fixes "page stays scrolled down" bug
@@ -75,6 +79,10 @@ function App() {
               <Route path="/faq" element={<FaqPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/owner/:id" element={<OwnerProfilePage />} />
+              <Route path="/flats" element={<FlatRentalPortal />} />
+              <Route path="/pgs" element={<PgHostelPortal />} />
+              <Route path="/offices" element={<OfficeSpacePortal />} />
+              <Route path="/warehouses" element={<WarehousePortal />} />
 
               {/* Protected routes — must be logged in */}
               <Route path="/post-property" element={<ProtectedRoute><PostPropertyPage /></ProtectedRoute>} />

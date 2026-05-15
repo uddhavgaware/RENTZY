@@ -8,6 +8,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.data.domain.Page;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 import java.util.List;
 
 @RestController
@@ -18,6 +20,7 @@ public class ListingController {
     private final ListingService service;
 
     @GetMapping
+    @Cacheable("listings")
     public ResponseEntity<Page<Listing>> getAllListings(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String location,
@@ -48,17 +51,20 @@ public class ListingController {
     }
 
     @PostMapping
+    @CacheEvict(value = "listings", allEntries = true)
     public ResponseEntity<Listing> createListing(@RequestBody Listing listing, Authentication authentication) {
         return ResponseEntity.ok(service.createListing(listing, authentication.getName()));
     }
 
     @DeleteMapping("/{id}")
+    @CacheEvict(value = "listings", allEntries = true)
     public ResponseEntity<Void> deleteListing(@PathVariable Long id) {
         service.deleteListing(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/{id}")
+    @CacheEvict(value = "listings", allEntries = true)
     public ResponseEntity<Listing> updateListing(
             @PathVariable Long id,
             @RequestBody Listing listing,
@@ -67,6 +73,7 @@ public class ListingController {
     }
 
     @PatchMapping("/{id}/status")
+    @CacheEvict(value = "listings", allEntries = true)
     public ResponseEntity<Listing> updateListingStatus(
             @PathVariable Long id,
             @RequestBody java.util.Map<String, String> body,
