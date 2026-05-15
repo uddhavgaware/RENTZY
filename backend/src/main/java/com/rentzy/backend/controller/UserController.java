@@ -203,7 +203,7 @@ public class UserController {
     public ResponseEntity<?> requestDelete(@RequestHeader("Authorization") String token) {
         try {
             String jwt = token.substring(7);
-            String email = jwtUtil.extractUsername(jwt);
+            String email = jwtService.extractUsername(jwt);
             User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
             user.setDeleteRequested(true);
             userRepository.save(user);
