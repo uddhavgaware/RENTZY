@@ -371,7 +371,7 @@ const LandingPage = () => {
                   className="w-full h-full object-cover aspect-[4/3] scale-105"
                   poster="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80"
                 >
-                  <source src="https://player.vimeo.com/external/498457639.sd.mp4?s=f52bcbc60a75877c8e88eeb020bf0a1bdfd31b78&profile_id=164&oauth2_token_id=57447761" type="video/mp4" />
+                  <source src="https://cdn.pixabay.com/video/2019/06/04/24304-340645274_large.mp4" type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
                 

@@ -271,28 +271,38 @@ const AdminDashboardPage = () => {
   ];
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <div className="bg-mesh-gradient min-h-screen pb-16 relative overflow-hidden">
+      {/* Decorative background blobs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary-200/15 rounded-full translate-x-1/3 -translate-y-1/3 blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-200/10 rounded-full -translate-x-1/3 translate-y-1/3 blur-[80px] pointer-events-none" />
 
-        {/* Header */}
-        <div className="mb-8 flex items-center gap-4">
-          <div className="w-12 h-12 bg-primary-600 rounded-2xl flex items-center justify-center">
-            <ShieldCheck size={24} className="text-white" />
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-            <p className="text-gray-500 text-sm mt-0.5">Manage your RentXY platform</p>
+      {/* Premium gradient header */}
+      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-primary-900 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-20 pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle at 25% 50%, rgba(99, 102, 241, 0.3) 0%, transparent 50%), radial-gradient(circle at 75% 30%, rgba(168, 85, 247, 0.2) 0%, transparent 50%)' }} />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 -translate-y-1/2 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
+              <ShieldCheck size={24} className="text-white" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-black text-white tracking-tight">Admin Dashboard</h1>
+              <p className="text-gray-400 text-sm mt-0.5">Manage your RentXY platform</p>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 relative z-10">
         
         {/* Error Message */}
         {error && (
-          <div className="mb-8 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3">
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl flex items-center gap-3 shadow-sm">
             <AlertCircle size={20} className="flex-shrink-0" />
             <div className="flex-1 text-sm font-medium">{error}</div>
             <button 
               onClick={() => setError(null)}
-              className="text-red-500 hover:text-red-700 font-bold"
+              className="text-red-500 hover:text-red-700 font-bold text-xl leading-none"
             >
               ×
             </button>
@@ -300,15 +310,15 @@ const AdminDashboardPage = () => {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto hide-scrollbar animate-slide-up" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+        <div className="flex gap-2 mb-8 overflow-x-auto hide-scrollbar bg-white rounded-2xl p-2 shadow-lg shadow-gray-200/50 border border-gray-100/80" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
-                  ? 'bg-primary-600 text-white shadow-md shadow-primary-600/25'
-                  : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+                  ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md shadow-primary-600/25'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <tab.icon size={16} />

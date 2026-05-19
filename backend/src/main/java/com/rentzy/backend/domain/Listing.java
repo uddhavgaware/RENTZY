@@ -39,13 +39,13 @@ public class Listing {
     @Column
     private String furnishing; // Fully Furnished, Semi Furnished, Unfurnished
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> images;
 
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> amenities;
 
     @Column

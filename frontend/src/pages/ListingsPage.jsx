@@ -238,14 +238,18 @@ const ListingsPage = () => {
   ].filter(Boolean).length;
 
   return (
-    <div className="bg-gray-50 min-h-screen pt-4 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="bg-mesh-gradient min-h-screen pt-4 pb-12 relative overflow-hidden">
+      {/* Decorative blobs */}
+      <div className="absolute top-0 right-0 w-80 h-80 bg-primary-200/15 rounded-full translate-x-1/3 -translate-y-1/3 blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-200/10 rounded-full -translate-x-1/3 translate-y-1/3 blur-[80px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         
         {/* Search Header */}
-        <div className="glass-card rounded-3xl p-4 md:p-6 mb-6 mt-4 relative z-20">
-          <div className="flex flex-col md:flex-row gap-4">
+        <div className="bg-white rounded-2xl sm:rounded-3xl p-4 md:p-6 mb-6 mt-4 relative z-20 shadow-lg shadow-gray-200/50 border border-gray-100/80">
+          <div className="flex flex-col md:flex-row gap-3">
             <div className="flex-1 relative" ref={suggestionsRef}>
-              <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+              <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-primary-500" size={20} />
               <input 
                 type="text" 
                 value={searchInput}
@@ -253,7 +257,7 @@ const ListingsPage = () => {
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
                 onFocus={() => searchInput.trim().length >= 1 && filteredLocations.length > 0 && setShowSuggestions(true)}
                 placeholder="Search by locality, area, or landmark..." 
-                className="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                className="w-full pl-12 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-gray-800 font-medium placeholder-gray-400"
               />
               <button 
                 onClick={handleLiveLocation}
@@ -282,21 +286,21 @@ const ListingsPage = () => {
             </div>
             <button 
               onClick={handleSearch}
-              className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-xl font-medium flex items-center justify-center transition-colors shadow-sm shadow-primary-600/20 active:scale-95"
+              className="bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 text-white px-8 py-3.5 rounded-xl font-bold flex items-center justify-center transition-all shadow-lg shadow-primary-600/25 active:scale-95"
             >
               <Search className="mr-2" size={20} />
               Search
             </button>
             <button 
               onClick={() => setShowFilters(!showFilters)}
-              className={`border text-gray-700 px-6 py-3 rounded-xl font-medium flex items-center justify-center transition-colors relative ${
-                showFilters ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-white border-gray-200 hover:bg-gray-50'
+              className={`border text-gray-700 px-6 py-3.5 rounded-xl font-semibold flex items-center justify-center transition-all relative ${
+                showFilters ? 'bg-primary-50 border-primary-300 text-primary-700' : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
               }`}
             >
               <SlidersHorizontal className="mr-2" size={20} />
               Filters
               {activeFilterCount > 0 && (
-                <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary-600 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-2 -right-2 w-5 h-5 bg-primary-600 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-sm">
                   {activeFilterCount}
                 </span>
               )}

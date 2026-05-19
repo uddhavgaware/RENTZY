@@ -293,36 +293,48 @@ const DashboardPage = () => {
 
   return (
     <>
-    <div className="bg-gray-50 min-h-screen pt-4 pb-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 mt-4 flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-1">Manage your account and properties</p>
-          </div>
-          <button onClick={() => showModal({ type: 'confirm', title: 'Sign Out', message: 'Are you sure you want to sign out of your account?', onConfirm: confirmLogout, onCancel: closeModal })} className="flex items-center text-red-600 hover:text-red-700 font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">
-            <LogOut size={18} className="mr-2" />Sign Out
-          </button>
-        </div>
+    <div className="bg-mesh-gradient min-h-screen pb-12 relative overflow-hidden">
+      {/* Decorative background blobs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary-200/20 rounded-full translate-x-1/3 -translate-y-1/3 blur-[80px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-200/15 rounded-full -translate-x-1/3 translate-y-1/3 blur-[80px] pointer-events-none" />
 
-        <div className="flex flex-col lg:flex-row gap-8">
+      {/* Premium gradient header */}
+      <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHBhdGggZD0iTTMwIDBMMzAgNjBNMCA' + 'zMEw2MCAzMCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IGZpbGw9InVybCgjYSkiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiLz48L3N2Zz4=')] opacity-30 pointer-events-none" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 -translate-y-1/2 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-primary-200 text-sm font-medium mb-1">Welcome back,</p>
+              <h1 className="text-3xl font-black text-white tracking-tight">{user?.name || 'User'}</h1>
+              <p className="text-primary-200 mt-1 text-sm">Manage your account, properties and bookings</p>
+            </div>
+            <button onClick={() => showModal({ type: 'confirm', title: 'Sign Out', message: 'Are you sure you want to sign out of your account?', onConfirm: confirmLogout, onCancel: closeModal })} className="flex items-center text-white/80 hover:text-white font-medium px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/15 transition-all">
+              <LogOut size={18} className="mr-2" />Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 relative z-10">
+        <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <div className="w-full lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sticky top-24">
-              <div className="flex items-center space-x-4 mb-6 p-2">
-                <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold text-lg">
+            <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100/80 p-4 sticky top-24">
+              <div className="flex items-center space-x-4 mb-6 p-3 bg-gradient-to-r from-primary-50 to-indigo-50 rounded-xl border border-primary-100/50">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-primary-500/25">
                   {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900">{user?.name || 'User'}</h3>
-                  <p className="text-sm text-gray-500">{user?.role || 'Account'}</p>
+                  <p className="text-xs text-primary-600 font-semibold uppercase tracking-wide">{user?.role || 'Account'}</p>
                 </div>
               </div>
               <nav className="space-y-1">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
-                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors ${activeTab === tab.id ? 'bg-primary-50 text-primary-700' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}>
+                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 text-primary-700 shadow-sm border border-primary-100/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}>
                       <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600' : 'text-gray-400'}`} />{tab.name}
                     </button>
                   );
@@ -332,7 +344,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+          <div className="flex-1 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100/80 p-6 md:p-8">
 
             {/* PROFILE TAB */}
             {activeTab === 'profile' && (
