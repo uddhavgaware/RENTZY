@@ -20,6 +20,7 @@ const Navbar = () => {
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
 
   const isCinematicPage = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
+  const isDarkHero = ['/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
 
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -87,10 +88,10 @@ const Navbar = () => {
     ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20 py-1" : "bg-transparent py-4")
     : "sticky top-0 z-[100] w-full bg-white shadow-sm border-b border-gray-100";
 
-  const textColorClass = isCinematicPage && !isScrolled ? "text-white" : "text-gray-900";
-  const linkColorClass = isCinematicPage && !isScrolled ? "text-white/80 hover:text-white" : "text-gray-500 hover:text-gray-900";
-  const logoBgClass = isCinematicPage && !isScrolled ? "bg-white/20 backdrop-blur-sm" : "bg-gradient-to-br from-primary-500 to-primary-700";
-  const logoIconColorClass = isCinematicPage && !isScrolled ? "text-white" : "text-white";
+  const textColorClass = isDarkHero && !isScrolled ? "text-white" : "text-gray-900";
+  const linkColorClass = isDarkHero && !isScrolled ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-primary-700 font-semibold";
+  const logoBgClass = isDarkHero && !isScrolled ? "bg-white/20 backdrop-blur-sm" : "bg-gradient-to-br from-primary-500 to-primary-700";
+  const logoIconColorClass = "text-white";
 
   return (
     <>

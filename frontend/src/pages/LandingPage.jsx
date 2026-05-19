@@ -322,6 +322,92 @@ const LandingPage = () => {
       </section>
 
       {/* ═══════════════════════════════════════
+          ROOMMATE FINDING VIDEO ANIMATION
+      ═══════════════════════════════════════ */}
+      <section className="py-20 sm:py-28 bg-white relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="order-2 lg:order-1 animate-slide-up">
+              <div className="section-badge mb-4">✦ Roommate Finder</div>
+              <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight leading-tight mb-6">
+                Find Your Vibe,<br />
+                <span className="gradient-text">Not Just a Roommate</span>
+              </h2>
+              <p className="text-gray-500 text-lg leading-relaxed mb-8">
+                Tired of awkward roommate interviews? Our AI-powered matchmaking connects you with like-minded individuals based on lifestyle, habits, and preferences.
+              </p>
+              
+              <ul className="space-y-4 mb-8">
+                {[
+                  'Advanced compatibility matching',
+                  'Verified profiles & background checks',
+                  'Secure in-app chat & video calls',
+                  'Shared expenses tracking'
+                ].map((feature, i) => (
+                  <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
+                    <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 flex-shrink-0">
+                      <CheckCircle2 size={14} />
+                    </div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              
+              <Link
+                to="/roommates"
+                className="btn-primary rounded-xl px-8 py-4 text-base shine-hover inline-flex items-center gap-2"
+              >
+                Find a Roommate <ArrowRight size={18} />
+              </Link>
+            </div>
+            
+            <div className="order-1 lg:order-2 relative">
+              <div className="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-primary-500/20 border-8 border-white/50 bg-white z-10">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-full h-full object-cover aspect-[4/3] scale-105"
+                  poster="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80"
+                >
+                  <source src="https://player.vimeo.com/external/498457639.sd.mp4?s=f52bcbc60a75877c8e88eeb020bf0a1bdfd31b78&profile_id=164&oauth2_token_id=57447761" type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+                
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                
+                <div className="absolute bottom-6 left-6 right-6 flex gap-4 pointer-events-none">
+                  <div className="bg-white/90 backdrop-blur-md rounded-xl p-3 shadow-lg flex items-center gap-3 animate-bounce-slow">
+                    <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-500">
+                      <Star size={20} className="fill-current" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-gray-900">98% Match</div>
+                      <div className="text-[10px] text-gray-500">Same Lifestyle</div>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-white/90 backdrop-blur-md rounded-xl p-3 shadow-lg flex items-center gap-3 animate-bounce-slow animation-delay-1000 ml-auto">
+                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500">
+                      <MessageSquare size={20} className="fill-current" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-bold text-gray-900">New Message</div>
+                      <div className="text-[10px] text-gray-500">"Hey! I like your..."</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="absolute -top-12 -right-12 w-64 h-64 bg-primary-200 rounded-full mix-blend-multiply filter blur-[60px] opacity-70 animate-blob" />
+              <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-rose-200 rounded-full mix-blend-multiply filter blur-[60px] opacity-70 animate-blob animation-delay-2000" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════
           WHY RentXY (FEATURES)
       ═══════════════════════════════════════ */}
       <section className="py-20 sm:py-28 bg-white">

@@ -489,7 +489,14 @@ const AdminDashboardPage = () => {
                               <span className={`font-medium ${u.isBlocked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{u.name}</span>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-gray-600 text-sm">{u.email}</td>
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col">
+                              <span className="text-gray-600 text-sm font-medium">{u.email}</span>
+                              {u.phone && <span className="text-gray-500 text-xs mt-1">📞 {u.phone}</span>}
+                              {u.gender && <span className="text-gray-400 text-xs mt-0.5">👤 {u.gender} {u.dob ? `| ${u.dob}` : ''}</span>}
+                              {u.occupation && <span className="text-gray-400 text-xs mt-0.5">💼 {u.occupation}</span>}
+                            </div>
+                          </td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-1 items-start">
                               <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
