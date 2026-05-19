@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Truck, MapPin, Calendar, Package, ArrowRight, ShieldCheck, Clock, CreditCard, Map as MapIcon, Plus, Minus, CheckCircle2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap, Polyline } from 'react-leaflet';
+import { divIcon } from 'leaflet';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -16,6 +17,56 @@ function CustomZoomControl() {
     </div>
   );
 }
+
+const pickupIcon = divIcon({
+  html: `
+    <div class="flex items-center justify-center">
+      <div class="relative w-8 h-8 flex items-center justify-center">
+        <div class="absolute inset-0 bg-emerald-500 rounded-full opacity-35 animate-ping"></div>
+        <div class="relative w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-emerald-500">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-emerald-500">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  `,
+  className: 'custom-pickup-marker',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const dropIcon = divIcon({
+  html: `
+    <div class="flex items-center justify-center">
+      <div class="relative w-8 h-8 flex items-center justify-center">
+        <div class="absolute inset-0 bg-red-500 rounded-full opacity-35 animate-ping"></div>
+        <div class="relative w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-red-500">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-red-500">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  `,
+  className: 'custom-drop-marker',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const MapUpdater = ({ center }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.setView(center, 13);
+    }
+  }, [center, map]);
+  return null;
+};
 
 const MoversPage = () => {
   const { isAuthenticated } = useAuth();
@@ -39,6 +90,27 @@ const MoversPage = () => {
   const [fromCoords, setFromCoords] = useState(null);
   const [toCoords, setToCoords] = useState(null);
   const [mapPosition, setMapPosition] = useState([18.5204, 73.8567]);
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
+
+  const handleMapSearch = async (e) => {
+    if (e) e.preventDefault();
+    if (!mapSearchQuery.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+        setMapPosition(coords);
+        if (activeMapField === 'from') {
+          setFromCoords(coords);
+          setFormData(prev => ({ ...prev, fromLocation: data[0].display_name }));
+        } else if (activeMapField === 'to') {
+          setToCoords(coords);
+          setFormData(prev => ({ ...prev, toLocation: data[0].display_name }));
+        }
+      }
+    } catch (err) {}
+  };
 
   function LocationMarker() {
     useMapEvents({
@@ -72,9 +144,9 @@ const MoversPage = () => {
     });
     return (
       <>
-        {fromCoords && <Marker position={fromCoords} />}
-        {toCoords && <Marker position={toCoords} />}
-        {fromCoords && toCoords && <Polyline positions={[fromCoords, toCoords]} color="blue" weight={4} dashArray="5, 10" />}
+        {fromCoords && <Marker position={fromCoords} icon={pickupIcon} />}
+        {toCoords && <Marker position={toCoords} icon={dropIcon} />}
+        {fromCoords && toCoords && <Polyline positions={[fromCoords, toCoords]} color="#6366f1" weight={4} dashArray="5, 10" />}
       </>
     );
   }
@@ -169,9 +241,33 @@ const MoversPage = () => {
               </div>
 
               {activeMapField && (
-                 <div className="h-[200px] rounded-xl overflow-hidden border-2 border-primary-300 shadow-inner z-0 relative animate-fadeIn mb-4">
+                 <div className="h-[250px] rounded-xl overflow-hidden border-2 border-primary-300 shadow-inner z-0 relative animate-fadeIn mb-4">
+                    {/* Map Search Overlay */}
+                    <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                      <div className="pl-3 pr-2 text-gray-400">
+                        <MapPin size={16} className="text-primary-500" />
+                      </div>
+                      <input 
+                        type="text" 
+                        value={mapSearchQuery}
+                        onChange={(e) => setMapSearchQuery(e.target.value)}
+                        placeholder={`Search ${activeMapField === 'from' ? 'pickup' : 'drop'} location...`} 
+                        className="w-full outline-none text-xs bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleMapSearch(e);
+                        }}
+                      />
+                      <button 
+                        type="button"
+                        onClick={handleMapSearch}
+                        className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                      >
+                        Search
+                      </button>
+                    </div>
                     <MapContainer center={mapPosition} zoom={11} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
                       <CustomZoomControl />
+                      <MapUpdater center={mapPosition} />
                       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                       <LocationMarker />
                     </MapContainer>

@@ -2,6 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation, Plus, Minus } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { divIcon } from 'leaflet';
+
+const slugify = (text) => {
+  if (!text) return '';
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
 
 function MapUpdater({ center }) {
   const map = useMap();
@@ -10,6 +24,26 @@ function MapUpdater({ center }) {
   }, [center, map]);
   return null;
 }
+
+const customMapPinIcon = divIcon({
+  html: `
+    <div class="flex items-center justify-center">
+      <div class="relative w-8 h-8 flex items-center justify-center">
+        <div class="absolute inset-0 bg-primary-500 rounded-full opacity-35 animate-ping"></div>
+        <div class="relative w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-primary-600">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-primary-600">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  `,
+  className: 'custom-map-marker-container',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
 function CustomZoomControl() {
   const map = useMap();
@@ -515,7 +549,7 @@ const ListingsPage = () => {
               />
               {listings.map(listing => (
                 listing.latitude && listing.longitude && (
-                  <Marker key={listing.id} position={[listing.latitude, listing.longitude]}>
+                  <Marker key={listing.id} position={[listing.latitude, listing.longitude]} icon={customMapPinIcon}>
                     <Popup className="w-[250px]">
                       <div className="-m-3 pb-2 overflow-hidden rounded-xl">
                         <img src={listing.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=400'} alt="" className="w-full h-24 object-cover mb-2" />
@@ -524,7 +558,7 @@ const ListingsPage = () => {
                           <p className="text-xs text-gray-500 mb-1">{listing.location}</p>
                           <div className="flex justify-between items-center mt-2">
                             <span className="font-bold text-primary-600">₹{listing.price?.toLocaleString()}</span>
-                            <a href={`/listings/${listing.id}`} className="text-xs bg-primary-600 text-white px-2 py-1 rounded">View</a>
+                            <a href={`/listings/${listing.id}/${slugify(listing.title)}`} className="text-xs bg-primary-600 text-white px-2 py-1 rounded">View</a>
                           </div>
                         </div>
                       </div>

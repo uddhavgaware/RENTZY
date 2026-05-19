@@ -4,6 +4,19 @@ import { MapPin, Star, Heart, BadgeCheck, Wifi, Car, Dumbbell, Tv } from 'lucide
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
+const slugify = (text) => {
+  if (!text) return '';
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
 // Map common amenity names to emojis for quick visual scan
 const AMENITY_ICONS = {
   'WiFi': '📶', 'AC': '❄️', 'Parking': '🚗', 'Gym': '💪',
@@ -59,7 +72,7 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
 
   return (
     <Link
-      to={`/listings/${listing.id}`}
+      to={`/listings/${listing.id}/${slugify(listing.title)}`}
       className="group bg-white rounded-3xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary-500/10 border border-gray-100 shadow-sm"
     >
       {/* Image */}

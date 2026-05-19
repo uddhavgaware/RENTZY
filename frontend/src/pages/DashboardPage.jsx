@@ -6,6 +6,19 @@ import ListingCard from '../components/ListingCard';
 import api from '../services/api';
 import Modal from '../components/Modal';
 
+const slugify = (text) => {
+  if (!text) return '';
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-')
+    .replace(/^-+/, '')
+    .replace(/-+$/, '');
+};
+
 const DashboardPage = () => {
   const { user, logout, refreshUser } = useAuth();
   const [searchParams] = useSearchParams();
@@ -542,7 +555,7 @@ const DashboardPage = () => {
                   <div className="space-y-4">
                     {bookings.map(booking => (
                       <div key={booking.id} className="border border-gray-100 rounded-2xl p-5 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white group/card">
-                        <Link to={`/listings/${booking.listing?.id}`} className="flex items-center gap-4 group cursor-pointer">
+                        <Link to={`/listings/${booking.listing?.id}/${slugify(booking.listing?.title)}`} className="flex items-center gap-4 group cursor-pointer">
                           <div className="w-16 h-16 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors"><Home size={24} className="text-primary-600" /></div>
                           <div>
                             <span className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors">{booking.listing?.title || 'Property'}</span>
@@ -612,7 +625,7 @@ const DashboardPage = () => {
                           </div>
                         ) : (
                           <div className="flex items-center justify-between">
-                            <Link to={`/listings/${listing.id}`} className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0">
+                            <Link to={`/listings/${listing.id}/${slugify(listing.title)}`} className="flex items-center gap-4 group cursor-pointer flex-1 min-w-0">
                               <img src={listing.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=200'} alt="" className="w-20 h-20 rounded-xl object-cover group-hover:opacity-90 transition-opacity flex-shrink-0" />
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">

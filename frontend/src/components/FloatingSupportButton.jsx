@@ -35,7 +35,7 @@ const FloatingSupportButton = () => {
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
+    <div className="fixed bottom-22 md:bottom-6 right-6 z-[999] flex flex-col items-end gap-3">
       
       {/* Popup menu */}
       {open && (

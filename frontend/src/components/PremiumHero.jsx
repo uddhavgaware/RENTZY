@@ -35,7 +35,7 @@ const PremiumHero = ({
 
   return (
     <section className={cn(
-      "relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-24 pb-20 w-full",
+      "relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-[140px] md:pt-24 pb-20 w-full",
       hasVideo ? "bg-gray-950 text-white" : "bg-gradient-to-br from-primary-50 via-white to-purple-50 text-gray-900"
     )}>
       {hasVideo ? (

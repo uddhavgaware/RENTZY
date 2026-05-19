@@ -68,7 +68,7 @@ function App() {
               {/* Public routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/listings" element={<ListingsPage />} />
-              <Route path="/listings/:id" element={<ListingDetailsPage />} />
+              <Route path="/listings/:id/:slug?" element={<ListingDetailsPage />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/forgot-password" element={<ForgotPasswordPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />

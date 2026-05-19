@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, IndianRupee, MapPin, Home, AlignLeft, CheckCircle2, X, Star, Image, Map as MapIcon } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import { divIcon } from 'leaflet';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -64,6 +65,36 @@ const ImageSlot = ({ label, isMain, file, preview, onFileSelect, onRemove, slotI
   );
 };
 
+const customMapPinIcon = divIcon({
+  html: `
+    <div class="flex items-center justify-center">
+      <div class="relative w-8 h-8 flex items-center justify-center">
+        <div class="absolute inset-0 bg-primary-500 rounded-full opacity-35 animate-ping"></div>
+        <div class="relative w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-primary-600">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-primary-600">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  `,
+  className: 'custom-map-marker-container',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
+
+const MapUpdater = ({ center }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (center) {
+      map.setView(center, 13);
+    }
+  }, [center, map]);
+  return null;
+};
+
 // Map click handler component
 const LocationMarker = ({ position, setPosition }) => {
   useMapEvents({
@@ -73,7 +104,7 @@ const LocationMarker = ({ position, setPosition }) => {
   });
 
   return position === null ? null : (
-    <Marker position={position}></Marker>
+    <Marker position={position} icon={customMapPinIcon}></Marker>
   );
 };
 
@@ -98,6 +129,23 @@ const PostPropertyPage = () => {
   });
 
   const [mapPosition, setMapPosition] = useState(null);
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
+  const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
+
+  const handleMapSearch = async (e) => {
+    if (e) e.preventDefault();
+    if (!mapSearchQuery.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const newLat = parseFloat(data[0].lat);
+        const newLon = parseFloat(data[0].lon);
+        setMapCenter([newLat, newLon]);
+        setMapPosition({ lat: newLat, lng: newLon });
+      }
+    } catch (err) {}
+  };
 
   // Slot-based image state: index 0 = main, index 1-4 = additional
   const [imageFiles, setImageFiles] = useState([null, null, null, null, null]);
@@ -335,7 +383,32 @@ const PostPropertyPage = () => {
                   </label>
                   <p className="text-xs text-gray-400 mb-3">Click on the map to accurately pin your property's location. This helps tenants find it easily.</p>
                   <div className="h-[250px] rounded-xl overflow-hidden border border-gray-200 shadow-inner z-0 relative">
-                    <MapContainer center={[formData.latitude, formData.longitude]} zoom={11} scrollWheelZoom={true} className="h-full w-full">
+                    {/* Map Search Overlay */}
+                    <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                      <div className="pl-3 pr-2 text-gray-400">
+                        <MapPin size={16} className="text-primary-500" />
+                      </div>
+                      <input 
+                        type="text" 
+                        value={mapSearchQuery}
+                        onChange={(e) => setMapSearchQuery(e.target.value)}
+                        placeholder="Search area, landmark or street..." 
+                        className="w-full outline-none text-xs bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleMapSearch(e);
+                        }}
+                      />
+                      <button 
+                        type="button"
+                        onClick={handleMapSearch}
+                        className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                      >
+                        Search
+                      </button>
+                    </div>
+
+                    <MapContainer center={mapCenter} zoom={11} scrollWheelZoom={true} className="h-full w-full">
+                      <MapUpdater center={mapCenter} />
                       <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
