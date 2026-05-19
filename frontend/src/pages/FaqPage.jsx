@@ -98,21 +98,33 @@ const FaqPage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white py-16">
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm mb-6">
-            <HelpCircle size={16} /> Help Center
+      <div className="relative overflow-hidden pt-20 pb-16 bg-gradient-to-br from-primary-50 via-white to-purple-50">
+        {/* Floating blobs */}
+        <div className="absolute top-8 left-8 w-64 h-64 bg-primary-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob pointer-events-none" />
+        <div className="absolute top-16 right-8 w-64 h-64 bg-purple-300 rounded-full mix-blend-multiply filter blur-[80px] opacity-30 animate-blob animation-delay-2000 pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto px-4 text-center relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/60 backdrop-blur-sm rounded-full text-xs font-semibold text-primary-700 border border-primary-100 shadow-sm mb-6 animate-slide-up">
+            <HelpCircle size={14} className="text-primary-600" /> Help Center
           </div>
-          <h1 className="text-4xl font-bold mb-4">Frequently Asked Questions</h1>
-          <p className="text-primary-100 mb-8">Everything you need to know about using RentXY</p>
-          <div className="relative max-w-lg mx-auto">
+          <h1 className="text-4xl sm:text-5xl font-black text-gray-900 mb-4 tracking-tight animate-slide-up animation-delay-100">
+            Frequently Asked{' '}
+            <span className="relative inline-block">
+              <span className="gradient-text text-primary-600">Questions</span>
+              <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 300 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2 9C60 3 180 3 298 9" stroke="#4f46e5" strokeWidth="3" strokeLinecap="round" className="opacity-30" />
+              </svg>
+            </span>
+          </h1>
+          <p className="text-gray-500 mb-8 font-medium animate-slide-up animation-delay-200">Everything you need to know about using RentXY</p>
+          <div className="relative max-w-lg mx-auto animate-slide-up animation-delay-300">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
             <input
               type="text"
               placeholder="Search questions..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/30"
+              className="w-full pl-11 pr-4 py-3.5 rounded-xl bg-white border border-gray-200 text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 shadow-sm font-semibold"
             />
           </div>
         </div>

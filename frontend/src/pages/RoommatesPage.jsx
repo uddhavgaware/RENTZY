@@ -53,7 +53,7 @@ const createCustomIcon = (type) => {
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
-import CinematicHero from '../components/CinematicHero';
+import PremiumHero from '../components/PremiumHero';
 
 const RoommatesPage = () => {
   const { isAuthenticated, user } = useAuth();
@@ -288,15 +288,13 @@ const RoommatesPage = () => {
 
   return (
     <>
-      <CinematicHero
+      <PremiumHero
+        title="Find Your"
+        highlightText="Perfect Match"
+        highlightColorClass="text-pink-400"
+        subtitle="Connect with like-minded people, split the rent, and make lifelong friends in your new city."
         videoSrc="https://cdn.pixabay.com/video/2020/05/26/40149-425126019_large.mp4"
         fallbackImg="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1920&q=80"
-        title={
-          <>
-            Find Your <span className="text-pink-400">Perfect Match</span>
-          </>
-        }
-        subtitle="Connect with like-minded people, split the rent, and make lifelong friends in your new city."
       >
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full max-w-lg mx-auto">
           <button 
@@ -310,14 +308,14 @@ const RoommatesPage = () => {
           {isAuthenticated && (
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="bg-pink-600 hover:bg-pink-500 text-white rounded-2xl px-8 py-4 font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 shadow-pink-500/30"
+              className="bg-pink-600 hover:bg-pink-500 text-white rounded-2xl px-8 py-4 font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 shadow-pink-500/25"
             >
               <Plus size={20} />
               Post a Request
             </button>
           )}
         </div>
-      </CinematicHero>
+      </PremiumHero>
 
       <div className="bg-gray-50 min-h-screen pt-12 pb-12 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

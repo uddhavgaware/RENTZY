@@ -4,6 +4,7 @@ import {
   Search, MapPin, Home, Users, ArrowRight, Building2, Shield,
   Star, CheckCircle2, Zap, Truck, MessageSquare, BadgeCheck, ChevronRight
 } from 'lucide-react';
+import PremiumHero from '../components/PremiumHero';
 
 const STATS = [
   { value: '2,500+', label: 'Properties Listed' },
@@ -121,98 +122,71 @@ const LandingPage = () => {
       {/* ═══════════════════════════════════════
           HERO SECTION
       ═══════════════════════════════════════ */}
-      <section className="relative min-h-[92vh] flex items-center justify-center overflow-hidden pt-16 pb-24">
-        {/* Animated gradient background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-50 via-white to-purple-50 -z-10" />
-
-        {/* Floating blobs */}
-        <div className="absolute top-16 left-8 w-72 h-72 sm:w-96 sm:h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-35 animate-blob pointer-events-none" />
-        <div className="absolute top-32 right-8 w-72 h-72 sm:w-96 sm:h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-35 animate-blob animation-delay-2000 pointer-events-none" />
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-blob animation-delay-4000 pointer-events-none" />
-
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center w-full z-10">
-
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 glass-premium rounded-full text-sm font-semibold text-primary-700 mb-7 animate-slide-up shadow-sm border border-primary-100/50">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            India's #1 Zero-Brokerage Rental Platform
+      <PremiumHero
+        title="Find Your"
+        highlightText="Perfect Stay"
+        highlightColorClass="text-indigo-400"
+        subtitle="PGs · Flats · Hostels · Roommates — No brokers, no hidden fees. Just verified listings and direct connections."
+        videoSrc="https://cdn.pixabay.com/video/2021/08/21/89317-611130386_large.mp4"
+        fallbackImg="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1920&q=80"
+      >
+        {/* Search box */}
+        <div className="max-w-3xl mx-auto glass-premium rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 shadow-xl border border-white/60">
+          {/* Location input */}
+          <div className="flex-1 flex items-center bg-white/95 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
+            <MapPin size={20} className="text-indigo-500 flex-shrink-0" />
+            <input
+              type="text"
+              value={heroLocation}
+              onChange={(e) => setHeroLocation(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleHeroSearch()}
+              placeholder="Enter city, locality or landmark…"
+              className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-400 font-semibold text-base"
+            />
           </div>
 
-          {/* Headline */}
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-gray-900 tracking-tight leading-[1.05] mb-5 animate-slide-up animation-delay-100">
-            Find Your{' '}
-            <span className="relative inline-block">
-              <span className="gradient-text">Perfect Stay</span>
-              <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M2 9C60 3 180 3 298 9" stroke="#818cf8" strokeWidth="3.5" strokeLinecap="round"/>
-              </svg>
-            </span>
-          </h1>
-
-          {/* Subheadline */}
-          <p className="text-base sm:text-xl text-gray-500 max-w-2xl mx-auto mb-10 animate-slide-up animation-delay-200 leading-relaxed font-medium">
-            PGs · Flats · Hostels · Roommates — No brokers, no hidden fees.
-            <br className="hidden sm:block" /> Just verified listings and direct connections.
-          </p>
-
-          {/* Search box */}
-          <div className="max-w-3xl mx-auto glass-premium rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl shadow-primary-500/10 border border-white/60">
-            {/* Location input */}
-            <div className="flex-1 flex items-center bg-white/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 focus-within:ring-2 focus-within:ring-primary-400 transition-all">
-              <MapPin size={20} className="text-primary-500 flex-shrink-0" />
-              <input
-                type="text"
-                value={heroLocation}
-                onChange={(e) => setHeroLocation(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleHeroSearch()}
-                placeholder="Enter city, locality or landmark…"
-                className="bg-transparent border-none outline-none w-full text-gray-800 placeholder-gray-400 font-medium text-sm sm:text-base"
-              />
-            </div>
-
-            {/* Property type */}
-            <div className="flex items-center bg-white/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 sm:w-48 focus-within:ring-2 focus-within:ring-primary-400 transition-all">
-              <Home size={20} className="text-primary-500 flex-shrink-0" />
-              <select
-                value={heroType}
-                onChange={(e) => setHeroType(e.target.value)}
-                className="bg-transparent border-none outline-none w-full text-gray-700 font-medium cursor-pointer text-sm sm:text-base appearance-none"
-              >
-                <option value="">All Types</option>
-                <option value="pg">PG / Hostel</option>
-                <option value="flat">Flat / Apartment</option>
-              </select>
-            </div>
-
-            {/* Search button */}
-            <button
-              onClick={handleHeroSearch}
-              className="btn-primary rounded-xl sm:rounded-2xl px-7 py-3.5 text-base gap-2 shine-hover flex-shrink-0"
+          {/* Property type */}
+          <div className="flex items-center bg-white/95 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 sm:w-48 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
+            <Home size={20} className="text-indigo-500 flex-shrink-0" />
+            <select
+              value={heroType}
+              onChange={(e) => setHeroType(e.target.value)}
+              className="bg-transparent border-none outline-none w-full text-gray-900 font-semibold cursor-pointer text-base appearance-none"
             >
-              <Search size={20} />
-              Search
-            </button>
+              <option value="">All Types</option>
+              <option value="pg">PG / Hostel</option>
+              <option value="flat">Flat / Apartment</option>
+            </select>
           </div>
 
-          {/* Quick pills */}
-          <div className="flex flex-wrap justify-center gap-2 mt-6 animate-slide-up animation-delay-400">
-            {[
-              { to: '/listings', label: '🏠 Browse All', },
-              { to: '/pgs', label: '🏨 PGs & Hostels' },
-              { to: '/flats', label: '🏢 Flats' },
-              { to: '/roommates', label: '🤝 Roommates' },
-            ].map(({ to, label }) => (
-              <Link
-                key={to}
-                to={to}
-                className="inline-flex items-center px-4 py-2 bg-white/85 hover:bg-white border border-gray-200 hover:border-primary-300 text-gray-600 hover:text-primary-700 rounded-full text-sm font-semibold shadow-sm hover:shadow-md transition-all active:scale-95"
-              >
-                {label}
-              </Link>
-            ))}
-          </div>
+          {/* Search button */}
+          <button
+            onClick={handleHeroSearch}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl sm:rounded-2xl px-8 py-3.5 font-bold text-base transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 flex-shrink-0"
+          >
+            <Search size={20} />
+            Search
+          </button>
         </div>
-      </section>
+
+        {/* Quick pills */}
+        <div className="flex flex-wrap justify-center gap-2 mt-6">
+          {[
+            { to: '/listings', label: '🏠 Browse All', },
+            { to: '/pgs', label: '🏨 PGs & Hostels' },
+            { to: '/flats', label: '🏢 Flats' },
+            { to: '/roommates', label: '🤝 Roommates' },
+          ].map(({ to, label }) => (
+            <Link
+              key={to}
+              to={to}
+              className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 text-white rounded-full text-sm font-semibold shadow-sm transition-all active:scale-95"
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+      </PremiumHero>
 
       {/* ═══════════════════════════════════════
           STATS BAR

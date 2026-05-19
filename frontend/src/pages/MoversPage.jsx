@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import CinematicHero from '../components/CinematicHero';
+import PremiumHero from '../components/PremiumHero';
 
 function CustomZoomControl() {
   const map = useMap();
@@ -116,21 +116,23 @@ const MoversPage = () => {
 
   return (
     <>
-      <CinematicHero
+      <PremiumHero
+        title="Stress-Free"
+        highlightText="Moving"
+        highlightColorClass="text-primary-400"
+        subtitle="Get instant quotes, top-rated professional movers, and 100% damage protection."
         videoSrc="https://cdn.pixabay.com/video/2021/08/25/86266-592659341_large.mp4"
         fallbackImg="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80"
-        title={
-          <>
-            Stress-Free <span className="text-primary-400">Moving</span>
-          </>
-        }
-        subtitle="Get instant quotes, top-rated professional movers, and 100% damage protection."
       >
-        <div className="flex gap-4 justify-center mt-6">
-          <div className="flex items-center gap-2 text-sm font-medium bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20"><ShieldCheck className="text-green-400" size={18} /> Verified Partners</div>
-          <div className="flex items-center gap-2 text-sm font-medium bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm border border-white/20"><Clock className="text-green-400" size={18} /> On-Time Guarantee</div>
+        <div className="flex flex-wrap justify-center gap-4 mt-8 max-w-lg mx-auto text-white/90 text-sm font-semibold">
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-sm">
+            <ShieldCheck className="text-primary-400" size={18} /> Verified Partners
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-sm">
+            <Clock className="text-primary-400" size={18} /> On-Time Guarantee
+          </div>
         </div>
-      </CinematicHero>
+      </PremiumHero>
 
     <div className="min-h-screen bg-gray-50 pb-20 pt-12">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32">
