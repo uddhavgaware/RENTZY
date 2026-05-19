@@ -7,9 +7,8 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const AuthPage = () => {
-  const [searchParams] = useSearchParams();
-  const initialMode = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
-  const [isLogin, setIsLogin] = useState(initialMode === 'login');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isLogin = searchParams.get('mode') !== 'signup';
   const [activeTab, setActiveTab] = useState('email'); // 'email' or 'mobile'
   const [otpSent, setOtpSent] = useState(false);
   const [countryCode, setCountryCode] = useState('+91');
@@ -187,7 +186,7 @@ const AuthPage = () => {
               {isLogin ? "Don't have an account? " : "Already have an account? "}
               <button 
                 type="button"
-                onClick={() => setIsLogin(!isLogin)} 
+                onClick={() => setSearchParams({ mode: isLogin ? 'signup' : 'login' })} 
                 className="font-semibold text-primary-600 hover:text-primary-500 transition-colors"
               >
                 {isLogin ? 'Sign up for free' : 'Log in'}

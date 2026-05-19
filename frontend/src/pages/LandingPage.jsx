@@ -362,39 +362,69 @@ const LandingPage = () => {
             </div>
             
             <div className="order-1 lg:order-2 relative">
-              <div className="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-primary-500/20 border-8 border-white/50 bg-white z-10">
-                <video
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  className="w-full h-full object-cover aspect-[4/3] scale-105"
-                  poster="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80"
-                >
-                  <source src="https://cdn.pixabay.com/video/2019/06/04/24304-340645274_large.mp4" type="video/mp4" />
-                  Your browser does not support the video tag.
-                </video>
+              {/* Interactive Roommate Match Showcase Card */}
+              <div className="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-primary-500/15 border border-gray-100 bg-gradient-to-tr from-slate-900 to-indigo-950 p-6 aspect-[4/3] flex flex-col justify-between z-10 select-none">
                 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                
-                <div className="absolute bottom-6 left-6 right-6 flex gap-4 pointer-events-none">
-                  <div className="bg-white/90 backdrop-blur-md rounded-xl p-3 shadow-lg flex items-center gap-3 animate-bounce-slow">
-                    <div className="w-10 h-10 rounded-full bg-rose-100 flex items-center justify-center text-rose-500">
-                      <Star size={20} className="fill-current" />
+                {/* Background mesh glow inside the card */}
+                <div className="absolute top-0 right-0 w-48 h-48 bg-primary-500/10 rounded-full blur-[40px]" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/10 rounded-full blur-[40px]" />
+
+                {/* Profile Header */}
+                <div className="flex items-center gap-4 relative z-10">
+                  <div className="relative">
+                    <img 
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" 
+                      alt="Roommate Profile" 
+                      className="w-16 h-16 rounded-2xl object-cover ring-4 ring-white/10"
+                    />
+                    <span className="absolute bottom-0 right-0 w-4.5 h-4.5 bg-emerald-500 border-2 border-slate-950 rounded-full flex items-center justify-center" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-bold text-lg">Kriti Sen, 24</span>
+                      <span className="bg-primary-500/20 text-primary-300 text-[10px] font-black px-2 py-0.5 rounded-full border border-primary-500/30">VERIFIED</span>
+                    </div>
+                    <p className="text-gray-400 text-xs">UX Designer · Looking in Koregaon Park</p>
+                  </div>
+                </div>
+
+                {/* Match compatibility banner */}
+                <div className="my-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex items-center justify-between relative z-10 animate-pulse">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white shadow-lg shadow-pink-500/20">
+                      <Star size={18} className="fill-current" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-gray-900">98% Match</div>
-                      <div className="text-[10px] text-gray-500">Same Lifestyle</div>
+                      <h4 className="text-white font-bold text-sm">98% Match Score</h4>
+                      <p className="text-gray-400 text-[11px]">Highly compatible preferences</p>
                     </div>
                   </div>
-                  
-                  <div className="bg-white/90 backdrop-blur-md rounded-xl p-3 shadow-lg flex items-center gap-3 animate-bounce-slow animation-delay-1000 ml-auto">
-                    <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-500">
-                      <MessageSquare size={20} className="fill-current" />
+                  <div className="text-right">
+                    <span className="text-pink-400 font-extrabold text-lg">Match Found!</span>
+                  </div>
+                </div>
+
+                {/* Badges and tags */}
+                <div className="flex flex-wrap gap-2 relative z-10 mb-2">
+                  {['Veg Only', 'Early Bird', 'No Smoking', 'Pets Welcomed'].map((tag, i) => (
+                    <span 
+                      key={i} 
+                      className="bg-white/5 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Floating message overlay */}
+                <div className="absolute bottom-6 left-6 right-6 flex gap-4 pointer-events-none z-20">
+                  <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-xl flex items-center gap-3 animate-bounce-slow border border-gray-100">
+                    <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
+                      <MessageSquare size={16} className="fill-current" />
                     </div>
                     <div>
-                      <div className="text-xs font-bold text-gray-900">New Message</div>
-                      <div className="text-[10px] text-gray-500">"Hey! I like your..."</div>
+                      <div className="text-xs font-extrabold text-gray-900">Direct Message</div>
+                      <div className="text-[10px] font-semibold text-gray-500">"Hey! I like your profile, let's connect?"</div>
                     </div>
                   </div>
                 </div>

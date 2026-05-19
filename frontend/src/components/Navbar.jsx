@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell } from 'lucide-react';
+import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../context/AuthContext';
@@ -28,6 +28,16 @@ const Navbar = () => {
     { name: 'PG/Hostels', path: '/pgs' },
     { name: 'Roommates', path: '/roommates' },
     { name: 'Movers', path: '/movers' },
+  ];
+
+  const mobileSwipeLinks = [
+    { name: 'Home', path: '/', icon: Home },
+    { name: 'Flats', path: '/flats', icon: Building2 },
+    { name: 'PG/Hostels', path: '/pgs', icon: Warehouse },
+    { name: 'Roommates', path: '/roommates', icon: Users },
+    { name: 'Movers', path: '/movers', icon: Truck },
+    { name: 'Offices', path: '/offices', icon: Briefcase },
+    { name: 'Warehouses', path: '/warehouses', icon: Warehouse },
   ];
 
   useEffect(() => {
@@ -85,7 +95,7 @@ const Navbar = () => {
   };
 
   const navClass = isCinematicPage 
-    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "bg-white/80 backdrop-blur-md shadow-sm border-b border-white/20 py-1" : "bg-transparent py-4")
+    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-white/20 py-1" : "bg-transparent py-4")
     : "sticky top-0 z-[100] w-full bg-white shadow-sm border-b border-gray-100";
 
   const textColorClass = isDarkHero && !isScrolled ? "text-white" : "text-gray-900";
@@ -166,7 +176,6 @@ const Navbar = () => {
                       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
                         <h3 className="font-bold text-gray-900 text-sm">Notifications</h3>
                         {unreadCount > 0 && <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline font-medium">Mark all read</button>}
-
                       </div>
                       <div className="max-h-80 overflow-y-auto">
                         {notifications.length === 0 ? (
@@ -202,6 +211,29 @@ const Navbar = () => {
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Premium Mobile Horizontal Swipe Navigation */}
+      <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md overflow-x-auto flex items-center gap-3 px-4 py-2.5 hide-scrollbar scroll-smooth">
+        {mobileSwipeLinks.map((link) => {
+          const isActive = location.pathname === link.path;
+          const Icon = link.icon;
+          return (
+            <Link
+              key={link.name}
+              to={link.path}
+              className={cn(
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap border",
+                isActive
+                  ? "bg-primary-600 text-white border-primary-600 shadow-sm shadow-primary-600/25"
+                  : "bg-gray-50 text-gray-600 border-gray-200/60 hover:bg-gray-100 hover:text-gray-900"
+              )}
+            >
+              <Icon size={13} className={cn("transition-transform duration-300", isActive && "scale-110")} />
+              {link.name}
+            </Link>
+          );
+        })}
       </div>
 
       {isOpen && (
