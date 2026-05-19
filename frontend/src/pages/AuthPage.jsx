@@ -178,7 +178,7 @@ const AuthPage = () => {
             </Link>
           </div>
 
-          <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-1">
+          <h2 className="text-center text-3xl font-extrabold text-gray-900 dark:text-white mb-1">
             {activeTab === 'mobile' ? 'Welcome to RentXY' : isLogin ? 'Welcome back' : 'Create your account'}
           </h2>
           {activeTab === 'email' && (
@@ -195,18 +195,18 @@ const AuthPage = () => {
           )}
           {activeTab === 'mobile' && <div className="mb-8" />}
 
-          <div className="bg-white py-8 px-6 sm:px-8 shadow-xl shadow-gray-200/50 rounded-2xl border border-gray-100">
+          <div className="bg-white dark:bg-gray-900 py-8 px-6 sm:px-8 shadow-xl shadow-gray-200/50 dark:shadow-black/50 rounded-2xl border border-gray-100 dark:border-gray-800">
             
             {/* Tabs */}
-            <div className="flex bg-gray-100 p-1 rounded-xl mb-6">
+            <div className="flex bg-gray-100 dark:bg-gray-950 p-1 rounded-xl mb-6">
               <button 
-                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === 'email' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === 'email' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 onClick={() => setActiveTab('email')}
               >
                 Email
               </button>
               <button 
-                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === 'mobile' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === 'mobile' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 onClick={() => setActiveTab('mobile')}
               >
                 Mobile OTP
@@ -239,8 +239,8 @@ const AuthPage = () => {
             
             {/* Divider */}
             <div className="relative mb-6">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200"></div></div>
-              <div className="relative flex justify-center text-sm"><span className="px-3 bg-white text-gray-400 font-medium">Or continue with</span></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200 dark:border-gray-800"></div></div>
+              <div className="relative flex justify-center text-sm"><span className="px-3 bg-white dark:bg-gray-900 text-gray-400 dark:text-gray-500 font-medium">Or continue with</span></div>
             </div>
 
             {activeTab === 'email' ? (

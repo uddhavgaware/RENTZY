@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse } from 'lucide-react';
+import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { useTheme } from '../context/ThemeContext';
 
 function cn(...inputs) { return twMerge(clsx(inputs)); }
 
@@ -18,6 +19,7 @@ const Navbar = () => {
   const notifRef = useRef(null);
   const location = useLocation();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
+  const { isDarkMode, toggleDarkMode } = useTheme();
 
   const isCinematicPage = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
   const isDarkHero = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
@@ -148,6 +150,9 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
+            <button onClick={toggleDarkMode} className={cn("p-2 rounded-full transition-colors hover:bg-gray-100/20", linkColorClass)} title="Toggle Dark Mode">
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
             <Link to="/post-property" className={cn("text-sm font-medium transition-colors", linkColorClass)}>Post Property</Link>
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
@@ -205,8 +210,11 @@ const Navbar = () => {
             )}
           </div>
 
-          <div className="flex items-center md:hidden">
-            <button onClick={() => setIsOpen(!isOpen)} className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100">
+          <div className="flex items-center gap-2 md:hidden">
+            <button onClick={toggleDarkMode} className={cn("p-2 rounded-full transition-colors", textColorClass)}>
+              {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
+            </button>
+            <button onClick={() => setIsOpen(!isOpen)} className={cn("inline-flex items-center justify-center p-2 rounded-md transition-colors hover:bg-gray-100/20", textColorClass)}>
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </div>

@@ -35,8 +35,8 @@ const PremiumHero = ({
 
   return (
     <section className={cn(
-      "relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-[140px] md:pt-24 pb-20 w-full",
-      hasVideo ? "bg-gray-950 text-white" : "bg-gradient-to-br from-primary-50 via-white to-purple-50 text-gray-900"
+      "relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-[140px] md:pt-24 pb-20 w-full transition-colors duration-300",
+      hasVideo ? "bg-gray-950 text-white" : "bg-gradient-to-br from-primary-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 text-gray-900 dark:text-white"
     )}>
       {hasVideo ? (
         <>
@@ -57,9 +57,9 @@ const PremiumHero = ({
       ) : (
         <>
           {/* Animated gradient background mesh */}
-          <div className="absolute top-16 left-8 w-72 h-72 sm:w-96 sm:h-96 bg-primary-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-35 animate-blob pointer-events-none" />
-          <div className="absolute top-32 right-8 w-72 h-72 sm:w-96 sm:h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-[100px] opacity-35 animate-blob animation-delay-2000 pointer-events-none" />
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-pink-200 rounded-full mix-blend-multiply filter blur-[100px] opacity-30 animate-blob animation-delay-4000 pointer-events-none" />
+          <div className="absolute top-16 left-8 w-72 h-72 sm:w-96 sm:h-96 bg-primary-300 dark:bg-primary-900/40 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-[100px] opacity-35 animate-blob pointer-events-none" />
+          <div className="absolute top-32 right-8 w-72 h-72 sm:w-96 sm:h-96 bg-purple-300 dark:bg-purple-900/40 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-[100px] opacity-35 animate-blob animation-delay-2000 pointer-events-none" />
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-72 h-72 sm:w-96 sm:h-96 bg-pink-200 dark:bg-pink-900/30 rounded-full mix-blend-multiply dark:mix-blend-lighten filter blur-[100px] opacity-30 animate-blob animation-delay-4000 pointer-events-none" />
         </>
       )}
 
@@ -68,7 +68,7 @@ const PremiumHero = ({
         {/* Headline */}
         <h1 className={cn(
           "text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.05] mb-5 animate-slide-up animation-delay-100",
-          hasVideo ? "text-white" : "text-gray-900"
+          hasVideo ? "text-white" : "text-gray-900 dark:text-white"
         )}>
           {title}{' '}
           <span className="relative inline-block">
@@ -82,7 +82,7 @@ const PremiumHero = ({
         {/* Subheadline */}
         <p className={cn(
           "text-base sm:text-xl max-w-2xl mx-auto mb-10 animate-slide-up animation-delay-200 leading-relaxed font-medium",
-          hasVideo ? "text-gray-200 drop-shadow-sm" : "text-gray-500"
+          hasVideo ? "text-gray-200 drop-shadow-sm" : "text-gray-500 dark:text-gray-300"
         )}>
           {subtitle}
         </p>
@@ -94,16 +94,16 @@ const PremiumHero = ({
           </div>
         ) : (
           /* Search box form */
-          <form onSubmit={handleSearch} className="max-w-3xl mx-auto glass-premium rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl border border-white/60">
+          <form onSubmit={handleSearch} className="max-w-3xl mx-auto glass-premium dark:bg-gray-900/50 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl border border-white/60 dark:border-white/10">
             {/* Location input */}
-            <div className="flex-1 flex items-center bg-white/95 rounded-xl sm:rounded-2xl px-4 py-3.5 gap-3 border border-white/50 focus-within:ring-2 focus-within:ring-primary-400 transition-all">
+            <div className="flex-1 flex items-center bg-white/95 dark:bg-gray-800/90 rounded-xl sm:rounded-2xl px-4 py-3.5 gap-3 border border-white/50 dark:border-gray-700 focus-within:ring-2 focus-within:ring-primary-400 transition-all">
               <MapPin size={20} className={cn("flex-shrink-0", highlightColorClass)} />
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter city or locality..."
-                className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-400 font-semibold text-base sm:text-lg"
+                className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white placeholder-gray-400 font-semibold text-base sm:text-lg"
               />
             </div>
 
@@ -117,14 +117,14 @@ const PremiumHero = ({
         {features.length > 0 && (
           <div className={cn(
             "flex flex-wrap justify-center gap-4 sm:gap-6 mt-10 animate-slide-up animation-delay-400 text-sm font-semibold",
-            hasVideo ? "text-white/90" : "text-gray-600"
+            hasVideo ? "text-white/90" : "text-gray-600 dark:text-gray-300"
           )}>
             {features.map((feature, idx) => (
               <div key={idx} className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-full border shadow-sm",
                 hasVideo 
                   ? "bg-white/10 backdrop-blur-md border-white/10" 
-                  : "bg-white/40 backdrop-blur border-gray-200/50"
+                  : "bg-white/40 dark:bg-gray-800/60 backdrop-blur border-gray-200/50 dark:border-gray-700"
               )}>
                 <span className={highlightColorClass}>{feature.icon}</span> {feature.text}
               </div>

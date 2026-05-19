@@ -25,6 +25,7 @@ import PgHostelPortal from './pages/PgHostelPortal';
 import OfficeSpacePortal from './pages/OfficeSpacePortal';
 import WarehousePortal from './pages/WarehousePortal';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 // ✅ Scroll to top on EVERY page navigation — fixes "page stays scrolled down" bug
 // Works globally: covers ALL links site-wide (Navbar, Footer, CTA buttons, cards, etc.)
@@ -59,7 +60,8 @@ function App() {
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
         <Router>
           {/* ScrollToTop must be INSIDE <Router> so it can use useLocation() */}
           <ScrollToTop />
@@ -98,7 +100,8 @@ function App() {
             </Routes>
           </Layout>
         </Router>
-      </AuthProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </GoogleOAuthProvider>
   );
 }

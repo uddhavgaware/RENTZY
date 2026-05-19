@@ -131,9 +131,9 @@ const LandingPage = () => {
         fallbackImg="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1920&q=80"
       >
         {/* Search box */}
-        <div className="max-w-3xl mx-auto glass-premium rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 shadow-xl border border-white/60">
+        <div className="max-w-3xl mx-auto glass-premium rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 shadow-xl border border-white/60 dark:border-white/10">
           {/* Location input */}
-          <div className="flex-1 flex items-center bg-white/95 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
+          <div className="flex-1 flex items-center bg-white/95 dark:bg-gray-800/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 dark:border-gray-700 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
             <MapPin size={20} className="text-indigo-500 flex-shrink-0" />
             <input
               type="text"
@@ -141,17 +141,17 @@ const LandingPage = () => {
               onChange={(e) => setHeroLocation(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleHeroSearch()}
               placeholder="Enter city, locality or landmark…"
-              className="bg-transparent border-none outline-none w-full text-gray-900 placeholder-gray-400 font-semibold text-base"
+              className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-semibold text-base"
             />
           </div>
 
           {/* Property type */}
-          <div className="flex items-center bg-white/95 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 sm:w-48 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
+          <div className="flex items-center bg-white/95 dark:bg-gray-800/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 dark:border-gray-700 sm:w-48 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
             <Home size={20} className="text-indigo-500 flex-shrink-0" />
             <select
               value={heroType}
               onChange={(e) => setHeroType(e.target.value)}
-              className="bg-transparent border-none outline-none w-full text-gray-900 font-semibold cursor-pointer text-base appearance-none"
+              className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white font-semibold cursor-pointer text-base appearance-none [&>option]:text-gray-900"
             >
               <option value="">All Types</option>
               <option value="pg">PG / Hostel</option>
@@ -256,11 +256,11 @@ const LandingPage = () => {
       {/* ═══════════════════════════════════════
           HOW IT WORKS
       ═══════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-gradient-to-br from-gray-50 to-primary-50/40">
+      <section className="py-20 sm:py-28 bg-gradient-to-br from-gray-50 to-primary-50/40 dark:from-gray-950 dark:to-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div className="section-badge mb-4">✦ Process</div>
-            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
               How It Works
             </h2>
             <p className="mt-4 text-gray-500 text-base sm:text-lg">
@@ -272,15 +272,15 @@ const LandingPage = () => {
             {HOW_IT_WORKS.map(({ step, icon: Icon, title, desc }, i) => (
               <div
                 key={step}
-                className="relative bg-white rounded-2xl sm:rounded-3xl p-6 shadow-sm border border-gray-100 hover:border-primary-200 hover:shadow-lg transition-all duration-300 group"
+                className="relative bg-white dark:bg-gray-900 rounded-2xl sm:rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 hover:border-primary-200 dark:hover:border-primary-800 hover:shadow-lg transition-all duration-300 group"
               >
                 {/* Step number watermark */}
-                <div className="absolute top-4 right-5 text-6xl font-black text-gray-50 select-none leading-none pointer-events-none">{step}</div>
+                <div className="absolute top-4 right-5 text-6xl font-black text-gray-50 dark:text-white/5 select-none leading-none pointer-events-none">{step}</div>
 
                 <div className="w-12 h-12 rounded-2xl bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 mb-5 group-hover:bg-primary-600 group-hover:text-white group-hover:scale-110 transition-all duration-300">
                   <Icon size={22} />
                 </div>
-                <h3 className="font-bold text-gray-900 text-lg mb-2">{title}</h3>
+                <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-2">{title}</h3>
                 <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
 
                 {/* Connector arrow — hide on last item */}
@@ -298,12 +298,12 @@ const LandingPage = () => {
       {/* ═══════════════════════════════════════
           ROOMMATE FINDING VIDEO ANIMATION
       ═══════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-white relative overflow-hidden">
+      <section className="py-20 sm:py-28 bg-white dark:bg-gray-950 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div className="order-2 lg:order-1 animate-slide-up">
               <div className="section-badge mb-4">✦ Roommate Finder</div>
-              <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight leading-tight mb-6">
+              <h2 className="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight leading-tight mb-6">
                 Find Your Vibe,<br />
                 <span className="gradient-text">Not Just a Roommate</span>
               </h2>
