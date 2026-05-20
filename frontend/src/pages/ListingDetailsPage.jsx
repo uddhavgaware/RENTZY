@@ -317,6 +317,35 @@ const ListingDetailsPage = () => {
               )}
             </div>
 
+            {/* Property Specifications (Area & Facing) */}
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
+              <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">📐 Property Specifications</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3.5 p-4 bg-gradient-to-br from-gray-50 to-gray-100/70 dark:from-slate-800 dark:to-slate-800/70 border border-gray-200/50 dark:border-white/5 rounded-2xl hover:shadow-md transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-lg flex items-center justify-center flex-shrink-0">
+                    🧭
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Facing Direction</p>
+                    <p className="text-sm font-extrabold mt-0.5 text-gray-900 dark:text-gray-100">
+                      {listing.facing || 'East'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3.5 p-4 bg-gradient-to-br from-gray-50 to-gray-100/70 dark:from-slate-800 dark:to-slate-800/70 border border-gray-200/50 dark:border-white/5 rounded-2xl hover:shadow-md transition-all duration-300">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-lg flex items-center justify-center flex-shrink-0">
+                    📏
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Super Built-up Area</p>
+                    <p className="text-sm font-extrabold mt-0.5 text-gray-900 dark:text-gray-100">
+                      {listing.areaSqft ? `${listing.areaSqft} Sq. Ft.` : 'Not Specified'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Utility & Maintenance Inclusions */}
             {['flat', 'room', 'apartment', 'pg', 'hostel', 'co-living space'].includes(listing.type?.toLowerCase()) && (
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">

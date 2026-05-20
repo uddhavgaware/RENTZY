@@ -128,6 +128,8 @@ public class ListingService {
         if (updates.getLatitude() != null) existing.setLatitude(updates.getLatitude());
         if (updates.getLongitude() != null) existing.setLongitude(updates.getLongitude());
         if (updates.getStatus() != null) existing.setStatus(updates.getStatus());
+        if (updates.getFacing() != null) existing.setFacing(updates.getFacing());
+        if (updates.getAreaSqft() != null) existing.setAreaSqft(updates.getAreaSqft());
         return listingRepository.save(existing);
     }
 }

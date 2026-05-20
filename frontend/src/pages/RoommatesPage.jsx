@@ -209,6 +209,8 @@ const RoommatesPage = () => {
     electricityBill: 'Not Included',
     waterSupply: 'Not Included',
     maintenance: 'Not Included',
+    facing: '',
+    areaSqft: '',
   });
 
   const handleImageChange = (e) => {
@@ -298,14 +300,15 @@ const RoommatesPage = () => {
         images: postFormData.images,
         latitude: postFormData.latitude,
         longitude: postFormData.longitude,
-        propertyType: postFormData.propertyType,
         electricityBill: postFormData.electricityBill,
         waterSupply: postFormData.waterSupply,
         maintenance: postFormData.maintenance,
+        facing: postFormData.facing || null,
+        areaSqft: postFormData.areaSqft ? parseInt(postFormData.areaSqft) : null,
       };
       await api.post('/roommates', payload);
       setIsModalOpen(false);
-      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included' });
+      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '' });
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
@@ -681,6 +684,25 @@ const RoommatesPage = () => {
                       </div>
                     </div>
 
+                    {/* Specifications Section */}
+                    {(roommate.facing || roommate.areaSqft) && (
+                      <div className="mb-4 pt-3 border-t border-gray-100">
+                        <span className="text-xs text-gray-500 block mb-2">Property Specifications</span>
+                        <div className="flex gap-2">
+                          {roommate.facing && (
+                            <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-full border border-indigo-200 flex items-center gap-1 font-medium">
+                              🧭 Facing: {roommate.facing}
+                            </span>
+                          )}
+                          {roommate.areaSqft && (
+                            <span className="px-3 py-1 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-200 flex items-center gap-1 font-medium">
+                              📏 Size: {roommate.areaSqft} Sq. Ft.
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
                     {/* Utility & Maintenance Inclusions badges */}
                     <div className="mb-4 pt-3 border-t border-gray-100">
                       <span className="text-xs text-gray-500 block mb-2">Utility Inclusions</span>
@@ -966,6 +988,29 @@ const RoommatesPage = () => {
                       <input type="number" min="1" value={postFormData.totalCapacity}
                         onChange={(e) => setPostFormData({...postFormData, totalCapacity: e.target.value})}
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section: Optional Specifications (Facing & Area) */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-indigo-100 rounded-lg flex items-center justify-center">📐</div>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Specifications <span className="text-xs text-gray-400 normal-case font-medium">(Optional)</span></h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Facing Direction</label>
+                      <select value={postFormData.facing} onChange={(e) => setPostFormData({...postFormData, facing: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none bg-white">
+                        <option value="">Select Direction</option>
+                        {['East', 'North', 'South', 'West', 'North-East', 'North-West', 'South-East', 'South-West'].map(dir => (
+                          <option key={dir} value={dir}>{dir}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Area (Sq. Ft.)</label>
+                      <input type="number" min="1" value={postFormData.areaSqft} onChange={(e) => setPostFormData({...postFormData, areaSqft: e.target.value})} placeholder="e.g. 1000" className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                     </div>
                   </div>
                 </div>

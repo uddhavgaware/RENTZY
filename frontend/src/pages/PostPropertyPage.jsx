@@ -135,6 +135,8 @@ const PostPropertyPage = () => {
     electricityBill: 'Not Included',
     waterSupply: 'Not Included',
     maintenance: 'Not Included',
+    facing: 'East',
+    areaSqft: '',
   });
 
   const [mapPosition, setMapPosition] = useState(null);
@@ -217,6 +219,13 @@ const PostPropertyPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (step === 1) {
+      if (!formData.facing || !formData.areaSqft || parseFloat(formData.areaSqft) <= 0) {
+        setError('Please select facing direction and enter a valid property area in square feet.');
+        return;
+      }
+      setError('');
+    }
     if (step < 3) {
       setStep(step + 1);
     } else {
@@ -410,6 +419,21 @@ const PostPropertyPage = () => {
                         <option value="Included">Included</option>
                       </select>
                     </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Facing Direction <span className="text-red-400">*</span></label>
+                    <select name="facing" value={formData.facing} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" required>
+                      {['East', 'North', 'South', 'West', 'North-East', 'North-West', 'South-East', 'South-West'].map(dir => (
+                        <option key={dir} value={dir}>{dir}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Property Area (Sq. Ft.) <span className="text-red-400">*</span></label>
+                    <input type="number" name="areaSqft" value={formData.areaSqft} onChange={handleChange} min="1" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 1200" required />
                   </div>
                 </div>
 

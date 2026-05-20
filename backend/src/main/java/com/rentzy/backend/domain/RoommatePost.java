@@ -60,4 +60,11 @@ public class RoommatePost {
 
     @ElementCollection
     private List<String> images; // Optional photos
+
+    private String electricityBill; // Included, Not Included
+    private String waterSupply; // Included, Not Included
+    private String maintenance; // Included, Not Included
+
+    private String facing;
+    private Integer areaSqft;
 }

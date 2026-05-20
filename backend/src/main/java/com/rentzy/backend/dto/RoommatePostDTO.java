@@ -31,6 +31,11 @@ public class RoommatePostDTO {
     private String cleanlinessLevel;
     private List<String> images;
     private RoommateUserDTO user;
+    private String electricityBill;
+    private String waterSupply;
+    private String maintenance;
+    private String facing;
+    private Integer areaSqft;
 
     public static RoommatePostDTO fromEntity(RoommatePost post) {
         if (post == null) return null;
@@ -70,6 +75,11 @@ public class RoommatePostDTO {
             .cleanlinessLevel(post.getCleanlinessLevel())
             .images(post.getImages())
             .user(userDTO)
+            .electricityBill(post.getElectricityBill())
+            .waterSupply(post.getWaterSupply())
+            .maintenance(post.getMaintenance())
+            .facing(post.getFacing())
+            .areaSqft(post.getAreaSqft())
             .build();
     }
 }

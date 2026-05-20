@@ -61,6 +61,21 @@ public class Listing {
     @Column
     private Double longitude;
 
+    @Column
+    private String electricityBill; // Included, Not Included
+
+    @Column
+    private String waterSupply; // Included, Not Included
+
+    @Column
+    private String maintenance; // Included, Not Included
+
+    @Column
+    private String facing; // East, North, South, West
+
+    @Column
+    private Integer areaSqft; // Area in square feet
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
