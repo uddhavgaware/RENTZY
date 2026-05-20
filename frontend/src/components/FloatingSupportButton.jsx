@@ -135,7 +135,7 @@ const FloatingSupportButton = () => {
       
       {/* Interactive AI Chat Window */}
       {open && (
-        <div className="animate-slide-up bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden w-80 sm:w-96 flex flex-col h-[480px]">
+        <div className="animate-slide-up bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden w-80 sm:w-96 flex flex-col h-[480px]">
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 via-primary-600 to-indigo-700 px-5 py-4 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
@@ -163,12 +163,12 @@ const FloatingSupportButton = () => {
           {/* Body Content */}
           {!chatMode ? (
             /* Main Menu */
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col justify-between">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col justify-between bg-white dark:bg-gray-900">
               <div className="space-y-4">
-                <div className="bg-indigo-50/70 border border-indigo-100/50 rounded-2xl p-4 text-center">
+                <div className="bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 rounded-2xl p-4 text-center">
                   <p className="text-2xl mb-1">🤖</p>
-                  <h4 className="font-extrabold text-gray-900 text-sm">Hi, I'm Rentzy AI!</h4>
-                  <p className="text-gray-500 text-xs mt-1 leading-relaxed">
+                  <h4 className="font-extrabold text-gray-900 dark:text-white text-sm">Hi, I'm Rentzy AI!</h4>
+                  <p className="text-gray-500 dark:text-gray-300 text-xs mt-1 leading-relaxed">
                     Locate flatmates, secure packers & movers, or search zero-brokerage stays in Maharashtra (Pune, Kolhapur, Satara) instantly!
                   </p>
                   <button
@@ -180,19 +180,19 @@ const FloatingSupportButton = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">Quick Actions</p>
+                  <p className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Quick Actions</p>
                   
                   <button
                     onClick={handleChatWithAdmin}
                     disabled={loading}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors text-left group active:scale-[0.98]"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 border border-gray-100 dark:border-gray-800 transition-colors text-left group active:scale-[0.98]"
                   >
-                    <div className="w-8 h-8 bg-primary-50 rounded-lg flex items-center justify-center flex-shrink-0 text-primary-600">
+                    <div className="w-8 h-8 bg-primary-50 dark:bg-primary-950/30 rounded-lg flex items-center justify-center flex-shrink-0 text-primary-600 dark:text-primary-400">
                       <MessageCircle size={16} />
                     </div>
                     <div className="flex-grow min-w-0">
-                      <p className="font-bold text-gray-900 text-xs">Chat with Support Team</p>
-                      <p className="text-[10px] text-gray-500 truncate">
+                      <p className="font-bold text-gray-900 dark:text-white text-xs">Chat with Support Team</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
                         {loading ? 'Opening chat...' : 'Direct support channel'}
                       </p>
                     </div>
@@ -201,14 +201,14 @@ const FloatingSupportButton = () => {
 
                   <button
                     onClick={() => { navigate('/faq'); setOpen(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 border border-gray-100 transition-colors text-left group active:scale-[0.98]"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 border border-gray-100 dark:border-gray-800 transition-colors text-left group active:scale-[0.98]"
                   >
-                    <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 text-gray-600">
+                    <div className="w-8 h-8 bg-gray-50 dark:bg-gray-800/50 rounded-lg flex items-center justify-center flex-shrink-0 text-gray-600 dark:text-gray-400">
                       <HelpCircle size={16} />
                     </div>
                     <div className="flex-grow min-w-0">
-                      <p className="font-bold text-gray-900 text-xs">Help & FAQs</p>
-                      <p className="text-[10px] text-gray-500">Frequently Asked Questions</p>
+                      <p className="font-bold text-gray-900 dark:text-white text-xs">Help & FAQs</p>
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400">Frequently Asked Questions</p>
                     </div>
                     <ChevronRight size={14} className="text-gray-400 flex-shrink-0" />
                   </button>
@@ -216,12 +216,12 @@ const FloatingSupportButton = () => {
               </div>
 
               <div className="text-center pt-2">
-                <p className="text-[10px] text-gray-400">Rentzy Support · Available Mon–Sat, 9am–8pm IST</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500">Rentzy Support · Available Mon–Sat, 9am–8pm IST</p>
               </div>
             </div>
           ) : (
             /* Interactive Chat Mode */
-            <div className="flex-1 flex flex-col min-h-0 bg-gray-50/50">
+            <div className="flex-1 flex flex-col min-h-0 bg-gray-50/50 dark:bg-gray-950/20">
               {/* Message Streams */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.map((msg, index) => (
@@ -232,21 +232,21 @@ const FloatingSupportButton = () => {
                     <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${
                       msg.sender === 'user'
                         ? 'bg-indigo-600 text-white rounded-tr-none'
-                        : 'bg-white text-gray-800 border border-gray-100 rounded-tl-none'
+                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-700 rounded-tl-none'
                     }`}>
                       <p className="text-xs leading-relaxed font-semibold">{msg.text}</p>
                       
                       {msg.action && (
                         <button
                           onClick={msg.action.onClick}
-                          className="mt-2.5 w-full bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-[10px] font-black py-1.5 rounded-lg border border-indigo-100 transition-all text-center flex items-center justify-center"
+                          className="mt-2.5 w-full bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-950/30 dark:hover:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 text-[10px] font-black py-1.5 rounded-lg border border-indigo-100 dark:border-indigo-900/50 transition-all text-center flex items-center justify-center"
                         >
                           {msg.action.label}
                         </button>
                       )}
                       
                       <span className={`text-[8px] mt-1 block text-right ${
-                        msg.sender === 'user' ? 'text-white/70' : 'text-gray-400'
+                        msg.sender === 'user' ? 'text-white/70' : 'text-gray-400 dark:text-gray-500'
                       }`}>
                         {msg.time}
                       </span>
@@ -255,10 +255,10 @@ const FloatingSupportButton = () => {
                 ))}
                 {isTyping && (
                   <div className="flex justify-start">
-                    <div className="bg-white border border-gray-100 rounded-2xl rounded-tl-none p-3 shadow-sm flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl rounded-tl-none p-3 shadow-sm flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 )}
@@ -266,7 +266,7 @@ const FloatingSupportButton = () => {
               </div>
 
               {/* Predefined Quick Pills */}
-              <div className="px-4 py-2 bg-white border-t border-gray-100 flex gap-1.5 overflow-x-auto hide-scrollbar flex-shrink-0">
+              <div className="px-4 py-2 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex gap-1.5 overflow-x-auto hide-scrollbar flex-shrink-0">
                 {[
                   'Stays in Pune',
                   'Zero Brokerage',
@@ -276,7 +276,7 @@ const FloatingSupportButton = () => {
                   <button
                     key={opt}
                     onClick={() => handleQuickOption(opt)}
-                    className="bg-gray-50 hover:bg-indigo-50 border border-gray-200 hover:border-indigo-200 text-[10px] font-bold text-gray-600 hover:text-indigo-700 px-3 py-1.5 rounded-full whitespace-nowrap transition-all flex-shrink-0"
+                    className="bg-gray-50 dark:bg-gray-800 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 border border-gray-200 dark:border-gray-700 hover:border-indigo-200 dark:hover:border-indigo-800 text-[10px] font-bold text-gray-600 dark:text-gray-300 hover:text-indigo-700 dark:hover:text-indigo-300 px-3 py-1.5 rounded-full whitespace-nowrap transition-all flex-shrink-0"
                   >
                     {opt}
                   </button>
@@ -284,14 +284,14 @@ const FloatingSupportButton = () => {
               </div>
 
               {/* Input field */}
-              <div className="p-3 bg-white border-t border-gray-100 flex gap-2 items-center flex-shrink-0">
+              <div className="p-3 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex gap-2 items-center flex-shrink-0">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
                   placeholder="Ask about Pune, Satara, roommates..."
-                  className="flex-grow bg-gray-50 border border-gray-100 rounded-xl px-4 py-2 text-xs font-semibold text-gray-900 outline-none focus:ring-1 focus:ring-indigo-500"
+                  className="flex-grow bg-gray-50 dark:bg-gray-850 border border-gray-100 dark:border-gray-800 rounded-xl px-4 py-2 text-xs font-semibold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 placeholder-gray-400"
                 />
                 <button
                   onClick={() => handleSendMessage()}
