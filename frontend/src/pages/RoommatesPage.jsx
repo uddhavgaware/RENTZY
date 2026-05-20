@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, Minus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon, Map as MapIcon, List, Home, Building2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -64,6 +65,7 @@ const maskName = (name) => {
 
 const RoommatesPage = () => {
   const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
   const [roommates, setRoommates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -343,7 +345,7 @@ const RoommatesPage = () => {
         message: 'You must be logged in to post a roommate request. Please sign in or register to continue.',
         onConfirm: () => {
           closeModal();
-          window.location.href = '/auth';
+          navigate('/auth');
         }
       });
       return;
@@ -537,7 +539,7 @@ const RoommatesPage = () => {
                               </div>
                               {roommate.availableFrom && <div className="text-xs text-green-600 font-bold mb-2">⏱ Move-in: {roommate.availableFrom}</div>}
                               <div className="text-primary-700 font-bold mb-3 text-lg">₹{roommate.budget}/mo</div>
-                              <button onClick={() => window.location.href = `/messages?user=${roommate.user?.id}`} className="w-full bg-primary-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm">Message</button>
+                              <button onClick={() => navigate(`/messages?user=${roommate.user?.id}`)} className="w-full bg-primary-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm">Message</button>
                            </div>
                         </Popup>
                       </Marker>
@@ -766,7 +768,7 @@ const RoommatesPage = () => {
 
                     {!isOwner && (
                       <button 
-                        onClick={() => window.location.href = `/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`}
+                        onClick={() => navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`)}
                         className="w-full bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors mt-4"
                       >
                         <MessageCircle size={18} className="mr-2" />

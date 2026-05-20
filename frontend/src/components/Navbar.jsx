@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -18,6 +18,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const notifRef = useRef(null);
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { isDarkMode, toggleDarkMode } = useTheme();
 
@@ -93,7 +94,7 @@ const Navbar = () => {
 
   const confirmLogout = () => {
     logout();
-    window.location.href = '/';
+    navigate('/', { replace: true });
   };
 
   const navScrolledStyle = isScrolled

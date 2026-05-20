@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { User, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
@@ -21,6 +21,7 @@ const slugify = (text) => {
 };
 
 const DashboardPage = () => {
+  const navigate = useNavigate();
   const { user, logout, refreshUser } = useAuth();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'profile');
@@ -342,7 +343,7 @@ const DashboardPage = () => {
 
   const confirmLogout = () => {
     logout();
-    window.location.href = '/';
+    navigate('/', { replace: true });
   };
 
   return (
@@ -661,7 +662,7 @@ const DashboardPage = () => {
               <div className="animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">My Properties</h2>
-                  <a href="/post-property" className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors"><Plus size={16} />Add Property</a>
+                  <Link to="/post-property" className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors"><Plus size={16} />Add Property</Link>
                 </div>
                 {loadingListings ? (
                   <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>
@@ -670,7 +671,7 @@ const DashboardPage = () => {
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"><Home className="text-gray-400" size={32} /></div>
                     <h3 className="text-lg font-bold text-gray-900 mb-2">No properties listed</h3>
                     <p className="text-gray-500 mb-6">List your property and start earning.</p>
-                    <a href="/post-property" className="bg-primary-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-700">Post Property</a>
+                    <Link to="/post-property" className="bg-primary-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-700">Post Property</Link>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -789,7 +790,7 @@ const DashboardPage = () => {
               <div className="animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900">My Moving Requests</h2>
-                  <a href="/movers" className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors"><Plus size={16} />New Request</a>
+                  <Link to="/movers" className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors"><Plus size={16} />New Request</Link>
                 </div>
                 {loadingMoving ? (
                   <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>

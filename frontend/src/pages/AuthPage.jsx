@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { Building2, Mail, Lock, User, ArrowRight, Phone, KeyRound, Shield, Zap, Star, CheckCircle2 } from 'lucide-react';
 import { GoogleLogin } from '@react-oauth/google';
 
@@ -7,6 +7,7 @@ import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
 const AuthPage = () => {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const isLogin = searchParams.get('mode') !== 'signup';
   const [activeTab, setActiveTab] = useState('email'); // 'email' or 'mobile'
@@ -17,7 +18,7 @@ const AuthPage = () => {
   const [emailOtpSent, setEmailOtpSent] = useState(false);
   const [emailToVerify, setEmailToVerify] = useState('');
   const [emailOtp, setEmailOtp] = useState('');
-  
+
   const { login, register, loginWithGoogle, loginWithOtp, verifyEmailOtp } = useAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -26,15 +27,15 @@ const AuthPage = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     try {
       const form = e.target;
       const email = form.querySelector('input[type="email"]').value;
       const password = form.querySelector('input[type="password"]').value;
-      
+
       if (isLogin) {
         await login(email, password);
-        window.location.href = '/dashboard';
+        navigate('/dashboard', { replace: true });
       } else {
         const name = form.querySelector('input[type="text"]').value;
         const role = form.querySelector('input[name="role"]:checked').value.toUpperCase();
@@ -55,7 +56,7 @@ const AuthPage = () => {
     setLoading(true);
     try {
       await verifyEmailOtp(emailToVerify, emailOtp);
-      window.location.href = '/dashboard';
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid or expired OTP');
     } finally {
@@ -89,7 +90,7 @@ const AuthPage = () => {
     const fullPhone = `${countryCode}${phone}`;
     try {
       await loginWithOtp(fullPhone, otp);
-      window.location.href = '/dashboard';
+      navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid OTP');
     } finally {
@@ -106,14 +107,14 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      
+
       {/* ─── LEFT: Cinematic Branding Panel ─── */}
       <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-900 flex-col justify-between p-12">
         {/* Decorative blobs */}
         <div className="absolute top-0 left-0 w-96 h-96 bg-primary-500/20 rounded-full -translate-x-1/2 -translate-y-1/2 blur-[80px] pointer-events-none" />
         <div className="absolute bottom-0 right-0 w-80 h-80 bg-purple-500/20 rounded-full translate-x-1/3 translate-y-1/3 blur-[80px] pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-pink-500/10 rounded-full -translate-x-1/2 -translate-y-1/2 blur-[60px] pointer-events-none" />
-        
+
         {/* Logo */}
         <div className="relative z-10">
           <Link to="/" className="flex items-center gap-3 group">
@@ -184,9 +185,9 @@ const AuthPage = () => {
           {activeTab === 'email' && (
             <p className="text-center text-sm text-gray-500 mb-8">
               {isLogin ? "Don't have an account? " : "Already have an account? "}
-              <button 
+              <button
                 type="button"
-                onClick={() => setSearchParams({ mode: isLogin ? 'signup' : 'login' })} 
+                onClick={() => setSearchParams({ mode: isLogin ? 'signup' : 'login' })}
                 className="font-semibold text-primary-600 hover:text-primary-500 transition-colors"
               >
                 {isLogin ? 'Sign up for free' : 'Log in'}
@@ -196,16 +197,16 @@ const AuthPage = () => {
           {activeTab === 'mobile' && <div className="mb-8" />}
 
           <div className="bg-white dark:bg-gray-900 py-8 px-6 sm:px-8 shadow-xl shadow-gray-200/50 dark:shadow-black/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-            
+
             {/* Tabs */}
             <div className="flex bg-gray-100 dark:bg-gray-950 p-1 rounded-xl mb-6">
-              <button 
+              <button
                 className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === 'email' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 onClick={() => setActiveTab('email')}
               >
                 Email
               </button>
-              <button 
+              <button
                 className={`flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all ${activeTab === 'mobile' ? 'bg-white dark:bg-gray-800 shadow-sm text-gray-900 dark:text-white border border-gray-200 dark:border-gray-700' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
                 onClick={() => setActiveTab('mobile')}
               >
@@ -218,7 +219,7 @@ const AuthPage = () => {
                 {error}
               </div>
             )}
-            
+
             {/* Google Login */}
             <div className="mb-6 flex justify-center">
               <GoogleLogin
@@ -226,7 +227,7 @@ const AuthPage = () => {
                   try {
                     setLoading(true);
                     await loginWithGoogle(credentialResponse.credential);
-                    window.location.href = '/dashboard';
+                    navigate('/dashboard', { replace: true });
                   } catch (err) {
                     setError(err.response?.data?.message || 'Google Login failed');
                     setLoading(false);
@@ -236,7 +237,7 @@ const AuthPage = () => {
                 theme="outline" size="large" shape="pill"
               />
             </div>
-            
+
             {/* Divider */}
             <div className="relative mb-6">
               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-200 dark:border-gray-800"></div></div>
@@ -247,80 +248,80 @@ const AuthPage = () => {
               <div>
                 {!emailOtpSent ? (
                   <form className="space-y-5" onSubmit={handleEmailSubmit}>
-                {!isLogin && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><User className="h-5 w-5 text-gray-400" /></div>
-                      <input type="text" required className="appearance-none block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-gray-900 font-medium" placeholder="John Doe" />
+                    {!isLogin && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><User className="h-5 w-5 text-gray-400" /></div>
+                          <input type="text" required className="appearance-none block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-gray-900 font-medium" placeholder="John Doe" />
+                        </div>
+                      </div>
+                    )}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email address</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><Mail className="h-5 w-5 text-gray-400" /></div>
+                        <input type="email" required className="appearance-none block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-gray-900 font-medium" placeholder="you@example.com" />
+                      </div>
                     </div>
-                  </div>
-                )}
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email address</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><Mail className="h-5 w-5 text-gray-400" /></div>
-                    <input type="email" required className="appearance-none block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-gray-900 font-medium" placeholder="you@example.com" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><Lock className="h-5 w-5 text-gray-400" /></div>
-                    <input type="password" required className="appearance-none block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-gray-900 font-medium" placeholder="••••••••" />
-                  </div>
-                </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                      <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none"><Lock className="h-5 w-5 text-gray-400" /></div>
+                        <input type="password" required className="appearance-none block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all text-gray-900 font-medium" placeholder="••••••••" />
+                      </div>
+                    </div>
 
-                {isLogin && (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <input id="remember-me" type="checkbox" className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" />
-                      <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600">Remember me</label>
-                    </div>
-                    <div className="text-sm">
-                      <Link to="/forgot-password" className="font-semibold text-primary-600 hover:text-primary-500">Forgot password?</Link>
-                    </div>
-                  </div>
-                )}
+                    {isLogin && (
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <input id="remember-me" type="checkbox" className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded" />
+                          <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600">Remember me</label>
+                        </div>
+                        <div className="text-sm">
+                          <Link to="/forgot-password" className="font-semibold text-primary-600 hover:text-primary-500">Forgot password?</Link>
+                        </div>
+                      </div>
+                    )}
 
-                {!isLogin && (
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">I am a...</label>
-                    <div className="grid grid-cols-2 gap-2.5 sm:flex sm:gap-2">
-                      <label className="flex-1 cursor-pointer">
-                        <input type="radio" name="role" value="tenant" className="peer sr-only" defaultChecked />
-                        <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Tenant</span></div>
-                      </label>
-                      <label className="flex-1 cursor-pointer">
-                        <input type="radio" name="role" value="owner" className="peer sr-only" />
-                        <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Owner</span></div>
-                      </label>
-                      <label className="flex-1 cursor-pointer">
-                        <input type="radio" name="role" value="mover" className="peer sr-only" />
-                        <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-gray-900 peer-checked:bg-gray-100 peer-checked:text-gray-900 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Mover</span></div>
-                      </label>
-                      <label className="flex-1 cursor-pointer">
-                        <input type="radio" name="role" value="admin" className="peer sr-only" />
-                        <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Admin</span></div>
-                      </label>
-                    </div>
-                  </div>
-                )}
+                    {!isLogin && (
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">I am a...</label>
+                        <div className="grid grid-cols-2 gap-2.5 sm:flex sm:gap-2">
+                          <label className="flex-1 cursor-pointer">
+                            <input type="radio" name="role" value="tenant" className="peer sr-only" defaultChecked />
+                            <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Tenant</span></div>
+                          </label>
+                          <label className="flex-1 cursor-pointer">
+                            <input type="radio" name="role" value="owner" className="peer sr-only" />
+                            <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Owner</span></div>
+                          </label>
+                          <label className="flex-1 cursor-pointer">
+                            <input type="radio" name="role" value="mover" className="peer sr-only" />
+                            <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-gray-900 peer-checked:bg-gray-100 peer-checked:text-gray-900 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Mover</span></div>
+                          </label>
+                          <label className="flex-1 cursor-pointer">
+                            <input type="radio" name="role" value="admin" className="peer sr-only" />
+                            <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Admin</span></div>
+                          </label>
+                        </div>
+                      </div>
+                    )}
 
-                <button disabled={loading} type="submit" className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-primary-600/25">
-                  {loading ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Processing...
-                    </div>
-                  ) : (
-                    <>
-                      {isLogin ? 'Sign in' : 'Create Account'}
-                      <ArrowRight className="ml-2 h-5 w-5" />
-                    </>
-                  )}
-                </button>
-              </form>
+                    <button disabled={loading} type="submit" className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed shadow-lg shadow-primary-600/25">
+                      {loading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Processing...
+                        </div>
+                      ) : (
+                        <>
+                          {isLogin ? 'Sign in' : 'Create Account'}
+                          <ArrowRight className="ml-2 h-5 w-5" />
+                        </>
+                      )}
+                    </button>
+                  </form>
                 ) : (
                   <form className="space-y-5" onSubmit={handleVerifyEmailOtp}>
                     <div>
@@ -353,8 +354,8 @@ const AuthPage = () => {
                       <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
                       <div className="relative flex rounded-xl shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none z-10"><Phone className="h-5 w-5 text-gray-400" /></div>
-                        <select 
-                          value={countryCode} 
+                        <select
+                          value={countryCode}
                           onChange={(e) => setCountryCode(e.target.value)}
                           className="pl-11 pr-2 py-3 border border-gray-200 border-r-0 rounded-l-xl bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all font-medium"
                         >
@@ -364,13 +365,13 @@ const AuthPage = () => {
                           <option value="+61">+61 (AUS)</option>
                           <option value="+971">+971 (UAE)</option>
                         </select>
-                        <input 
-                          type="tel" 
-                          required 
-                          value={phone} 
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))} 
-                          className="flex-1 appearance-none block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-r-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all font-medium text-gray-900" 
-                          placeholder="Enter 10-digit number" 
+                        <input
+                          type="tel"
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                          className="flex-1 appearance-none block w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-r-xl placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent focus:bg-white transition-all font-medium text-gray-900"
+                          placeholder="Enter 10-digit number"
                         />
                       </div>
                     </div>

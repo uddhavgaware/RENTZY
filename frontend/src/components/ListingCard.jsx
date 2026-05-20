@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Star, Heart, BadgeCheck, Wifi, Car, Dumbbell, Tv } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
@@ -43,6 +43,7 @@ const TYPE_COLORS = {
 
 const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlistChange }) => {
   const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
   const [wishlisted, setWishlisted] = useState(initialWishlisted);
   const [animating, setAnimating] = useState(false);
   const [imgError, setImgError] = useState(false);
@@ -63,7 +64,7 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
     e.preventDefault();
     e.stopPropagation();
     if (!isAuthenticated) {
-      window.location.href = '/auth';
+      navigate('/auth');
       return;
     }
     setAnimating(true);
@@ -175,7 +176,7 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
         <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
           {listing.owner ? (
             <div 
-              onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `/owner/${listing.owner.id}`; }}
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/owner/${listing.owner.id}`); }}
               className="flex items-center gap-2 z-10 cursor-pointer hover:bg-gray-50 px-2 py-1 rounded-lg transition-colors -ml-2"
             >
               <div className="w-6 h-6 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden border border-primary-200">
