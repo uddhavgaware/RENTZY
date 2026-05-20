@@ -257,6 +257,8 @@ const CompleteProfilePage = () => {
                 </div>
               </div>
 
+            </div>
+
             {formData.role === 'TENANT' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700">Occupation *</label>
