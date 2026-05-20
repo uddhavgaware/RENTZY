@@ -33,9 +33,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/uploads/**").permitAll()  // Public: serve uploaded images
-                .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/reviews/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/roommates/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews", "/api/reviews/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/roommates", "/api/roommates/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/listings/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/listings/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/listings/**").hasAnyRole("OWNER", "ADMIN")

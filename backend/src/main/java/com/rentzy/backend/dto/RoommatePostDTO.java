@@ -18,6 +18,7 @@ public class RoommatePostDTO {
     private Integer vacancies;
     private Integer totalCapacity;
     private List<String> preferences;
+    private String gender;
     private String targetOccupation;
     private String targetGender;
     private Boolean maintenanceIncluded;
@@ -48,6 +49,7 @@ public class RoommatePostDTO {
                 .email(post.getUser().getEmail())
                 .role(post.getUser().getRole() != null ? post.getUser().getRole().name() : null)
                 .isVerified(post.getUser().getIsVerified())
+                .gender(post.getUser().getGender())
                 .build();
         }
 
@@ -62,6 +64,7 @@ public class RoommatePostDTO {
             .vacancies(post.getVacancies())
             .totalCapacity(post.getTotalCapacity())
             .preferences(post.getPreferences())
+            .gender(post.getGender())
             .targetOccupation(post.getTargetOccupation())
             .targetGender(post.getTargetGender())
             .maintenanceIncluded(post.getMaintenanceIncluded())

@@ -211,6 +211,7 @@ const RoommatesPage = () => {
     maintenance: 'Not Included',
     facing: '',
     areaSqft: '',
+    gender: '',
   });
 
   const handleImageChange = (e) => {
@@ -305,10 +306,11 @@ const RoommatesPage = () => {
         maintenance: postFormData.maintenance,
         facing: postFormData.facing || null,
         areaSqft: postFormData.areaSqft ? parseInt(postFormData.areaSqft) : null,
+        gender: postFormData.gender,
       };
       await api.post('/roommates', payload);
       setIsModalOpen(false);
-      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '' });
+      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '' });
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
@@ -333,6 +335,27 @@ const RoommatesPage = () => {
       onCancel: closeModal
     });
   };
+  const handlePostRequestClick = () => {
+    if (!isAuthenticated) {
+      showModal({
+        type: 'alert',
+        title: 'Authorization Required',
+        message: 'You must be logged in to post a roommate request. Please sign in or register to continue.',
+        onConfirm: () => {
+          closeModal();
+          window.location.href = '/auth';
+        }
+      });
+      return;
+    }
+    setIsModalOpen(true);
+  };
+
+  useEffect(() => {
+    if (isModalOpen && user?.gender) {
+      setPostFormData(prev => ({ ...prev, gender: user.gender }));
+    }
+  }, [isModalOpen, user]);
 
   return (
     <>
@@ -353,15 +376,13 @@ const RoommatesPage = () => {
           >
             Browse Roommates
           </button>
-          {isAuthenticated && (
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="bg-pink-600 hover:bg-pink-500 text-white rounded-2xl px-8 py-4 font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 shadow-pink-500/25"
-            >
-              <Plus size={20} />
-              Post a Request
-            </button>
-          )}
+          <button 
+            onClick={handlePostRequestClick}
+            className="bg-pink-600 hover:bg-pink-500 text-white rounded-2xl px-8 py-4 font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 shadow-pink-500/25"
+          >
+            <Plus size={20} />
+            Post a Request
+          </button>
         </div>
       </PremiumHero>
 
@@ -502,6 +523,15 @@ const RoommatesPage = () => {
                               </div>
                               <div className="text-sm text-gray-600 mb-2 font-medium">{roommate.location}</div>
                               <div className="flex flex-wrap gap-1 mb-2">
+                                {(roommate.gender || roommate.user?.gender) && (
+                                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                                    (roommate.gender || roommate.user?.gender).toLowerCase() === 'male' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                    (roommate.gender || roommate.user?.gender).toLowerCase() === 'female' ? 'bg-pink-50 text-pink-700 border border-pink-200' :
+                                    'bg-purple-50 text-purple-700 border border-purple-200'
+                                  }`}>
+                                    👤 {roommate.gender || roommate.user?.gender}
+                                  </span>
+                                )}
                                 {roommate.targetGender !== 'Any' && <span className="bg-primary-50 text-primary-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.targetGender}</span>}
                                 {roommate.dietaryPref !== 'Any' && <span className="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.dietaryPref}</span>}
                               </div>
@@ -562,9 +592,20 @@ const RoommatesPage = () => {
                               </div>
                             )}
                           </div>
-                          <p className="text-gray-500 text-sm">
-                            {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
-                          </p>
+                          <div className="flex items-center flex-wrap gap-2 mt-0.5">
+                            <span className="text-gray-500 text-xs font-semibold">
+                              {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
+                            </span>
+                            {(roommate.gender || roommate.user?.gender) && (
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border shadow-sm flex items-center gap-0.5 ${
+                                (roommate.gender || roommate.user?.gender).toLowerCase() === 'male' ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-blue-100/50' :
+                                (roommate.gender || roommate.user?.gender).toLowerCase() === 'female' ? 'bg-pink-50 text-pink-700 border-pink-200 shadow-pink-100/50' :
+                                'bg-purple-50 text-purple-700 border-purple-200 shadow-purple-100/50'
+                              }`}>
+                                👤 {(roommate.gender || roommate.user?.gender)}
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </div>
                       {/* Delete own post */}
@@ -1012,6 +1053,28 @@ const RoommatesPage = () => {
                       <label className="block text-xs font-medium text-gray-500 mb-1">Area (Sq. Ft.)</label>
                       <input type="number" min="1" value={postFormData.areaSqft} onChange={(e) => setPostFormData({...postFormData, areaSqft: e.target.value})} placeholder="e.g. 1000" className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                     </div>
+                  </div>
+                </div>
+
+                {/* Section: Your Profile */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-6 h-6 bg-pink-100 rounded-lg flex items-center justify-center">👤</div>
+                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Your Profile</h3>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Your Gender <span className="text-red-400">*</span></label>
+                    <select 
+                      required 
+                      value={postFormData.gender} 
+                      onChange={(e) => setPostFormData({...postFormData, gender: e.target.value})} 
+                      className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm bg-white"
+                    >
+                      <option value="">Select Your Gender</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
                 </div>
 

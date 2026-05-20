@@ -47,6 +47,14 @@ public class RoommateService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         post.setUser(user);
+        
+        // If user's profile gender is not set or empty, update it with post's gender
+        if (post.getGender() != null && !post.getGender().trim().isEmpty() && 
+            (user.getGender() == null || user.getGender().trim().isEmpty())) {
+            user.setGender(post.getGender());
+            userRepository.save(user);
+        }
+        
         return repository.save(post);
     }
 

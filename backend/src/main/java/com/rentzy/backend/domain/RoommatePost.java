@@ -43,6 +43,7 @@ public class RoommatePost {
     private List<String> preferences;
 
     // Demographic preferences
+    private String gender; // Requester's gender: Male, Female, Other
     private String targetOccupation; // Student, Professional, Any
     private String targetGender; // Male, Female, Any
     private String agePreference;
