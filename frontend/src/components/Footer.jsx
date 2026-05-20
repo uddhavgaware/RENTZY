@@ -20,10 +20,10 @@ const Footer = () => {
               Premium marketplace for PGs, flats, and hostels. Find your perfect stay or the ideal roommate with ease.
             </p>
             <div className="flex space-x-4">
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://instagram.com/rentxy_bookings" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <Instagram size={20} />
               </a>
-              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+              <a href="https://x.com/renxybookings" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">
                 <Twitter size={20} />
               </a>
               <a href="#" className="text-gray-400 hover:text-white transition-colors">
@@ -64,7 +64,7 @@ const Footer = () => {
               <li className="flex items-start gap-3">
                 <Mail className="text-primary-400 mt-1 flex-shrink-0" size={18} />
                 <span className="text-gray-400 hover:text-white transition-colors cursor-pointer break-all">
-                  Udaygaware8@gmail.com
+                  rentxybookings@gmail.com
                 </span>
               </li>
               <li className="flex items-start gap-3">

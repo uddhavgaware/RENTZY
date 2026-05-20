@@ -75,7 +75,7 @@ const faqs = [
       },
       {
         q: 'How do I contact support?',
-        a: 'You can reach us via WhatsApp at +91 8767532364, email at Udaygaware8@gmail.com, or use the contact details in the footer. We typically respond within 24 hours.'
+        a: 'You can reach us via WhatsApp at +91 8767532364, email at rentxybookings@gmail.com, or use the contact details in the footer. We typically respond within 24 hours.'
       },
     ]
   },
