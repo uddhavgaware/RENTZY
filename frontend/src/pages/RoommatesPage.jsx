@@ -15,7 +15,7 @@ function MapUpdater({ center }) {
 function CustomZoomControl() {
   const map = useMap();
   return (
-    <div className="absolute top-20 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-xl rounded-xl overflow-hidden">
+    <div className="absolute bottom-6 right-4 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-xl rounded-xl overflow-hidden">
       <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomIn(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors border-b border-gray-200 active:bg-gray-200" title="Zoom In"><Plus size={18} /></button>
       <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomOut(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors active:bg-gray-200" title="Zoom Out"><Minus size={18} /></button>
     </div>
@@ -130,6 +130,22 @@ const RoommatesPage = () => {
       showModal({ type: 'alert', title: 'Location Error', message: "Unable to retrieve your location. Please check your browser permissions.", onConfirm: closeModal });
       setIsLocating(false);
     });
+  };
+
+  const geocodeAndSetPostLocation = async (locationText) => {
+    if (!locationText || !locationText.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationText)}&limit=1`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        setMapCenter([lat, lon]);
+        setPostFormData(prev => ({...prev, latitude: lat, longitude: lon}));
+      }
+    } catch (err) {
+      console.error('Geocode failed', err);
+    }
   };
 
   const handlePostLiveLocation = () => {
@@ -719,6 +735,8 @@ const RoommatesPage = () => {
                       <input
                         type="text" required value={postFormData.location}
                         onChange={(e) => setPostFormData({...postFormData, location: e.target.value})}
+                        onBlur={(e) => geocodeAndSetPostLocation(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && geocodeAndSetPostLocation(postFormData.location)}
                         placeholder="e.g. Hinjewadi, Pune"
                         className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-sm"
                       />

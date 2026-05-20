@@ -48,7 +48,7 @@ const customMapPinIcon = divIcon({
 function CustomZoomControl() {
   const map = useMap();
   return (
-    <div className="absolute top-20 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-xl rounded-xl overflow-hidden">
+    <div className="absolute bottom-6 right-4 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-xl rounded-xl overflow-hidden">
       <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomIn(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors border-b border-gray-200 active:bg-gray-200" title="Zoom In"><Plus size={18} /></button>
       <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomOut(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors active:bg-gray-200" title="Zoom Out"><Minus size={18} /></button>
     </div>
@@ -241,14 +241,35 @@ const ListingsPage = () => {
   }, [isAuthenticated]);
 
   const handleSearch = () => {
-    setAppliedLocation(searchInput);
+    const loc = searchInput.trim();
+    setAppliedLocation(loc);
     setShowSuggestions(false);
+    // Geocode the searched location and pan map
+    if (loc) {
+      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(loc)}&limit=1`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.length > 0) {
+            setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+          }
+        })
+        .catch(() => {});
+    }
   };
 
   const selectLocation = (loc) => {
     setSearchInput(loc);
     setAppliedLocation(loc);
     setShowSuggestions(false);
+    // Geocode and pan map
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(loc)}&limit=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+        }
+      })
+      .catch(() => {});
   };
 
   const toggleAmenity = (amenity) => {

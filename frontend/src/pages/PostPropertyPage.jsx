@@ -143,6 +143,23 @@ const PostPropertyPage = () => {
         const newLon = parseFloat(data[0].lon);
         setMapCenter([newLat, newLon]);
         setMapPosition({ lat: newLat, lng: newLon });
+        setFormData(prev => ({ ...prev, latitude: newLat, longitude: newLon }));
+      }
+    } catch (err) {}
+  };
+
+  // Geocode the locality/area input and update map
+  const geocodeLocationInput = async (locationText) => {
+    if (!locationText || !locationText.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationText)}&limit=1`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const newLat = parseFloat(data[0].lat);
+        const newLon = parseFloat(data[0].lon);
+        setMapCenter([newLat, newLon]);
+        setMapPosition({ lat: newLat, lng: newLon });
+        setFormData(prev => ({ ...prev, latitude: newLat, longitude: newLon }));
       }
     } catch (err) {}
   };
@@ -373,7 +390,17 @@ const PostPropertyPage = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Locality / Area</label>
-                  <input type="text" name="location" value={formData.location} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Koregaon Park, Pune" required />
+                  <input 
+                    type="text" 
+                    name="location" 
+                    value={formData.location} 
+                    onChange={handleChange} 
+                    onBlur={(e) => geocodeLocationInput(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && geocodeLocationInput(formData.location)}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" 
+                    placeholder="e.g. Koregaon Park, Pune" 
+                    required 
+                  />
                 </div>
 
                 {/* Map Picker */}

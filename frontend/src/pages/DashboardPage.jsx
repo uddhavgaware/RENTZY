@@ -333,7 +333,7 @@ const DashboardPage = () => {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <div className="w-full lg:w-64 flex-shrink-0">
-            <div className="bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100/80 p-4 sticky top-24">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-black/30 border border-gray-100/80 dark:border-white/5 p-4 sticky top-24">
               <div className="flex items-center space-x-4 mb-6 p-3 bg-gradient-to-r from-primary-50 to-indigo-50 rounded-xl border border-primary-100/50">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-primary-500/25">
                   {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
@@ -357,7 +357,7 @@ const DashboardPage = () => {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 bg-white rounded-2xl shadow-lg shadow-gray-200/50 border border-gray-100/80 p-6 md:p-8">
+          <div className="flex-1 bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-black/30 border border-gray-100/80 dark:border-white/5 p-6 md:p-8">
 
             {/* PROFILE TAB */}
             {activeTab === 'profile' && (
@@ -809,7 +809,7 @@ const DashboardPage = () => {
                 
                 <div className="space-y-6">
                   {/* Preferences */}
-                  <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                  <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm">
                     <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                       <Settings className="text-primary-500" size={20} /> App Preferences
                     </h3>
@@ -857,7 +857,7 @@ const DashboardPage = () => {
                   </div>
 
                   {/* Security */}
-                  <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+                  <div className="bg-white dark:bg-slate-900 border border-gray-100 dark:border-white/5 rounded-2xl p-6 shadow-sm">
                     <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                       <ShieldCheck className="text-green-500" size={20} /> Security & Privacy
                     </h3>

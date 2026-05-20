@@ -406,3 +406,196 @@ html.dark input:focus, html.dark select:focus, html.dark textarea:focus {
 }
 html.dark input::placeholder, 
 html.dark textarea::placeholder { color: #475569 !important; }
+
+/* ═══════════════════════════════════════════════
+   DARK MODE — DASHBOARD & CARD COMPONENT FIXES
+═══════════════════════════════════════════════ */
+
+/* Dashboard sidebar & main panel (hard-coded bg-white) */
+html.dark .rounded-2xl.bg-white,
+html.dark .rounded-3xl.bg-white {
+  background-color: #0f172a !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Dashboard gradient sidebar user card */
+html.dark .from-primary-50.to-indigo-50 {
+  background: linear-gradient(to right, rgba(79,70,229,0.15), rgba(99,102,241,0.1)) !important;
+}
+
+/* Active tab in sidebar */
+html.dark .from-primary-50.to-indigo-50.text-primary-700 {
+  background: linear-gradient(to right, rgba(79,70,229,0.2), rgba(99,102,241,0.15)) !important;
+}
+
+/* Status badges (ACTIVE/RENTED/INACTIVE) in dark mode — keep readable */
+html.dark .bg-green-100 { background-color: rgba(22,163,74,0.2) !important; }
+html.dark .text-green-700 { color: #4ade80 !important; }
+html.dark .bg-blue-100 { background-color: rgba(37,99,235,0.2) !important; }
+html.dark .text-blue-700 { color: #60a5fa !important; }
+html.dark .bg-yellow-100 { background-color: rgba(202,138,4,0.2) !important; }
+html.dark .text-yellow-700 { color: #fbbf24 !important; }
+html.dark .bg-red-100 { background-color: rgba(220,38,38,0.2) !important; }
+html.dark .text-red-700 { color: #f87171 !important; }
+html.dark .bg-red-50 { background-color: rgba(220,38,38,0.08) !important; }
+html.dark .text-red-600 { color: #f87171 !important; }
+html.dark .text-red-800 { color: #fca5a5 !important; }
+html.dark .border-red-100 { border-color: rgba(220,38,38,0.2) !important; }
+
+/* Listing property row card */
+html.dark .border-gray-100.rounded-2xl {
+  background-color: #0f172a !important;
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Settings/Security inner cards */
+html.dark .border-gray-100.rounded-2xl.p-6 {
+  background-color: #0f172a !important;
+}
+
+/* Notification & booking items */
+html.dark .border-primary-200.bg-primary-50\/50 {
+  background-color: rgba(79,70,229,0.12) !important;
+  border-color: rgba(99,102,241,0.3) !important;
+}
+
+/* KYC / profile sub-section */
+html.dark .bg-green-50 { background-color: rgba(22,163,74,0.1) !important; }
+html.dark .border-green-200 { border-color: rgba(22,163,74,0.3) !important; }
+html.dark .text-green-800 { color: #86efac !important; }
+html.dark .bg-yellow-50 { background-color: rgba(202,138,4,0.1) !important; }
+html.dark .border-yellow-200 { border-color: rgba(202,138,4,0.3) !important; }
+
+/* Select dropdowns in dashboard property status */
+html.dark select.bg-white {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   DARK MODE — LISTINGS PAGE
+═══════════════════════════════════════════════ */
+html.dark .bg-mesh-gradient.min-h-screen {
+  background: radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(168,85,247,0.12) 0%, transparent 50%),
+    linear-gradient(180deg, #020617 0%, #0f172a 100%) !important;
+}
+
+/* Search header in listings */
+html.dark .rounded-2xl.shadow-lg.shadow-gray-200\/50,
+html.dark .rounded-3xl.shadow-lg.shadow-gray-200\/50 {
+  background-color: #0f172a !important;
+  border-color: rgba(255,255,255,0.06) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.4) !important;
+}
+
+/* Category/sort dropdowns */
+html.dark select.bg-white.border.border-gray-200 {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* All property category buttons */
+html.dark .bg-white.text-gray-600.border {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Autocomplete dropdown */
+html.dark .bg-white.border.border-gray-200.rounded-xl.shadow-xl {
+  background-color: #1e293b !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* ═══════════════════════════════════════════════
+   DARK MODE — ROOMMATES PAGE
+═══════════════════════════════════════════════ */
+
+/* Roommates section background */
+html.dark .bg-gray-50.min-h-screen {
+  background-color: #020617 !important;
+}
+
+/* Split rent info banner */
+html.dark .from-green-50.to-emerald-50 {
+  background: linear-gradient(to right, rgba(22,163,74,0.1), rgba(16,185,129,0.08)) !important;
+}
+html.dark .border-green-200 { border-color: rgba(22,163,74,0.25) !important; }
+html.dark .text-green-700 { color: #4ade80 !important; }
+html.dark .text-green-800 { color: #86efac !important; }
+html.dark .text-green-600 { color: #4ade80 !important; }
+
+/* Search/filter glass card */
+html.dark .glass-card.rounded-3xl {
+  background-color: rgba(15,23,42,0.9) !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Roommate listing card */
+html.dark .glass-card.bg-white\/80.rounded-3xl {
+  background-color: #0f172a !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* Post modal */
+html.dark .bg-white.rounded-3xl {
+  background-color: #0f172a !important;
+}
+html.dark .bg-gray-50.border-t.border-gray-100 {
+  background-color: #020617 !important;
+  border-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Map search overlay in dark mode */
+html.dark .glass-premium.rounded-2xl {
+  background: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(15,23,42,0.9) 100%) !important;
+  border-color: rgba(255,255,255,0.12) !important;
+}
+
+/* Leaflet map zoom controls in dark mode */
+html.dark .leaflet-control-zoom a,
+html.dark .leaflet-bar a {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+html.dark .leaflet-bar a:hover {
+  background-color: #334155 !important;
+}
+
+/* Custom zoom control buttons in dark mode */
+html.dark .bg-white\/90.backdrop-blur-md.border.border-white\/50.shadow-xl.rounded-xl {
+  background-color: rgba(15,23,42,0.92) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+html.dark .hover\:bg-gray-100:hover { background-color: #1e293b !important; }
+html.dark .text-gray-700 { color: #e2e8f0 !important; }
+html.dark .border-gray-200.active\:bg-gray-200 { border-color: rgba(255,255,255,0.08) !important; }
+
+/* Toggle (List/Map) pill in roommates */
+html.dark .bg-gray-100.p-1.rounded-xl {
+  background-color: #1e293b !important;
+}
+
+/* Map legend overlay */
+html.dark .glass-premium.rounded-xl.p-3 {
+  background: rgba(15,23,42,0.92) !important;
+  border-color: rgba(255,255,255,0.1) !important;
+}
+
+/* Preference tags */
+html.dark .bg-gray-100.text-gray-700,
+html.dark .bg-gray-100.text-gray-600 {
+  background-color: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+html.dark .border-gray-200 { border-color: rgba(255,255,255,0.08) !important; }
+
+/* Moving request cards */
+html.dark .bg-primary-50.rounded-xl {
+  background-color: rgba(79,70,229,0.12) !important;
+}
+html.dark .border-primary-100 { border-color: rgba(99,102,241,0.25) !important; }
