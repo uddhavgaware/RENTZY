@@ -12,6 +12,7 @@ const CompleteProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [confirmPhone, setConfirmPhone] = useState('');
   
   // Crop state
   const [showCropper, setShowCropper] = useState(false);
@@ -77,6 +78,12 @@ const CompleteProfilePage = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+
+    if (formData.phone !== confirmPhone) {
+      setError('Mobile numbers do not match. Please verify your number.');
+      setLoading(false);
+      return;
+    }
     
     try {
       const res = await api.put('/users/me', formData);
@@ -153,6 +160,14 @@ const CompleteProfilePage = () => {
                 <label className="block text-sm font-medium text-gray-700">Mobile Number *</label>
                 <div className="mt-1">
                   <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-primary-500 focus:border-primary-500" placeholder="9876543210" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Confirm Mobile Number *</label>
+                <div className="mt-1">
+                  <input type="tel" value={confirmPhone} onChange={(e) => setConfirmPhone(e.target.value)} required
                     className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-primary-500 focus:border-primary-500" placeholder="9876543210" />
                 </div>
               </div>

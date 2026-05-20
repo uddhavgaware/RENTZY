@@ -456,15 +456,7 @@ const DashboardPage = () => {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-                      {editingProfile ? (
-                        <select value={profileForm.role} onChange={e => setProfileForm(p => ({ ...p, role: e.target.value }))} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none">
-                          <option value="TENANT">Tenant</option>
-                          <option value="OWNER">Owner</option>
-                          <option value="MOVER">Mover (Vendor)</option>
-                        </select>
-                      ) : (
-                        <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3 capitalize">{profile.role?.toLowerCase()}</p>
-                      )}
+                      <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3 capitalize">{profile.role?.toLowerCase()}</p>
                     </div>
                     {profile.createdAt && (
                       <div>

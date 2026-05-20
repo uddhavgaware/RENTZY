@@ -344,6 +344,11 @@ const AuthPage = () => {
               <div>
                 {!otpSent ? (
                   <form className="space-y-5" onSubmit={handleSendOtp}>
+                    <div className="bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-700 p-3 rounded-xl mb-4">
+                      <p className="text-xs text-yellow-800 dark:text-yellow-200 font-medium text-center">
+                        🚧 <b>Note:</b> Mobile OTP System is currently under development. Please use Email or Google Login.
+                      </p>
+                    </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
                       <div className="relative flex rounded-xl shadow-sm">
@@ -369,8 +374,8 @@ const AuthPage = () => {
                         />
                       </div>
                     </div>
-                    <button disabled={loading} type="submit" className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-gradient-to-r from-primary-600 to-primary-700 hover:from-primary-700 hover:to-primary-800 transition-all shadow-lg shadow-primary-600/25">
-                      {loading ? 'Sending...' : 'Send OTP Code'}
+                    <button disabled={true} type="button" className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-gray-400 cursor-not-allowed transition-all shadow-sm">
+                      Under Development
                     </button>
                   </form>
                 ) : (
