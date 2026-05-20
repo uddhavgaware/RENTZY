@@ -451,9 +451,15 @@ const ListingDetailsPage = () => {
               ) : (
                 <div className="space-y-4">
                   {reviews.map(review => (
-                    <div key={review.id} className="flex gap-4 p-4 border border-gray-100 rounded-xl hover:bg-gray-50/50 transition-colors">
-                      <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
-                        <User size={18} className="text-primary-600" />
+                    <div key={review.id} className="flex gap-4 p-4 border border-gray-100 dark:border-white/5 rounded-xl hover:bg-gray-50/50 dark:hover:bg-slate-800/50 transition-colors">
+                      <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0 overflow-hidden border border-primary-200">
+                        {review.user?.profilePhoto ? (
+                          <img src={review.user.profilePhoto} alt={review.user.name || 'User'} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-primary-700 font-bold text-sm">
+                            {review.user?.name ? review.user.name.charAt(0).toUpperCase() : <User size={18} />}
+                          </span>
+                        )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">

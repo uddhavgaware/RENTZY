@@ -32,7 +32,7 @@ const DashboardPage = () => {
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [loadingListings, setLoadingListings] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
-  const [profileForm, setProfileForm] = useState({ name: '', phone: '', role: '' });
+  const [profileForm, setProfileForm] = useState({ name: '', phone: '', role: '', profilePhoto: '' });
   const [savingProfile, setSavingProfile] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
   const [editForm, setEditForm] = useState({});
@@ -92,7 +92,7 @@ const DashboardPage = () => {
       api.get('/listings/my').then(r => setMyListings(r.data)).catch(() => {}).finally(() => setLoadingListings(false));
     }
     if (activeTab === 'profile') {
-      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role }); }).catch(() => {});
+      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role, profilePhoto: r.data.profilePhoto || '' }); }).catch(() => {});
     }
     if (activeTab === 'notifications') {
       api.get('/notifications').then(r => setNotifications(r.data)).catch(() => {});
@@ -151,6 +151,30 @@ const DashboardPage = () => {
       showModal({ type: 'alert', title: 'Error', message: errorMsg, onConfirm: closeModal }); 
     }
     finally { setSavingProfile(false); }
+  };
+
+  const handleProfilePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      showModal({ type: 'alert', title: 'Error', message: 'Profile photo must be less than 2MB', onConfirm: closeModal });
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append('files', file);
+      const res = await api.post('/upload', uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data && res.data.length > 0) {
+        setProfileForm(prev => ({ ...prev, profilePhoto: res.data[0] }));
+      }
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Upload Failed', message: 'Failed to upload profile photo.', onConfirm: closeModal });
+    } finally {
+      setSavingProfile(false);
+    }
   };
 
   const handleDeleteListing = (id) => {
@@ -335,9 +359,13 @@ const DashboardPage = () => {
           <div className="w-full lg:w-64 flex-shrink-0">
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-black/30 border border-gray-100/80 dark:border-white/5 p-4 sticky top-24">
               <div className="flex items-center space-x-4 mb-6 p-3 bg-gradient-to-r from-primary-50 to-indigo-50 rounded-xl border border-primary-100/50">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-primary-500/25">
-                  {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
-                </div>
+                {user?.profilePhoto ? (
+                  <img src={user.profilePhoto} alt={user.name} className="w-12 h-12 rounded-full object-cover shadow-md shadow-primary-500/25 border-2 border-white" />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-primary-500/25 border-2 border-white">
+                    {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                  </div>
+                )}
                 <div>
                   <h3 className="font-bold text-gray-900">{user?.name || 'User'}</h3>
                   <p className="text-xs text-primary-600 font-semibold uppercase tracking-wide">{user?.role || 'Account'}</p>
@@ -368,6 +396,27 @@ const DashboardPage = () => {
                 </div>
                 {profile ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {editingProfile && (
+                      <div className="md:col-span-2 mb-4">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+                        <div className="flex items-center gap-4">
+                          {profileForm.profilePhoto ? (
+                            <img src={profileForm.profilePhoto} alt="Profile" className="w-16 h-16 rounded-full object-cover border-2 border-primary-200 shadow-sm" />
+                          ) : (
+                            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+                              <User size={24} />
+                            </div>
+                          )}
+                          <div>
+                            <label className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 cursor-pointer shadow-sm transition-colors">
+                              {savingProfile ? 'Uploading...' : 'Upload Photo'}
+                              <input type="file" className="hidden" accept="image/*" onChange={handleProfilePhotoUpload} disabled={savingProfile} />
+                            </label>
+                            <p className="text-xs text-gray-500 mt-1">Recommended size: 200x200px, Max 2MB.</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                       {editingProfile ? (

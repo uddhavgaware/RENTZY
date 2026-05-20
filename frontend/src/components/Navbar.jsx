@@ -198,7 +198,9 @@ const Navbar = () => {
                 <Link to="/messages" className={cn("transition-colors", linkColorClass)}><MessageSquare size={20} /></Link>
                 <Link to="/dashboard?tab=saved" className={cn("transition-colors", linkColorClass)}><Heart size={20} /></Link>
                 <div className="flex items-center space-x-2">
-                  <Link to="/dashboard" className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center overflow-hidden border border-primary-200" title={user?.name}><User size={18} /></Link>
+                  <Link to="/dashboard" className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center overflow-hidden border border-primary-200" title={user?.name}>
+                    {user?.profilePhoto ? <img src={user.profilePhoto} alt={user.name} className="w-full h-full object-cover" /> : <User size={18} />}
+                  </Link>
                   <button onClick={handleLogout} className={cn("transition-colors hover:text-red-600", linkColorClass)} title="Log out"><LogOut size={20} /></button>
                 </div>
               </div>

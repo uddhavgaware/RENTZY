@@ -529,8 +529,12 @@ const RoommatesPage = () => {
                     {/* Header */}
                     <div className="flex items-start justify-between mb-6">
                       <div className="flex items-center">
-                        <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-2xl flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm shadow-primary-200/50">
-                          {roommate.user?.name?.charAt(0) || 'U'}
+                        <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-2xl flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm shadow-primary-200/50 overflow-hidden">
+                          {roommate.user?.profilePhoto ? (
+                            <img src={roommate.user.profilePhoto} alt={roommate.user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            roommate.user?.name?.charAt(0) || 'U'
+                          )}
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
@@ -701,7 +705,7 @@ const RoommatesPage = () => {
       
       {/* Post Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4 animate-fadeIn">
           <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden shadow-2xl shadow-gray-900/20" style={{animation: 'slideUp 0.3s ease-out'}}>
             
             {/* Premium Gradient Header */}
