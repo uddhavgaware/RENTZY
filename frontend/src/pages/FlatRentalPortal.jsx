@@ -20,7 +20,7 @@ const FlatRentalPortal = () => {
         buttonColorClass="bg-blue-600 hover:bg-blue-500 shadow-blue-500/20"
         searchType="flat"
         subtitle="Experience luxury urban living. Browse premium apartments and modern flats with zero brokerage."
-        videoSrc="https://cdn.pixabay.com/video/2020/02/17/32574-393285744_large.mp4"
+        videoSrc="https://videos.pexels.com/video-files/5137779/5137779-uhd_2560_1440_25fps.mp4"
         fallbackImg="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1920&q=80"
         features={[
           { icon: '🏢', text: 'Zero Brokerage' },

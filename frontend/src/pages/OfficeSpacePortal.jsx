@@ -20,7 +20,7 @@ const OfficeSpacePortal = () => {
         buttonColorClass="bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20"
         searchType="office"
         subtitle="Premium office spaces and co-working environments designed for modern teams and growing businesses."
-        videoSrc="https://cdn.pixabay.com/video/2020/06/18/42385-432247345_large.mp4"
+        videoSrc="https://videos.pexels.com/video-files/7534210/7534210-uhd_2560_1440_25fps.mp4"
         fallbackImg="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1920&q=80"
         features={[
           { icon: '💻', text: 'Plug & Play Setup' },

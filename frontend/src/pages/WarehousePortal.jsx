@@ -20,7 +20,7 @@ const WarehousePortal = () => {
         buttonColorClass="bg-amber-600 hover:bg-amber-500 shadow-amber-500/20"
         searchType="warehouse"
         subtitle="Secure, high-capacity warehouses and commercial storage solutions for seamless supply chain operations."
-        videoSrc="https://cdn.pixabay.com/video/2021/04/18/71485-538600109_large.mp4"
+        videoSrc="https://videos.pexels.com/video-files/4481326/4481326-uhd_2560_1440_25fps.mp4"
         fallbackImg="https://images.unsplash.com/photo-1586528116311-ad8ed7c83a7f?auto=format&fit=crop&w=1920&q=80"
         features={[
           { icon: '🚛', text: 'Heavy Truck Access' },

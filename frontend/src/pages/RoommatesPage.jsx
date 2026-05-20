@@ -309,7 +309,7 @@ const RoommatesPage = () => {
         highlightText="Perfect Match"
         highlightColorClass="text-pink-400"
         subtitle="Connect with like-minded people, split the rent, and make lifelong friends in your new city."
-        videoSrc="https://cdn.pixabay.com/video/2020/05/26/40149-425126019_large.mp4"
+        videoSrc="https://videos.pexels.com/video-files/6394054/6394054-uhd_2560_1440_25fps.mp4"
         fallbackImg="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1920&q=80"
       >
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full max-w-lg mx-auto">

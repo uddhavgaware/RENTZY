@@ -20,7 +20,7 @@ const PgHostelPortal = () => {
         buttonColorClass="bg-purple-600 hover:bg-purple-500 shadow-purple-500/20"
         searchType="pg"
         subtitle="Discover student-friendly PGs and Hostels near your college. Safe, vibrant, and packed with amenities."
-        videoSrc="https://cdn.pixabay.com/video/2019/03/20/22137-325251662_large.mp4"
+        videoSrc="https://videos.pexels.com/video-files/6394054/6394054-uhd_2560_1440_25fps.mp4"
         fallbackImg="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=1920&q=80"
         features={[
           { icon: '📶', text: 'WiFi & Meals Included' },

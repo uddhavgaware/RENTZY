@@ -599,3 +599,20 @@ html.dark .bg-primary-50.rounded-xl {
   background-color: rgba(79,70,229,0.12) !important;
 }
 html.dark .border-primary-100 { border-color: rgba(99,102,241,0.25) !important; }
+
+/* Listing details page - amber/orange/indigo in dark mode */
+html.dark .text-amber-800 { color: #fbbf24 !important; }
+html.dark .text-amber-600 { color: #fcd34d !important; }
+html.dark .text-amber-900 { color: #fde68a !important; }
+html.dark .bg-amber-50 { background-color: rgba(245,158,11,0.08) !important; }
+html.dark .border-amber-100 { border-color: rgba(245,158,11,0.2) !important; }
+html.dark .bg-amber-50\\/40 { background-color: rgba(245,158,11,0.06) !important; }
+html.dark .border-amber-200\\/80 { border-color: rgba(245,158,11,0.25) !important; }
+html.dark .text-orange-800 { color: #fdba74 !important; }
+html.dark .bg-orange-50 { background-color: rgba(249,115,22,0.08) !important; }
+html.dark .border-orange-200 { border-color: rgba(249,115,22,0.2) !important; }
+html.dark .text-indigo-700 { color: #a5b4fc !important; }
+html.dark .bg-indigo-100 { background-color: rgba(99,102,241,0.2) !important; }
+html.dark .bg-primary-50 { background-color: rgba(79,70,229,0.1) !important; }
+html.dark .bg-primary-100 { background-color: rgba(79,70,229,0.15) !important; }
+html.dark .border-primary-100 { border-color: rgba(79,70,229,0.2) !important; }

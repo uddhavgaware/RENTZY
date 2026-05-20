@@ -208,7 +208,7 @@ const ListingDetailsPage = () => {
   const totalReviews = reviewSummary.totalReviews;
 
   return (
-    <div className="bg-gradient-to-b from-gray-50 via-white to-gray-50 min-h-screen pb-16">
+    <div className="bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 min-h-screen pb-16">
       {showPayment && (
         <PaymentModal listing={listing} bookingId={bookingId} onClose={() => setShowPayment(false)} />
       )}
@@ -220,14 +220,14 @@ const ListingDetailsPage = () => {
             <ArrowLeft size={18} className="mr-2" />
             Back to Listings
           </button>
-          <button onClick={handleCopyLink} className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 hover:text-primary-600 font-bold text-xs rounded-2xl shadow-sm transition-all active:scale-95 cursor-pointer">
+          <button onClick={handleCopyLink} className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-600 dark:text-gray-300 hover:text-primary-600 font-bold text-xs rounded-2xl shadow-sm transition-all active:scale-95 cursor-pointer">
             <Share2 size={14} />
             Copy Share Link
           </button>
         </div>
 
         {/* Image Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 rounded-3xl overflow-hidden shadow-2xl border border-white/80 bg-white p-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 rounded-3xl overflow-hidden shadow-2xl border border-white/80 dark:border-white/5 bg-white dark:bg-slate-900 p-2">
           <div className="md:col-span-2 relative group overflow-hidden rounded-2xl h-[400px]">
             <img src={images[activeImage]} alt={listing.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = fallbackImage; }} />
             <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
@@ -267,7 +267,7 @@ const ListingDetailsPage = () => {
                 <span className="px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white bg-gradient-to-r from-primary-600 to-indigo-600 rounded-full shadow-sm">
                   {listing.type}
                 </span>
-                <div className="flex items-center text-yellow-500 bg-amber-50 border border-amber-100 px-3 py-1 rounded-xl">
+                <div className="flex items-center text-yellow-500 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-700/30 px-3 py-1 rounded-xl">
                   <Star size={14} className="fill-yellow-400 text-yellow-400 mr-1" />
                   <span className="font-bold text-sm text-amber-800">{avgRating || 'New'}</span>
                   <span className="text-amber-600 text-xs ml-1">({totalReviews} review{totalReviews !== 1 ? 's' : ''})</span>
@@ -280,7 +280,7 @@ const ListingDetailsPage = () => {
               </div>
             </div>
 
-            <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-xl shadow-gray-100/40 relative overflow-hidden group">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30 relative overflow-hidden group">
               <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-primary-500 to-indigo-600" />
               <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">About this property</h2>
               <p className="text-gray-600 leading-relaxed whitespace-pre-line text-sm md:text-base font-medium">{listing.description || 'No description provided.'}</p>
@@ -305,7 +305,7 @@ const ListingDetailsPage = () => {
                 </div>
               )}
             </div>            {listing.videoLink && getEmbedUrl(listing.videoLink) && (
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-xl shadow-gray-100/40">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">🎥 Virtual Video Tour</h2>
                 <div className="rounded-2xl overflow-hidden bg-gray-100 shadow-md border border-gray-200/60 aspect-video relative group">
                   <iframe 
@@ -320,13 +320,13 @@ const ListingDetailsPage = () => {
             )}
 
             {listing.amenities && listing.amenities.length > 0 && (
-              <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-xl shadow-gray-100/40">
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
                 <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">⭐ What's Included</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {listing.amenities.map((amenity, idx) => {
                     const Icon = amenityIcons[amenity] || CheckCircle2;
                     return (
-                      <div key={idx} className="flex items-center gap-3.5 p-4 bg-gradient-to-br from-gray-50 to-gray-100/70 border border-gray-200/50 rounded-2xl hover:border-primary-200 hover:shadow-md transition-all duration-300 group">
+                      <div key={idx} className="flex items-center gap-3.5 p-4 bg-gradient-to-br from-gray-50 to-gray-100/70 dark:from-slate-800 dark:to-slate-800/70 border border-gray-200/50 dark:border-white/5 rounded-2xl hover:border-primary-200 dark:hover:border-primary-700 hover:shadow-md transition-all duration-300 group">
                         <div className="w-10 h-10 rounded-xl bg-primary-50 group-hover:bg-primary-100 text-primary-600 flex items-center justify-center flex-shrink-0 transition-colors shadow-inner">
                           <Icon size={20} className="transition-transform group-hover:scale-110" />
                         </div>
@@ -338,7 +338,7 @@ const ListingDetailsPage = () => {
               </div>
             )}
 
-            <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-xl shadow-gray-100/40">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">📍 Location Map</h2>
               {listing.latitude && listing.longitude ? (
                 <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-md">
@@ -373,7 +373,7 @@ const ListingDetailsPage = () => {
             </div>
 
             {/* ===== Reviews Section ===== */}
-            <div className="bg-white rounded-3xl border border-gray-100 p-6 md:p-8 shadow-xl shadow-gray-100/40">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-lg font-bold text-gray-900">Reviews & Ratings</h2>
                 {totalReviews > 0 && (
@@ -387,7 +387,7 @@ const ListingDetailsPage = () => {
 
               {/* Write Review Form */}
               {isAuthenticated ? (
-                <form onSubmit={handleSubmitReview} className="mb-8 p-5 bg-gray-50 rounded-xl">
+                <form onSubmit={handleSubmitReview} className="mb-8 p-5 bg-gray-50 dark:bg-slate-800/50 rounded-xl">
                   <h3 className="font-semibold text-gray-800 mb-3">Write a Review</h3>
                   <div className="flex items-center gap-1 mb-4">
                     {[1, 2, 3, 4, 5].map(star => (
@@ -434,7 +434,7 @@ const ListingDetailsPage = () => {
                   </div>
                 </form>
               ) : (
-                <div className="mb-8 p-5 bg-gray-50 rounded-xl text-center">
+                <div className="mb-8 p-5 bg-gray-50 dark:bg-slate-800/50 rounded-xl text-center">
                   <p className="text-gray-500 mb-3">Log in to share your review</p>
                   <button onClick={() => navigate('/auth')} className="text-primary-600 font-medium hover:underline">
                     Sign in →
@@ -476,9 +476,9 @@ const ListingDetailsPage = () => {
 
           {/* Right: Booking Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-3xl border border-gray-150 shadow-2xl p-6 md:p-8 sticky top-24 relative overflow-hidden">
+            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-150 dark:border-white/5 shadow-2xl dark:shadow-black/30 p-6 md:p-8 sticky top-24 relative overflow-hidden">
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-600" />
-              <div className="mb-6 bg-gradient-to-br from-primary-50 to-indigo-50/50 p-4 rounded-2xl border border-primary-100 flex items-baseline justify-between">
+              <div className="mb-6 bg-gradient-to-br from-primary-50 to-indigo-50/50 dark:from-primary-900/20 dark:to-indigo-900/10 p-4 rounded-2xl border border-primary-100 dark:border-primary-800/30 flex items-baseline justify-between">
                 <div>
                   <span className="text-3xl font-extrabold text-primary-600">₹{listing.price?.toLocaleString('en-IN')}</span>
                   <span className="text-gray-500 text-xs font-semibold ml-1">/month</span>
@@ -494,12 +494,12 @@ const ListingDetailsPage = () => {
                   <span>Security Deposit</span>
                   <span className="font-bold text-gray-900">₹{(listing.price * 2)?.toLocaleString('en-IN')}</span>
                 </div>
-                <div className="flex justify-between py-3.5 bg-gray-50/50 rounded-xl px-3 border border-gray-100">
+                <div className="flex justify-between py-3.5 bg-gray-50/50 dark:bg-slate-800/50 rounded-xl px-3 border border-gray-100 dark:border-white/5">
                   <span className="font-bold text-gray-800">Total Due Now</span>
                   <span className="font-extrabold text-lg text-primary-600">₹{(listing.price * 3)?.toLocaleString('en-IN')}</span>
                 </div>
               </div>
-              <div className="mb-5 bg-amber-50/40 p-4 rounded-2xl border border-amber-200/80 hover:bg-amber-50 transition-colors">
+              <div className="mb-5 bg-amber-50/40 dark:bg-amber-900/10 p-4 rounded-2xl border border-amber-200/80 dark:border-amber-700/30 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors">
                 <label className="flex items-start gap-3 cursor-pointer">
                   <input
                     type="checkbox"
@@ -524,11 +524,11 @@ const ListingDetailsPage = () => {
                 <button
                   onClick={() => handleBook(false)}
                   disabled={!agreed}
-                  className="w-full bg-white hover:bg-gray-50 disabled:bg-gray-100 disabled:text-gray-400 disabled:border-gray-300 border-2 border-primary-600 text-primary-600 py-3 rounded-2xl font-bold text-sm transition-all active:scale-95 shadow-sm cursor-pointer"
+                  className="w-full bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 disabled:bg-gray-100 dark:disabled:bg-slate-800 disabled:text-gray-400 disabled:border-gray-300 border-2 border-primary-600 text-primary-600 py-3 rounded-2xl font-bold text-sm transition-all active:scale-95 shadow-sm cursor-pointer"
                 >
                   Pay Directly to Owner (Cash/Online)
                 </button>
-                <div className="bg-orange-50 border border-orange-200 p-3 rounded-xl mt-3">
+                <div className="bg-orange-50 dark:bg-orange-900/15 border border-orange-200 dark:border-orange-700/30 p-3 rounded-xl mt-3">
                   <p className="text-[11px] text-orange-800 font-bold text-center leading-normal">
                     ⚠️ Note: Payment Gateway is currently in sandbox testing mode. You can use the "Pay Directly to Owner" option to successfully reserve.
                   </p>

@@ -193,7 +193,7 @@ const MoversPage = () => {
         highlightText="Moving"
         highlightColorClass="text-primary-400"
         subtitle="Get instant quotes, top-rated professional movers, and 100% damage protection."
-        videoSrc="https://cdn.pixabay.com/video/2021/08/25/86266-592659341_large.mp4"
+        videoSrc="https://videos.pexels.com/video-files/6169060/6169060-uhd_2560_1440_25fps.mp4"
         fallbackImg="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80"
       >
         <div className="flex flex-wrap justify-center gap-4 mt-8 max-w-lg mx-auto text-white/90 text-sm font-semibold">
