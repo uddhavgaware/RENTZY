@@ -97,8 +97,8 @@ const Navbar = () => {
   };
 
   const navClass = isCinematicPage 
-    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-white/20 py-1" : "bg-transparent py-4")
-    : "sticky top-0 z-[100] w-full bg-white shadow-sm border-b border-gray-100";
+    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-white/5 py-1" : "bg-transparent py-4")
+    : "sticky top-0 z-[100] w-full bg-white dark:bg-slate-900 shadow-sm border-b border-gray-100 dark:border-white/5";
 
   const textColorClass = isDarkHero && !isScrolled ? "text-white" : "text-gray-900";
   const linkColorClass = isDarkHero && !isScrolled ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-primary-700 font-semibold";
@@ -222,7 +222,7 @@ const Navbar = () => {
       </div>
 
       {/* Premium Mobile Horizontal Swipe Navigation */}
-      <div className="md:hidden border-t border-gray-100 bg-white/95 backdrop-blur-md overflow-x-auto flex items-center gap-3 px-4 py-2.5 hide-scrollbar scroll-smooth">
+      <div className="md:hidden border-t border-gray-100 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md overflow-x-auto flex items-center gap-3 px-4 py-2.5 hide-scrollbar scroll-smooth">
         {mobileSwipeLinks.map((link) => {
           const isActive = location.pathname === link.path;
           const Icon = link.icon;
@@ -245,7 +245,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 w-full border-t border-gray-100 bg-white/95 backdrop-blur-xl shadow-2xl z-[100]">
+        <div className="md:hidden absolute top-16 left-0 right-0 w-full border-t border-gray-100 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[100]">
           <div className="pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
               <Link key={link.name} to={link.path} className={cn("block pl-3 pr-4 py-2 border-l-4 text-base font-medium", location.pathname === link.path ? "border-primary-500 text-primary-700 bg-primary-50" : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700")} onClick={() => setIsOpen(false)}>{link.name}</Link>

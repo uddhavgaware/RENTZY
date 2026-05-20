@@ -122,10 +122,16 @@ const PostPropertyPage = () => {
     configuration: '1BHK',
     furnishing: 'Semi Furnished',
     location: '',
+    buildingName: '',
+    areaName: '',
+    villageCityTown: '',
+    taluka: '',
+    district: '',
+    pincode: '',
     price: '',
     videoLink: '',
-    latitude: 18.5204, // Default Pune lat
-    longitude: 73.8567, // Default Pune lng
+    latitude: 18.5204,
+    longitude: 73.8567,
   });
 
   const [mapPosition, setMapPosition] = useState(null);
@@ -231,8 +237,19 @@ const PostPropertyPage = () => {
           imageUrls = uploadRes.data;
         }
 
+        // Build combined location string from address fields
+        const locationParts = [
+          formData.buildingName,
+          formData.areaName,
+          formData.villageCityTown,
+          formData.taluka,
+          formData.district,
+          formData.pincode ? `- ${formData.pincode}` : ''
+        ].filter(Boolean).join(', ');
+
         const payload = {
           ...formData,
+          location: locationParts || formData.location,
           price: parseFloat(formData.price),
           images: imageUrls,
           amenities: amenities,
@@ -381,26 +398,55 @@ const PostPropertyPage = () => {
                 <h2 className="text-xl font-bold text-gray-900 border-b pb-4">Location & Pricing</h2>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                    <input type="text" className="w-full pl-10 border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" defaultValue="Pune" required />
-                  </div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Building / Society Name</label>
+                  <input type="text" name="buildingName" value={formData.buildingName} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Maple Heights, Sai Residency" />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Locality / Area</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Area / Locality <span className="text-red-400">*</span></label>
                   <input 
                     type="text" 
-                    name="location" 
-                    value={formData.location} 
+                    name="areaName" 
+                    value={formData.areaName} 
                     onChange={handleChange} 
-                    onBlur={(e) => geocodeLocationInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && geocodeLocationInput(formData.location)}
+                    onBlur={(e) => geocodeLocationInput(`${e.target.value}, ${formData.villageCityTown || 'Pune'}`)}
+                    onKeyDown={(e) => e.key === 'Enter' && geocodeLocationInput(`${formData.areaName}, ${formData.villageCityTown || 'Pune'}`)}
                     className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" 
-                    placeholder="e.g. Koregaon Park, Pune" 
+                    placeholder="e.g. Koregaon Park, Hinjewadi" 
                     required 
                   />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Village / City / Town <span className="text-red-400">*</span></label>
+                    <input type="text" name="villageCityTown" value={formData.villageCityTown} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Pune" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Taluka</label>
+                    <input type="text" name="taluka" value={formData.taluka} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Haveli" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">District <span className="text-red-400">*</span></label>
+                    <input type="text" name="district" value={formData.district} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Pune" required />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Pincode <span className="text-red-400">*</span></label>
+                    <input 
+                      type="text" 
+                      name="pincode" 
+                      value={formData.pincode} 
+                      onChange={(e) => setFormData({...formData, pincode: e.target.value.replace(/\D/g, '').slice(0, 6)})}
+                      className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" 
+                      placeholder="e.g. 411057" 
+                      maxLength={6}
+                      pattern="[0-9]{6}"
+                      required 
+                    />
+                  </div>
                 </div>
 
                 {/* Map Picker */}

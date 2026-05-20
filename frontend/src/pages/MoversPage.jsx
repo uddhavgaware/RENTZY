@@ -79,7 +79,19 @@ const MoversPage = () => {
 
   const [formData, setFormData] = useState({
     fromLocation: '',
+    fromBuildingName: '',
+    fromAreaName: '',
+    fromCityTown: '',
+    fromTaluka: '',
+    fromDistrict: '',
+    fromPincode: '',
     toLocation: '',
+    toBuildingName: '',
+    toAreaName: '',
+    toCityTown: '',
+    toTaluka: '',
+    toDistrict: '',
+    toPincode: '',
     movingDate: '',
     movingTime: 'Morning (8 AM - 12 PM)',
     propertySize: '1BHK',
@@ -130,15 +142,17 @@ const MoversPage = () => {
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&zoom=14&addressdetails=1`);
           const data = await res.json();
-          let neighborhood = data.address.neighbourhood || data.address.suburb || data.address.city_district || data.address.city || data.display_name;
-          if (neighborhood) {
-             if (activeMapField === 'from') {
-                setFormData(prev => ({...prev, fromLocation: neighborhood}));
-             } else {
-                setFormData(prev => ({...prev, toLocation: neighborhood}));
-             }
-             setActiveMapField(null);
+          const addr = data.address || {};
+          const area = addr.neighbourhood || addr.suburb || addr.city_district || '';
+          const city = addr.city || addr.town || addr.village || '';
+          const district = addr.county || addr.state_district || '';
+          const pincode = addr.postcode || '';
+          if (activeMapField === 'from') {
+            setFormData(prev => ({...prev, fromAreaName: area, fromCityTown: city, fromDistrict: district, fromPincode: pincode, fromLocation: area || data.display_name}));
+          } else {
+            setFormData(prev => ({...prev, toAreaName: area, toCityTown: city, toDistrict: district, toPincode: pincode, toLocation: area || data.display_name}));
           }
+          setActiveMapField(null);
         } catch(err) {}
       },
     });
@@ -164,7 +178,15 @@ const MoversPage = () => {
     
     setLoading(true);
     try {
-      await api.post('/moving/request', formData);
+      // Build combined location strings
+      const fromParts = [formData.fromBuildingName, formData.fromAreaName, formData.fromCityTown, formData.fromTaluka, formData.fromDistrict, formData.fromPincode ? `- ${formData.fromPincode}` : ''].filter(Boolean).join(', ');
+      const toParts = [formData.toBuildingName, formData.toAreaName, formData.toCityTown, formData.toTaluka, formData.toDistrict, formData.toPincode ? `- ${formData.toPincode}` : ''].filter(Boolean).join(', ');
+
+      await api.post('/moving/request', {
+        ...formData,
+        fromLocation: fromParts || formData.fromLocation,
+        toLocation: toParts || formData.toLocation
+      });
       showModal({ 
         type: 'alert', 
         title: 'Request Submitted', 
@@ -219,12 +241,20 @@ const MoversPage = () => {
                   </label>
                   <button type="button" onClick={() => setActiveMapField(activeMapField === 'from' ? null : 'from')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'from' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
                 </div>
+                <input type="text" placeholder="Building / Society" value={formData.fromBuildingName} onChange={e => setFormData({...formData, fromBuildingName: e.target.value})} className="w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm mb-2" />
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-gray-400" size={18} />
-                  <input type="text" required value={formData.fromLocation} onChange={e => setFormData({...formData, fromLocation: e.target.value})} placeholder="e.g. Andheri East, Mumbai" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" />
+                  <input type="text" required value={formData.fromAreaName} onChange={e => setFormData({...formData, fromAreaName: e.target.value})} placeholder="Area / Locality *" className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
-                {activeMapField === 'from' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse">Click on the map below to select location</p>}
-                {!activeMapField && <p className="text-xs text-gray-500 ml-1">Please provide accurate details.</p>}
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <input type="text" required value={formData.fromCityTown} onChange={e => setFormData({...formData, fromCityTown: e.target.value})} placeholder="City / Town *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" value={formData.fromTaluka} onChange={e => setFormData({...formData, fromTaluka: e.target.value})} placeholder="Taluka" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <input type="text" required value={formData.fromDistrict} onChange={e => setFormData({...formData, fromDistrict: e.target.value})} placeholder="District *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.fromPincode} onChange={e => setFormData({...formData, fromPincode: e.target.value.replace(/\D/g, '').slice(0, 6)})} placeholder="Pincode *" maxLength={6} pattern="[0-9]{6}" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                </div>
+                {activeMapField === 'from' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse mt-1">Click on the map below to select location</p>}
               </div>
               <div className="space-y-1">
                 <div className="flex justify-between items-end mb-1">
@@ -233,11 +263,20 @@ const MoversPage = () => {
                   </label>
                   <button type="button" onClick={() => setActiveMapField(activeMapField === 'to' ? null : 'to')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'to' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
                 </div>
+                <input type="text" placeholder="Building / Society" value={formData.toBuildingName} onChange={e => setFormData({...formData, toBuildingName: e.target.value})} className="w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm mb-2" />
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-primary-400" size={18} />
-                  <input type="text" required value={formData.toLocation} onChange={e => setFormData({...formData, toLocation: e.target.value})} placeholder="e.g. Indiranagar, Bangalore" className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none" />
+                  <input type="text" required value={formData.toAreaName} onChange={e => setFormData({...formData, toAreaName: e.target.value})} placeholder="Area / Locality *" className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
-                {activeMapField === 'to' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse">Click on the map below to select location</p>}
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <input type="text" required value={formData.toCityTown} onChange={e => setFormData({...formData, toCityTown: e.target.value})} placeholder="City / Town *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" value={formData.toTaluka} onChange={e => setFormData({...formData, toTaluka: e.target.value})} placeholder="Taluka" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  <input type="text" required value={formData.toDistrict} onChange={e => setFormData({...formData, toDistrict: e.target.value})} placeholder="District *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.toPincode} onChange={e => setFormData({...formData, toPincode: e.target.value.replace(/\D/g, '').slice(0, 6)})} placeholder="Pincode *" maxLength={6} pattern="[0-9]{6}" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                </div>
+                {activeMapField === 'to' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse mt-1">Click on the map below to select location</p>}
               </div>
 
               {activeMapField && (

@@ -173,6 +173,12 @@ const RoommatesPage = () => {
 
   const [postFormData, setPostFormData] = useState({
     location: '',
+    buildingName: '',
+    areaName: '',
+    villageCityTown: '',
+    taluka: '',
+    district: '',
+    pincode: '',
     budget: '',
     deposit: '',
     preferences: '',
@@ -251,8 +257,18 @@ const RoommatesPage = () => {
   const handlePostSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Build combined location string from address fields
+      const locationParts = [
+        postFormData.buildingName,
+        postFormData.areaName,
+        postFormData.villageCityTown,
+        postFormData.taluka,
+        postFormData.district,
+        postFormData.pincode ? `- ${postFormData.pincode}` : ''
+      ].filter(Boolean).join(', ');
+
       const payload = {
-        location: postFormData.location,
+        location: locationParts || postFormData.location,
         budget: parseFloat(postFormData.budget),
         deposit: parseFloat(postFormData.deposit) || 0,
         vacancies: parseInt(postFormData.vacancies) || null,
@@ -276,7 +292,7 @@ const RoommatesPage = () => {
       };
       await api.post('/roommates', payload);
       setIsModalOpen(false);
-      setPostFormData({ location: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [] });
+      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat' });
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
@@ -729,22 +745,83 @@ const RoommatesPage = () => {
                     <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center"><MapPin size={12} className="text-primary-600" /></div>
                     <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Location</h3>
                   </div>
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+
+                  {/* Building / Society Name */}
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Building / Society Name</label>
+                    <input
+                      type="text" value={postFormData.buildingName}
+                      onChange={(e) => setPostFormData({...postFormData, buildingName: e.target.value})}
+                      placeholder="e.g. Maple Heights, Sai Residency"
+                      className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
+                    />
+                  </div>
+
+                  {/* Area Name */}
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Area / Locality Name <span className="text-red-400">*</span></label>
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                        <input
+                          type="text" required value={postFormData.areaName}
+                          onChange={(e) => setPostFormData({...postFormData, areaName: e.target.value})}
+                          onBlur={(e) => geocodeAndSetPostLocation(`${e.target.value}, ${postFormData.villageCityTown || 'Pune'}`)}
+                          placeholder="e.g. Hinjewadi, Kothrud, Wakad"
+                          className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-sm"
+                        />
+                      </div>
+                      <button type="button" onClick={handlePostLiveLocation}
+                        className="px-4 bg-primary-50 hover:bg-primary-100 text-primary-600 border border-primary-200 rounded-xl flex items-center justify-center transition-colors" title="Use my location">
+                        <Navigation size={16} />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Village/City & Taluka */}
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Village / City / Town <span className="text-red-400">*</span></label>
                       <input
-                        type="text" required value={postFormData.location}
-                        onChange={(e) => setPostFormData({...postFormData, location: e.target.value})}
-                        onBlur={(e) => geocodeAndSetPostLocation(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && geocodeAndSetPostLocation(postFormData.location)}
-                        placeholder="e.g. Hinjewadi, Pune"
-                        className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-sm"
+                        type="text" required value={postFormData.villageCityTown}
+                        onChange={(e) => setPostFormData({...postFormData, villageCityTown: e.target.value})}
+                        placeholder="e.g. Pune"
+                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
                       />
                     </div>
-                    <button type="button" onClick={handlePostLiveLocation}
-                      className="px-4 bg-primary-50 hover:bg-primary-100 text-primary-600 border border-primary-200 rounded-xl flex items-center justify-center transition-colors" title="Use my location">
-                      <Navigation size={16} />
-                    </button>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Taluka</label>
+                      <input
+                        type="text" value={postFormData.taluka}
+                        onChange={(e) => setPostFormData({...postFormData, taluka: e.target.value})}
+                        placeholder="e.g. Haveli"
+                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  {/* District & Pincode */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">District <span className="text-red-400">*</span></label>
+                      <input
+                        type="text" required value={postFormData.district}
+                        onChange={(e) => setPostFormData({...postFormData, district: e.target.value})}
+                        placeholder="e.g. Pune"
+                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-500 mb-1">Pincode <span className="text-red-400">*</span></label>
+                      <input
+                        type="text" required value={postFormData.pincode}
+                        onChange={(e) => setPostFormData({...postFormData, pincode: e.target.value.replace(/\D/g, '').slice(0, 6)})}
+                        placeholder="e.g. 411057"
+                        maxLength={6}
+                        pattern="[0-9]{6}"
+                        className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
+                      />
+                    </div>
                   </div>
                 </div>
 
