@@ -315,7 +315,35 @@ const ListingDetailsPage = () => {
                   </div>
                 </div>
               )}
-            </div>            {listing.videoLink && getEmbedUrl(listing.videoLink) && (
+            </div>
+
+            {/* Utility & Maintenance Inclusions */}
+            {['flat', 'room', 'apartment', 'pg', 'hostel', 'co-living space'].includes(listing.type?.toLowerCase()) && (
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">🔌 Utility & Maintenance Inclusions</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { label: 'Electricity Bill', value: listing.electricityBill || 'Not Included', icon: '⚡' },
+                    { label: 'Water Supply', value: listing.waterSupply || 'Not Included', icon: '💧' },
+                    { label: 'Maintenance', value: listing.maintenance || 'Not Included', icon: '🛠️' }
+                  ].map((util, idx) => (
+                    <div key={idx} className="flex items-center gap-3.5 p-4 bg-gradient-to-br from-gray-50 to-gray-100/70 dark:from-slate-800 dark:to-slate-800/70 border border-gray-200/50 dark:border-white/5 rounded-2xl hover:shadow-md transition-all duration-300">
+                      <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 text-lg flex items-center justify-center flex-shrink-0">
+                        {util.icon}
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">{util.label}</p>
+                        <p className={`text-sm font-extrabold mt-0.5 ${util.value === 'Included' ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                          {util.value}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {listing.videoLink && getEmbedUrl(listing.videoLink) && (
               <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">🎥 Virtual Video Tour</h2>
                 <div className="rounded-2xl overflow-hidden bg-gray-100 shadow-md border border-gray-200/60 aspect-video relative group">

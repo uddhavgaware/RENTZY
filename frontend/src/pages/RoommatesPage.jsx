@@ -205,7 +205,10 @@ const RoommatesPage = () => {
     images: [],
     latitude: null,
     longitude: null,
-    propertyType: 'Flat'
+    propertyType: 'Flat',
+    electricityBill: 'Not Included',
+    waterSupply: 'Not Included',
+    maintenance: 'Not Included',
   });
 
   const handleImageChange = (e) => {
@@ -295,11 +298,14 @@ const RoommatesPage = () => {
         images: postFormData.images,
         latitude: postFormData.latitude,
         longitude: postFormData.longitude,
-        propertyType: postFormData.propertyType
+        propertyType: postFormData.propertyType,
+        electricityBill: postFormData.electricityBill,
+        waterSupply: postFormData.waterSupply,
+        maintenance: postFormData.maintenance,
       };
       await api.post('/roommates', payload);
       setIsModalOpen(false);
-      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat' });
+      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included' });
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
@@ -675,6 +681,26 @@ const RoommatesPage = () => {
                       </div>
                     </div>
 
+                    {/* Utility & Maintenance Inclusions badges */}
+                    <div className="mb-4 pt-3 border-t border-gray-100">
+                      <span className="text-xs text-gray-500 block mb-2">Utility Inclusions</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        {[
+                          { label: 'Electricity', value: roommate.electricityBill || 'Not Included', icon: '⚡' },
+                          { label: 'Water', value: roommate.waterSupply || 'Not Included', icon: '💧' },
+                          { label: 'Maint.', value: roommate.maintenance || 'Not Included', icon: '🛠️' }
+                        ].map((util, idx) => (
+                          <div key={idx} className="flex flex-col items-center p-1.5 rounded-xl bg-gray-50 border border-gray-100 text-center">
+                            <span className="text-sm mb-0.5">{util.icon}</span>
+                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none mb-0.5">{util.label}</span>
+                            <span className={`text-[10px] font-black leading-none ${util.value === 'Included' ? 'text-green-600' : 'text-amber-600'}`}>
+                              {util.value === 'Included' ? 'Included' : 'Not Incl.'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
                     {!isOwner && (
                       <button 
                         onClick={() => window.location.href = `/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`}
@@ -868,6 +894,37 @@ const RoommatesPage = () => {
                         {type === 'Flat' ? '🏠 Flat' : '🚪 Room'}
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Utility & Maintenance Inclusions */}
+                <div className="bg-gray-50/80 p-4 rounded-2xl border border-gray-100 space-y-3">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block" />
+                    Utility & Maintenance Inclusions
+                  </h3>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 mb-1">Electricity</label>
+                      <select value={postFormData.electricityBill} onChange={(e) => setPostFormData({ ...postFormData, electricityBill: e.target.value })} className="w-full border border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none bg-white">
+                        <option value="Not Included">Not Incl.</option>
+                        <option value="Included">Included</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 mb-1">Water Supply</label>
+                      <select value={postFormData.waterSupply} onChange={(e) => setPostFormData({ ...postFormData, waterSupply: e.target.value })} className="w-full border border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none bg-white">
+                        <option value="Not Included">Not Incl.</option>
+                        <option value="Included">Included</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 mb-1">Maintenance</label>
+                      <select value={postFormData.maintenance} onChange={(e) => setPostFormData({ ...postFormData, maintenance: e.target.value })} className="w-full border border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none bg-white">
+                        <option value="Not Included">Not Incl.</option>
+                        <option value="Included">Included</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 

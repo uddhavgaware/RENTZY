@@ -59,7 +59,7 @@ const CATEGORIES = [
     to: '/warehouses',
     label: 'Warehouses',
     tag: 'Storage',
-    img: 'https://images.unsplash.com/photo-1587293852726-59cb2f794fee?auto=format&fit=crop&w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80',
     color: 'from-yellow-600/80 to-orange-900/90',
     emoji: '🏭',
   },

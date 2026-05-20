@@ -132,6 +132,9 @@ const PostPropertyPage = () => {
     videoLink: '',
     latitude: 18.5204,
     longitude: 73.8567,
+    electricityBill: 'Not Included',
+    waterSupply: 'Not Included',
+    maintenance: 'Not Included',
   });
 
   const [mapPosition, setMapPosition] = useState(null);
@@ -377,6 +380,36 @@ const PostPropertyPage = () => {
                     <select name="furnishing" value={formData.furnishing} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
                       {['Fully Furnished', 'Semi Furnished', 'Unfurnished'].map(f => <option key={f} value={f}>{f}</option>)}
                     </select>
+                  </div>
+                </div>
+
+                <div className="bg-gray-50/80 p-5 rounded-2xl border border-gray-100 space-y-4">
+                  <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block" />
+                    Utility & Maintenance Inclusions
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">Electricity Bill</label>
+                      <select name="electricityBill" value={formData.electricityBill} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-1 focus:ring-primary-500 focus:border-transparent outline-none bg-white">
+                        <option value="Not Included">Not Included</option>
+                        <option value="Included">Included</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">Water Supply</label>
+                      <select name="waterSupply" value={formData.waterSupply} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-1 focus:ring-primary-500 focus:border-transparent outline-none bg-white">
+                        <option value="Not Included">Not Included</option>
+                        <option value="Included">Included</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-600 mb-1.5">Maintenance Charge</label>
+                      <select name="electricityBill" value={formData.maintenance} onChange={(e) => setFormData(prev => ({ ...prev, maintenance: e.target.value }))} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-1 focus:ring-primary-500 focus:border-transparent outline-none bg-white">
+                        <option value="Not Included">Not Included</option>
+                        <option value="Included">Included</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
