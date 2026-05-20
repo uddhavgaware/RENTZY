@@ -2,28 +2,27 @@ package com.rentzy.backend.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
-import nl.martijndwars.webpush.Utils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.security.*;
+import java.security.spec.ECGenParameterSpec;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 
 @Service
 public class VapidService {
 
     @Getter
-    private PublicKey publicKey;
-
-    @Getter
-    private PrivateKey privateKey;
-
-    @Getter
     private String publicKeyBase64;
+
+    @Getter
+    private String privateKeyBase64;
 
     @PostConstruct
     public void init() {
@@ -45,12 +44,8 @@ public class VapidService {
         if (keyFile.exists()) {
             try {
                 Map<String, String> keys = mapper.readValue(keyFile, Map.class);
-                String pub = keys.get("publicKey");
-                String priv = keys.get("privateKey");
-
-                this.publicKey = Utils.loadPublicKey(pub);
-                this.privateKey = Utils.loadPrivateKey(priv);
-                this.publicKeyBase64 = pub;
+                this.publicKeyBase64 = keys.get("publicKey");
+                this.privateKeyBase64 = keys.get("privateKey");
                 System.out.println("VAPID keys loaded successfully from " + keyFile.getAbsolutePath());
                 return;
             } catch (Exception e) {
@@ -59,21 +54,30 @@ public class VapidService {
         }
 
         try {
-            KeyPair keyPair = Utils.generateKeyPair();
-            this.publicKey = keyPair.getPublic();
-            this.privateKey = keyPair.getPrivate();
-
-            // Save public key as uncompressed EC public key (65 bytes)
-            byte[] encodedPubKey = Utils.savePublicKey(publicKey);
-            // Save private key as PKCS#8 bytes
-            byte[] encodedPrivKey = Utils.savePrivateKey(privateKey);
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC", new BouncyCastleProvider());
+            kpg.initialize(new ECGenParameterSpec("secp256r1"));
+            KeyPair kp = kpg.generateKeyPair();
             
-            this.publicKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(encodedPubKey);
-            String privateKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(encodedPrivKey);
+            BCECPublicKey pub = (BCECPublicKey) kp.getPublic();
+            BCECPrivateKey priv = (BCECPrivateKey) kp.getPrivate();
+
+            byte[] pubBytes = pub.getQ().getEncoded(false);
+            byte[] privBytes = priv.getD().toByteArray();
+            
+            if (privBytes.length == 33 && privBytes[0] == 0) {
+                privBytes = java.util.Arrays.copyOfRange(privBytes, 1, 33);
+            } else if (privBytes.length < 32) {
+                byte[] padded = new byte[32];
+                System.arraycopy(privBytes, 0, padded, 32 - privBytes.length, privBytes.length);
+                privBytes = padded;
+            }
+
+            this.publicKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(pubBytes);
+            this.privateKeyBase64 = Base64.getUrlEncoder().withoutPadding().encodeToString(privBytes);
 
             Map<String, String> keys = new HashMap<>();
             keys.put("publicKey", this.publicKeyBase64);
-            keys.put("privateKey", privateKeyBase64);
+            keys.put("privateKey", this.privateKeyBase64);
 
             mapper.writeValue(keyFile, keys);
             System.out.println("VAPID keys generated and saved to " + keyFile.getAbsolutePath());

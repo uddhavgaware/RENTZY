@@ -60,8 +60,8 @@ public class WebPushService {
         executor.submit(() -> {
             try {
                 PushService pushService = new PushService(
-                        vapidService.getPublicKey(),
-                        vapidService.getPrivateKey(),
+                        vapidService.getPublicKeyBase64(),
+                        vapidService.getPrivateKeyBase64(),
                         "mailto:admin@rentxy.com"
                 );
 
