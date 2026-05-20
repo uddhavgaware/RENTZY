@@ -121,7 +121,7 @@ const MoversPage = () => {
           setFormData(prev => ({ ...prev, toLocation: data[0].display_name }));
         }
       }
-    } catch (err) {}
+    } catch (err) { }
   };
 
   function LocationMarker() {
@@ -133,12 +133,12 @@ const MoversPage = () => {
         }
         const coords = [e.latlng.lat, e.latlng.lng];
         if (activeMapField === 'from') {
-           setFromCoords(coords);
+          setFromCoords(coords);
         } else {
-           setToCoords(coords);
+          setToCoords(coords);
         }
         setMapPosition(coords);
-        
+
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&zoom=14&addressdetails=1`);
           const data = await res.json();
@@ -148,12 +148,12 @@ const MoversPage = () => {
           const district = addr.county || addr.state_district || '';
           const pincode = addr.postcode || '';
           if (activeMapField === 'from') {
-            setFormData(prev => ({...prev, fromAreaName: area, fromCityTown: city, fromDistrict: district, fromPincode: pincode, fromLocation: area || data.display_name}));
+            setFormData(prev => ({ ...prev, fromAreaName: area, fromCityTown: city, fromDistrict: district, fromPincode: pincode, fromLocation: area || data.display_name }));
           } else {
-            setFormData(prev => ({...prev, toAreaName: area, toCityTown: city, toDistrict: district, toPincode: pincode, toLocation: area || data.display_name}));
+            setFormData(prev => ({ ...prev, toAreaName: area, toCityTown: city, toDistrict: district, toPincode: pincode, toLocation: area || data.display_name }));
           }
           setActiveMapField(null);
-        } catch(err) {}
+        } catch (err) { }
       },
     });
     return (
@@ -175,7 +175,7 @@ const MoversPage = () => {
       showModal({ type: 'alert', title: 'Location Required', message: 'You must select both Pickup and Drop locations on the map.', onConfirm: closeModal });
       return;
     }
-    
+
     setLoading(true);
     try {
       // Build combined location strings
@@ -187,21 +187,21 @@ const MoversPage = () => {
         fromLocation: fromParts || formData.fromLocation,
         toLocation: toParts || formData.toLocation
       });
-      showModal({ 
-        type: 'alert', 
-        title: 'Request Submitted', 
-        message: 'Moving request submitted successfully! Verified Agents will contact you shortly to confirm the details.', 
+      showModal({
+        type: 'alert',
+        title: 'Request Submitted',
+        message: 'Moving request submitted successfully! Verified Agents will contact you shortly to confirm the details.',
         onConfirm: () => {
           closeModal();
           navigate('/dashboard?tab=moving');
-        } 
+        }
       });
     } catch (err) {
-      showModal({ 
-        type: 'alert', 
-        title: 'Error', 
-        message: `Failed to submit request: ${err.response?.data?.message || err.message || 'Unknown error'}. Please try again.`, 
-        onConfirm: closeModal 
+      showModal({
+        type: 'alert',
+        title: 'Error',
+        message: `Failed to submit request: ${err.response?.data?.message || err.message || 'Unknown error'}. Please try again.`,
+        onConfirm: closeModal
       });
     } finally {
       setLoading(false);
@@ -228,9 +228,9 @@ const MoversPage = () => {
         </div>
       </PremiumHero>
 
-    <div className="min-h-screen bg-gray-50 pb-20 pt-12">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32">
-          
+      <div className="min-h-screen bg-gray-50 pb-20 pt-12">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32">
+
           <div className="w-full bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 text-gray-900">
             <h2 className="text-3xl font-extrabold mb-6 text-center text-gray-900">Get a Free Quote</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -239,20 +239,20 @@ const MoversPage = () => {
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                     Moving From {fromCoords && <CheckCircle2 size={14} className="text-green-500" />}
                   </label>
-                  <button type="button" onClick={() => setActiveMapField(activeMapField === 'from' ? null : 'from')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'from' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
+                  <button type="button" onClick={() => setActiveMapField(activeMapField === 'from' ? null : 'from')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'from' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12} /> Pick on Map</button>
                 </div>
-                <input type="text" placeholder="Building / Society" value={formData.fromBuildingName} onChange={e => setFormData({...formData, fromBuildingName: e.target.value})} className="w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm mb-2" />
+                <input type="text" placeholder="Building / Society" value={formData.fromBuildingName} onChange={e => setFormData({ ...formData, fromBuildingName: e.target.value })} className="w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm mb-2" />
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-gray-400" size={18} />
-                  <input type="text" required value={formData.fromAreaName} onChange={e => setFormData({...formData, fromAreaName: e.target.value})} placeholder="Area / Locality *" className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.fromAreaName} onChange={e => setFormData({ ...formData, fromAreaName: e.target.value })} placeholder="Area / Locality *" className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  <input type="text" required value={formData.fromCityTown} onChange={e => setFormData({...formData, fromCityTown: e.target.value})} placeholder="City / Town *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
-                  <input type="text" value={formData.fromTaluka} onChange={e => setFormData({...formData, fromTaluka: e.target.value})} placeholder="Taluka" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.fromCityTown} onChange={e => setFormData({ ...formData, fromCityTown: e.target.value })} placeholder="City / Town *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" value={formData.fromTaluka} onChange={e => setFormData({ ...formData, fromTaluka: e.target.value })} placeholder="Taluka" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  <input type="text" required value={formData.fromDistrict} onChange={e => setFormData({...formData, fromDistrict: e.target.value})} placeholder="District *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
-                  <input type="text" required value={formData.fromPincode} onChange={e => setFormData({...formData, fromPincode: e.target.value.replace(/\D/g, '').slice(0, 6)})} placeholder="Pincode *" maxLength={6} pattern="[0-9]{6}" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.fromDistrict} onChange={e => setFormData({ ...formData, fromDistrict: e.target.value })} placeholder="District *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.fromPincode} onChange={e => setFormData({ ...formData, fromPincode: e.target.value.replace(/\D/g, '').slice(0, 6) })} placeholder="Pincode *" maxLength={6} pattern="[0-9]{6}" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
                 {activeMapField === 'from' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse mt-1">Click on the map below to select location</p>}
               </div>
@@ -261,56 +261,56 @@ const MoversPage = () => {
                   <label className="text-sm font-medium text-gray-700 flex items-center gap-1">
                     Moving To {toCoords && <CheckCircle2 size={14} className="text-green-500" />}
                   </label>
-                  <button type="button" onClick={() => setActiveMapField(activeMapField === 'to' ? null : 'to')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'to' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12}/> Pick on Map</button>
+                  <button type="button" onClick={() => setActiveMapField(activeMapField === 'to' ? null : 'to')} className={`text-[10px] font-bold px-2 py-1 rounded flex items-center gap-1 transition-colors ${activeMapField === 'to' ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}><MapIcon size={12} /> Pick on Map</button>
                 </div>
-                <input type="text" placeholder="Building / Society" value={formData.toBuildingName} onChange={e => setFormData({...formData, toBuildingName: e.target.value})} className="w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm mb-2" />
+                <input type="text" placeholder="Building / Society" value={formData.toBuildingName} onChange={e => setFormData({ ...formData, toBuildingName: e.target.value })} className="w-full py-2.5 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm mb-2" />
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-primary-400" size={18} />
-                  <input type="text" required value={formData.toAreaName} onChange={e => setFormData({...formData, toAreaName: e.target.value})} placeholder="Area / Locality *" className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.toAreaName} onChange={e => setFormData({ ...formData, toAreaName: e.target.value })} placeholder="Area / Locality *" className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  <input type="text" required value={formData.toCityTown} onChange={e => setFormData({...formData, toCityTown: e.target.value})} placeholder="City / Town *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
-                  <input type="text" value={formData.toTaluka} onChange={e => setFormData({...formData, toTaluka: e.target.value})} placeholder="Taluka" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.toCityTown} onChange={e => setFormData({ ...formData, toCityTown: e.target.value })} placeholder="City / Town *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" value={formData.toTaluka} onChange={e => setFormData({ ...formData, toTaluka: e.target.value })} placeholder="Taluka" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
                 <div className="grid grid-cols-2 gap-2 mt-2">
-                  <input type="text" required value={formData.toDistrict} onChange={e => setFormData({...formData, toDistrict: e.target.value})} placeholder="District *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
-                  <input type="text" required value={formData.toPincode} onChange={e => setFormData({...formData, toPincode: e.target.value.replace(/\D/g, '').slice(0, 6)})} placeholder="Pincode *" maxLength={6} pattern="[0-9]{6}" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.toDistrict} onChange={e => setFormData({ ...formData, toDistrict: e.target.value })} placeholder="District *" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                  <input type="text" required value={formData.toPincode} onChange={e => setFormData({ ...formData, toPincode: e.target.value.replace(/\D/g, '').slice(0, 6) })} placeholder="Pincode *" maxLength={6} pattern="[0-9]{6}" className="py-2.5 px-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
                 {activeMapField === 'to' && <p className="text-xs text-primary-600 font-bold ml-1 animate-pulse mt-1">Click on the map below to select location</p>}
               </div>
 
               {activeMapField && (
-                 <div className="h-[250px] rounded-xl overflow-hidden border-2 border-primary-300 shadow-inner z-0 relative animate-fadeIn mb-4">
-                    {/* Map Search Overlay */}
-                    <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
-                      <div className="pl-3 pr-2 text-gray-400">
-                        <MapPin size={16} className="text-primary-500" />
-                      </div>
-                      <input 
-                        type="text" 
-                        value={mapSearchQuery}
-                        onChange={(e) => setMapSearchQuery(e.target.value)}
-                        placeholder={`Search ${activeMapField === 'from' ? 'pickup' : 'drop'} location...`} 
-                        className="w-full outline-none text-xs bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleMapSearch(e);
-                        }}
-                      />
-                      <button 
-                        type="button"
-                        onClick={handleMapSearch}
-                        className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
-                      >
-                        Search
-                      </button>
+                <div className="h-[250px] rounded-xl overflow-hidden border-2 border-primary-300 shadow-inner z-0 relative animate-fadeIn mb-4">
+                  {/* Map Search Overlay */}
+                  <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                    <div className="pl-3 pr-2 text-gray-400">
+                      <MapPin size={16} className="text-primary-500" />
                     </div>
-                    <MapContainer center={mapPosition} zoom={11} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
-                      <CustomZoomControl />
-                      <MapUpdater center={mapPosition} />
-                      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                      <LocationMarker />
-                    </MapContainer>
-                 </div>
+                    <input
+                      type="text"
+                      value={mapSearchQuery}
+                      onChange={(e) => setMapSearchQuery(e.target.value)}
+                      placeholder={`Search ${activeMapField === 'from' ? 'pickup' : 'drop'} location...`}
+                      className="w-full outline-none text-xs bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleMapSearch(e);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleMapSearch}
+                      className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                    >
+                      Search
+                    </button>
+                  </div>
+                  <MapContainer center={mapPosition} zoom={11} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
+                    <CustomZoomControl />
+                    <MapUpdater center={mapPosition} />
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <LocationMarker />
+                  </MapContainer>
+                </div>
               )}
 
               <div className="grid grid-cols-2 gap-4">
@@ -318,14 +318,14 @@ const MoversPage = () => {
                   <label className="text-sm font-medium text-gray-700">Date</label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <input type="date" required min={new Date().toISOString().split('T')[0]} value={formData.movingDate} onChange={e => setFormData({...formData, movingDate: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                    <input type="date" required min={new Date().toISOString().split('T')[0]} value={formData.movingDate} onChange={e => setFormData({ ...formData, movingDate: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                   </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-gray-700">Time</label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <select value={formData.movingTime} onChange={e => setFormData({...formData, movingTime: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                    <select value={formData.movingTime} onChange={e => setFormData({ ...formData, movingTime: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
                       <option value="Morning (8 AM - 12 PM)">Morning</option>
                       <option value="Afternoon (12 PM - 4 PM)">Afternoon</option>
                       <option value="Evening (4 PM - 8 PM)">Evening</option>
@@ -338,7 +338,7 @@ const MoversPage = () => {
                   <label className="text-sm font-medium text-gray-700">Property Size</label>
                   <div className="relative">
                     <Package className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <select value={formData.propertySize} onChange={e => setFormData({...formData, propertySize: e.target.value})} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                    <select value={formData.propertySize} onChange={e => setFormData({ ...formData, propertySize: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
                       <option value="1RK">1 RK</option>
                       <option value="1BHK">1 BHK</option>
                       <option value="2BHK">2 BHK</option>
@@ -354,41 +354,41 @@ const MoversPage = () => {
               </button>
             </form>
           </div>
-      </div>
+        </div>
 
-      {/* Features Section */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Why choose RentXY Movers?</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">We've partnered with the best in the business to ensure your belongings reach safely.</p>
+        {/* Features Section */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why choose RentXY Movers?</h2>
+            <p className="text-gray-500 max-w-2xl mx-auto">We've partnered with the best in the business to ensure your belongings reach safely.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-shadow">
+              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <ShieldCheck size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Damage Protection</h3>
+              <p className="text-gray-500">Up to ₹50,000 transit insurance included in every premium move.</p>
+            </div>
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-shadow">
+              <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <CreditCard size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Transparent Pricing</h3>
+              <p className="text-gray-500">No hidden charges. The quote you get is the final amount you pay.</p>
+            </div>
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-shadow">
+              <div className="w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <Truck size={32} />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">Verified Partners</h3>
+              <p className="text-gray-500">We only work with background-verified and highly rated vendors.</p>
+            </div>
+          </div>
         </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-shadow">
-            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <ShieldCheck size={32} />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Damage Protection</h3>
-            <p className="text-gray-500">Up to ₹50,000 transit insurance included in every premium move.</p>
-          </div>
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-shadow">
-            <div className="w-16 h-16 bg-primary-50 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <CreditCard size={32} />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Transparent Pricing</h3>
-            <p className="text-gray-500">No hidden charges. The quote you get is the final amount you pay.</p>
-          </div>
-          <div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center hover:shadow-lg transition-shadow">
-            <div className="w-16 h-16 bg-orange-50 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <Truck size={32} />
-            </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Verified Partners</h3>
-            <p className="text-gray-500">We only work with background-verified and highly rated vendors.</p>
-          </div>
-        </div>
+        <Modal {...modalConfig} onCancel={closeModal} />
       </div>
-      <Modal {...modalConfig} onCancel={closeModal} />
-    </div>
     </>
   );
 };

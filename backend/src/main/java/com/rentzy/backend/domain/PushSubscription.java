@@ -10,8 +10,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "notifications")
-public class Notification {
+@Table(name = "push_subscriptions")
+public class PushSubscription {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,17 +21,14 @@ public class Notification {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = false)
-    private String message;
+    @Column(nullable = false, length = 1000)
+    private String endpoint;
 
     @Column(nullable = false)
-    private String type; // BOOKING, PAYMENT, REVIEW, SYSTEM
-
-    @Column(length = 500)
-    private String link;
+    private String p256dh;
 
     @Column(nullable = false)
-    private Boolean isRead;
+    private String auth;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -39,6 +36,5 @@ public class Notification {
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
-        if (isRead == null) isRead = false;
     }
 }

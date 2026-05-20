@@ -393,8 +393,8 @@ const DashboardPage = () => {
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
-                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 text-primary-700 shadow-sm border border-primary-100/50' : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}>
-                      <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600' : 'text-gray-400'}`} />{tab.name}
+                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}>
+                      <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />{tab.name}
                     </button>
                   );
                 })}
@@ -409,8 +409,8 @@ const DashboardPage = () => {
             {activeTab === 'profile' && (
               <div className="animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Personal Information</h2>
-                  {!editingProfile && <button onClick={() => setEditingProfile(true)} className="flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium text-sm"><Edit3 size={16} />Edit</button>}
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Personal Information</h2>
+                  {!editingProfile && <button onClick={() => setEditingProfile(true)} className="flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium text-sm"><Edit3 size={16} />Edit</button>}
                 </div>
                 {profile ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -604,7 +604,7 @@ const DashboardPage = () => {
             {/* BOOKINGS TAB */}
             {activeTab === 'bookings' && (
               <div className="animate-fadeIn">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">My Bookings</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Bookings</h2>
                 {user?.role === 'OWNER' && (
                   <div className="bg-blue-50 border border-blue-200 text-blue-800 p-4 rounded-xl mb-6 text-sm">
                     <strong>Important Note:</strong> Accepting a booking does <strong>not</strong> automatically hide your property. If your property is fully rented out, please go to the <strong>My Properties</strong> tab and change its status to <strong>Rented</strong> so tenants stop seeing it in search results.
@@ -661,7 +661,7 @@ const DashboardPage = () => {
             {activeTab === 'properties' && (
               <div className="animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">My Properties</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Properties</h2>
                   <Link to="/post-property" className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors"><Plus size={16} />Add Property</Link>
                 </div>
                 {loadingListings ? (
@@ -735,7 +735,7 @@ const DashboardPage = () => {
             {/* SAVED TAB */}
             {activeTab === 'saved' && (
               <div className="animate-fadeIn">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Saved & Shortlisted</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Saved & Shortlisted</h2>
                 {loadingSaved ? (
                   <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>
                 ) : savedListings.length === 0 ? (
@@ -758,7 +758,7 @@ const DashboardPage = () => {
             {activeTab === 'notifications' && (
               <div className="animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">Notifications</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</h2>
                   {notifications.some(n => !n.isRead) && (
                     <button onClick={async () => { await api.put('/notifications/read-all'); setNotifications(prev => prev.map(n => ({ ...n, isRead: true }))); }} className="text-sm text-primary-600 font-medium hover:underline">Mark all as read</button>
                   )}
@@ -789,7 +789,7 @@ const DashboardPage = () => {
             {activeTab === 'moving' && (
               <div className="animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900">My Moving Requests</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Moving Requests</h2>
                   <Link to="/movers" className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors"><Plus size={16} />New Request</Link>
                 </div>
                 {loadingMoving ? (
@@ -872,7 +872,7 @@ const DashboardPage = () => {
 
             {activeTab === 'settings' && (
               <div className="animate-fadeIn">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Account Settings</h2>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Account Settings</h2>
                 
                 <div className="space-y-6">
                   {/* Preferences */}

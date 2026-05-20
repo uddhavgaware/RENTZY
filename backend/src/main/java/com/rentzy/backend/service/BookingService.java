@@ -38,7 +38,8 @@ public class BookingService {
         notificationService.createNotification(
                 listing.getOwner().getEmail(),
                 "New booking request for '" + listing.getTitle() + "' from " + tenant.getName(),
-                "BOOKING"
+                "BOOKING",
+                "/dashboard"
         );
 
         return saved;
@@ -54,7 +55,8 @@ public class BookingService {
         notificationService.createNotification(
                 booking.getTenant().getEmail(),
                 "Your booking for '" + booking.getListing().getTitle() + "' has been confirmed! 🎉",
-                "PAYMENT"
+                "PAYMENT",
+                "/dashboard"
         );
 
         return saved;
@@ -78,14 +80,16 @@ public class BookingService {
             notificationService.createNotification(
                     booking.getListing().getOwner().getEmail(),
                     "❌ " + booking.getTenant().getName() + " cancelled their booking request for '" + propertyTitle + "'.",
-                    "BOOKING"
+                    "BOOKING",
+                    "/dashboard"
             );
         } else {
             // Owner cancelled → notify tenant
             notificationService.createNotification(
                     booking.getTenant().getEmail(),
                     "❌ Your booking for '" + propertyTitle + "' was cancelled by the owner.",
-                    "BOOKING"
+                    "BOOKING",
+                    "/dashboard"
             );
         }
         return saved;

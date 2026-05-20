@@ -125,13 +125,13 @@ const LandingPage = () => {
         const res = await api.get('/listings');
         const listingsList = res.data?.content || res.data || [];
         const count = listingsList.length;
-        
+
         // Extract unique cities
         const uniqueCities = new Set(listingsList.map(l => {
           const city = l.city || (l.location || '').split(',').pop()?.trim();
           return city ? city.toLowerCase() : null;
         }).filter(Boolean));
-        
+
         setRealStats({
           properties: Math.max(count, 4), // Ensure a fallback minimum count
           cities: Math.max(uniqueCities.size, 1),
@@ -158,7 +158,7 @@ const LandingPage = () => {
     try {
       const res = await api.get('/listings', { params: { location: city, size: 6 } });
       setNearbyListings(res.data?.content || res.data || []);
-    } catch {}
+    } catch { }
     finally { setNearbyLoading(false); }
   };
 
@@ -509,7 +509,7 @@ const LandingPage = () => {
               <p className="text-gray-500 text-lg leading-relaxed mb-8">
                 Tired of awkward roommate interviews? Our AI-powered matchmaking connects you with like-minded individuals based on lifestyle, habits, and preferences.
               </p>
-              
+
               <ul className="space-y-4 mb-8">
                 {[
                   'Advanced compatibility matching',
@@ -525,7 +525,7 @@ const LandingPage = () => {
                   </li>
                 ))}
               </ul>
-              
+
               <Link
                 to="/roommates"
                 className="btn-primary rounded-xl px-8 py-4 text-base shine-hover inline-flex items-center gap-2"
@@ -533,11 +533,11 @@ const LandingPage = () => {
                 Find a Roommate <ArrowRight size={18} />
               </Link>
             </div>
-            
+
             <div className="order-1 lg:order-2 relative">
               {/* Interactive Roommate Match Showcase Card */}
               <div className="relative rounded-[2rem] overflow-hidden shadow-2xl shadow-primary-500/15 border border-gray-100 bg-gradient-to-tr from-slate-900 to-indigo-950 p-6 aspect-[4/3] flex flex-col justify-between z-10 select-none">
-                
+
                 {/* Background mesh glow inside the card */}
                 <div className="absolute top-0 right-0 w-48 h-48 bg-primary-500/10 rounded-full blur-[40px]" />
                 <div className="absolute bottom-0 left-0 w-48 h-48 bg-pink-500/10 rounded-full blur-[40px]" />
@@ -545,9 +545,9 @@ const LandingPage = () => {
                 {/* Profile Header */}
                 <div className="flex items-center gap-4 relative z-10">
                   <div className="relative">
-                    <img 
-                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80" 
-                      alt="Roommate Profile" 
+                    <img
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80"
+                      alt="Roommate Profile"
                       className="w-16 h-16 rounded-2xl object-cover ring-4 ring-white/10"
                     />
                     <span className="absolute bottom-0 right-0 w-4.5 h-4.5 bg-emerald-500 border-2 border-slate-950 rounded-full flex items-center justify-center" />
@@ -580,8 +580,8 @@ const LandingPage = () => {
                 {/* Badges and tags */}
                 <div className="flex flex-wrap gap-2 relative z-10 mb-2">
                   {['Veg Only', 'Early Bird', 'No Smoking', 'Pets Welcomed'].map((tag, i) => (
-                    <span 
-                      key={i} 
+                    <span
+                      key={i}
                       className="bg-white/5 text-gray-300 text-xs font-semibold px-3 py-1.5 rounded-xl border border-white/5 hover:bg-white/10 transition-colors"
                     >
                       {tag}
@@ -602,7 +602,7 @@ const LandingPage = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="absolute -top-12 -right-12 w-64 h-64 bg-primary-200 rounded-full mix-blend-multiply filter blur-[60px] opacity-70 animate-blob" />
               <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-rose-200 rounded-full mix-blend-multiply filter blur-[60px] opacity-70 animate-blob animation-delay-2000" />
             </div>

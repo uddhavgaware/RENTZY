@@ -9,13 +9,13 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsToolti
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
 
 const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow p-6 flex items-center gap-5 animate-slide-up">
+  <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow p-6 flex items-center gap-5 animate-slide-up">
     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${color}`}>
       <Icon size={26} className="text-white" />
     </div>
     <div>
-      <p className="text-gray-500 text-sm font-medium">{label}</p>
-      <p className="text-3xl font-bold text-gray-900">{value}</p>
+      <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{label}</p>
+      <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
     </div>
   </div>
 );
@@ -417,7 +417,7 @@ const AdminDashboardPage = () => {
 
 
   return (
-    <div className="bg-mesh-gradient min-h-screen pb-16 relative overflow-hidden">
+    <div className="bg-mesh-gradient dark:bg-slate-900 min-h-screen pb-16 relative overflow-hidden">
       {/* Decorative background blobs */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary-200/15 rounded-full translate-x-1/3 -translate-y-1/3 blur-[80px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-200/10 rounded-full -translate-x-1/3 translate-y-1/3 blur-[80px] pointer-events-none" />
@@ -456,7 +456,7 @@ const AdminDashboardPage = () => {
         )}
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-8 overflow-x-auto hide-scrollbar bg-white rounded-2xl p-2 shadow-lg shadow-gray-200/50 border border-gray-100/80" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
+        <div className="flex gap-2 mb-8 overflow-x-auto hide-scrollbar bg-white dark:bg-slate-800 rounded-2xl p-2 shadow-lg shadow-gray-200/50 dark:shadow-black/30 border border-gray-100/80 dark:border-white/10" style={{ animationDelay: '0.1s', animationFillMode: 'both' }}>
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -464,7 +464,7 @@ const AdminDashboardPage = () => {
               className={`flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${
                 activeTab === tab.id
                   ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md shadow-primary-600/25'
-                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                  : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 hover:text-gray-900 dark:hover:text-white'
               }`}
             >
               <tab.icon size={16} />
@@ -474,12 +474,12 @@ const AdminDashboardPage = () => {
         </div>
         
         {/* Dashboard Regional Filter */}
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up">
+        <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm p-5 mb-6 flex flex-col md:flex-row items-center justify-between gap-4 animate-slide-up">
           <div className="flex items-center gap-3">
             <span className="text-2xl">🌍</span>
             <div>
-              <p className="font-bold text-gray-900 text-sm">Dashboard Regional Filter</p>
-              <p className="text-xs text-gray-500">Filter all overview metrics, charts, lists, and leads by state/city.</p>
+              <p className="font-bold text-gray-900 dark:text-white text-sm">Dashboard Regional Filter</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Filter all overview metrics, charts, lists, and leads by state/city.</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-3 w-full md:w-auto">
@@ -491,7 +491,7 @@ const AdminDashboardPage = () => {
                   setSelectedState(e.target.value);
                   setSelectedCity('All');
                 }}
-                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer"
+                className="w-full bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 dark:text-gray-200 outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer"
               >
                 <option value="All">All India</option>
                 {Object.keys(INDIA_REGIONS).map(state => (
@@ -506,7 +506,7 @@ const AdminDashboardPage = () => {
                 <select
                   value={selectedCity}
                   onChange={(e) => setSelectedCity(e.target.value)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer"
+                  className="w-full bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-2.5 text-xs font-bold text-gray-800 dark:text-gray-200 outline-none focus:ring-1 focus:ring-primary-500 cursor-pointer"
                 >
                   <option value="All">All Cities</option>
                   {(INDIA_REGIONS[selectedState] || []).map(city => (
@@ -549,8 +549,8 @@ const AdminDashboardPage = () => {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Growth Chart */}
-                  <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
-                    <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                       <TrendingUp size={20} className="text-primary-600" />
                       Platform Growth
                     </h2>
@@ -574,8 +574,8 @@ const AdminDashboardPage = () => {
                   </div>
 
                   {/* Property Distribution */}
-                  <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
-                    <h2 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                       <Home size={20} className="text-primary-600" />
                       Property Types
                     </h2>
@@ -614,8 +614,8 @@ const AdminDashboardPage = () => {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
-                  <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <DollarSign size={20} className="text-primary-600" />
                     Recent Bookings
                   </h2>
@@ -627,10 +627,10 @@ const AdminDashboardPage = () => {
                   ) : (
                     <div className="space-y-3">
                       {filteredBookings.slice(0, 5).map(b => (
-                        <div key={b.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                        <div key={b.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl">
                           <div>
-                            <p className="font-medium text-gray-900 text-sm">{b.listing?.title}</p>
-                            <p className="text-xs text-gray-500">{b.tenant?.email}</p>
+                            <p className="font-medium text-gray-900 dark:text-white text-sm">{b.listing?.title}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{b.tenant?.email}</p>
                           </div>
                           <div className="text-right">
                             <p className="font-bold text-primary-600 text-sm">₹{b.amount?.toLocaleString('en-IN')}</p>
@@ -652,9 +652,9 @@ const AdminDashboardPage = () => {
 
             {/* Users Tab */}
             {activeTab === 'users' && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-gray-900">All Users ({filteredUsers.length})</h2>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">All Users ({filteredUsers.length})</h2>
                   <div className="flex gap-2">
                     {selectedUsers.length > 0 && (
                       <button onClick={() => handleDeleteUsers(false)} className="bg-red-50 text-red-600 hover:bg-red-100 font-bold px-4 py-2 rounded-xl text-sm transition-colors border border-red-200 shadow-sm flex items-center gap-2">
@@ -665,7 +665,7 @@ const AdminDashboardPage = () => {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-slate-700/50">
                       <tr>
                         <th className="px-6 py-3 text-left w-12">
                           <input 
@@ -681,9 +681,9 @@ const AdminDashboardPage = () => {
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                       {filteredUsers.map(u => (
-                        <tr key={u.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
                           <td className="px-6 py-4">
                             {u.role !== 'ADMIN' ? (
                               <input 
@@ -701,12 +701,12 @@ const AdminDashboardPage = () => {
                               <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
                                 {u.name?.charAt(0)}
                               </div>
-                              <span className={`font-medium ${u.isBlocked ? 'text-gray-400 line-through' : 'text-gray-900'}`}>{u.name}</span>
+                              <span className={`font-medium ${u.isBlocked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>{u.name}</span>
                             </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col">
-                              <span className="text-gray-600 text-sm font-medium">{u.email}</span>
+                              <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">{u.email}</span>
                               {u.phone && <span className="text-gray-500 text-xs mt-1">📞 {u.phone}</span>}
                               {u.gender && <span className="text-gray-400 text-xs mt-0.5">👤 {u.gender} {u.dob ? `| ${u.dob}` : ''}</span>}
                               {u.occupation && <span className="text-gray-400 text-xs mt-0.5">💼 {u.occupation}</span>}
@@ -739,7 +739,7 @@ const AdminDashboardPage = () => {
                               <div className="flex flex-col gap-2">
                                 {u.kycStatus === 'PENDING' && (u.role === 'OWNER' || u.role === 'MOVER') && (
                                     <div className="flex flex-col gap-1">
-                                      <p className="text-xs text-gray-700 font-medium">{u.kycDocumentType || 'Document'}: {u.kycDocumentNumber || 'No Number'}</p>
+                                      <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">{u.kycDocumentType || 'Document'}: {u.kycDocumentNumber || 'No Number'}</p>
                                       <div className="flex items-center gap-2">
                                         <a 
                                           href={u.kycDocumentUrl} 
@@ -767,7 +767,7 @@ const AdminDashboardPage = () => {
                                 {(u.kycStatus === 'APPROVED' || u.kycStatus === 'REJECTED') && (u.role === 'OWNER' || u.role === 'MOVER') && (
                                     <button
                                       onClick={() => undoKyc(u.id)}
-                                      className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium hover:bg-gray-200 mt-1 w-fit"
+                                      className="text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded font-medium hover:bg-gray-200 dark:hover:bg-slate-600 mt-1 w-fit"
                                     >
                                       Undo KYC Action
                                     </button>
@@ -805,8 +805,8 @@ const AdminDashboardPage = () => {
 
             {/* Delete Requests Tab */}
             {activeTab === 'delete-requests' && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden mt-6">
-                <div className="p-6 border-b border-gray-100">
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden mt-6">
+                <div className="p-6 border-b border-gray-100 dark:border-white/10">
                   <h2 className="text-lg font-bold text-red-600 flex items-center gap-2">
                     <Trash2 size={20} /> Account Deletion Requests
                   </h2>
@@ -814,7 +814,7 @@ const AdminDashboardPage = () => {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-50 dark:bg-slate-700/50">
                       <tr>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">User Info</th>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Role</th>
@@ -834,13 +834,13 @@ const AdminDashboardPage = () => {
                                 {u.name?.charAt(0)}
                               </div>
                               <div>
-                                <p className="font-medium text-gray-900">{u.name}</p>
-                                <p className="text-xs text-gray-500">{u.email}</p>
+                                <p className="font-medium text-gray-900 dark:text-white">{u.name}</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{u.email}</p>
                               </div>
                             </div>
                           </td>
                           <td className="px-6 py-4">
-                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                            <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">
                               {u.role}
                             </span>
                           </td>
@@ -862,9 +862,9 @@ const AdminDashboardPage = () => {
 
             {/* Listings Tab */}
             {activeTab === 'listings' && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-lg font-bold text-gray-900">All Listings ({filteredListings.length})</h2>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-white/10">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">All Listings ({filteredListings.length})</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -877,11 +877,11 @@ const AdminDashboardPage = () => {
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                       {filteredListings.map(l => (
-                        <tr key={l.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 font-medium text-gray-900">{l.title}</td>
-                          <td className="px-6 py-4 text-gray-600 text-sm">{l.location}</td>
+                        <tr key={l.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{l.title}</td>
+                          <td className="px-6 py-4 text-gray-600 dark:text-gray-300 text-sm">{l.location}</td>
                           <td className="px-6 py-4">
                             <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-primary-50 text-primary-700">
                               {l.type}
@@ -906,9 +906,9 @@ const AdminDashboardPage = () => {
 
             {/* Bookings Tab */}
             {activeTab === 'bookings' && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-lg font-bold text-gray-900">All Bookings ({filteredBookings.length})</h2>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-white/10">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">All Bookings ({filteredBookings.length})</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -920,15 +920,15 @@ const AdminDashboardPage = () => {
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                       {filteredBookings.length === 0 ? (
                         <tr>
                           <td colSpan={4} className="text-center py-12 text-gray-400">No bookings yet.</td>
                         </tr>
                       ) : filteredBookings.map(b => (
-                        <tr key={b.id} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 font-medium text-gray-900">{b.listing?.title}</td>
-                          <td className="px-6 py-4 text-gray-600 text-sm">{b.tenant?.name} <span className="text-gray-400">({b.tenant?.email})</span></td>
+                        <tr key={b.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                          <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{b.listing?.title}</td>
+                          <td className="px-6 py-4 text-gray-600 dark:text-gray-300 text-sm">{b.tenant?.name} <span className="text-gray-400">({b.tenant?.email})</span></td>
                           <td className="px-6 py-4 font-semibold text-primary-600">₹{b.amount?.toLocaleString('en-IN')}</td>
                           <td className="px-6 py-4">
                             <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -949,9 +949,9 @@ const AdminDashboardPage = () => {
 
             {/* Moving Requests Tab */}
             {activeTab === 'moving' && (
-              <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="p-6 border-b border-gray-100">
-                  <h2 className="text-lg font-bold text-gray-900">Moving & Packing Leads ({filteredMoving.length})</h2>
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 dark:border-white/10">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">Moving & Packing Leads ({filteredMoving.length})</h2>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -963,16 +963,16 @@ const AdminDashboardPage = () => {
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status & Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                       {filteredMoving.length === 0 ? (
                         <tr>
                           <td colSpan={4} className="text-center py-12 text-gray-400">No moving leads yet.</td>
                         </tr>
                       ) : filteredMoving.map(m => (
-                        <tr key={m.id} className="hover:bg-gray-50 transition-colors">
+                        <tr key={m.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
                           <td className="px-6 py-4">
-                            <p className="font-medium text-gray-900">{m.user?.name}</p>
-                            <p className="text-xs text-gray-500">{m.user?.phone}</p>
+                            <p className="font-medium text-gray-900 dark:text-white">{m.user?.name}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{m.user?.phone}</p>
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm">
@@ -1020,33 +1020,33 @@ const AdminDashboardPage = () => {
                 <div className="space-y-6">
                   {/* Regions Overview */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 flex items-center gap-5">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-indigo-500">
                         <MapPin size={26} className="text-white" />
                       </div>
                       <div>
-                        <p className="text-gray-500 text-sm font-medium">Covered States</p>
-                        <p className="text-3xl font-bold text-gray-900">{activeStates.length}</p>
+                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Covered States</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white">{activeStates.length}</p>
                       </div>
                     </div>
-                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 flex items-center gap-5">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-emerald-500">
                         <Home size={26} className="text-white" />
                       </div>
                       <div>
-                        <p className="text-gray-500 text-sm font-medium">Active Cities/Districts</p>
-                        <p className="text-3xl font-bold text-gray-900">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Active Cities/Districts</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
                           {activeStates.reduce((acc, [_, cities]) => acc + Object.keys(cities).length, 0)}
                         </p>
                       </div>
                     </div>
-                    <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6 flex items-center gap-5">
+                    <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 flex items-center gap-5">
                       <div className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-blue-500">
                         <Users size={26} className="text-white" />
                       </div>
                       <div>
-                        <p className="text-gray-500 text-sm font-medium">Total Regional Listings</p>
-                        <p className="text-3xl font-bold text-gray-900">
+                        <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Regional Listings</p>
+                        <p className="text-3xl font-bold text-gray-900 dark:text-white">
                           {activeStates.reduce((acc, [_, cities]) => 
                             acc + Object.values(cities).reduce((sum, list) => sum + list.length, 0), 0
                           ) + (regionMap['Others']?.['Unknown']?.length || 0)}
@@ -1056,9 +1056,9 @@ const AdminDashboardPage = () => {
                   </div>
 
                   {/* India Geographic Hierarchy */}
-                  <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-6">
+                  <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6">
                     <div className="border-b border-gray-100 pb-4 mb-6">
-                      <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
                         🇮🇳 Indian Regional Distribution
                       </h2>
                       <p className="text-sm text-gray-500 mt-1">
@@ -1078,14 +1078,14 @@ const AdminDashboardPage = () => {
                           const isExpanded = !!expandedStates[state];
 
                           return (
-                            <div key={state} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm">
+                            <div key={state} className="border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden shadow-sm">
                               <button
                                 onClick={() => setExpandedStates(prev => ({ ...prev, [state]: !prev[state] }))}
-                                className="w-full flex items-center justify-between px-6 py-4 bg-gray-50/50 hover:bg-gray-50 transition-colors text-left"
+                                className="w-full flex items-center justify-between px-6 py-4 bg-gray-50/50 dark:bg-slate-700/30 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors text-left"
                               >
                                 <div className="flex items-center gap-3">
                                   {isExpanded ? <ChevronDown size={18} className="text-gray-500" /> : <ChevronRight size={18} className="text-gray-500" />}
-                                  <span className="font-bold text-gray-800 text-base">{state}</span>
+                                  <span className="font-bold text-gray-800 dark:text-gray-200 text-base">{state}</span>
                                   <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-0.5 rounded-full border border-indigo-100">
                                     {stateTotal} properties
                                   </span>

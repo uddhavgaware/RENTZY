@@ -73,7 +73,7 @@ const OwnerProfilePage = () => {
           <button onClick={() => navigate(-1)} className="flex items-center text-gray-500 hover:text-primary-600 mb-8 transition-colors text-sm font-medium">
             <ArrowLeft size={16} className="mr-1" /> Back
           </button>
-          
+
           <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
             {/* Avatar */}
             <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-white shadow-xl overflow-hidden bg-primary-100 flex items-center justify-center flex-shrink-0 relative">
@@ -105,7 +105,7 @@ const OwnerProfilePage = () => {
 
               <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                 {user?.id !== owner.id && (
-                  <button 
+                  <button
                     onClick={() => navigate(`/messages?user=${owner.id}`)}
                     className="btn-primary shadow-primary-600/20"
                   >
@@ -114,7 +114,7 @@ const OwnerProfilePage = () => {
                 )}
               </div>
             </div>
-            
+
             {/* Stats */}
             <div className="flex gap-6 mt-6 md:mt-0 bg-gray-50 rounded-2xl p-6 border border-gray-100">
               <div className="text-center">

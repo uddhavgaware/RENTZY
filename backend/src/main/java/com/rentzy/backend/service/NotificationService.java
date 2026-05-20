@@ -15,8 +15,13 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final WebPushService webPushService;
 
     public void createNotification(String userEmail, String message, String type) {
+        createNotification(userEmail, message, type, null);
+    }
+
+    public void createNotification(String userEmail, String message, String type, String link) {
         User user = userRepository.findByEmail(userEmail).orElse(null);
         if (user == null) return;
 
@@ -24,9 +29,16 @@ public class NotificationService {
                 .user(user)
                 .message(message)
                 .type(type)
+                .link(link)
                 .isRead(false)
                 .build();
         notificationRepository.save(notification);
+
+        try {
+            webPushService.sendPushNotification(userEmail, "RentXY", message, link);
+        } catch (Exception e) {
+            System.err.println("Failed to send Web Push notification: " + e.getMessage());
+        }
     }
 
     public List<Notification> getUserNotifications(String email) {

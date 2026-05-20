@@ -10,12 +10,16 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+
 @Service
 @RequiredArgsConstructor
 public class ChatService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final NotificationService notificationService;
 
     public Message sendMessage(Long receiverId, String content, String senderEmail) {
         User sender = userRepository.findByEmail(senderEmail)
@@ -30,7 +34,29 @@ public class ChatService {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return messageRepository.save(message);
+        Message savedMessage = messageRepository.save(message);
+
+        // Broadcast to receiver
+        messagingTemplate.convertAndSend(
+                "/user/" + receiver.getId() + "/queue/messages",
+                savedMessage
+        );
+        
+        // Also broadcast to sender for syncing across devices
+        messagingTemplate.convertAndSend(
+                "/user/" + sender.getId() + "/queue/messages",
+                savedMessage
+        );
+
+        // Notify receiver
+        notificationService.createNotification(
+                receiver.getEmail(),
+                "New message from " + sender.getName() + ": " + (content.length() > 30 ? content.substring(0, 30) + "..." : content),
+                "SYSTEM",
+                "/messages?user=" + sender.getId()
+        );
+
+        return savedMessage;
     }
 
     public List<Message> getChatHistory(Long userId1, Long userId2) {

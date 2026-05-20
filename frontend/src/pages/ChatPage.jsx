@@ -9,7 +9,7 @@ const maskName = (name) => {
   if (!name) return 'Anonymous';
   const trimmed = name.trim();
   if (trimmed.length === 0) return 'Anonymous';
-  return trimmed.charAt(0).toUpperCase();
+  return trimmed;
 };
 
 const ChatPage = () => {
@@ -36,7 +36,7 @@ const ChatPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch conversations
+  // Fetch conversations + Polling
   useEffect(() => {
     const fetchConvos = async () => {
       try {
@@ -47,17 +47,29 @@ const ChatPage = () => {
         const userId = searchParams.get('user');
         if (userId) {
           const uId = parseInt(userId);
-          setActiveChat(uId);
-          setShowMobileChat(true);
+          if (!activeChat) {
+            setActiveChat(uId);
+            setShowMobileChat(true);
+          }
           // Add dummy conversation if not in list yet so UI shows them
           if (!convos.find(c => c.id === uId)) {
             try {
               // Fetch real user details
               const res = await api.get(`/users/${uId}`);
               const fetchedUser = res.data;
-              setConversations([{ id: uId, name: fetchedUser.name, role: fetchedUser.role, profilePhoto: fetchedUser.profilePhoto }, ...convos]);
+              setConversations(prev => {
+                if (!prev.find(c => c.id === uId)) {
+                  return [{ id: uId, name: fetchedUser.name, role: fetchedUser.role, profilePhoto: fetchedUser.profilePhoto }, ...prev];
+                }
+                return prev;
+              });
             } catch (userErr) {
-              setConversations([{ id: uId, name: 'User', role: 'USER' }, ...convos]);
+              setConversations(prev => {
+                if (!prev.find(c => c.id === uId)) {
+                  return [{ id: uId, name: 'User', role: 'USER' }, ...prev];
+                }
+                return prev;
+              });
             }
           }
         } else if (convos.length > 0 && !activeChat) {
@@ -69,10 +81,47 @@ const ChatPage = () => {
         setLoading(false);
       }
     };
+    
     fetchConvos();
-  }, []);
 
-  // Fetch chat history with active user + Polling
+    // Poll conversations every 10 seconds
+    const convosIntervalId = setInterval(fetchConvos, 10000);
+    return () => clearInterval(convosIntervalId);
+  }, [searchParams, activeChat]);
+
+  const activeChatRef = useRef(activeChat);
+
+  useEffect(() => {
+    activeChatRef.current = activeChat;
+  }, [activeChat]);
+
+  // Connect to WebSocket on load
+  useEffect(() => {
+    if (user?.id) {
+      chatService.connect(user.id, (newMessage) => {
+        // If the message is part of the active conversation, append it
+        setMessages((prevMessages) => {
+          const currentActiveChat = activeChatRef.current;
+          if (
+            (newMessage.sender.id === currentActiveChat) || 
+            (newMessage.receiver.id === currentActiveChat)
+          ) {
+            // Avoid duplicates by exact DB ID
+            if (!prevMessages.find(m => m.id === newMessage.id)) {
+              return [...prevMessages, newMessage];
+            }
+          }
+          return prevMessages;
+        });
+      });
+
+      return () => {
+        chatService.disconnect();
+      };
+    }
+  }, [user]);
+
+  // Fetch chat history with active user
   useEffect(() => {
     if (!activeChat) return;
 
@@ -86,11 +135,6 @@ const ChatPage = () => {
     };
 
     fetchHistory();
-
-    // Short Polling every 3 seconds
-    const intervalId = setInterval(fetchHistory, 3000);
-
-    return () => clearInterval(intervalId);
   }, [activeChat]);
 
   const getActiveStatus = () => {
@@ -121,15 +165,6 @@ const ChatPage = () => {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
 
-    const tempMessage = {
-      id: Date.now(), // temporary ID
-      content: newMessage,
-      sender: { email: user?.email },
-      timestamp: new Date().toISOString()
-    };
-    
-    // Optimistic UI update
-    setMessages(prev => [...prev, tempMessage]);
     const messageToSend = newMessage;
     setNewMessage('');
 
@@ -137,9 +172,16 @@ const ChatPage = () => {
       await chatService.sendMessage(activeChat, messageToSend);
     } catch (err) {
       console.error('Failed to send message', err);
-      // Optional: Handle failure (e.g., remove from optimistic UI)
     }
   };
+
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Filtered conversations based on search query
+  const filteredConversations = conversations.filter(contact => 
+    contact.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    contact.role?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="bg-gray-50 h-[calc(100vh-64px)] flex overflow-hidden">
@@ -152,6 +194,8 @@ const ChatPage = () => {
             <input 
               type="text" 
               placeholder="Search conversations..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
             />
           </div>
@@ -160,17 +204,19 @@ const ChatPage = () => {
         <div className="flex-1 overflow-y-auto">
           {loading ? (
             <div className="p-4 text-center text-sm text-gray-500">Loading conversations...</div>
-          ) : conversations.length === 0 ? (
-            <div className="p-4 text-center text-sm text-gray-500">No active conversations.</div>
+          ) : filteredConversations.length === 0 ? (
+            <div className="p-4 text-center text-sm text-gray-500">
+              {searchQuery ? 'No conversations match your search.' : 'No active conversations.'}
+            </div>
           ) : (
-            conversations.map((contact) => (
+            filteredConversations.map((contact) => (
               <button 
                 key={contact.id}
                 onClick={() => { setActiveChat(contact.id); setShowMobileChat(true); }}
                 className={`w-full flex items-start p-4 border-b border-gray-50 transition-colors text-left ${activeChat === contact.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'border-l-4 border-l-transparent hover:bg-gray-50'}`}
               >
                 <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-4 border-2 border-white shadow-sm flex-shrink-0">
-                  {contact.profilePhoto ? <img src={contact.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (contact.name?.charAt(0) || 'U')}
+                  {contact.profilePhoto ? <img src={contact.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (contact.name?.charAt(0)?.toUpperCase() || 'U')}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
@@ -208,7 +254,7 @@ const ChatPage = () => {
                   <ArrowLeft size={20} />
                 </button>
                 <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xl mr-4 border border-primary-200 shadow-sm">
-                  {conversations.find(c => c.id === activeChat)?.profilePhoto ? <img src={conversations.find(c => c.id === activeChat).profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (conversations.find(c => c.id === activeChat)?.name?.charAt(0) || 'U')}
+                  {conversations.find(c => c.id === activeChat)?.profilePhoto ? <img src={conversations.find(c => c.id === activeChat).profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (conversations.find(c => c.id === activeChat)?.name?.charAt(0)?.toUpperCase() || 'U')}
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 text-lg">
@@ -259,7 +305,7 @@ const ChatPage = () => {
                       return (
                         <div key={msg.id || idx} className="flex items-end mb-2">
                           <div className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center font-bold text-xs mr-3 mb-1 shadow-sm border border-gray-200 flex-shrink-0">
-                            {msg.sender?.profilePhoto ? <img src={msg.sender.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (msg.sender?.name?.charAt(0) || 'U')}
+                            {msg.sender?.profilePhoto ? <img src={msg.sender.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (msg.sender?.name?.charAt(0)?.toUpperCase() || 'U')}
                           </div>
                           <div className="bg-white border border-gray-100 px-5 py-3.5 rounded-2xl rounded-bl-sm max-w-[75%] shadow-md transform transition-all hover:-translate-y-0.5">
                             <p className="text-[15px] text-gray-800 leading-relaxed">{msg.content}</p>

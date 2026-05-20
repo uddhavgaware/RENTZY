@@ -82,6 +82,22 @@ const Navbar = () => {
     setShowNotifs(!showNotifs);
   };
 
+  const handleNotificationClick = async (notif) => {
+    if (!notif.isRead) {
+      try {
+        await api.put(`/notifications/${notif.id}/read`);
+        setUnreadCount(prev => Math.max(0, prev - 1));
+        setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, isRead: true } : n));
+      } catch (err) {
+        console.error("Failed to mark as read", err);
+      }
+    }
+    setShowNotifs(false);
+    if (notif.link) {
+      navigate(notif.link);
+    }
+  };
+
   const markAllRead = async () => {
     try {
       await api.put('/notifications/read-all');
@@ -196,7 +212,11 @@ const Navbar = () => {
                         {notifications.length === 0 ? (
                           <div className="text-center py-8 text-gray-400 text-sm">No notifications yet</div>
                         ) : notifications.map(n => (
-                          <div key={n.id} className={`px-4 py-3 border-b border-gray-50 hover:bg-gray-50 transition-colors ${!n.isRead ? 'bg-primary-50/50' : ''}`}>
+                          <div 
+                            key={n.id} 
+                            onClick={() => handleNotificationClick(n)}
+                            className={`px-4 py-3 border-b border-gray-50 transition-colors ${n.link ? 'cursor-pointer hover:bg-gray-50' : ''} ${!n.isRead ? 'bg-primary-50/50' : ''}`}
+                          >
                             <p className="text-sm text-gray-700">{n.message}</p>
                             <p className="text-xs text-gray-400 mt-1">{new Date(n.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}</p>
                           </div>

@@ -22,7 +22,7 @@ const FloatingSupportButton = () => {
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   const chatEndRef = useRef(null);
 
   useEffect(() => {
@@ -132,7 +132,7 @@ const FloatingSupportButton = () => {
 
   return (
     <div className="fixed bottom-22 md:bottom-6 right-6 z-[999] flex flex-col items-end gap-3 font-sans select-none">
-      
+
       {/* Interactive AI Chat Window */}
       {open && (
         <div className="animate-slide-up bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden w-80 sm:w-96 flex flex-col h-[480px]">
@@ -151,7 +151,7 @@ const FloatingSupportButton = () => {
               </div>
             </div>
             {chatMode && (
-              <button 
+              <button
                 onClick={() => setChatMode(false)}
                 className="text-white/60 hover:text-white text-xs font-bold border border-white/20 rounded-xl px-2 py-1 transition-all"
               >
@@ -181,7 +181,7 @@ const FloatingSupportButton = () => {
 
                 <div className="space-y-2">
                   <p className="text-[10px] uppercase font-bold text-gray-400 dark:text-gray-500 tracking-wider">Quick Actions</p>
-                  
+
                   <button
                     onClick={handleChatWithAdmin}
                     disabled={loading}
@@ -225,17 +225,16 @@ const FloatingSupportButton = () => {
               {/* Message Streams */}
               <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {messages.map((msg, index) => (
-                  <div 
+                  <div
                     key={index}
                     className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
                   >
-                    <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${
-                      msg.sender === 'user'
+                    <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${msg.sender === 'user'
                         ? 'bg-indigo-600 text-white rounded-tr-none'
                         : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-700 rounded-tl-none'
-                    }`}>
+                      }`}>
                       <p className="text-xs leading-relaxed font-semibold">{msg.text}</p>
-                      
+
                       {msg.action && (
                         <button
                           onClick={msg.action.onClick}
@@ -244,10 +243,9 @@ const FloatingSupportButton = () => {
                           {msg.action.label}
                         </button>
                       )}
-                      
-                      <span className={`text-[8px] mt-1 block text-right ${
-                        msg.sender === 'user' ? 'text-white/70' : 'text-gray-400 dark:text-gray-500'
-                      }`}>
+
+                      <span className={`text-[8px] mt-1 block text-right ${msg.sender === 'user' ? 'text-white/70' : 'text-gray-400 dark:text-gray-500'
+                        }`}>
                         {msg.time}
                       </span>
                     </div>
@@ -304,15 +302,14 @@ const FloatingSupportButton = () => {
           )}
         </div>
       )}
- 
+
       {/* Main Floating Action Button (FAB) */}
       <button
         onClick={() => setOpen(!open)}
-        className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 relative ${
-          open
+        className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 relative ${open
             ? 'bg-gray-800 hover:bg-gray-900 rotate-90'
             : 'bg-gradient-to-br from-indigo-500 to-primary-600 hover:from-indigo-600 hover:to-primary-700'
-        }`}
+          }`}
         aria-label="Support AI Bot"
       >
         {open ? (
@@ -320,7 +317,7 @@ const FloatingSupportButton = () => {
         ) : (
           <MessageCircle size={22} className="text-white" />
         )}
-        
+
         {!open && (
           <>
             <span className="absolute w-14 h-14 rounded-full bg-indigo-500 opacity-30 animate-ping" />

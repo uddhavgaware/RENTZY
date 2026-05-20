@@ -35,6 +35,14 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      import('../utils/pushNotification').then(({ setupPushNotifications }) => {
+        setupPushNotifications();
+      }).catch(err => console.error('Failed to import push notifications', err));
+    }
+  }, [user]);
+
   const fetchProfileAfterLogin = async (token) => {
     localStorage.setItem('token', token);
     const res = await api.get('/users/me');
