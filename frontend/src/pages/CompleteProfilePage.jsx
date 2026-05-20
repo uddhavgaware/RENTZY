@@ -247,6 +247,8 @@ const CompleteProfilePage = () => {
                     <option value="Other">Other</option>
                   </select>
                 </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700">City *</label>
                 <div className="mt-1">
@@ -254,8 +256,6 @@ const CompleteProfilePage = () => {
                     className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-primary-500 focus:border-primary-500" placeholder="e.g. Pune, Mumbai, Thane" />
                 </div>
               </div>
-
-            </div>
 
             {formData.role === 'TENANT' && (
               <div>
