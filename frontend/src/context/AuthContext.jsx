@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }) => {
             name: res.data.name,
             role: res.data.role,
             profileCompleted: res.data.profileCompleted,
+            profilePhoto: res.data.profilePhoto,
           });
         })
         .catch(e => {
@@ -42,6 +43,7 @@ export const AuthProvider = ({ children }) => {
       name: res.data.name,
       role: res.data.role,
       profileCompleted: res.data.profileCompleted,
+      profilePhoto: res.data.profilePhoto,
     });
   };
 
@@ -54,6 +56,7 @@ export const AuthProvider = ({ children }) => {
         name: res.data.name,
         role: res.data.role,
         profileCompleted: res.data.profileCompleted,
+        profilePhoto: res.data.profilePhoto,
       });
     } catch (e) {
       console.error('Failed to refresh user profile', e);

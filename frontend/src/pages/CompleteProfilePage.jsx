@@ -262,6 +262,8 @@ const CompleteProfilePage = () => {
                     <label className="block text-xs font-medium text-gray-700">Education Level</label>
                     <select name="educationLevel" value={formData.educationLevel} onChange={handleChange}
                       className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500">
+                      <option value="11th">11th</option>
+                      <option value="12th">12th</option>
                       <option value="UG">Undergraduate (UG)</option>
                       <option value="PG">Postgraduate (PG)</option>
                       <option value="Diploma">Diploma</option>

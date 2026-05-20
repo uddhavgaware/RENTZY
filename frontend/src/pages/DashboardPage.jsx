@@ -413,17 +413,17 @@ const DashboardPage = () => {
                 </div>
                 {profile ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {editingProfile && (
-                      <div className="md:col-span-2 mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
-                        <div className="flex items-center gap-4">
-                          {profileForm.profilePhoto ? (
-                            <img src={profileForm.profilePhoto} alt="Profile" className="w-16 h-16 rounded-full object-cover border-2 border-primary-200 shadow-sm" />
-                          ) : (
-                            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
-                              <User size={24} />
-                            </div>
-                          )}
+                    <div className="md:col-span-2 mb-4">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Profile Photo</label>
+                      <div className="flex items-center gap-4">
+                        {profileForm.profilePhoto ? (
+                          <img src={profileForm.profilePhoto} alt="Profile" className="w-16 h-16 rounded-full object-cover border-2 border-primary-200 shadow-sm" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+                            <User size={24} />
+                          </div>
+                        )}
+                        {editingProfile && (
                           <div>
                             <label className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 cursor-pointer shadow-sm transition-colors">
                               {savingProfile ? 'Uploading...' : 'Upload Photo'}
@@ -431,9 +431,9 @@ const DashboardPage = () => {
                             </label>
                             <p className="text-xs text-gray-500 mt-1">Recommended size: 200x200px, Max 2MB.</p>
                           </div>
-                        </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                       {editingProfile ? (
