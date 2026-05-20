@@ -8,16 +8,16 @@ import ImageCropperModal from '../components/ImageCropperModal';
 const CompleteProfilePage = () => {
   const { user, refreshUser } = useAuth();
   const navigate = useNavigate();
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
   const [confirmPhone, setConfirmPhone] = useState('');
-  
+
   // Crop state
   const [showCropper, setShowCropper] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     name: user?.name?.includes('User') ? '' : (user?.name || ''),
     email: user?.email || '',
@@ -85,7 +85,7 @@ const CompleteProfilePage = () => {
       setLoading(false);
       return;
     }
-    
+
     try {
       const res = await api.put('/users/me', formData);
       if (res.data.token) {
@@ -119,9 +119,9 @@ const CompleteProfilePage = () => {
               {error}
             </div>
           )}
-          
+
           <form className="space-y-6" onSubmit={handleSubmit}>
-            
+
             {/* Profile Photo Upload */}
             <div className="flex flex-col items-center justify-center mb-6">
               <div className="relative w-24 h-24 mb-3">
@@ -189,36 +189,33 @@ const CompleteProfilePage = () => {
                 <div className="grid grid-cols-3 gap-4">
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, role: 'TENANT'})}
-                    className={`p-4 rounded-xl border-2 text-center transition-all ${
-                      formData.role === 'TENANT' 
-                        ? 'border-primary-600 bg-primary-50 text-primary-700' 
+                    onClick={() => setFormData({ ...formData, role: 'TENANT' })}
+                    className={`p-4 rounded-xl border-2 text-center transition-all ${formData.role === 'TENANT'
+                        ? 'border-primary-600 bg-primary-50 text-primary-700'
                         : 'border-gray-200 hover:border-primary-200'
-                    }`}
+                      }`}
                   >
                     <span className="block font-bold">Tenant</span>
                     <span className="text-xs text-gray-500">Looking for a place</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, role: 'OWNER'})}
-                    className={`p-4 rounded-xl border-2 text-center transition-all ${
-                      formData.role === 'OWNER' 
-                        ? 'border-primary-600 bg-primary-50 text-primary-700' 
+                    onClick={() => setFormData({ ...formData, role: 'OWNER' })}
+                    className={`p-4 rounded-xl border-2 text-center transition-all ${formData.role === 'OWNER'
+                        ? 'border-primary-600 bg-primary-50 text-primary-700'
                         : 'border-gray-200 hover:border-primary-200'
-                    }`}
+                      }`}
                   >
                     <span className="block font-bold">Owner</span>
                     <span className="text-xs text-gray-500">Listing a property</span>
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFormData({...formData, role: 'MOVER'})}
-                    className={`p-4 rounded-xl border-2 text-center transition-all ${
-                      formData.role === 'MOVER' 
-                        ? 'border-primary-600 bg-primary-50 text-primary-700' 
+                    onClick={() => setFormData({ ...formData, role: 'MOVER' })}
+                    className={`p-4 rounded-xl border-2 text-center transition-all ${formData.role === 'MOVER'
+                        ? 'border-primary-600 bg-primary-50 text-primary-700'
                         : 'border-gray-200 hover:border-primary-200'
-                    }`}
+                      }`}
                   >
                     <span className="block font-bold">Mover</span>
                     <span className="text-xs text-gray-500">Service Provider</span>
@@ -279,7 +276,7 @@ const CompleteProfilePage = () => {
 
             {formData.role === 'TENANT' && formData.occupation === 'Student' && (
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><BookOpen size={16}/> Student Details</h4>
+                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><BookOpen size={16} /> Student Details</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700">Education Level</label>
@@ -292,17 +289,20 @@ const CompleteProfilePage = () => {
                       <option value="Diploma">Diploma</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium text-gray-700">Current Year</label>
-                    <select name="currentYear" value={formData.currentYear} onChange={handleChange}
-                      className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500">
-                      <option value="1st Year">1st Year</option>
-                      <option value="2nd Year">2nd Year</option>
-                      <option value="3rd Year">3rd Year</option>
-                      <option value="4th Year">4th Year</option>
-                      <option value="5th Year">5th Year</option>
-                    </select>
-                  </div>
+                  {formData.educationLevel !== '11th' && formData.educationLevel !== '12th' && (
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700">Current Year</label>
+                      <select name="currentYear" value={formData.currentYear} onChange={handleChange}
+                        className="mt-1 w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-primary-500 focus:border-primary-500">
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        {(formData.educationLevel === 'UG' || formData.educationLevel === 'PG') && (
+                          <option value="4th Year">4th Year</option>
+                        )}
+                      </select>
+                    </div>
+                  )}
                   <div className="md:col-span-2">
                     <label className="block text-xs font-medium text-gray-700">College Name</label>
                     <input type="text" name="collegeName" value={formData.collegeName} onChange={handleChange} placeholder="e.g. Pune University"
@@ -319,7 +319,7 @@ const CompleteProfilePage = () => {
 
             {formData.role === 'TENANT' && formData.occupation === 'Working Professional' && (
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16}/> Professional Details</h4>
+                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16} /> Professional Details</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-medium text-gray-700">Company Name *</label>
@@ -337,7 +337,7 @@ const CompleteProfilePage = () => {
 
             {formData.role === 'TENANT' && formData.occupation === 'Business' && (
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16}/> Business Details</h4>
+                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16} /> Business Details</h4>
                 <div className="grid grid-cols-1 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-gray-700">Business Description / Domain *</label>
@@ -350,7 +350,7 @@ const CompleteProfilePage = () => {
 
             {formData.role === 'MOVER' && (
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16}/> Vendor Details</h4>
+                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16} /> Vendor Details</h4>
                 <div>
                   <label className="block text-xs font-medium text-gray-700">Service City *</label>
                   <input type="text" name="serviceCity" value={formData.serviceCity} onChange={handleChange} placeholder="e.g. Mumbai, Bangalore"
