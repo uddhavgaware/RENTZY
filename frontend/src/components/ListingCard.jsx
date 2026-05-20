@@ -4,6 +4,13 @@ import { MapPin, Star, Heart, BadgeCheck, Wifi, Car, Dumbbell, Tv } from 'lucide
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 
+const maskName = (name) => {
+  if (!name) return 'Anonymous';
+  const trimmed = name.trim();
+  if (trimmed.length === 0) return 'Anonymous';
+  return trimmed.charAt(0).toUpperCase();
+};
+
 const slugify = (text) => {
   if (!text) return '';
   return text
@@ -179,7 +186,7 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
                 )}
               </div>
               <span className="text-xs font-semibold text-gray-700 hover:text-primary-600 truncate max-w-[100px]">
-                {listing.owner.name}
+                {maskName(listing.owner.name)}
               </span>
             </div>
           ) : (

@@ -321,8 +321,39 @@ body {
 }
 
 /* ═══════════════════════════════════════════════
-   LEAFLET MAP STYLES
+   CROSS-BROWSER GLASSMORPHISM FALLBACKS
+   For Oppo ColorOS / older Chromium that lacks
+   backdrop-filter support
 ═══════════════════════════════════════════════ */
+@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  /* Light mode fallbacks */
+  .glass         { background: rgba(255, 255, 255, 0.97) !important; }
+  .glass-premium { background: rgba(255, 255, 255, 0.97) !important; }
+  .glass-dark    { background: rgba(15, 23, 42, 0.97)   !important; }
+  .glass-card    { background: rgba(255, 255, 255, 0.97) !important; }
+
+  /* Mobile nav always gets an opaque bg */
+  nav .backdrop-blur-md,
+  nav [class*="backdrop-blur"] {
+    background-color: #ffffff !important;
+  }
+
+  html.dark .glass         { background: rgba(15, 23, 42, 0.97)   !important; }
+  html.dark .glass-premium { background: rgba(15, 23, 42, 0.97)   !important; }
+  html.dark .glass-card    { background: rgba(15, 23, 42, 0.97)   !important; }
+
+  html.dark nav .backdrop-blur-md,
+  html.dark nav [class*="backdrop-blur"] {
+    background-color: #0f172a !important;
+  }
+}
+
+/* Oppo / Older Android: force solid hero overlay */
+.hero-overlay {
+  background-color: rgba(0, 0, 0, 0.55);
+  background-image: linear-gradient(to top, rgba(2,6,23,0.95) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.5) 100%);
+}
+
 .leaflet-container { font-family: 'Inter', sans-serif; z-index: 0; }
 .leaflet-popup-content-wrapper {
   border-radius: 1rem !important;

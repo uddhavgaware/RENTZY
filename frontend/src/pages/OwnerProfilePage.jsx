@@ -5,6 +5,13 @@ import ListingCard from '../components/ListingCard';
 import { BadgeCheck, Calendar, MapPin, Mail, MessageCircle, ArrowLeft } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+const maskName = (name) => {
+  if (!name) return 'Anonymous';
+  const trimmed = name.trim();
+  if (trimmed.length === 0) return 'Anonymous';
+  return trimmed.charAt(0).toUpperCase();
+};
+
 const OwnerProfilePage = () => {
   const { id } = useParams();
   const navigate = useNavigate();

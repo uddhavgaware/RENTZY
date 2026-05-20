@@ -5,6 +5,13 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
 
+const maskName = (name) => {
+  if (!name) return 'Anonymous';
+  const trimmed = name.trim();
+  if (trimmed.length === 0) return 'Anonymous';
+  return trimmed.charAt(0).toUpperCase();
+};
+
 const ChatPage = () => {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
@@ -86,6 +93,30 @@ const ChatPage = () => {
     return () => clearInterval(intervalId);
   }, [activeChat]);
 
+  const getActiveStatus = () => {
+    if (!messages || messages.length === 0) return 'Offline';
+    const lastMsg = messages[messages.length - 1];
+    const timestamp = lastMsg?.timestamp;
+    if (!timestamp) return 'Offline';
+
+    const diffMs = Date.now() - new Date(timestamp).getTime();
+    const diffMins = Math.floor(diffMs / (1000 * 60));
+    
+    if (diffMins < 5) {
+      return 'Active now';
+    } else if (diffMins < 60) {
+      return `Active ${diffMins}m ago`;
+    } else {
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) {
+        return `Active ${diffHours}h ago`;
+      } else {
+        const diffDays = Math.floor(diffHours / 24);
+        return `Active ${diffDays}d ago`;
+      }
+    }
+  };
+
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
@@ -144,7 +175,7 @@ const ChatPage = () => {
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-baseline mb-1">
                     <h3 className={`font-semibold truncate ${activeChat === contact.id ? 'text-primary-900' : 'text-gray-900'}`}>
-                      {contact.name} <span className="text-gray-400 text-xs font-normal ml-1">#{contact.id}</span>
+                      {maskName(contact.name)} <span className="text-gray-400 text-xs font-normal ml-1">#{contact.id}</span>
                     </h3>
                   </div>
                   <p className="text-xs text-primary-600 mb-1">{contact.role}</p>
@@ -181,10 +212,12 @@ const ChatPage = () => {
                 </div>
                 <div>
                   <h3 className="font-bold text-gray-900 text-lg">
-                    {conversations.find(c => c.id === activeChat)?.name || 'User'} 
+                    {maskName(conversations.find(c => c.id === activeChat)?.name) || 'User'} 
                     <span className="text-gray-400 text-sm font-normal ml-1">#{activeChat}</span>
                   </h3>
-                  <p className="text-xs text-green-500 font-medium">Active now</p>
+                  <p className={`text-xs font-semibold ${getActiveStatus() === 'Active now' ? 'text-emerald-500' : 'text-gray-400'}`}>
+                    {getActiveStatus()}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center space-x-4 text-gray-400">
@@ -198,7 +231,7 @@ const ChatPage = () => {
               {conversations.find(c => c.id === activeChat)?.phone && (
                 <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 mb-6 text-center shadow-sm">
                   <p className="text-sm text-blue-800">
-                    <span className="font-medium">Direct Contact:</span> You can call {conversations.find(c => c.id === activeChat).name} at{' '}
+                    <span className="font-medium">Direct Contact:</span> You can call {maskName(conversations.find(c => c.id === activeChat).name)} at{' '}
                     <a href={`tel:${conversations.find(c => c.id === activeChat).phone}`} className="font-bold text-primary-600 hover:underline">
                       {conversations.find(c => c.id === activeChat).phone}
                     </a>

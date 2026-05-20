@@ -33,7 +33,7 @@ const DashboardPage = () => {
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [loadingListings, setLoadingListings] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
-  const [profileForm, setProfileForm] = useState({ name: '', phone: '', role: '', profilePhoto: '' });
+  const [profileForm, setProfileForm] = useState({ name: '', phone: '', role: '', profilePhoto: '', city: '' });
   const [savingProfile, setSavingProfile] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
   const [editForm, setEditForm] = useState({});
@@ -97,7 +97,7 @@ const DashboardPage = () => {
       api.get('/listings/my').then(r => setMyListings(r.data)).catch(() => {}).finally(() => setLoadingListings(false));
     }
     if (activeTab === 'profile') {
-      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role, profilePhoto: r.data.profilePhoto || '' }); }).catch(() => {});
+      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role, profilePhoto: r.data.profilePhoto || '', city: r.data.city || '' }); }).catch(() => {});
     }
     if (activeTab === 'notifications') {
       api.get('/notifications').then(r => setNotifications(r.data)).catch(() => {});
@@ -452,6 +452,14 @@ const DashboardPage = () => {
                         <input type="tel" value={profileForm.phone} onChange={e => setProfileForm(p => ({ ...p, phone: e.target.value }))} placeholder="+91 9876543210" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
                       ) : (
                         <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3">{profile.phone || 'Not set'}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                      {editingProfile ? (
+                        <input type="text" value={profileForm.city} onChange={e => setProfileForm(p => ({ ...p, city: e.target.value }))} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" placeholder="e.g. Pune" />
+                      ) : (
+                        <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3">{profile.city || 'Not set'}</p>
                       )}
                     </div>
                     <div>

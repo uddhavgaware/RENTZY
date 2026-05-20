@@ -51,8 +51,14 @@ const PremiumHero = ({
           >
             <source src={videoSrc} type="video/mp4" />
           </video>
-          {/* Dark Overlay */}
-          <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-gray-950 via-black/20 to-black/60 z-10" />
+          {/* Dark Overlay — inline style fallback for Oppo/older Chromium */}
+          <div
+            className="absolute inset-0 hero-overlay z-10"
+            style={{
+              backgroundColor: 'rgba(0,0,0,0.55)',
+              backgroundImage: 'linear-gradient(to top, rgba(2,6,23,0.95) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.5) 100%)'
+            }}
+          />
         </>
       ) : (
         <>
@@ -93,17 +99,28 @@ const PremiumHero = ({
             {children}
           </div>
         ) : (
-          /* Search box form */
-          <form onSubmit={handleSearch} className="max-w-3xl mx-auto glass-premium dark:bg-gray-900/50 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl border border-white/60 dark:border-white/10">
+          /* Search box form — explicit dark bg fallback for Oppo */
+          <form
+            onSubmit={handleSearch}
+            className="max-w-3xl mx-auto rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl border border-white/20"
+            style={{
+              background: 'rgba(15, 23, 42, 0.85)',
+              backdropFilter: 'blur(28px)',
+              WebkitBackdropFilter: 'blur(28px)',
+            }}
+          >
             {/* Location input */}
-            <div className="flex-1 flex items-center bg-white/95 dark:bg-gray-800/90 rounded-xl sm:rounded-2xl px-4 py-3.5 gap-3 border border-white/50 dark:border-gray-700 focus-within:ring-2 focus-within:ring-primary-400 transition-all">
+            <div
+              className="flex-1 flex items-center rounded-xl sm:rounded-2xl px-4 py-3.5 gap-3 focus-within:ring-2 focus-within:ring-primary-400 transition-all"
+              style={{ background: 'rgba(30, 41, 59, 0.95)', border: '1px solid rgba(255,255,255,0.12)' }}
+            >
               <MapPin size={20} className={cn("flex-shrink-0", highlightColorClass)} />
               <input
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter city or locality..."
-                className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white placeholder-gray-400 font-semibold text-base sm:text-lg"
+                className="bg-transparent border-none outline-none w-full text-white placeholder-gray-400 font-semibold text-base sm:text-lg"
               />
             </div>
 

@@ -8,7 +8,8 @@ export const ThemeProvider = ({ children }) => {
     if (savedTheme) {
       return savedTheme === 'dark';
     }
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    // Default to dark mode for best visual experience on all devices
+    return true;
   });
 
   useEffect(() => {

@@ -96,9 +96,13 @@ const Navbar = () => {
     window.location.href = '/';
   };
 
-  const navClass = isCinematicPage 
-    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-sm border-b border-white/20 dark:border-white/5 py-1" : "bg-transparent py-4")
-    : "sticky top-0 z-[100] w-full bg-white dark:bg-slate-900 shadow-sm border-b border-gray-100 dark:border-white/5";
+  const navScrolledStyle = isScrolled
+    ? { backgroundColor: isDarkMode ? 'rgba(15,23,42,0.97)' : 'rgba(255,255,255,0.97)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)' }
+    : {};
+
+  const navClass = isCinematicPage
+    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "shadow-sm border-b border-white/10 py-1" : "bg-transparent py-4")
+    : cn("sticky top-0 z-[100] w-full shadow-sm border-b", isDarkMode ? "border-white/5" : "border-gray-100");
 
   const textColorClass = isDarkHero && !isScrolled ? "text-white" : "text-gray-900";
   const linkColorClass = isDarkHero && !isScrolled ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-primary-700 font-semibold";
@@ -132,7 +136,12 @@ const Navbar = () => {
           </div>
         </div>
       )}
-    <nav className={navClass}>
+    <nav
+      className={navClass}
+      style={{
+        ...(isCinematicPage ? navScrolledStyle : { backgroundColor: isDarkMode ? '#0f172a' : '#ffffff' }),
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -224,7 +233,14 @@ const Navbar = () => {
       </div>
 
       {/* Premium Mobile Horizontal Swipe Navigation */}
-      <div className="md:hidden border-t border-gray-100 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md overflow-x-auto flex items-center gap-3 px-4 py-2.5 hide-scrollbar scroll-smooth">
+      <div
+        className="md:hidden border-t border-white/10 dark:border-white/5 overflow-x-auto flex items-center gap-3 px-4 py-2.5 hide-scrollbar scroll-smooth"
+        style={{
+          backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.98)' : 'rgba(255, 255, 255, 0.98)',
+          backdropFilter: 'blur(16px)',
+          WebkitBackdropFilter: 'blur(16px)',
+        }}
+      >
         {mobileSwipeLinks.map((link) => {
           const isActive = location.pathname === link.path;
           const Icon = link.icon;

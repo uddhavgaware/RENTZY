@@ -55,6 +55,13 @@ import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import PremiumHero from '../components/PremiumHero';
 
+const maskName = (name) => {
+  if (!name) return 'Anonymous';
+  const trimmed = name.trim();
+  if (trimmed.length === 0) return 'Anonymous';
+  return trimmed.charAt(0).toUpperCase();
+};
+
 const RoommatesPage = () => {
   const { isAuthenticated, user } = useAuth();
   const [roommates, setRoommates] = useState([]);
@@ -479,7 +486,7 @@ const RoommatesPage = () => {
                         <Popup className="roommate-popup">
                            <div className="p-2 min-w-[200px]">
                               <div className="flex items-center justify-between mb-2">
-                                <div className="font-bold text-lg text-gray-900">{roommate.user?.name || 'User'}</div>
+                                <div className="font-bold text-lg text-gray-900">{maskName(roommate.user?.name) || 'User'}</div>
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 border border-gray-200 text-gray-700">
                                   {roommate.propertyType || 'Room'}
                                 </span>
@@ -538,7 +545,7 @@ const RoommatesPage = () => {
                         </div>
                         <div>
                           <div className="flex items-center gap-1.5">
-                            <h3 className="text-xl font-bold text-gray-900">{roommate.user?.name || 'User'}</h3>
+                            <h3 className="text-xl font-bold text-gray-900">{maskName(roommate.user?.name) || 'User'}</h3>
                             {roommate.user?.kycStatus === 'APPROVED' && (
                               <div className="group relative flex items-center">
                                 <BadgeCheck size={20} className="text-blue-500 fill-blue-50" />
@@ -670,7 +677,7 @@ const RoommatesPage = () => {
 
                     {!isOwner && (
                       <button 
-                        onClick={() => window.location.href = `/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${roommate.user?.name || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`}
+                        onClick={() => window.location.href = `/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`}
                         className="w-full bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors mt-4"
                       >
                         <MessageCircle size={18} className="mr-2" />

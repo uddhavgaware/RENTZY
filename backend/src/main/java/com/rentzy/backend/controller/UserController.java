@@ -42,6 +42,8 @@ public class UserController {
                 Map.entry("companyName", user.getCompanyName() != null ? user.getCompanyName() : ""),
                 Map.entry("jobRole", user.getJobRole() != null ? user.getJobRole() : ""),
                 Map.entry("businessDescription", user.getBusinessDescription() != null ? user.getBusinessDescription() : ""),
+                Map.entry("serviceCity", user.getServiceCity() != null ? user.getServiceCity() : ""),
+                Map.entry("city", user.getCity() != null ? user.getCity() : ""),
                 Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
                 Map.entry("kycStatus", user.getKycStatus()),
                 Map.entry("kycDocumentUrl", user.getKycDocumentUrl() != null ? user.getKycDocumentUrl() : ""),
@@ -111,6 +113,8 @@ public class UserController {
         if (body.containsKey("companyName")) user.setCompanyName(body.get("companyName"));
         if (body.containsKey("jobRole")) user.setJobRole(body.get("jobRole"));
         if (body.containsKey("businessDescription")) user.setBusinessDescription(body.get("businessDescription"));
+        if (body.containsKey("serviceCity")) user.setServiceCity(body.get("serviceCity"));
+        if (body.containsKey("city")) user.setCity(body.get("city"));
 
         if (body.containsKey("role")) {
             try {
@@ -161,6 +165,8 @@ public class UserController {
                 Map.entry("companyName", user.getCompanyName() != null ? user.getCompanyName() : ""),
                 Map.entry("jobRole", user.getJobRole() != null ? user.getJobRole() : ""),
                 Map.entry("businessDescription", user.getBusinessDescription() != null ? user.getBusinessDescription() : ""),
+                Map.entry("serviceCity", user.getServiceCity() != null ? user.getServiceCity() : ""),
+                Map.entry("city", user.getCity() != null ? user.getCity() : ""),
                 Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
                 Map.entry("kycStatus", user.getKycStatus()),
                 Map.entry("kycDocumentUrl", user.getKycDocumentUrl() != null ? user.getKycDocumentUrl() : ""),

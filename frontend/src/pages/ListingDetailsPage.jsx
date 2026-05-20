@@ -46,6 +46,13 @@ const customMapPinIcon = divIcon({
   popupAnchor: [0, -32],
 });
 
+const maskName = (name) => {
+  if (!name) return 'Anonymous';
+  const trimmed = name.trim();
+  if (trimmed.length === 0) return 'Anonymous';
+  return trimmed.charAt(0).toUpperCase();
+};
+
 const ListingDetailsPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -289,12 +296,16 @@ const ListingDetailsPage = () => {
               {listing.owner && (
                 <div className="mt-8 pt-6 border-t border-gray-150 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-md">
-                      {listing.owner.name?.charAt(0) || 'O'}
-                    </div>
+                    {listing.owner.profilePhoto ? (
+                      <img src={listing.owner.profilePhoto} alt={listing.owner.name} className="w-14 h-14 rounded-full object-cover shadow-md border-2 border-white" />
+                    ) : (
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-indigo-600 text-white flex items-center justify-center font-bold text-2xl shadow-md">
+                        {listing.owner.name?.charAt(0) || 'O'}
+                      </div>
+                    )}
                     <div>
                       <h3 className="font-bold text-gray-900 flex items-center gap-1">
-                        Hosted by {listing.owner.name}
+                        Hosted by {maskName(listing.owner.name)}
                         {listing.owner?.kycStatus === 'APPROVED' && (
                           <span className="flex items-center gap-1 text-green-600 text-xs font-semibold ml-2 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full"><BadgeCheck size={14} className="text-green-500 fill-green-100" /> Verified</span>
                         )}
@@ -463,7 +474,7 @@ const ListingDetailsPage = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <h4 className="font-semibold text-gray-900 text-sm">{review.user?.name || 'Anonymous'}</h4>
+                          <h4 className="font-semibold text-gray-900 text-sm">{maskName(review.user?.name) || 'Anonymous'}</h4>
                           <span className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         </div>
                         <div className="flex items-center gap-0.5 mb-2">

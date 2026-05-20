@@ -167,6 +167,9 @@ public class User implements UserDetails {
     private String serviceCity;
 
     @Column
+    private String city;
+
+    @Column
     private LocalDateTime createdAt;
 
     @PrePersist

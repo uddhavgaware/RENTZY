@@ -23,8 +23,14 @@ const CinematicHero = ({ videoSrc, title, subtitle, fallbackImg, children }) => 
         <source src={videoSrc} type="video/mp4" />
       </video>
 
-      {/* Cinematic Overlay (Dark Gradient) */}
-      <div className="absolute inset-0 bg-black/40 bg-gradient-to-t from-gray-950 via-black/30 to-black/60 z-10" />
+      {/* Cinematic Overlay (Dark Gradient) — uses hero-overlay for Oppo/older browser fallback */}
+      <div
+        className="absolute inset-0 hero-overlay z-10"
+        style={{
+          backgroundColor: 'rgba(0,0,0,0.55)',
+          backgroundImage: 'linear-gradient(to top, rgba(2,6,23,0.95) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.5) 100%)'
+        }}
+      />
 
       {/* Content */}
       <div className="relative z-20 w-full max-w-6xl mx-auto px-4 sm:px-6 flex flex-col items-center text-center mt-16 animate-slide-up">
