@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { User, Calendar, BookOpen, Briefcase, Camera, CheckCircle2 } from 'lucide-react';
+import ImageCropperModal from '../components/ImageCropperModal';
 
 const CompleteProfilePage = () => {
   const { user, refreshUser } = useAuth();
@@ -11,6 +12,10 @@ const CompleteProfilePage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
+  
+  // Crop state
+  const [showCropper, setShowCropper] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
   
   const [formData, setFormData] = useState({
     name: user?.name?.includes('User') ? '' : (user?.name || ''),
@@ -35,13 +40,24 @@ const CompleteProfilePage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleImageUpload = async (e) => {
+  const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    // Open cropper with object URL
+    const imageUrl = URL.createObjectURL(file);
+    setImageToCrop(imageUrl);
+    setShowCropper(true);
+    e.target.value = null; // reset input
+  };
+
+  const handleCropComplete = async (croppedBlob) => {
+    setShowCropper(false);
+    setImageToCrop(null);
     setUploadingImage(true);
+
     const formDataUpload = new FormData();
-    formDataUpload.append('files', file);
+    formDataUpload.append('files', croppedBlob, 'profile_cropped.jpg');
 
     try {
       const res = await api.post('/upload', formDataUpload, {
@@ -51,7 +67,7 @@ const CompleteProfilePage = () => {
         setFormData(prev => ({ ...prev, profilePhoto: res.data[0] }));
       }
     } catch (err) {
-      setError('Failed to upload image. Try again later.');
+      setError('Failed to upload cropped image. Try again later.');
     } finally {
       setUploadingImage(false);
     }
@@ -334,6 +350,17 @@ const CompleteProfilePage = () => {
           </form>
         </div>
       </div>
+      {/* Cropper Modal */}
+      {showCropper && imageToCrop && (
+        <ImageCropperModal
+          imageSrc={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onCancel={() => {
+            setShowCropper(false);
+            setImageToCrop(null);
+          }}
+        />
+      )}
     </div>
   );
 };

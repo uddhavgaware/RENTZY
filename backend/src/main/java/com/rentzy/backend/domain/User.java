@@ -55,7 +55,7 @@ public class User implements UserDetails {
     @Column
     private String occupation;
 
-    @Column
+    @Column(length = 1000)
     private String profilePhoto;
 
     @Column
@@ -82,7 +82,7 @@ public class User implements UserDetails {
     @Builder.Default
     private Boolean isVerified = false;
 
-    @Column
+    @Column(length = 1000)
     private String kycDocumentUrl;
 
     @Column
@@ -143,24 +143,24 @@ public class User implements UserDetails {
     @Column
     private String educationLevel;
     
-    @Column
+    @Column(length = 1000)
     private String collegeName;
     
-    @Column
+    @Column(length = 1000)
     private String courseName;
     
     @Column
     private String currentYear;
 
     // Professional fields
-    @Column
+    @Column(length = 1000)
     private String companyName;
 
-    @Column
+    @Column(length = 1000)
     private String jobRole;
 
     // Business fields
-    @Column
+    @Column(length = 2000)
     private String businessDescription;
 
     @Column

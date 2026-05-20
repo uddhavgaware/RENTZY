@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import api from '../services/api';
 import Modal from '../components/Modal';
+import ImageCropperModal from '../components/ImageCropperModal';
 
 const slugify = (text) => {
   if (!text) return '';
@@ -46,6 +47,10 @@ const DashboardPage = () => {
     smsAlerts: false,
     darkMode: localStorage.getItem('theme') === 'dark'
   });
+  
+  // Crop state
+  const [showCropper, setShowCropper] = useState(false);
+  const [imageToCrop, setImageToCrop] = useState(null);
 
   useEffect(() => {
     if (userSettings.darkMode) {
@@ -153,17 +158,29 @@ const DashboardPage = () => {
     finally { setSavingProfile(false); }
   };
 
-  const handleProfilePhotoUpload = async (e) => {
+  const handleProfilePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
     if (file.size > 2 * 1024 * 1024) {
       showModal({ type: 'alert', title: 'Error', message: 'Profile photo must be less than 2MB', onConfirm: closeModal });
       return;
     }
+    
+    // Open cropper with object URL
+    const imageUrl = URL.createObjectURL(file);
+    setImageToCrop(imageUrl);
+    setShowCropper(true);
+    e.target.value = null; // reset input
+  };
+
+  const handleCropComplete = async (croppedBlob) => {
+    setShowCropper(false);
+    setImageToCrop(null);
     setSavingProfile(true);
+
     try {
       const uploadData = new FormData();
-      uploadData.append('files', file);
+      uploadData.append('files', croppedBlob, 'profile_cropped.jpg');
       const res = await api.post('/upload', uploadData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
@@ -171,7 +188,7 @@ const DashboardPage = () => {
         setProfileForm(prev => ({ ...prev, profilePhoto: res.data[0] }));
       }
     } catch (err) {
-      showModal({ type: 'alert', title: 'Upload Failed', message: 'Failed to upload profile photo.', onConfirm: closeModal });
+      showModal({ type: 'alert', title: 'Upload Failed', message: 'Failed to upload cropped profile photo.', onConfirm: closeModal });
     } finally {
       setSavingProfile(false);
     }
@@ -948,6 +965,19 @@ const DashboardPage = () => {
         </div>
       </div>
     </div>
+    
+    {/* Cropper Modal */}
+    {showCropper && imageToCrop && (
+      <ImageCropperModal
+        imageSrc={imageToCrop}
+        onCropComplete={handleCropComplete}
+        onCancel={() => {
+          setShowCropper(false);
+          setImageToCrop(null);
+        }}
+      />
+    )}
+
     <Modal {...modalConfig} onCancel={closeModal} />
     </>
   );

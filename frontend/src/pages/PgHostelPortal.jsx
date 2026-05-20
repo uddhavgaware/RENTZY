@@ -29,10 +29,10 @@ const PgHostelPortal = () => {
         ]}
       />
       
-      <section className="py-20 px-4 bg-white text-center">
+      <section className="py-20 px-4 bg-white dark:bg-slate-900 text-center">
         <Users size={48} className="mx-auto text-purple-500 mb-6" />
-        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 mb-4">Start your student journey right.</h2>
-        <p className="text-gray-500 text-lg max-w-2xl mx-auto mb-8">
+        <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-4">Start your student journey right.</h2>
+        <p className="text-gray-500 dark:text-gray-400 text-lg max-w-2xl mx-auto mb-8">
           Find the perfect PG to study, relax, and make lifelong friends.
         </p>
         <button onClick={handleBrowseAll} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg rounded-full font-bold transition-all hover:scale-105 active:scale-95 shadow-lg shadow-purple-500/20">

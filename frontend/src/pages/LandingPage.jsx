@@ -58,7 +58,7 @@ const CATEGORIES = [
     to: '/warehouses',
     label: 'Warehouses',
     tag: 'Storage',
-    img: 'https://images.unsplash.com/photo-1586528116311-ad8ed7c80a30?auto=format&fit=crop&w=800&q=80',
+    img: 'https://images.unsplash.com/photo-1587293852726-59cb2f794fee?auto=format&fit=crop&w=800&q=80',
     color: 'from-yellow-600/80 to-orange-900/90',
     emoji: '🏭',
   },
@@ -207,11 +207,11 @@ const LandingPage = () => {
       {/* ═══════════════════════════════════════
           CATEGORIES
       ═══════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-white">
+      <section className="py-20 sm:py-28 bg-white dark:bg-gray-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div className="section-badge mb-4">✦ Explore</div>
-            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
               Everything You Need,<br className="hidden sm:block" /> In One Place
             </h2>
             <p className="mt-4 text-gray-500 text-base sm:text-lg max-w-xl mx-auto">
@@ -392,13 +392,13 @@ const LandingPage = () => {
 
                 {/* Floating message overlay */}
                 <div className="absolute bottom-6 left-6 right-6 flex gap-4 pointer-events-none z-20">
-                  <div className="bg-white/95 backdrop-blur-md rounded-2xl p-3.5 shadow-xl flex items-center gap-3 animate-bounce-slow border border-gray-100">
-                    <div className="w-9 h-9 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-500">
+                  <div className="bg-white/95 dark:bg-slate-900/95 backdrop-blur-md rounded-2xl p-3.5 shadow-xl flex items-center gap-3 animate-bounce-slow border border-gray-100 dark:border-white/10">
+                    <div className="w-9 h-9 rounded-full bg-emerald-50 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-500">
                       <MessageSquare size={16} className="fill-current" />
                     </div>
                     <div>
-                      <div className="text-xs font-extrabold text-gray-900">Direct Message</div>
-                      <div className="text-[10px] font-semibold text-gray-500">"Hey! I like your profile, let's connect?"</div>
+                      <div className="text-xs font-extrabold text-gray-900 dark:text-white">Direct Message</div>
+                      <div className="text-[10px] font-semibold text-gray-500 dark:text-gray-400">"Hey! I like your profile, let's connect?"</div>
                     </div>
                   </div>
                 </div>
@@ -414,11 +414,11 @@ const LandingPage = () => {
       {/* ═══════════════════════════════════════
           WHY RentXY (FEATURES)
       ═══════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-white">
+      <section className="py-20 sm:py-28 bg-white dark:bg-gray-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
             <div className="section-badge mb-4">✦ Why Us</div>
-            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 tracking-tight">
+            <h2 className="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white tracking-tight">
               Why Choose <span className="gradient-text">RentXY?</span>
             </h2>
           </div>
@@ -427,14 +427,14 @@ const LandingPage = () => {
             {FEATURES.map(({ icon: Icon, title, desc }, i) => (
               <div
                 key={title}
-                className="flex gap-4 p-5 sm:p-6 rounded-2xl border border-gray-100 hover:border-primary-200 hover:bg-primary-50/30 transition-all duration-300 group cursor-default"
+                className="flex gap-4 p-5 sm:p-6 rounded-2xl border border-gray-100 dark:border-white/5 bg-white dark:bg-slate-900 hover:border-primary-200 dark:hover:border-primary-500/50 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-all duration-300 group cursor-default shadow-sm"
               >
-                <div className="w-11 h-11 rounded-xl bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 flex-shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300">
+                <div className="w-11 h-11 rounded-xl bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 flex items-center justify-center text-primary-600 dark:text-primary-400 flex-shrink-0 group-hover:bg-primary-600 group-hover:text-white transition-all duration-300">
                   <Icon size={20} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900 mb-1">{title}</h3>
-                  <p className="text-gray-500 text-sm leading-relaxed">{desc}</p>
+                  <h3 className="font-bold text-gray-900 dark:text-white mb-1">{title}</h3>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{desc}</p>
                 </div>
               </div>
             ))}
@@ -489,7 +489,7 @@ const LandingPage = () => {
       {/* ═══════════════════════════════════════
           OWNER CTA
       ═══════════════════════════════════════ */}
-      <section className="py-20 sm:py-28 bg-white">
+      <section className="py-20 sm:py-28 bg-white dark:bg-gray-950">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary-600 via-primary-700 to-indigo-800 p-10 sm:p-16 text-center shadow-2xl shadow-primary-500/30">
             {/* Decorative blobs inside card */}
