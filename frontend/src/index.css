@@ -637,8 +637,8 @@ html.dark .text-amber-600 { color: #fcd34d !important; }
 html.dark .text-amber-900 { color: #fde68a !important; }
 html.dark .bg-amber-50 { background-color: rgba(245,158,11,0.08) !important; }
 html.dark .border-amber-100 { border-color: rgba(245,158,11,0.2) !important; }
-html.dark .bg-amber-50\\/40 { background-color: rgba(245,158,11,0.06) !important; }
-html.dark .border-amber-200\\/80 { border-color: rgba(245,158,11,0.25) !important; }
+html.dark [class*="bg-amber-50/40"] { background-color: rgba(245,158,11,0.06) !important; }
+html.dark [class*="border-amber-200/80"] { border-color: rgba(245,158,11,0.25) !important; }
 html.dark .text-orange-800 { color: #fdba74 !important; }
 html.dark .bg-orange-50 { background-color: rgba(249,115,22,0.08) !important; }
 html.dark .border-orange-200 { border-color: rgba(249,115,22,0.2) !important; }
