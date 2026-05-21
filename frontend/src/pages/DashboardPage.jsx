@@ -230,10 +230,12 @@ const DashboardPage = () => {
   const canvasRef = useRef(null);
   const streamRef = useRef(null); // Holds the MediaStream so we can attach it after video mounts
   const [faceDetected, setFaceDetected] = useState(false);
+  const [docDetected, setDocDetected] = useState(false);
   const animationFrameRef = useRef(null);
 
   // Attach stream to <video> element AFTER it mounts (when kycCameraActive becomes true)
   useEffect(() => {
+    let timerId;
     if (kycCameraActive && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
       videoRef.current.play().catch(() => {});
@@ -251,19 +253,23 @@ const DashboardPage = () => {
               const faces = await detector.detect(videoRef.current);
               setFaceDetected(faces.length > 0);
             } catch (e) {
-               if (!faceDetected) setTimeout(() => setFaceDetected(true), 2500);
+               if (!faceDetected) timerId = setTimeout(() => setFaceDetected(true), 2500);
             }
           } else {
-            if (!faceDetected) setTimeout(() => setFaceDetected(true), 2500);
+            if (!faceDetected) timerId = setTimeout(() => setFaceDetected(true), 2500);
           }
           animationFrameRef.current = requestAnimationFrame(scanFace);
         };
         scanFace();
+      } else if (kycCurrentCapture) {
+        setDocDetected(false);
+        timerId = setTimeout(() => setDocDetected(true), 2000);
       }
     }
     
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (timerId) clearTimeout(timerId);
     };
   }, [kycCameraActive, kycCurrentCapture]);
 
@@ -645,15 +651,25 @@ const DashboardPage = () => {
                             
                             {/* CAMERA VIEW (Shared) */}
                             {kycCameraActive && (
-                              <div className="relative rounded-xl overflow-hidden bg-black w-full max-w-[450px] aspect-square mx-auto flex items-center justify-center border-4 border-primary-500 shadow-2xl">
+                              <div className="relative rounded-xl overflow-hidden bg-black w-full max-w-[500px] aspect-[4/3] mx-auto flex items-center justify-center border-4 border-primary-500 shadow-2xl">
                                 <video ref={videoRef} className={`w-full h-full object-cover ${kycCurrentCapture === 'face' ? '-scale-x-100' : ''}`} autoPlay playsInline muted></video>
                                 
                                 {/* Overlay for Face */}
                                 {kycCurrentCapture === 'face' && (
                                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-                                    <div className={`w-56 h-72 border-4 ${faceDetected ? 'border-green-500' : 'border-red-500'} rounded-[50%] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] transition-colors duration-300`}></div>
+                                    <div className={`w-[45%] h-[65%] border-4 ${faceDetected ? 'border-green-500' : 'border-red-500'} rounded-[50%] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] transition-colors duration-300`}></div>
                                     <p className={`font-bold mt-4 drop-shadow-md px-4 py-1.5 rounded-full backdrop-blur-md text-xs sm:text-sm transition-colors duration-300 ${faceDetected ? 'bg-green-500/80 text-white' : 'bg-red-500/80 text-white'}`}>
                                       {faceDetected ? '✓ Face Detected! Ready to Capture' : 'Align your face inside the oval'}
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* Overlay for Document */}
+                                {kycCurrentCapture && kycCurrentCapture !== 'face' && (
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                                    <div className={`w-[80%] h-[60%] border-4 ${docDetected ? 'border-green-500' : 'border-red-500'} rounded-lg shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] transition-colors duration-300 border-dashed`}></div>
+                                    <p className={`font-bold mt-4 drop-shadow-md px-4 py-1.5 rounded-full backdrop-blur-md text-xs sm:text-sm transition-colors duration-300 ${docDetected ? 'bg-green-500/80 text-white' : 'bg-red-500/80 text-white'}`}>
+                                      {docDetected ? '✓ Document Aligned! Ready to Capture' : 'Align document inside the frame'}
                                     </p>
                                   </div>
                                 )}
