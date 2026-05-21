@@ -41,6 +41,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/**").permitAll()
                 // ── Public: Review reads ──
                 .requestMatchers(HttpMethod.GET, "/api/reviews", "/api/reviews/**").permitAll()
+                // ── Public: User Review reads ──
+                .requestMatchers(HttpMethod.GET, "/api/user-reviews", "/api/user-reviews/**").permitAll()
                 // ── Public: Roommate reads ──
                 .requestMatchers(HttpMethod.GET, "/api/roommates", "/api/roommates/**").permitAll()
                 // ── Public: User reads (owner profile, support button, user search) ──
