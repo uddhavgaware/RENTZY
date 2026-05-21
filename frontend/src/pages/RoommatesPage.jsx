@@ -77,6 +77,7 @@ const RoommatesPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [isMapView, setIsMapView] = useState(false);
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
+  const [modalMapSearchQuery, setModalMapSearchQuery] = useState('');
 
   const mapSearchInputRef = useRef(null);
 
@@ -157,6 +158,69 @@ const RoommatesPage = () => {
     }
   };
 
+  const handleModalMapSearch = async (e) => {
+    if (e) e.preventDefault();
+    if (!modalMapSearchQuery.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(modalMapSearchQuery)}&limit=1`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        const lat = parseFloat(data[0].lat);
+        const lon = parseFloat(data[0].lon);
+        setMapCenter([lat, lon]);
+        setPostFormData(prev => ({ ...prev, latitude: lat, longitude: lon }));
+        
+        const reverseRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
+        const reverseData = await reverseRes.json();
+        const addr = reverseData.address || {};
+        const area = addr.neighbourhood || addr.suburb || addr.city_district || '';
+        const city = addr.city || addr.town || addr.village || '';
+        const district = addr.county || addr.state_district || '';
+        const pincode = addr.postcode || '';
+        setPostFormData(prev => ({
+          ...prev,
+          areaName: area || reverseData.display_name.split(',')[0],
+          villageCityTown: city,
+          district: district,
+          pincode: pincode
+        }));
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  function ModalLocationPicker() {
+    useMapEvents({
+      async click(e) {
+        const lat = e.latlng.lat;
+        const lon = e.latlng.lng;
+        setMapCenter([lat, lon]);
+        setPostFormData(prev => ({ ...prev, latitude: lat, longitude: lon }));
+        
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
+          const data = await res.json();
+          const addr = data.address || {};
+          const area = addr.neighbourhood || addr.suburb || addr.city_district || '';
+          const city = addr.city || addr.town || addr.village || '';
+          const district = addr.county || addr.state_district || '';
+          const pincode = addr.postcode || '';
+          setPostFormData(prev => ({
+            ...prev,
+            areaName: area || data.display_name.split(',')[0],
+            villageCityTown: city,
+            district: district,
+            pincode: pincode
+          }));
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    });
+    return null;
+  }
+
   const handlePostLiveLocation = () => {
     if (!navigator.geolocation) {
       showModal({ type: 'alert', title: 'Location Error', message: "Geolocation is not supported by your browser.", onConfirm: closeModal });
@@ -207,13 +271,14 @@ const RoommatesPage = () => {
     images: [],
     latitude: null,
     longitude: null,
-    propertyType: 'Flat',
+    propertyType: 'Room',
     electricityBill: 'Not Included',
     waterSupply: 'Not Included',
     maintenance: 'Not Included',
     facing: '',
     areaSqft: '',
     gender: '',
+    flatSize: '1BHK',
   });
 
   const handleImageChange = (e) => {
@@ -288,7 +353,10 @@ const RoommatesPage = () => {
         deposit: parseFloat(postFormData.deposit) || 0,
         vacancies: parseInt(postFormData.vacancies) || null,
         totalCapacity: parseInt(postFormData.totalCapacity) || null,
-        preferences: postFormData.preferences ? postFormData.preferences.split(',').map(p => p.trim()) : [],
+        preferences: [
+          postFormData.flatSize,
+          ...(postFormData.preferences ? postFormData.preferences.split(',').map(p => p.trim()) : [])
+        ].filter(Boolean),
         targetOccupation: postFormData.targetOccupation,
         targetGender: postFormData.targetGender,
         maintenanceIncluded: postFormData.maintenanceIncluded,
@@ -305,14 +373,14 @@ const RoommatesPage = () => {
         longitude: postFormData.longitude,
         electricityBill: postFormData.electricityBill,
         waterSupply: postFormData.waterSupply,
-        maintenance: postFormData.maintenance,
         facing: postFormData.facing || null,
         areaSqft: postFormData.areaSqft ? parseInt(postFormData.areaSqft) : null,
         gender: postFormData.gender,
+        maintenance: postFormData.maintenance,
       };
       await api.post('/roommates', payload);
       setIsModalOpen(false);
-      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '' });
+      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Room', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
@@ -514,13 +582,13 @@ const RoommatesPage = () => {
                   {roommates.map(roommate => {
                     if (!roommate.latitude || !roommate.longitude) return null;
                     return (
-                      <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon(roommate.propertyType)}>
+                      <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon('Room')}>
                         <Popup className="roommate-popup">
                            <div className="p-2 min-w-[200px]">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="font-bold text-lg text-gray-900">{maskName(roommate.user?.name) || 'User'}</div>
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 border border-gray-200 text-gray-700">
-                                  {roommate.propertyType || 'Room'}
+                                  Roommate Request
                                 </span>
                               </div>
                               <div className="text-sm text-gray-600 mb-2 font-medium">{roommate.location}</div>
@@ -539,7 +607,15 @@ const RoommatesPage = () => {
                               </div>
                               {roommate.availableFrom && <div className="text-xs text-green-600 font-bold mb-2">⏱ Move-in: {roommate.availableFrom}</div>}
                               <div className="text-primary-700 font-bold mb-3 text-lg">₹{roommate.budget}/mo</div>
-                              <button onClick={() => navigate(`/messages?user=${roommate.user?.id}`)} className="w-full bg-primary-600 text-white py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors shadow-sm">Message</button>
+                              <div className="flex gap-2">
+                                <button onClick={() => {
+                                  setViewMode('grid');
+                                  setTimeout(() => {
+                                    document.getElementById(`roommate-card-${roommate.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                  }, 100);
+                                }} className="flex-1 bg-white border border-primary-600 text-primary-600 py-1.5 rounded-xl text-xs font-bold hover:bg-primary-50 transition-colors shadow-sm">Details</button>
+                                <button onClick={() => navigate(`/messages?user=${roommate.user?.id}`)} className="flex-1 bg-primary-600 text-white py-1.5 rounded-xl text-xs font-bold hover:bg-primary-700 transition-colors shadow-sm">Message</button>
+                              </div>
                            </div>
                         </Popup>
                       </Marker>
@@ -616,7 +692,7 @@ const RoommatesPage = () => {
                 const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
 
                 return (
-                  <div key={roommate.id} className="glass-card bg-white/80 rounded-3xl p-6 border border-gray-100 relative overflow-hidden group">
+                  <div id={`roommate-card-${roommate.id}`} key={roommate.id} className="glass-card bg-white/80 rounded-3xl p-6 border border-gray-100 relative overflow-hidden group">
                     <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-100 to-transparent rounded-bl-full -z-10 opacity-50"></div>
                     
                     {/* Header */}
@@ -643,6 +719,11 @@ const RoommatesPage = () => {
                             <span className="text-gray-500 text-xs font-semibold">
                               {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
                             </span>
+                            {roommate.preferences?.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)) && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm shadow-blue-100/50 uppercase">
+                                🏢 {roommate.preferences.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p))}
+                              </span>
+                            )}
                             {(roommate.gender || roommate.user?.gender) && (
                               <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border shadow-sm flex items-center gap-0.5 ${
                                 (roommate.gender || roommate.user?.gender).toLowerCase() === 'male' ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-blue-100/50' :
@@ -764,7 +845,7 @@ const RoommatesPage = () => {
                         {roommate.petsPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.petsPref}</span>}
                         {roommate.sleepSchedule && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.sleepSchedule}</span>}
                         {roommate.cleanlinessLevel && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.cleanlinessLevel} Clean</span>}
-                        {roommate.preferences?.map((pref, idx) => (
+                        {roommate.preferences?.filter(p => !['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)).map((pref, idx) => (
                           <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">
                             {pref}
                           </span>
@@ -973,37 +1054,69 @@ const RoommatesPage = () => {
                 </div>
 
                 {/* Embedded Post Map */}
-                <div className="mt-4 h-[200px] w-full rounded-xl overflow-hidden border-2 border-primary-200 relative z-0">
+                <div className="mt-4 h-[220px] w-full rounded-xl overflow-hidden border-2 border-primary-200 relative z-0">
+                  {/* Map Search Overlay */}
+                  <div className="absolute top-2 left-2 right-2 z-[1000] rounded-xl p-1 flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg">
+                    <div className="pl-2 pr-1.5 text-gray-400">
+                      <MapPin size={14} className="text-primary-500" />
+                    </div>
+                    <input
+                      type="text"
+                      value={modalMapSearchQuery}
+                      onChange={(e) => setModalMapSearchQuery(e.target.value)}
+                      placeholder="Search exact area / building on map..."
+                      className="w-full outline-none text-[11px] bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleModalMapSearch(e);
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleModalMapSearch}
+                      className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-2.5 py-1 text-[10px] font-semibold flex items-center transition-colors active:scale-95 ml-1 flex-shrink-0"
+                    >
+                      Search
+                    </button>
+                  </div>
+                  
                   <MapContainer center={mapCenter} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
                     <CustomZoomControl />
                     <MapUpdater center={mapCenter} />
                     <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
                     <Marker 
                        position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter} 
-                       icon={createCustomIcon(postFormData.propertyType)}
+                       icon={createCustomIcon('Room')}
                     />
+                    <ModalLocationPicker />
                   </MapContainer>
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-primary-700 shadow-md border border-primary-100 flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${postFormData.propertyType === 'Room' ? 'bg-red-500' : 'bg-blue-500'}`}></div>
-                    {postFormData.propertyType === 'Room' ? 'Roommate Request' : 'Flat'}
+                  
+                  <div className="absolute bottom-2 left-2 z-[1000] bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black text-primary-700 shadow-md border border-primary-100 flex items-center gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                    Roommate Request
+                  </div>
+                  <div className="absolute bottom-2 right-14 z-[1000] bg-white/95 backdrop-blur-md px-2 py-1 rounded-md text-[8px] font-black text-gray-500 shadow-md border border-gray-100">
+                    Click Map to Pick Pin
                   </div>
                 </div>
 
                 {/* Section: Property */}
-                <div>
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-6 h-6 bg-blue-100 rounded-lg flex items-center justify-center"><Home size={12} className="text-blue-600" /></div>
-                    <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Property</h3>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    {/* Property Type as cards */}
-                    {['Flat', 'Room'].map(type => (
-                      <button key={type} type="button"
-                        onClick={() => setPostFormData({...postFormData, propertyType: type})}
-                        className={`py-3 px-4 rounded-xl border-2 text-sm font-semibold transition-all ${postFormData.propertyType === type ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
-                        {type === 'Flat' ? '🏠 Flat' : '🚪 Room'}
-                      </button>
-                    ))}
+                <div className="space-y-4">
+                  {/* Configuration/Flat Size Select Option */}
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">
+                      Flat Size / Room Configuration
+                    </label>
+                    <select
+                      value={postFormData.flatSize}
+                      onChange={(e) => setPostFormData({...postFormData, flatSize: e.target.value})}
+                      className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none bg-white font-semibold text-gray-700"
+                    >
+                      <option value="1BHK">1 BHK (1 Bed, Hall, Kitchen)</option>
+                      <option value="2BHK">2 BHK (2 Bed, Hall, Kitchen)</option>
+                      <option value="3BHK">3 BHK (3 Bed, Hall, Kitchen)</option>
+                      <option value="4BHK+">4 BHK+ (4+ Bed, Hall, Kitchen)</option>
+                      <option value="1RK">1 RK (1 Room, Kitchen)</option>
+                    </select>
                   </div>
                 </div>
 
