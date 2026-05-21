@@ -8,8 +8,8 @@ export const ThemeProvider = ({ children }) => {
     if (savedTheme) {
       return savedTheme === 'dark';
     }
-    // Default to dark mode for best visual experience on all devices
-    return true;
+    // Default to light mode (normal)
+    return false;
   });
 
   useEffect(() => {

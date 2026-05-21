@@ -68,4 +68,57 @@ public class ChatService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return messageRepository.findConversations(user.getId());
     }
+
+    public Message editMessage(Long messageId, String newContent, String userEmail) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+        
+        if (!message.getSender().getEmail().equals(userEmail)) {
+            throw new RuntimeException("Only sender can edit message");
+        }
+        
+        message.setContent(newContent);
+        message.setIsEdited(true);
+        Message savedMessage = messageRepository.save(message);
+        
+        messagingTemplate.convertAndSend("/user/" + message.getReceiver().getId() + "/queue/messages", savedMessage);
+        messagingTemplate.convertAndSend("/user/" + message.getSender().getId() + "/queue/messages", savedMessage);
+        
+        return savedMessage;
+    }
+
+    public Message deleteMessage(Long messageId, String userEmail) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+                
+        if (!message.getSender().getEmail().equals(userEmail)) {
+            throw new RuntimeException("Only sender can delete message");
+        }
+        
+        message.setIsDeleted(true);
+        message.setContent("This message was deleted");
+        Message savedMessage = messageRepository.save(message);
+        
+        messagingTemplate.convertAndSend("/user/" + message.getReceiver().getId() + "/queue/messages", savedMessage);
+        messagingTemplate.convertAndSend("/user/" + message.getSender().getId() + "/queue/messages", savedMessage);
+        
+        return savedMessage;
+    }
+
+    public void markAsRead(Long messageId, String userEmail) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new RuntimeException("Message not found"));
+                
+        if (!message.getReceiver().getEmail().equals(userEmail)) {
+            throw new RuntimeException("Only receiver can mark as read");
+        }
+        
+        if (!message.getIsRead()) {
+            message.setIsRead(true);
+            Message savedMessage = messageRepository.save(message);
+            
+            messagingTemplate.convertAndSend("/user/" + message.getSender().getId() + "/queue/messages", savedMessage);
+            messagingTemplate.convertAndSend("/user/" + message.getReceiver().getId() + "/queue/messages", savedMessage);
+        }
+    }
 }

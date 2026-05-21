@@ -421,17 +421,16 @@ html.dark .border-gray-200 { border-color: rgba(255, 255, 255, 0.08) !important;
 html.dark .border-gray-300 { border-color: rgba(255, 255, 255, 0.12) !important; }
 
 /* Input fields in Dark Mode */
-html.dark input.bg-gray-50, 
-html.dark select.bg-gray-50, 
-html.dark textarea.bg-gray-50,
-html.dark input.bg-white,
-html.dark select.bg-white,
-html.dark textarea.bg-white { 
+html.dark input:not([type="checkbox"]):not([type="radio"]), 
+html.dark select, 
+html.dark textarea { 
   background-color: #0f172a !important; 
   color: #f8fafc !important;
   border-color: rgba(255,255,255,0.1) !important;
 }
-html.dark input:focus, html.dark select:focus, html.dark textarea:focus {
+html.dark input:not([type="checkbox"]):not([type="radio"]):focus, 
+html.dark select:focus, 
+html.dark textarea:focus {
   border-color: #6366f1 !important;
   background-color: #1e293b !important;
 }
@@ -647,3 +646,28 @@ html.dark .bg-indigo-100 { background-color: rgba(99,102,241,0.2) !important; }
 html.dark .bg-primary-50 { background-color: rgba(79,70,229,0.1) !important; }
 html.dark .bg-primary-100 { background-color: rgba(79,70,229,0.15) !important; }
 html.dark .border-primary-100 { border-color: rgba(79,70,229,0.2) !important; }
+
+/* ═══════════════════════════════════════════════
+   DARK MODE — INTERACTIVE & PEER-CHECKED FIXES
+═══════════════════════════════════════════════ */
+html.dark .peer:checked ~ .peer-checked\:bg-primary-50 {
+  background-color: rgba(79, 70, 229, 0.2) !important;
+}
+html.dark .peer:checked ~ .peer-checked\:border-primary-500 {
+  border-color: #6366f1 !important;
+}
+html.dark .bg-primary-50\/50 {
+  background-color: rgba(79, 70, 229, 0.1) !important;
+}
+html.dark .hover\:bg-primary-50:hover {
+  background-color: rgba(79, 70, 229, 0.15) !important;
+}
+html.dark .hover\:bg-gray-100:hover {
+  background-color: #1e293b !important;
+}
+html.dark .hover\:bg-red-50:hover {
+  background-color: rgba(220, 38, 38, 0.1) !important;
+}
+html.dark .peer:checked ~ .peer-checked\:bg-primary-50 .text-gray-700 {
+  color: #f8fafc !important; /* Make text white for active tab */
+}

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Send, MoreVertical, Phone, Video, Info, ArrowLeft } from 'lucide-react';
+import { Search, Send, MoreVertical, Phone, Video, Info, ArrowLeft, Check, CheckCheck, Edit2, Trash2, X } from 'lucide-react';
 import { chatService } from '../services/chatService';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -20,6 +20,7 @@ const ChatPage = () => {
   const [conversations, setConversations] = useState([]);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
+  const [editingMessage, setEditingMessage] = useState(null);
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
 
@@ -120,9 +121,12 @@ const ChatPage = () => {
             (newMessage.sender.id === currentActiveChat) || 
             (newMessage.receiver.id === currentActiveChat)
           ) {
-            // Check if this message already exists (by real DB id)
-            if (prevMessages.find(m => m.id === newMessage.id)) {
-              return prevMessages;
+            // Check if this message already exists (by real DB id) - if so, it's an update (edit/delete/read)
+            const existingIdx = prevMessages.findIndex(m => m.id === newMessage.id);
+            if (existingIdx !== -1) {
+              const updated = [...prevMessages];
+              updated[existingIdx] = newMessage;
+              return updated;
             }
             // Replace any optimistic temp messages with matching content from same sender
             const tempIdx = prevMessages.findIndex(m => 
@@ -135,6 +139,12 @@ const ChatPage = () => {
               updated[tempIdx] = newMessage;
               return updated;
             }
+            
+            // Mark as read if we are the receiver and chat is active
+            if (newMessage.receiver.id === user.id && !newMessage.isRead) {
+              chatService.markAsRead(newMessage.id).catch(console.error);
+            }
+
             return [...prevMessages, newMessage];
           }
           return prevMessages;
@@ -155,6 +165,12 @@ const ChatPage = () => {
       try {
         const history = await chatService.getChatHistory(activeChat);
         setMessages(history);
+        
+        // Mark all unread messages from the other user as read
+        const unreadMessages = history.filter(m => m.receiver.id === user.id && !m.isRead);
+        unreadMessages.forEach(m => {
+          chatService.markAsRead(m.id).catch(console.error);
+        });
       } catch (err) {
         console.error('Error fetching history', err);
       }
@@ -194,6 +210,18 @@ const ChatPage = () => {
     const messageToSend = newMessage;
     setNewMessage('');
 
+    if (editingMessage) {
+      const msgId = editingMessage.id;
+      setEditingMessage(null);
+      try {
+        const savedMsg = await chatService.editMessage(msgId, messageToSend);
+        setMessages(prev => prev.map(m => m.id === msgId ? savedMsg : m));
+      } catch (err) {
+        console.error('Failed to edit message', err);
+      }
+      return;
+    }
+
     // Optimistic update — show message immediately
     const optimisticMsg = {
       id: 'temp-' + Date.now(),
@@ -214,6 +242,21 @@ const ChatPage = () => {
       setMessages(prev => prev.filter(m => m.id !== optimisticMsg.id));
       setNewMessage(messageToSend); // restore the message so user can retry
     }
+  };
+
+  const handleDeleteMessage = async (msgId) => {
+    if (!window.confirm('Are you sure you want to delete this message?')) return;
+    try {
+      const savedMsg = await chatService.deleteMessage(msgId);
+      setMessages(prev => prev.map(m => m.id === msgId ? savedMsg : m));
+    } catch (err) {
+      console.error('Failed to delete message', err);
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingMessage(null);
+    setNewMessage('');
   };
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -404,10 +447,36 @@ const ChatPage = () => {
                     
                     if (isMe) {
                       return (
-                        <div key={msg.id || idx} className="flex items-end justify-end mb-2">
-                          <div className="bg-gradient-to-br from-primary-600 to-primary-700 text-white px-5 py-3.5 rounded-2xl rounded-br-sm max-w-[75%] shadow-md shadow-primary-600/20 transform transition-all hover:-translate-y-0.5">
-                            <p className="text-[15px] leading-relaxed">{msg.content}</p>
-                            <span className="text-[10px] text-primary-200 block mt-1.5 text-right font-medium">{timeString}</span>
+                        <div key={msg.id || idx} className="flex items-end justify-end mb-2 group">
+                          {/* Message Actions (Edit/Delete) */}
+                          {!String(msg.id).startsWith('temp-') && !msg.isDeleted && (
+                            <div className="mr-2 opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                              <button onClick={() => { setEditingMessage(msg); setNewMessage(msg.content); }} className="p-1.5 text-gray-400 hover:text-primary-600 bg-white rounded-full shadow-sm" title="Edit">
+                                <Edit2 size={14} />
+                              </button>
+                              <button onClick={() => handleDeleteMessage(msg.id)} className="p-1.5 text-gray-400 hover:text-red-600 bg-white rounded-full shadow-sm" title="Delete">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          )}
+                          <div className={`px-5 py-3.5 rounded-2xl rounded-br-sm max-w-[75%] shadow-md transform transition-all ${msg.isDeleted ? 'bg-gray-200 text-gray-500 italic' : 'bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-primary-600/20 hover:-translate-y-0.5'}`}>
+                            <p className="text-[15px] leading-relaxed break-words">{msg.isDeleted ? 'This message was deleted' : msg.content}</p>
+                            <div className="flex items-center justify-end mt-1.5 gap-1">
+                              {msg.isEdited && !msg.isDeleted && <span className="text-[10px] text-primary-200 italic mr-1">Edited</span>}
+                              <span className={`text-[10px] font-medium ${msg.isDeleted ? 'text-gray-400' : 'text-primary-200'}`}>{timeString}</span>
+                              {/* Ticks */}
+                              {!msg.isDeleted && (
+                                <span className={`ml-1 ${msg.isRead ? 'text-blue-300' : 'text-primary-200/70'}`}>
+                                  {String(msg.id).startsWith('temp-') ? (
+                                    <Check size={12} className="opacity-50" />
+                                  ) : msg.isRead ? (
+                                    <CheckCheck size={14} />
+                                  ) : (
+                                    <Check size={14} />
+                                  )}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
@@ -417,9 +486,12 @@ const ChatPage = () => {
                           <div className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center font-bold text-xs mr-3 mb-1 shadow-sm border border-gray-200 flex-shrink-0">
                             {msg.sender?.profilePhoto ? <img src={msg.sender.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (msg.sender?.name?.charAt(0)?.toUpperCase() || 'U')}
                           </div>
-                          <div className="bg-white border border-gray-100 px-5 py-3.5 rounded-2xl rounded-bl-sm max-w-[75%] shadow-md transform transition-all hover:-translate-y-0.5">
-                            <p className="text-[15px] text-gray-800 leading-relaxed">{msg.content}</p>
-                            <span className="text-[10px] text-gray-400 block mt-1.5 text-right font-medium">{timeString}</span>
+                          <div className={`border border-gray-100 px-5 py-3.5 rounded-2xl rounded-bl-sm max-w-[75%] shadow-md transform transition-all hover:-translate-y-0.5 ${msg.isDeleted ? 'bg-gray-50 text-gray-400 italic' : 'bg-white text-gray-800'}`}>
+                            <p className="text-[15px] leading-relaxed break-words">{msg.isDeleted ? 'This message was deleted' : msg.content}</p>
+                            <div className="flex items-center justify-end mt-1.5 gap-1">
+                              {msg.isEdited && !msg.isDeleted && <span className="text-[10px] text-gray-400 italic mr-1">Edited</span>}
+                              <span className="text-[10px] text-gray-400 font-medium">{timeString}</span>
+                            </div>
                           </div>
                         </div>
                       );
@@ -431,8 +503,19 @@ const ChatPage = () => {
             </div>
 
             {/* Message Input */}
-            <form onSubmit={handleSendMessage} className="p-4 bg-white border-t border-gray-100 flex-shrink-0">
-              <div className="flex items-end bg-gray-50 border border-gray-200 rounded-2xl focus-within:border-primary-400 focus-within:ring-1 focus-within:ring-primary-400 transition-all">
+            <div className="p-4 bg-white border-t border-gray-100 flex-shrink-0">
+              {editingMessage && (
+                <div className="mb-2 px-4 py-2 bg-primary-50 rounded-lg flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-primary-700 flex items-center gap-1"><Edit2 size={12}/> Editing message</span>
+                    <span className="text-sm text-gray-600 truncate">{editingMessage.content}</span>
+                  </div>
+                  <button onClick={cancelEdit} className="text-gray-400 hover:text-gray-600 bg-white p-1 rounded-full shadow-sm">
+                    <X size={16} />
+                  </button>
+                </div>
+              )}
+              <form onSubmit={handleSendMessage} className="flex items-end bg-gray-50 border border-gray-200 rounded-2xl focus-within:border-primary-400 focus-within:ring-1 focus-within:ring-primary-400 transition-all">
                 <input 
                   type="text" 
                   value={newMessage}
@@ -445,8 +528,8 @@ const ChatPage = () => {
                     <Send size={18} className="ml-1" />
                   </button>
                 </div>
-              </div>
-            </form>
+              </form>
+            </div>
           </>
         )}
       </div>

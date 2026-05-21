@@ -33,4 +33,13 @@ public class Message {
 
     @Column(nullable = false)
     private LocalDateTime timestamp;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isRead = false;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isEdited = false;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean isDeleted = false;
 }

@@ -43,4 +43,30 @@ public class ChatController {
     public ResponseEntity<List<User>> getConversations(Authentication authentication) {
         return ResponseEntity.ok(service.getConversations(authentication.getName()));
     }
+
+    @PutMapping("/edit/{messageId}")
+    public ResponseEntity<Message> editMessage(
+            @PathVariable Long messageId,
+            @RequestBody String newContent,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(service.editMessage(messageId, newContent, authentication.getName()));
+    }
+
+    @DeleteMapping("/delete/{messageId}")
+    public ResponseEntity<Message> deleteMessage(
+            @PathVariable Long messageId,
+            Authentication authentication
+    ) {
+        return ResponseEntity.ok(service.deleteMessage(messageId, authentication.getName()));
+    }
+
+    @PutMapping("/read/{messageId}")
+    public ResponseEntity<Void> markAsRead(
+            @PathVariable Long messageId,
+            Authentication authentication
+    ) {
+        service.markAsRead(messageId, authentication.getName());
+        return ResponseEntity.ok().build();
+    }
 }

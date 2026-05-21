@@ -103,6 +103,28 @@ class ChatService {
     });
     return response.data;
   }
+
+  // Edit a message
+  async editMessage(messageId, newContent) {
+    const response = await api.put(`/chat/edit/${messageId}`, newContent, {
+      headers: {
+        'Content-Type': 'text/plain'
+      }
+    });
+    return response.data;
+  }
+
+  // Delete a message
+  async deleteMessage(messageId) {
+    const response = await api.delete(`/chat/delete/${messageId}`);
+    return response.data;
+  }
+
+  // Mark message as read
+  async markAsRead(messageId) {
+    const response = await api.put(`/chat/read/${messageId}`);
+    return response.data;
+  }
 }
 
 export const chatService = new ChatService();
