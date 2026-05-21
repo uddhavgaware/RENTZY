@@ -35,7 +35,7 @@ const PremiumHero = ({
 
   return (
     <section className={cn(
-      "relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-[140px] md:pt-24 pb-20 w-full transition-colors duration-300",
+      "relative min-h-[85vh] flex items-center justify-center overflow-hidden pt-[180px] md:pt-32 pb-20 w-full transition-colors duration-300",
       hasVideo ? "bg-gray-950 text-white" : "bg-gradient-to-br from-primary-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950 text-gray-900 dark:text-white"
     )}>
       {hasVideo ? (
@@ -73,7 +73,7 @@ const PremiumHero = ({
 
         {/* Headline */}
         <h1 className={cn(
-          "text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.05] mb-5 animate-slide-up animation-delay-100",
+          "text-4xl sm:text-6xl md:text-7xl font-black tracking-tight leading-[1.05] mt-6 md:mt-0 mb-5 animate-slide-up animation-delay-100",
           hasVideo ? "text-white" : "text-gray-900 dark:text-white"
         )}>
           {title}{' '}

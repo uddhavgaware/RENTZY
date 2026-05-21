@@ -565,8 +565,8 @@ const ListingsPage = () => {
               <CustomZoomControl />
               <MapUpdater center={mapCenter} />
               <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                attribution='&copy; Google Maps'
+                url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
               />
               {listings.map(listing => (
                 listing.latitude && listing.longitude && (

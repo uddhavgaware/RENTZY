@@ -24,19 +24,24 @@ public class MovingController {
 
     // User submits a moving request
     @PostMapping("/request")
-    public ResponseEntity<?> createRequest(@RequestBody Map<String, String> body, Authentication auth) {
+    public ResponseEntity<?> createRequest(@RequestBody Map<String, Object> body, Authentication auth) {
         User user = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         MovingRequest request = new MovingRequest();
         request.setUser(user);
-        request.setFromLocation(body.get("fromLocation"));
-        request.setToLocation(body.get("toLocation"));
-        request.setMovingDate(body.get("movingDate"));
-        request.setMovingTime(body.get("movingTime"));
-        request.setPropertySize(body.get("propertySize"));
-        request.setAdditionalNotes(body.get("additionalNotes"));
+        request.setFromLocation((String) body.get("fromLocation"));
+        request.setToLocation((String) body.get("toLocation"));
+        request.setMovingDate((String) body.get("movingDate"));
+        request.setMovingTime((String) body.get("movingTime"));
+        request.setPropertySize((String) body.get("propertySize"));
+        request.setAdditionalNotes((String) body.get("additionalNotes"));
         request.setStatus("PENDING");
+
+        if (body.get("fromLatitude") != null) request.setFromLatitude(Double.parseDouble(body.get("fromLatitude").toString()));
+        if (body.get("fromLongitude") != null) request.setFromLongitude(Double.parseDouble(body.get("fromLongitude").toString()));
+        if (body.get("toLatitude") != null) request.setToLatitude(Double.parseDouble(body.get("toLatitude").toString()));
+        if (body.get("toLongitude") != null) request.setToLongitude(Double.parseDouble(body.get("toLongitude").toString()));
         
         MovingRequest saved = movingRequestRepository.save(request);
 
@@ -84,12 +89,12 @@ public class MovingController {
 
     // Admin updates status
     @PutMapping("/admin/{id}/status")
-    public ResponseEntity<MovingRequest> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<MovingRequest> updateStatus(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         MovingRequest request = movingRequestRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Request not found"));
-        request.setStatus(body.get("status"));
-        if (body.containsKey("estimatedPrice")) {
-            request.setEstimatedPrice(Double.parseDouble(body.get("estimatedPrice")));
+        request.setStatus((String) body.get("status"));
+        if (body.containsKey("estimatedPrice") && body.get("estimatedPrice") != null) {
+            request.setEstimatedPrice(Double.parseDouble(body.get("estimatedPrice").toString()));
         }
         return ResponseEntity.ok(movingRequestRepository.save(request));
     }

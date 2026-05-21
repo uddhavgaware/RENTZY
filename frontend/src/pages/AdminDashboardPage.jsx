@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
+import { divIcon } from 'leaflet';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
 
@@ -19,6 +21,26 @@ const StatCard = ({ icon: Icon, label, value, color }) => (
     </div>
   </div>
 );
+
+const customMapPinIcon = (color) => divIcon({
+  html: `
+    <div class="flex items-center justify-center">
+      <div class="relative w-8 h-8 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full opacity-35 animate-ping" style="background-color: ${color}"></div>
+        <div class="relative w-7 h-7 bg-white rounded-full flex items-center justify-center shadow-lg border-2" style="border-color: ${color}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4">
+            <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+        </div>
+      </div>
+    </div>
+  `,
+  className: 'custom-map-marker-container',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
+});
 
 const AdminDashboardPage = () => {
   const { isAdmin, loading } = useAuth();
@@ -38,9 +60,14 @@ const AdminDashboardPage = () => {
   const [expandedCities, setExpandedCities] = useState({});
   const [selectedState, setSelectedState] = useState('All');
   const [selectedCity, setSelectedCity] = useState('All');
+  const [selectedMovingRequestForMap, setSelectedMovingRequestForMap] = useState(null);
+  const [isSatellite, setIsSatellite] = useState(false);
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
-  const closeModal = () => setModalConfig({ isOpen: false });
+  const closeModal = () => {
+    setModalConfig({ isOpen: false });
+    setSelectedMovingRequestForMap(null);
+  };
 
   useEffect(() => {
     if (!loading && !isAdmin) {
@@ -1003,6 +1030,14 @@ const AdminDashboardPage = () => {
                               <p><span className="font-medium text-gray-500">From:</span> {m.fromLocation}</p>
                               <p><span className="font-medium text-gray-500">To:</span> {m.toLocation}</p>
                               <p className="text-xs text-gray-400 mt-1">{m.propertySize} | {m.movingDate} {m.movingTime && `| ${m.movingTime}`}</p>
+                              {m.fromLatitude && m.toLatitude && (
+                                <button 
+                                  onClick={() => setSelectedMovingRequestForMap(m)}
+                                  className="mt-2 text-xs font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded flex items-center gap-1 transition-colors"
+                                >
+                                  <MapPin size={14} /> View on Map
+                                </button>
+                              )}
                             </div>
                           </td>
                           <td className="px-6 py-4 font-semibold text-primary-600">{m.estimatedPrice ? `₹${m.estimatedPrice.toLocaleString('en-IN')}` : 'TBD'}</td>
@@ -1250,6 +1285,77 @@ const AdminDashboardPage = () => {
           </>
         )}
       </div>
+      
+      {/* Map View Modal */}
+      {selectedMovingRequestForMap && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-4xl shadow-2xl overflow-hidden animate-slide-up border border-gray-100 dark:border-white/10 flex flex-col h-[80vh]">
+            <div className="p-4 border-b border-gray-100 dark:border-white/10 flex justify-between items-center bg-gray-50 dark:bg-slate-800">
+              <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                <MapPin className="text-primary-600" />
+                Moving Route Map
+              </h3>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsSatellite(!isSatellite)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    isSatellite 
+                      ? 'bg-primary-600 text-white' 
+                      : 'bg-gray-200 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300'
+                  }`}
+                >
+                  {isSatellite ? '📡 Satellite View' : '🗺️ Map View'}
+                </button>
+                <button onClick={closeModal} className="text-gray-500 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors">
+                  <span className="text-2xl leading-none">×</span>
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 relative z-0">
+              <MapContainer 
+                bounds={[
+                  [selectedMovingRequestForMap.fromLatitude, selectedMovingRequestForMap.fromLongitude],
+                  [selectedMovingRequestForMap.toLatitude, selectedMovingRequestForMap.toLongitude]
+                ]} 
+                boundsOptions={{ padding: [50, 50] }}
+                className="h-full w-full"
+              >
+                <TileLayer
+                  attribution={isSatellite ? '&copy; Esri' : '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'}
+                  url={isSatellite 
+                    ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" 
+                    : "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"}
+                />
+                <Marker position={[selectedMovingRequestForMap.fromLatitude, selectedMovingRequestForMap.fromLongitude]} icon={customMapPinIcon('#ef4444')}>
+                  <Popup>
+                    <div className="font-bold text-red-600 text-sm">Pickup</div>
+                    <div className="text-xs text-gray-600 mt-1">{selectedMovingRequestForMap.fromLocation}</div>
+                  </Popup>
+                </Marker>
+                <Marker position={[selectedMovingRequestForMap.toLatitude, selectedMovingRequestForMap.toLongitude]} icon={customMapPinIcon('#10b981')}>
+                  <Popup>
+                    <div className="font-bold text-green-600 text-sm">Drop-off</div>
+                    <div className="text-xs text-gray-600 mt-1">{selectedMovingRequestForMap.toLocation}</div>
+                  </Popup>
+                </Marker>
+                <Polyline 
+                  positions={[
+                    [selectedMovingRequestForMap.fromLatitude, selectedMovingRequestForMap.fromLongitude],
+                    [selectedMovingRequestForMap.toLatitude, selectedMovingRequestForMap.toLongitude]
+                  ]} 
+                  pathOptions={{ color: '#3b82f6', weight: 4, dashArray: '10, 10' }} 
+                />
+              </MapContainer>
+            </div>
+            <div className="p-4 bg-gray-50 dark:bg-slate-800 border-t border-gray-100 dark:border-white/10 flex gap-4 text-xs text-gray-600 dark:text-gray-300">
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div> Pickup</div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500"></div> Drop</div>
+              <div className="flex items-center gap-2"><div className="w-6 border-b-2 border-dashed border-blue-500"></div> Route</div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Modal {...modalConfig} onCancel={closeModal} />
     </div>
   );

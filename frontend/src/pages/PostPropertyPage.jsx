@@ -540,8 +540,8 @@ const PostPropertyPage = () => {
                     <MapContainer center={mapCenter} zoom={11} scrollWheelZoom={true} className="h-full w-full">
                       <MapUpdater center={mapCenter} />
                       <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; Google Maps'
+                        url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
                       />
                       <LocationMarker position={mapPosition} setPosition={setMapPosition} />
                     </MapContainer>

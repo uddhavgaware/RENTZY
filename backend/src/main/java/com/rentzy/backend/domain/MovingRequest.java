@@ -30,8 +30,20 @@ public class MovingRequest {
     @Column(nullable = false)
     private String fromLocation;
 
+    @Column
+    private Double fromLatitude;
+
+    @Column
+    private Double fromLongitude;
+
     @Column(nullable = false)
     private String toLocation;
+
+    @Column
+    private Double toLatitude;
+
+    @Column
+    private Double toLongitude;
 
     @Column(nullable = false)
     private String movingDate;

@@ -185,7 +185,11 @@ const MoversPage = () => {
       await api.post('/moving/request', {
         ...formData,
         fromLocation: fromParts || formData.fromLocation,
-        toLocation: toParts || formData.toLocation
+        toLocation: toParts || formData.toLocation,
+        fromLatitude: fromCoords[0],
+        fromLongitude: fromCoords[1],
+        toLatitude: toCoords[0],
+        toLongitude: toCoords[1]
       });
       showModal({
         type: 'alert',
@@ -307,7 +311,7 @@ const MoversPage = () => {
                   <MapContainer center={mapPosition} zoom={11} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
                     <CustomZoomControl />
                     <MapUpdater center={mapPosition} />
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution="&copy; Google Maps" />
                     <LocationMarker />
                   </MapContainer>
                 </div>

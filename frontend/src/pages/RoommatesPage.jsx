@@ -510,7 +510,7 @@ const RoommatesPage = () => {
                 <MapContainer center={mapCenter} zoom={12} zoomControl={false} style={{ height: "100%", width: "100%" }}>
                   <CustomZoomControl />
                   <MapUpdater center={mapCenter} />
-                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OpenStreetMap' />
+                  <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
                   {roommates.map(roommate => {
                     if (!roommate.latitude || !roommate.longitude) return null;
                     return (
@@ -932,7 +932,7 @@ const RoommatesPage = () => {
                   <MapContainer center={mapCenter} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
                     <CustomZoomControl />
                     <MapUpdater center={mapCenter} />
-                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
                     <Marker 
                        position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter} 
                        icon={createCustomIcon(postFormData.propertyType)}

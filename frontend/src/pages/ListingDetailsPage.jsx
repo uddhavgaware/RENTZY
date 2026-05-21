@@ -462,8 +462,8 @@ const ListingDetailsPage = () => {
                     <MapContainer center={mapCenter || [listing.latitude, listing.longitude]} zoom={14} scrollWheelZoom={false} className="h-full w-full">
                       {mapCenter && <MapUpdater center={mapCenter} />}
                       <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        attribution='&copy; Google Maps'
+                        url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
                       />
                       <Marker position={[listing.latitude, listing.longitude]} icon={customMapPinIcon} />
                     </MapContainer>
