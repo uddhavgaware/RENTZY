@@ -58,7 +58,7 @@ const maskName = (name) => {
   if (!name) return 'Anonymous';
   const trimmed = name.trim();
   if (trimmed.length === 0) return 'Anonymous';
-  return trimmed.charAt(0).toUpperCase();
+  return trimmed;
 };
 
 const ListingDetailsPage = () => {
@@ -73,6 +73,7 @@ const ListingDetailsPage = () => {
   const [agreed, setAgreed] = useState(false);
   const [mapCenter, setMapCenter] = useState(null);
   const [mapSearchQuery, setMapSearchQuery] = useState('');
+  const [fetchError, setFetchError] = useState(null);
 
   const handleMapSearch = async (e) => {
     if (e) e.preventDefault();
@@ -123,6 +124,7 @@ const ListingDetailsPage = () => {
         }
       } catch (err) {
         console.error('Error fetching data', err);
+        setFetchError(err.response?.status === 404 ? 'not_found' : 'server_error');
       } finally {
         setLoading(false);
       }
@@ -224,12 +226,33 @@ const ListingDetailsPage = () => {
     );
   }
 
-  if (!listing) {
+  if (fetchError === 'server_error') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
+        <div className="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <p className="text-xl font-bold text-gray-900 mb-2">Connection Issue</p>
+        <p className="text-gray-500 mb-6 max-w-md">Our servers might be waking up or there is a temporary network issue. Please try refreshing the page.</p>
+        <div className="flex gap-4">
+          <button onClick={() => window.location.reload()} className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all">
+            Refresh Page
+          </button>
+          <button onClick={() => navigate('/listings')} className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 font-bold py-2.5 px-6 rounded-xl transition-all">
+            Browse Flats
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!listing || fetchError === 'not_found') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-gray-500">
-        <p className="text-xl font-medium">Property not found.</p>
-        <button onClick={() => navigate('/listings')} className="mt-4 text-primary-600 hover:underline">
-          Back to Listings
+        <p className="text-xl font-medium text-gray-900 mb-2">Property not found.</p>
+        <p className="text-sm text-gray-500 mb-4">The link might be broken or the property has been removed.</p>
+        <button onClick={() => navigate('/listings')} className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all">
+          Explore Other Flats
         </button>
       </div>
     );

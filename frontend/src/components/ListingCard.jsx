@@ -8,7 +8,7 @@ const maskName = (name) => {
   if (!name) return 'Anonymous';
   const trimmed = name.trim();
   if (trimmed.length === 0) return 'Anonymous';
-  return trimmed.charAt(0).toUpperCase();
+  return trimmed;
 };
 
 const slugify = (text) => {
