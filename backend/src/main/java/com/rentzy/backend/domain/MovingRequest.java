@@ -46,8 +46,7 @@ public class MovingRequest {
     private String additionalNotes;
 
     @Column
-    @Builder.Default
-    private Double estimatedPrice = 0.0;
+    private Double estimatedPrice;
 
     @Column
     @Builder.Default

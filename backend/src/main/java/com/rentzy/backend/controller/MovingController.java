@@ -38,12 +38,6 @@ public class MovingController {
         request.setAdditionalNotes(body.get("additionalNotes"));
         request.setStatus("PENDING");
         
-        // MVP: Simple mock estimation
-        double estimatedPrice = 5000.0;
-        if (request.getPropertySize() != null && request.getPropertySize().contains("2BHK")) estimatedPrice = 8000.0;
-        if (request.getPropertySize() != null && request.getPropertySize().contains("3BHK")) estimatedPrice = 12000.0;
-        request.setEstimatedPrice(estimatedPrice);
-
         MovingRequest saved = movingRequestRepository.save(request);
 
         // Notify user that request was received

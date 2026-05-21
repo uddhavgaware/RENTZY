@@ -981,7 +981,7 @@ const AdminDashboardPage = () => {
                               <p className="text-xs text-gray-400 mt-1">{m.propertySize} | {m.movingDate} {m.movingTime && `| ${m.movingTime}`}</p>
                             </div>
                           </td>
-                          <td className="px-6 py-4 font-semibold text-primary-600">₹{m.estimatedPrice?.toLocaleString('en-IN')}</td>
+                          <td className="px-6 py-4 font-semibold text-primary-600">{m.estimatedPrice ? `₹${m.estimatedPrice.toLocaleString('en-IN')}` : 'TBD'}</td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col items-start gap-2">
                               <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${

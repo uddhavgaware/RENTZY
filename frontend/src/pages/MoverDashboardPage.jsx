@@ -177,7 +177,7 @@ const MoverDashboardPage = () => {
                       </div>
                       <div className="w-full md:w-auto flex flex-col items-center md:items-end gap-3 border-t md:border-t-0 md:border-l border-gray-100 pt-4 md:pt-0 md:pl-6">
                         <p className="text-sm text-gray-500">Est. Payout</p>
-                        <p className="text-3xl font-black text-green-600">₹{lead.estimatedPrice?.toLocaleString('en-IN')}</p>
+                        <p className="text-3xl font-black text-green-600">{lead.estimatedPrice ? `₹${lead.estimatedPrice.toLocaleString('en-IN')}` : 'TBD'}</p>
                         <button onClick={() => handleAcceptJob(lead.id)} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-6 rounded-xl transition-transform active:scale-95 shadow-lg shadow-primary-600/20">
                           Accept Job
                         </button>
@@ -225,7 +225,7 @@ const MoverDashboardPage = () => {
                           }`}>
                             {job.status}
                           </span>
-                          <p className="text-2xl font-black text-gray-900 mt-3">₹{job.estimatedPrice?.toLocaleString('en-IN')}</p>
+                          <p className="text-2xl font-black text-gray-900 mt-3">{job.estimatedPrice ? `₹${job.estimatedPrice.toLocaleString('en-IN')}` : 'To be decided'}</p>
                         </div>
                       </div>
 

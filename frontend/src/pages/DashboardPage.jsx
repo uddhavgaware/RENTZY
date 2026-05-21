@@ -660,8 +660,8 @@ const DashboardPage = () => {
                 ) : (
                   <div className="space-y-4">
                     {bookings.map(booking => (
-                      <div key={booking.id} className="border border-gray-100 rounded-2xl p-5 flex items-center justify-between hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white group/card">
-                        <Link to={`/listings/${booking.listing?.id}/${slugify(booking.listing?.title)}`} className="flex items-center gap-4 group cursor-pointer">
+                      <div key={booking.id} className="border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between hover:shadow-lg transition-all duration-300 bg-white group/card gap-4">
+                        <Link to={`/listings/${booking.listing?.id}/${slugify(booking.listing?.title)}`} className="flex items-center gap-4 group cursor-pointer flex-1">
                           <div className="w-16 h-16 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors"><Home size={24} className="text-primary-600" /></div>
                           <div>
                             <span className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors">{booking.listing?.title || 'Property'}</span>
@@ -669,7 +669,19 @@ const DashboardPage = () => {
                             <p className="text-xs text-gray-400 mt-1">Booked {new Date(booking.createdAt).toLocaleDateString('en-IN')}</p>
                           </div>
                         </Link>
-                        <div className="text-right flex flex-col items-end gap-2">
+                        
+                        {/* Tenant Details for Owner */}
+                        {user?.role === 'OWNER' && booking.tenant && (
+                          <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex-1 w-full md:w-auto">
+                            <p className="text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Tenant Details</p>
+                            <p className="font-bold text-gray-900 text-sm">{booking.tenant.name}</p>
+                            <p className="text-sm text-gray-600">{booking.tenant.phone || 'No phone provided'}</p>
+                            <p className="text-xs text-gray-500 truncate">{booking.tenant.email}</p>
+                            {booking.tenant.userCode && <p className="text-xs text-primary-600 font-medium mt-1">ID: {booking.tenant.userCode}</p>}
+                          </div>
+                        )}
+
+                        <div className="flex flex-col items-start md:items-end gap-2 w-full md:w-auto">
                           <p className="font-bold text-primary-600">₹{booking.amount?.toLocaleString('en-IN')}</p>
                           <span className={`px-3 py-1 text-xs font-bold rounded-full ${statusColors[booking.status] || 'bg-gray-100 text-gray-700'}`}>
                             {booking.status === 'PENDING' ? (user?.role === 'OWNER' ? 'PENDING CONFIRMATION' : 'PAY DIRECT TO OWNER') : booking.status}
@@ -884,7 +896,7 @@ const DashboardPage = () => {
                         </div>
                         <div className="border-t border-gray-50 pt-3 flex justify-between items-center">
                           <span className="text-sm text-gray-500">Estimated Price:</span>
-                          <span className="font-bold text-primary-600">₹{req.estimatedPrice?.toLocaleString('en-IN')}</span>
+                          <span className="font-bold text-primary-600">{req.estimatedPrice ? `₹${req.estimatedPrice.toLocaleString('en-IN')}` : 'To be decided'}</span>
                         </div>
                         {req.mover && (
                           <div className="mt-4 bg-primary-50 rounded-xl p-3 flex items-center justify-between border border-primary-100">
