@@ -148,7 +148,8 @@ const DashboardPage = () => {
   const handleSaveProfile = async () => {
     setSavingProfile(true);
     try {
-      const res = await api.put('/users/me', profileForm);
+      const payload = { ...profileForm, contactShared: String(profileForm.contactShared) };
+      const res = await api.put('/users/me', payload);
       setProfile(res.data);
       setEditingProfile(false);
       await refreshUser(); // Sync Navbar without full page reload
