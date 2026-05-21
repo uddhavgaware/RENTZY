@@ -559,7 +559,7 @@ const DashboardPage = () => {
                       </div>
                     )}
                     
-                    {profile.kycStatus === 'PENDING' && (
+                    {profile.kycStatus === 'PENDING' && profile.kycDocumentUrl && (
                       <div className="bg-yellow-50 border border-yellow-200 text-yellow-700 px-4 py-3 rounded-xl flex items-center gap-3">
                         <div className="w-5 h-5 rounded-full bg-yellow-200 flex items-center justify-center">
                           <svg className="w-3 h-3 text-yellow-700" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm1 12H9v-2h2v2zm0-4H9V6h2v4z"/></svg>
@@ -571,12 +571,12 @@ const DashboardPage = () => {
                       </div>
                     )}
 
-                    {(profile.kycStatus === 'NONE' || profile.kycStatus === 'REJECTED' || !profile.kycStatus) && (
-                      <div className="bg-gray-50 border border-gray-200 p-5 rounded-xl">
+                    {(profile.kycStatus === 'NONE' || profile.kycStatus === 'REJECTED' || !profile.kycStatus || (profile.kycStatus === 'PENDING' && !profile.kycDocumentUrl)) && (
+                      <div className="bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-white/10 p-5 rounded-xl">
                         {profile.kycStatus === 'REJECTED' && (
                           <div className="mb-4 text-red-600 text-sm font-medium">Your previous KYC submission was rejected. Please resubmit valid details.</div>
                         )}
-                        <p className="text-gray-600 text-sm mb-4">Complete your identity verification to get the "Verified" badge.</p>
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">Complete your identity verification to get the "Verified" badge.</p>
                         
                         <div className="space-y-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
