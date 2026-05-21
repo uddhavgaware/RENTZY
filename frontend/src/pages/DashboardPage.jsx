@@ -651,8 +651,9 @@ const DashboardPage = () => {
                             
                             {/* CAMERA VIEW (Shared) */}
                             {kycCameraActive && (
-                              <div className="relative rounded-2xl overflow-hidden bg-black w-full max-w-4xl aspect-[4/3] mx-auto flex items-center justify-center border-4 border-primary-500 shadow-2xl">
-                                <video ref={videoRef} className={`w-full h-full object-cover ${kycCurrentCapture === 'face' ? '-scale-x-100' : ''}`} autoPlay playsInline muted></video>
+                              <div className="flex flex-col gap-4 max-w-4xl mx-auto w-full">
+                                <div className="relative rounded-2xl overflow-hidden bg-black w-full aspect-[4/3] flex items-center justify-center border-4 border-primary-500 shadow-2xl">
+                                  <video ref={videoRef} className={`w-full h-full object-cover ${kycCurrentCapture === 'face' ? '-scale-x-100' : ''}`} autoPlay playsInline muted></video>
                                 
                                 {/* Overlay for Face */}
                                 {kycCurrentCapture === 'face' && (
@@ -679,11 +680,12 @@ const DashboardPage = () => {
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                   </button>
                                 </div>
-                                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 z-20">
-                                  <button onClick={stopCamera} className="bg-white/20 hover:bg-white/30 backdrop-blur text-white px-4 py-2 rounded-full text-sm font-medium transition-colors">Cancel</button>
-                                  <button onClick={capturePhoto} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg transition-colors">Capture</button>
-                                </div>
                               </div>
+                              <div className="flex justify-center gap-4 mt-2">
+                                <button onClick={stopCamera} className="bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 px-6 py-2.5 rounded-xl font-bold transition-colors w-full sm:w-auto">Cancel</button>
+                                <button onClick={capturePhoto} className="bg-primary-600 hover:bg-primary-700 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg transition-colors w-full sm:w-auto text-lg">Capture Photo</button>
+                              </div>
+                            </div>
                             )}
 
                             <div className={`grid grid-cols-1 md:grid-cols-${profile?.role === 'MOVER' ? '4' : '3'} gap-4`}>
