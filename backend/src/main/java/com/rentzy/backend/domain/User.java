@@ -98,7 +98,7 @@ public class User implements UserDetails {
 
     @Column
     @Builder.Default
-    private String kycStatus = "PENDING"; // PENDING, APPROVED, REJECTED
+    private String kycStatus = "NONE"; // NONE, PENDING, APPROVED, REJECTED
 
     @Column
     @Builder.Default

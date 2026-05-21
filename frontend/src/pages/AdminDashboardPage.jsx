@@ -740,15 +740,19 @@ const AdminDashboardPage = () => {
                                 {u.kycStatus === 'PENDING' && (u.role === 'OWNER' || u.role === 'MOVER') && (
                                     <div className="flex flex-col gap-1">
                                       <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">{u.kycDocumentType || 'Document'}: {u.kycDocumentNumber || 'No Number'}</p>
-                                      <div className="flex items-center gap-2">
-                                        <a 
-                                          href={u.kycDocumentUrl} 
-                                          target="_blank" 
-                                          rel="noopener noreferrer" 
-                                          className="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded font-medium hover:bg-blue-100 text-center"
-                                        >
-                                          View Photo
-                                        </a>
+                                      <div className="flex flex-wrap gap-1 mb-1">
+                                        {u.kycDocumentUrl?.split(',').map((url, i) => (
+                                          <a 
+                                            key={i}
+                                            href={url} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold hover:bg-blue-100 text-center"
+                                          >
+                                            View {i === 0 ? 'Front' : i === 1 ? 'Back' : 'Face'}
+                                          </a>
+                                        ))}
+                                      </div>
                                         <button
                                           onClick={() => approveKyc(u.id)}
                                           className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded font-medium hover:bg-green-100"

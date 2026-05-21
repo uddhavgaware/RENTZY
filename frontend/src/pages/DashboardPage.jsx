@@ -223,7 +223,9 @@ const DashboardPage = () => {
   const [kycDocType, setKycDocType] = useState('AADHAAR');
   const [kycDocNumber, setKycDocNumber] = useState('');
   const [kycCameraActive, setKycCameraActive] = useState(false);
-  const [kycPhotoDataUrl, setKycPhotoDataUrl] = useState(null);
+  const [kycPhotos, setKycPhotos] = useState({ front: null, back: null, face: null });
+  const [kycCurrentCapture, setKycCurrentCapture] = useState(null);
+  const [kycFacingMode, setKycFacingMode] = useState('environment');
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null); // Holds the MediaStream so we can attach it after video mounts
@@ -236,23 +238,35 @@ const DashboardPage = () => {
     }
   }, [kycCameraActive]);
 
-  const startCamera = async () => {
+  const startCamera = async (step) => {
     try {
-      // Try back camera first (mobile), fall back to any camera (desktop)
       let stream;
+      const facing = step === 'face' ? 'user' : kycFacingMode;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: facing } } });
       } catch {
         stream = await navigator.mediaDevices.getUserMedia({ video: true });
       }
-      // Store stream in ref BEFORE setting state.
-      // The <video> element only mounts after kycCameraActive=true,
-      // so we cannot access videoRef.current yet — the useEffect above handles attachment.
       streamRef.current = stream;
+      setKycCurrentCapture(step);
       setKycCameraActive(true);
     } catch (err) {
       showModal({ type: 'alert', title: 'Camera Error', message: 'Camera access denied. Please allow camera permission in your browser settings and try again.', onConfirm: closeModal });
     }
+  };
+
+  const toggleCamera = () => {
+    const newFacing = kycFacingMode === 'environment' ? 'user' : 'environment';
+    setKycFacingMode(newFacing);
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+    }
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: newFacing } } })
+      .then(stream => {
+        streamRef.current = stream;
+        if (videoRef.current) videoRef.current.srcObject = stream;
+      })
+      .catch(() => {});
   };
 
   const stopCamera = () => {
@@ -268,21 +282,22 @@ const DashboardPage = () => {
   };
 
   const capturePhoto = () => {
-    if (videoRef.current && canvasRef.current) {
+    if (videoRef.current && canvasRef.current && kycCurrentCapture) {
       const video = videoRef.current;
       const canvas = canvasRef.current;
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-      setKycPhotoDataUrl(dataUrl);
+      setKycPhotos(prev => ({ ...prev, [kycCurrentCapture]: dataUrl }));
       stopCamera();
+      setKycCurrentCapture(null);
     }
   };
 
-  const retakePhoto = () => {
-    setKycPhotoDataUrl(null);
-    startCamera();
+  const retakePhoto = (step) => {
+    setKycPhotos(prev => ({ ...prev, [step]: null }));
+    startCamera(step);
   };
 
   const dataURLtoFile = (dataurl, filename) => {
@@ -295,19 +310,22 @@ const DashboardPage = () => {
   }
 
   const handleKycSubmit = async () => {
-    if (!kycPhotoDataUrl || !kycDocNumber || !kycDocType) {
-       showModal({ type: 'alert', title: 'Incomplete', message: "Please complete all details and take a live photo.", onConfirm: closeModal });
+    if (!kycPhotos.front || !kycPhotos.back || !kycPhotos.face || !kycDocNumber || !kycDocType) {
+       showModal({ type: 'alert', title: 'Incomplete', message: "Please capture front, back, and face photos.", onConfirm: closeModal });
        return;
     }
     setUploadingKyc(true);
     try {
-      const file = dataURLtoFile(kycPhotoDataUrl, 'kyc-document.jpg');
       const formData = new FormData();
-      formData.append('files', file);
+      formData.append('files', dataURLtoFile(kycPhotos.front, 'front.jpg'));
+      formData.append('files', dataURLtoFile(kycPhotos.back, 'back.jpg'));
+      formData.append('files', dataURLtoFile(kycPhotos.face, 'face.jpg'));
+      
       const uploadRes = await api.post('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      const documentUrl = uploadRes.data[0];
+      const documentUrl = uploadRes.data.join(',');
+      
       const kycRes = await api.post('/users/kyc', { 
         documentUrl, 
         documentType: kycDocType, 
@@ -321,7 +339,7 @@ const DashboardPage = () => {
         kycDocumentNumber: kycDocNumber
       }));
       showModal({ type: 'alert', title: 'Success', message: 'KYC Document submitted successfully for review.', onConfirm: closeModal });
-      setKycPhotoDataUrl(null);
+      setKycPhotos({ front: null, back: null, face: null });
       setKycDocNumber('');
     } catch (err) {
       showModal({ type: 'alert', title: 'Upload Failed', message: 'Failed to upload KYC document.', onConfirm: closeModal });
@@ -586,48 +604,88 @@ const DashboardPage = () => {
                             </div>
                           </div>
 
-                          <div className="mt-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Live Photo of Document</label>
+                          <div className="mt-6 space-y-6">
+                            <label className="block text-sm font-medium text-gray-700">Capture Documents & Selfie</label>
                             
-                            {!kycPhotoDataUrl && !kycCameraActive && (
-                              <button 
-                                onClick={startCamera} 
-                                className="w-full py-8 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center hover:bg-gray-100 hover:border-primary-500 transition-colors"
-                              >
-                                <div className="w-12 h-12 bg-primary-50 text-primary-600 rounded-full flex items-center justify-center mb-2">
-                                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                </div>
-                                <span className="text-gray-600 font-medium">Click to Start Camera</span>
-                                <span className="text-xs text-gray-400 mt-1">Please ensure good lighting and clear text</span>
-                              </button>
-                            )}
-
+                            {/* CAMERA VIEW (Shared) */}
                             {kycCameraActive && (
-                              <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
-                                <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted></video>
-                                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
+                              <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center border-4 border-primary-500">
+                                <video ref={videoRef} className={`w-full h-full object-cover ${kycCurrentCapture === 'face' ? '-scale-x-100' : ''}`} autoPlay playsInline muted></video>
+                                
+                                {/* Overlay for Face */}
+                                {kycCurrentCapture === 'face' && (
+                                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+                                    <div className="w-48 h-64 border-4 border-green-500 rounded-[50%] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"></div>
+                                    <p className="text-white font-bold mt-4 drop-shadow-md">Align your face inside the oval</p>
+                                  </div>
+                                )}
+                                
+                                <div className="absolute top-4 right-4 z-20">
+                                  <button onClick={toggleCamera} className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur transition-colors">
+                                    🔄 Switch
+                                  </button>
+                                </div>
+                                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 z-20">
                                   <button onClick={stopCamera} className="bg-white/20 hover:bg-white/30 backdrop-blur text-white px-4 py-2 rounded-full text-sm font-medium transition-colors">Cancel</button>
-                                  <button onClick={capturePhoto} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg transition-colors">Capture Photo</button>
+                                  <button onClick={capturePhoto} className="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-full text-sm font-medium shadow-lg transition-colors">Capture</button>
                                 </div>
                               </div>
                             )}
 
-                            {kycPhotoDataUrl && (
-                              <div className="relative rounded-xl overflow-hidden bg-black aspect-video flex items-center justify-center">
-                                <img src={kycPhotoDataUrl} alt="Captured Document" className="w-full h-full object-contain" />
-                                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
-                                  <button onClick={retakePhoto} className="bg-white/80 hover:bg-white text-gray-900 px-4 py-2 rounded-full text-sm font-medium shadow-lg transition-colors">Retake Photo</button>
-                                </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              {/* FRONT */}
+                              <div className="flex flex-col gap-2">
+                                <span className="text-xs font-bold text-gray-500 uppercase">1. Front Side</span>
+                                {!kycPhotos.front ? (
+                                  <button disabled={kycCameraActive} onClick={() => startCamera('front')} className="h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center hover:bg-gray-50 hover:border-primary-500 transition-colors disabled:opacity-50">
+                                    <span className="text-gray-500 text-sm font-medium">📷 Capture Front</span>
+                                  </button>
+                                ) : (
+                                  <div className="relative h-32 rounded-xl overflow-hidden bg-black group">
+                                    <img src={kycPhotos.front} alt="Front" className="w-full h-full object-cover opacity-80" />
+                                    <button onClick={() => retakePhoto('front')} className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 text-white text-sm font-medium transition-opacity">Retake</button>
+                                  </div>
+                                )}
                               </div>
-                            )}
+                              
+                              {/* BACK */}
+                              <div className="flex flex-col gap-2">
+                                <span className="text-xs font-bold text-gray-500 uppercase">2. Back Side</span>
+                                {!kycPhotos.back ? (
+                                  <button disabled={kycCameraActive} onClick={() => startCamera('back')} className="h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center hover:bg-gray-50 hover:border-primary-500 transition-colors disabled:opacity-50">
+                                    <span className="text-gray-500 text-sm font-medium">📷 Capture Back</span>
+                                  </button>
+                                ) : (
+                                  <div className="relative h-32 rounded-xl overflow-hidden bg-black group">
+                                    <img src={kycPhotos.back} alt="Back" className="w-full h-full object-cover opacity-80" />
+                                    <button onClick={() => retakePhoto('back')} className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 text-white text-sm font-medium transition-opacity">Retake</button>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* FACE */}
+                              <div className="flex flex-col gap-2">
+                                <span className="text-xs font-bold text-gray-500 uppercase">3. Your Face</span>
+                                {!kycPhotos.face ? (
+                                  <button disabled={kycCameraActive} onClick={() => startCamera('face')} className="h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center hover:bg-gray-50 hover:border-primary-500 transition-colors disabled:opacity-50">
+                                    <span className="text-gray-500 text-sm font-medium">🤳 Capture Selfie</span>
+                                  </button>
+                                ) : (
+                                  <div className="relative h-32 rounded-xl overflow-hidden bg-black group">
+                                    <img src={kycPhotos.face} alt="Face" className="w-full h-full object-cover opacity-80 -scale-x-100" />
+                                    <button onClick={() => retakePhoto('face')} className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 text-white text-sm font-medium transition-opacity">Retake</button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
                             
                             <canvas ref={canvasRef} className="hidden"></canvas>
                           </div>
 
-                          <div className="pt-4 flex justify-end">
+                          <div className="pt-6 flex justify-end">
                             <button 
                               onClick={handleKycSubmit} 
-                              disabled={!kycPhotoDataUrl || !kycDocNumber || uploadingKyc} 
+                              disabled={!kycPhotos.front || !kycPhotos.back || !kycPhotos.face || !kycDocNumber || uploadingKyc} 
                               className="bg-primary-600 text-white px-6 py-2.5 rounded-xl font-medium disabled:opacity-50 transition-colors"
                             >
                               {uploadingKyc ? 'Submitting...' : 'Submit for Verification'}
