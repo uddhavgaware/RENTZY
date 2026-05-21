@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MapPin, Star, Wifi, AirVent, Tv, Wind, Car, Shield, Dumbbell, CheckCircle2, ArrowLeft, Heart, Send, User, BadgeCheck, Image as ImageIcon, Share2 } from 'lucide-react';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import { divIcon } from 'leaflet';
 import { useAuth } from '../context/AuthContext';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
+import { divIcon } from 'leaflet';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import PaymentModal from '../components/PaymentModal';
+
+function MapUpdater({ center }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, map.getZoom());
+  }, [center, map]);
+  return null;
+}
 
 const slugify = (text) => {
   if (!text) return '';
@@ -63,6 +71,20 @@ const ListingDetailsPage = () => {
   const [showPayment, setShowPayment] = useState(false);
   const [bookingId, setBookingId] = useState(null);
   const [agreed, setAgreed] = useState(false);
+  const [mapCenter, setMapCenter] = useState(null);
+  const [mapSearchQuery, setMapSearchQuery] = useState('');
+
+  const handleMapSearch = async (e) => {
+    if (e) e.preventDefault();
+    if (!mapSearchQuery.trim()) return;
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(mapSearchQuery)}`);
+      const data = await res.json();
+      if (data && data.length > 0) {
+        setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+      }
+    } catch (err) {}
+  };
 
   // Reviews state
   const [reviews, setReviews] = useState([]);
@@ -96,6 +118,9 @@ const ListingDetailsPage = () => {
         setListing(listingRes.data);
         setReviews(reviewsRes.data);
         setReviewSummary(summaryRes.data);
+        if (listingRes.data && listingRes.data.latitude && listingRes.data.longitude) {
+          setMapCenter([listingRes.data.latitude, listingRes.data.longitude]);
+        }
       } catch (err) {
         console.error('Error fetching data', err);
       } finally {
@@ -409,9 +434,33 @@ const ListingDetailsPage = () => {
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
               <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">📍 Location Map</h2>
               {listing.latitude && listing.longitude ? (
-                <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-md">
+                <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-md relative">
+                  {/* Map Search Overlay */}
+                  <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                    <div className="pl-3 pr-2 text-gray-400">
+                      <MapPin size={16} className="text-primary-500" />
+                    </div>
+                    <input 
+                      type="text" 
+                      value={mapSearchQuery}
+                      onChange={(e) => setMapSearchQuery(e.target.value)}
+                      placeholder="Search map location..." 
+                      className="w-full outline-none text-xs bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleMapSearch(e);
+                      }}
+                    />
+                    <button 
+                      type="button"
+                      onClick={handleMapSearch}
+                      className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                    >
+                      Search
+                    </button>
+                  </div>
                   <div className="h-[280px] z-0 relative">
-                    <MapContainer center={[listing.latitude, listing.longitude]} zoom={14} scrollWheelZoom={false} className="h-full w-full">
+                    <MapContainer center={mapCenter || [listing.latitude, listing.longitude]} zoom={14} scrollWheelZoom={false} className="h-full w-full">
+                      {mapCenter && <MapUpdater center={mapCenter} />}
                       <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
                         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
