@@ -651,7 +651,7 @@ const DashboardPage = () => {
                             
                             {/* CAMERA VIEW (Shared) */}
                             {kycCameraActive && (
-                              <div className="relative rounded-xl overflow-hidden bg-black w-full max-w-[500px] aspect-[4/3] mx-auto flex items-center justify-center border-4 border-primary-500 shadow-2xl">
+                              <div className="relative rounded-2xl overflow-hidden bg-black w-full max-w-4xl aspect-[4/3] mx-auto flex items-center justify-center border-4 border-primary-500 shadow-2xl">
                                 <video ref={videoRef} className={`w-full h-full object-cover ${kycCurrentCapture === 'face' ? '-scale-x-100' : ''}`} autoPlay playsInline muted></video>
                                 
                                 {/* Overlay for Face */}
