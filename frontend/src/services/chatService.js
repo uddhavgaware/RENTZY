@@ -14,14 +14,27 @@ class ChatService {
 
   // Connect to WebSocket
   connect(userId, onMessageReceived) {
-    if (this.stompClient && this.stompClient.active) return;
-    
-    // Add the callback to the list of listeners
-    if (onMessageReceived) {
-      this.callbacks.push(onMessageReceived);
+    if (!userId) {
+      console.warn('ChatService: Cannot connect without a valid userId');
+      return;
     }
 
+    // If already connected, just update the callback
+    if (this.stompClient && this.stompClient.active) {
+      if (onMessageReceived) {
+        this.callbacks = [onMessageReceived];
+      }
+      return;
+    }
+    
+    // Replace callbacks (don't accumulate stale ones from re-renders)
+    this.callbacks = onMessageReceived ? [onMessageReceived] : [];
+
     const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('ChatService: No auth token found');
+      return;
+    }
     
     const socket = new SockJS(WS_URL);
     this.stompClient = new Client({
@@ -30,7 +43,8 @@ class ChatService {
         Authorization: `Bearer ${token}`
       },
       debug: function (str) {
-        console.log(str);
+        // Reduce noise — only log errors
+        if (str.includes('ERROR')) console.error(str);
       },
       reconnectDelay: 5000,
       heartbeatIncoming: 4000,
@@ -51,6 +65,10 @@ class ChatService {
     this.stompClient.onStompError = (frame) => {
       console.error('Broker reported error: ' + frame.headers['message']);
       console.error('Additional details: ' + frame.body);
+    };
+
+    this.stompClient.onWebSocketClose = (event) => {
+      console.log('WebSocket connection closed, will attempt reconnect...');
     };
 
     this.stompClient.activate();

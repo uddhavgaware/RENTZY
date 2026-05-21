@@ -16,6 +16,8 @@ export const AuthProvider = ({ children }) => {
       api.get('/users/me')
         .then(res => {
           setUser({
+            id: res.data.id,
+            userCode: res.data.userCode,
             email: res.data.email,
             name: res.data.name,
             role: res.data.role,
@@ -47,6 +49,8 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('token', token);
     const res = await api.get('/users/me');
     setUser({
+      id: res.data.id,
+      userCode: res.data.userCode,
       email: res.data.email,
       name: res.data.name,
       role: res.data.role,
@@ -60,6 +64,8 @@ export const AuthProvider = ({ children }) => {
     try {
       const res = await api.get('/users/me');
       setUser({
+        id: res.data.id,
+        userCode: res.data.userCode,
         email: res.data.email,
         name: res.data.name,
         role: res.data.role,

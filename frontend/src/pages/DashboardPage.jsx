@@ -435,6 +435,28 @@ const DashboardPage = () => {
                         )}
                       </div>
                     </div>
+                    {/* RentXY User ID Card */}
+                    {profile.userCode && (
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Your RentXY ID</label>
+                        <div className="flex items-center gap-3 bg-gradient-to-r from-primary-50 to-indigo-50 border border-primary-200 rounded-xl px-4 py-3">
+                          <div className="flex-1">
+                            <p className="font-mono text-xl font-bold text-primary-700 tracking-widest">{profile.userCode}</p>
+                            <p className="text-xs text-gray-500 mt-0.5">Share this ID so others can find and message you directly</p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(profile.userCode);
+                              showModal({ type: 'alert', title: 'Copied!', message: `Your RentXY ID "${profile.userCode}" has been copied to clipboard.`, onConfirm: closeModal });
+                            }}
+                            className="flex items-center gap-1.5 bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors active:scale-95"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                            Copy ID
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                       {editingProfile ? (

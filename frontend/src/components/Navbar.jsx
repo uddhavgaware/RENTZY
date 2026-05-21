@@ -109,6 +109,9 @@ const Navbar = () => {
   const handleLogout = () => setShowLogoutConfirm(true);
 
   const confirmLogout = () => {
+    setShowLogoutConfirm(false);
+    setShowNotifs(false);
+    setIsOpen(false);
     logout();
     navigate('/', { replace: true });
   };

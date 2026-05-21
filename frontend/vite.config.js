@@ -8,4 +8,8 @@ export default defineConfig({
     tailwindcss(),
     react()
   ],
+  base: '/',
+  build: {
+    outDir: 'dist',
+  },
 })

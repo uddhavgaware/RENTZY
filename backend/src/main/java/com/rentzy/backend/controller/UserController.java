@@ -26,6 +26,7 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(Map.ofEntries(
                 Map.entry("id", user.getId()),
+                Map.entry("userCode", user.getUserCode() != null ? user.getUserCode() : ""),
                 Map.entry("name", user.getName() != null ? user.getName() : ""),
                 Map.entry("email", user.getEmail() != null ? user.getEmail() : ""),
                 Map.entry("role", user.getRole().name()),
@@ -196,12 +197,32 @@ public class UserController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return ResponseEntity.ok(Map.ofEntries(
                 Map.entry("id", user.getId()),
+                Map.entry("userCode", user.getUserCode() != null ? user.getUserCode() : ""),
                 Map.entry("name", user.getName() != null ? user.getName() : "Unknown User"),
                 Map.entry("role", user.getRole().name()),
                 Map.entry("profilePhoto", user.getProfilePhoto() != null ? user.getProfilePhoto() : ""),
                 Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
                 Map.entry("kycStatus", user.getKycStatus())
         ));
+    }
+
+    // Search users by name or 10-digit userCode
+    @GetMapping("/search")
+    public ResponseEntity<?> searchUsers(@org.springframework.web.bind.annotation.RequestParam String q) {
+        if (q == null || q.trim().length() < 2) {
+            return ResponseEntity.ok(java.util.Collections.emptyList());
+        }
+        String query = q.trim();
+        var results = userRepository.findTop10ByNameContainingIgnoreCaseOrUserCodeContaining(query, query);
+        var mapped = results.stream().map(u -> Map.ofEntries(
+                Map.entry("id", u.getId()),
+                Map.entry("userCode", u.getUserCode() != null ? u.getUserCode() : ""),
+                Map.entry("name", u.getName() != null ? u.getName() : "Unknown"),
+                Map.entry("role", u.getRole().name()),
+                Map.entry("profilePhoto", u.getProfilePhoto() != null ? u.getProfilePhoto() : ""),
+                Map.entry("kycStatus", u.getKycStatus())
+        )).toList();
+        return ResponseEntity.ok(mapped);
     }
 
     // Request account deletion

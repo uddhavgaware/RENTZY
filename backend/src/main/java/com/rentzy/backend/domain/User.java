@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.security.SecureRandom;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -28,6 +29,10 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // 10-digit unique user code for searching/sharing (e.g. "4812937650")
+    @Column(unique = true, length = 10)
+    private String userCode;
 
     @Column(nullable = false)
     private String name;
@@ -175,34 +180,46 @@ public class User implements UserDetails {
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) createdAt = LocalDateTime.now();
+        if (userCode == null) {
+            // Generate a 10-digit numeric code (1000000000 – 9999999999)
+            SecureRandom rng = new SecureRandom();
+            long code = 1000000000L + (long)(rng.nextDouble() * 9000000000L);
+            userCode = String.valueOf(code);
+        }
     }
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 
     @Override
+    @JsonIgnore
     public String getUsername() {
         return email;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return (isBlocked == null || !isBlocked) && (isEmailVerified != null && isEmailVerified);
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return true;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return isDeleted == null || !isDeleted;
     }
