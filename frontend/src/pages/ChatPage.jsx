@@ -443,7 +443,7 @@ const ChatPage = () => {
                 ) : (
                   messages.map((msg, idx) => {
                     const isMe = msg.sender.email === user?.email;
-                    const timeString = new Date(msg.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    const timeString = new Date(msg.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute:'2-digit', hour12: true});
                     
                     if (isMe) {
                       return (

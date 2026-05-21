@@ -215,7 +215,7 @@ const LandingPage = () => {
         highlightText="Perfect Stay"
         highlightColorClass="text-indigo-400"
         subtitle="PGs · Flats · Hostels · Roommates — No brokers, no hidden fees. Just verified listings and direct connections."
-        videoSrc="https://videos.pexels.com/video-files/3129671/3129671-uhd_2560_1440_30fps.mp4"
+        videoSrc="https://videos.pexels.com/video-files/3773486/3773486-uhd_2560_1440_30fps.mp4"
         fallbackImg="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1920&q=80"
       >
         {/* Search box */}
@@ -269,30 +269,30 @@ const LandingPage = () => {
           ))}
         </div>
 
-        {/* Location Permission Banner */}
+        {/* Location Permission Banner - Positioned absolute to avoid layout jump */}
         {locationStatus === 'asking' && (
-          <div className="mt-5 mx-auto max-w-xl animate-slide-up" style={{ background: 'rgba(15,23,42,0.75)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderRadius: '1rem', border: '1px solid rgba(99,102,241,0.35)', padding: '0.875rem 1.25rem' }}>
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">📍</span>
-              <div className="flex-1 text-left">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-[90%] max-w-xl z-30 animate-slide-up" style={{ background: 'rgba(15,23,42,0.85)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderRadius: '1rem', border: '1px solid rgba(99,102,241,0.35)', padding: '0.875rem 1.25rem' }}>
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <span className="text-2xl hidden sm:block">📍</span>
+              <div className="flex-1 text-center sm:text-left">
                 <p className="text-white font-bold text-sm">Get AI-Powered Local Recommendations</p>
                 <p className="text-white/60 text-xs mt-0.5">Allow location to see the best properties near you</p>
               </div>
-              <div className="flex gap-2 flex-shrink-0">
-                <button onClick={requestLocation} className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-3 py-1.5 rounded-lg transition-all active:scale-95">Allow</button>
-                <button onClick={() => setLocationStatus('denied')} className="text-white/50 hover:text-white text-xs px-2 py-1.5 rounded-lg transition-all">Skip</button>
+              <div className="flex gap-2 flex-shrink-0 mt-2 sm:mt-0">
+                <button onClick={requestLocation} className="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-all active:scale-95 shadow-lg shadow-indigo-500/20">Allow</button>
+                <button onClick={() => setLocationStatus('denied')} className="text-white/50 hover:text-white text-xs px-3 py-2 rounded-lg transition-all bg-white/5">Skip</button>
               </div>
             </div>
           </div>
         )}
         {locationStatus === 'loading' && (
-          <div className="mt-5 mx-auto max-w-xl flex items-center justify-center gap-2 text-white/70 text-sm animate-pulse">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 mx-auto max-w-xl flex items-center justify-center gap-2 text-white/70 text-sm animate-pulse bg-slate-900/80 px-4 py-2 rounded-full backdrop-blur-md">
             <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             Detecting your location...
           </div>
         )}
         {locationStatus === 'granted' && userLocation?.city && (
-          <div className="mt-4 flex items-center justify-center gap-1.5 text-emerald-400 text-sm font-semibold animate-fade-in">
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center gap-1.5 text-emerald-400 text-sm font-semibold animate-fade-in bg-slate-900/80 px-4 py-2 rounded-full backdrop-blur-md">
             <span>📍</span> Showing results near <span className="text-white">{userLocation.city}{userLocation.state ? `, ${userLocation.state}` : ''}</span>
             <button onClick={() => { setLocationStatus('idle'); setUserLocation(null); sessionStorage.removeItem('rentzy_city'); setNearbyListings([]); setHeroLocation(''); }} className="ml-1 text-white/40 hover:text-white/70 text-xs transition-colors">(change)</button>
           </div>
