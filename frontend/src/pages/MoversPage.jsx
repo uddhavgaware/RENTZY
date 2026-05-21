@@ -219,8 +219,8 @@ const MoversPage = () => {
         highlightText="Moving"
         highlightColorClass="text-primary-400"
         subtitle="Get instant quotes, top-rated professional movers, and 100% damage protection."
-        videoSrc="https://videos.pexels.com/video-files/6169060/6169060-uhd_2560_1440_25fps.mp4"
-        fallbackImg="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80"
+        videoSrc="https://videos.pexels.com/video-files/4246120/4246120-hd_1920_1080_30fps.mp4"
+        fallbackImg="https://images.unsplash.com/photo-1600518464441-9154a4dea21b?auto=format&fit=crop&w=1920&q=80"
       >
         <div className="flex flex-wrap justify-center gap-4 mt-8 max-w-lg mx-auto text-white/90 text-sm font-semibold">
           <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-sm">
@@ -389,6 +389,31 @@ const MoversPage = () => {
               <h3 className="text-xl font-bold text-gray-900 mb-3">Verified Partners</h3>
               <p className="text-gray-500">We only work with background-verified and highly rated vendors.</p>
             </div>
+          </div>
+
+          {/* 🤝 Shifting Partner Recruitment Section */}
+          <div className="mt-16 bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 text-white rounded-3xl p-8 md:p-12 shadow-xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-indigo-500/20 to-transparent rounded-bl-full -z-10 opacity-70"></div>
+            <div>
+              <span className="px-3 py-1 bg-indigo-500/30 text-indigo-300 rounded-full text-xs font-bold border border-indigo-500/20 tracking-wide uppercase">Partner Program</span>
+              <h3 className="text-2xl md:text-3xl font-extrabold mt-3 text-white leading-tight">Are you a Professional Packer & Mover?</h3>
+              <p className="text-gray-300 text-sm mt-2 max-w-xl leading-relaxed">
+                Join our network of shifting partners! List your local moving company on Rentzy to get direct customer bookings with zero platform commissions.
+              </p>
+            </div>
+            <button 
+              onClick={() => {
+                showModal({
+                  type: 'alert',
+                  title: 'Join Shifting Partner Network',
+                  message: 'To list your packer & mover business on Rentzy, please email your business registration document to rentxybookings@gmail.com or WhatsApp us at +91 8767532364.',
+                  onConfirm: closeModal
+                });
+              }}
+              className="bg-white text-indigo-950 font-black px-8 py-4 rounded-2xl transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2 whitespace-nowrap self-stretch md:self-auto justify-center"
+            >
+              🤝 Partner With Us <ArrowRight size={18} />
+            </button>
           </div>
         </div>
         <Modal {...modalConfig} onCancel={closeModal} />
