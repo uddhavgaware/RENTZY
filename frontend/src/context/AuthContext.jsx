@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (user) {
+    if (user && 'Notification' in window && Notification.permission === 'granted') {
       import('../utils/pushNotification').then(({ setupPushNotifications }) => {
         setupPushNotifications();
       }).catch(err => console.error('Failed to import push notifications', err));

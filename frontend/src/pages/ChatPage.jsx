@@ -217,24 +217,22 @@ const ChatPage = () => {
   };
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [sidebarTab, setSidebarTab] = useState('chats'); // 'chats' | 'find'
-  const [findQuery, setFindQuery] = useState('');
   const [findResults, setFindResults] = useState([]);
   const [findLoading, setFindLoading] = useState(false);
 
-  // Search users by name or RentXY ID
+  // Search users globally by name or RentXY ID
   useEffect(() => {
-    if (findQuery.trim().length < 2) { setFindResults([]); return; }
+    if (searchQuery.trim().length < 2) { setFindResults([]); return; }
     const timer = setTimeout(async () => {
       setFindLoading(true);
       try {
-        const res = await api.get(`/users/search?q=${encodeURIComponent(findQuery.trim())}`);
+        const res = await api.get(`/users/search?q=${encodeURIComponent(searchQuery.trim())}`);
         setFindResults(res.data.filter(u => u.id !== user?.id)); // exclude self
       } catch { setFindResults([]); }
       finally { setFindLoading(false); }
     }, 400);
     return () => clearTimeout(timer);
-  }, [findQuery, user?.id]);
+  }, [searchQuery, user?.id]);
 
   const startChatWith = (foundUser) => {
     setConversations(prev => {
@@ -243,8 +241,7 @@ const ChatPage = () => {
     });
     setActiveChat(foundUser.id);
     setShowMobileChat(true);
-    setSidebarTab('chats');
-    setFindQuery('');
+    setSearchQuery('');
   };
 
   // Filtered conversations based on search query
@@ -259,116 +256,88 @@ const ChatPage = () => {
       <div className={`w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex-col flex-shrink-0 ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-100">
           <h2 className="text-xl font-bold text-gray-900 mb-3">Messages</h2>
-          {/* Tab switcher */}
-          <div className="flex bg-gray-100 p-1 rounded-xl mb-3">
-            <button
-              onClick={() => setSidebarTab('chats')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${sidebarTab === 'chats' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-            >
-              Conversations
-            </button>
-            <button
-              onClick={() => setSidebarTab('find')}
-              className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all ${sidebarTab === 'find' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
-            >
-              Find User
-            </button>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <input 
+              type="text" 
+              placeholder="Search chats or find new users..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
+            />
           </div>
-          {sidebarTab === 'chats' ? (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input 
-                type="text" 
-                placeholder="Search conversations..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-              />
-            </div>
-          ) : (
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-              <input 
-                type="text"
-                placeholder="Enter name or 10-digit ID..."
-                value={findQuery}
-                onChange={(e) => setFindQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
-              />
-            </div>
-          )}
         </div>
         
         <div className="flex-1 overflow-y-auto">
-          {sidebarTab === 'find' ? (
-            // Find User panel
-            <div>
-              {findLoading && <div className="p-4 text-center text-sm text-gray-400">Searching...</div>}
-              {!findLoading && findQuery.trim().length >= 2 && findResults.length === 0 && (
-                <div className="p-6 text-center">
-                  <p className="text-sm text-gray-500">No users found</p>
-                  <p className="text-xs text-gray-400 mt-1">Try a different name or 10-digit ID</p>
-                </div>
-              )}
-              {!findLoading && findQuery.trim().length < 2 && (
-                <div className="p-6 text-center">
-                  <div className="w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-3">
-                    <Search size={20} className="text-primary-400" />
-                  </div>
-                  <p className="text-sm text-gray-500 font-medium">Find anyone on RentXY</p>
-                  <p className="text-xs text-gray-400 mt-1">Search by name or their 10-digit RentXY ID</p>
-                </div>
-              )}
-              {findResults.map(u => (
-                <div key={u.id} className="flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                  <div className="w-11 h-11 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-base flex-shrink-0">
-                    {u.profilePhoto ? <img src={u.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (u.name?.charAt(0)?.toUpperCase() || 'U')}
+          {/* Active Conversations matching search */}
+          {filteredConversations.length > 0 && (
+            <div className="mb-2">
+              {searchQuery && <div className="px-4 pt-3 pb-1 text-xs font-bold text-gray-400 uppercase tracking-wider">Your Chats</div>}
+              {filteredConversations.map((contact) => (
+                <button 
+                  key={contact.id}
+                  onClick={() => { setActiveChat(contact.id); setShowMobileChat(true); }}
+                  className={`w-full flex items-start p-4 border-b border-gray-50 transition-colors text-left ${activeChat === contact.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'border-l-4 border-l-transparent hover:bg-gray-50'}`}
+                >
+                  <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-4 border-2 border-white shadow-sm flex-shrink-0">
+                    {contact.profilePhoto ? <img src={contact.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (contact.name?.charAt(0)?.toUpperCase() || 'U')}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-gray-900 text-sm truncate">{u.name}</p>
-                    <p className="text-xs text-gray-400">{u.role} · <span className="font-mono">{u.userCode}</span></p>
+                    <div className="flex justify-between items-baseline mb-1">
+                      <h3 className={`font-semibold truncate ${activeChat === contact.id ? 'text-primary-900' : 'text-gray-900'}`}>
+                        {maskName(contact.name)}
+                      </h3>
+                    </div>
+                    <p className="text-xs text-primary-600 mb-1">{contact.role}</p>
+                    {contact.userCode && <p className="text-xs text-gray-400 font-mono">{contact.userCode}</p>}
                   </div>
-                  <button
-                    onClick={() => startChatWith(u)}
-                    className="text-xs font-semibold text-white bg-primary-600 hover:bg-primary-700 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
-                  >
-                    Message
-                  </button>
-                </div>
+                </button>
               ))}
             </div>
-          ) : (
-            // Conversations panel
-            <>
-              {loading ? (
-                <div className="p-4 text-center text-sm text-gray-500">Loading conversations...</div>
-              ) : filteredConversations.length === 0 ? (
-                <div className="p-4 text-center text-sm text-gray-500">
-                  {searchQuery ? 'No conversations match your search.' : 'No active conversations.'}
-                </div>
+          )}
+
+          {/* Global Search Results */}
+          {searchQuery.trim().length >= 2 && (
+            <div className="pb-4">
+              <div className="px-4 pt-3 pb-1 text-xs font-bold text-gray-400 uppercase tracking-wider">Other Users on RentXY</div>
+              {findLoading ? (
+                <div className="p-4 text-center text-sm text-gray-400">Searching...</div>
               ) : (
-                filteredConversations.map((contact) => (
-                  <button 
-                    key={contact.id}
-                    onClick={() => { setActiveChat(contact.id); setShowMobileChat(true); }}
-                    className={`w-full flex items-start p-4 border-b border-gray-50 transition-colors text-left ${activeChat === contact.id ? 'bg-primary-50 border-l-4 border-l-primary-600' : 'border-l-4 border-l-transparent hover:bg-gray-50'}`}
-                  >
-                    <div className="w-12 h-12 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-lg mr-4 border-2 border-white shadow-sm flex-shrink-0">
-                      {contact.profilePhoto ? <img src={contact.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (contact.name?.charAt(0)?.toUpperCase() || 'U')}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex justify-between items-baseline mb-1">
-                        <h3 className={`font-semibold truncate ${activeChat === contact.id ? 'text-primary-900' : 'text-gray-900'}`}>
-                          {maskName(contact.name)}
-                        </h3>
+                findResults.filter(u => !conversations.some(c => c.id === u.id)).length === 0 ? (
+                  <div className="p-4 text-center text-sm text-gray-500">No new users found</div>
+                ) : (
+                  findResults
+                    .filter(u => !conversations.some(c => c.id === u.id)) // Exclude users already in conversations list
+                    .map(u => (
+                      <div key={u.id} className="flex items-center gap-3 p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors">
+                        <div className="w-11 h-11 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-base flex-shrink-0">
+                          {u.profilePhoto ? <img src={u.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (u.name?.charAt(0)?.toUpperCase() || 'U')}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 text-sm truncate">{u.name}</p>
+                          <p className="text-xs text-gray-400">{u.role} · <span className="font-mono">{u.userCode}</span></p>
+                        </div>
+                        <button
+                          onClick={() => startChatWith(u)}
+                          className="text-xs font-semibold text-primary-700 bg-primary-100 hover:bg-primary-200 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0"
+                        >
+                          Message
+                        </button>
                       </div>
-                      <p className="text-xs text-primary-600 mb-1">{contact.role}</p>
-                      {contact.userCode && <p className="text-xs text-gray-400 font-mono">{contact.userCode}</p>}
-                    </div>
-                  </button>
-                ))
+                    ))
+                )
               )}
-            </>
+            </div>
+          )}
+
+          {!searchQuery && filteredConversations.length === 0 && !loading && (
+            <div className="p-8 text-center">
+              <div className="w-12 h-12 bg-primary-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Search size={20} className="text-primary-400" />
+              </div>
+              <p className="text-sm text-gray-500 font-medium">Find anyone on RentXY</p>
+              <p className="text-xs text-gray-400 mt-1">Search above by name or their 10-digit ID</p>
+            </div>
           )}
         </div>
       </div>

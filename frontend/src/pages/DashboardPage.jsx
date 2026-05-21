@@ -52,6 +52,10 @@ const DashboardPage = () => {
   // Crop state
   const [showCropper, setShowCropper] = useState(false);
   const [imageToCrop, setImageToCrop] = useState(null);
+  
+  const [notificationPermission, setNotificationPermission] = useState(
+    'Notification' in window ? Notification.permission : 'denied'
+  );
 
   useEffect(() => {
     if (userSettings.darkMode) {
@@ -108,6 +112,28 @@ const DashboardPage = () => {
       api.get('/moving/my').then(r => setMovingRequests(r.data)).catch(() => {}).finally(() => setLoadingMoving(false));
     }
   }, [activeTab]);
+
+  const enableNotifications = async () => {
+    try {
+      if (!('Notification' in window)) {
+        showModal({ type: 'alert', title: 'Not Supported', message: 'Push notifications are not supported in your browser.', onConfirm: closeModal });
+        return;
+      }
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      
+      if (permission === 'granted') {
+        const { setupPushNotifications } = await import('../utils/pushNotification');
+        await setupPushNotifications();
+        showModal({ type: 'success', title: 'Enabled', message: 'You will now receive instant push notifications.', onConfirm: closeModal });
+      } else {
+        showModal({ type: 'alert', title: 'Denied', message: 'You must allow notifications in your browser settings.', onConfirm: closeModal });
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
 
   const handleCancelBooking = (bookingId, currentStatus) => {
     let confirmMsg = 'Cancel this booking?';
@@ -942,10 +968,25 @@ const DashboardPage = () => {
               <div className="animate-fadeIn">
                 <div className="flex items-center justify-between mb-6">
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Notifications</h2>
-                  {notifications.some(n => !n.isRead) && (
-                    <button onClick={async () => { await api.put('/notifications/read-all'); setNotifications(prev => prev.map(n => ({ ...n, isRead: true }))); }} className="text-sm text-primary-600 font-medium hover:underline">Mark all as read</button>
-                  )}
+                  <div className="flex items-center gap-4">
+                    {notificationPermission === 'default' && (
+                      <button onClick={enableNotifications} className="text-sm bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1.5 rounded-lg font-bold hover:bg-blue-200 dark:hover:bg-blue-800/50 transition-colors hidden sm:block">
+                        Enable Push Notifications
+                      </button>
+                    )}
+                    {notifications.some(n => !n.isRead) && (
+                      <button onClick={async () => { await api.put('/notifications/read-all'); setNotifications(prev => prev.map(n => ({ ...n, isRead: true }))); }} className="text-sm text-primary-600 font-medium hover:underline">Mark all as read</button>
+                    )}
+                  </div>
                 </div>
+                {notificationPermission === 'default' && (
+                  <div className="mb-6 sm:hidden bg-blue-50 dark:bg-blue-900/20 p-4 rounded-xl border border-blue-100 dark:border-blue-900/30 flex items-center justify-between">
+                    <span className="text-sm text-blue-800 dark:text-blue-300 font-medium">Want instant alerts?</span>
+                    <button onClick={enableNotifications} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-blue-700 transition-colors">
+                      Enable
+                    </button>
+                  </div>
+                )}
                 {notifications.length === 0 ? (
                   <div className="text-center py-12">
                     <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"><Bell className="text-gray-400" size={32} /></div>
