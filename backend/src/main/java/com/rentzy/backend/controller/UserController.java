@@ -50,7 +50,8 @@ public class UserController {
                 Map.entry("kycDocumentUrl", user.getKycDocumentUrl() != null ? user.getKycDocumentUrl() : ""),
                 Map.entry("kycDocumentType", user.getKycDocumentType() != null ? user.getKycDocumentType() : ""),
                 Map.entry("kycDocumentNumber", user.getKycDocumentNumber() != null ? user.getKycDocumentNumber() : ""),
-                Map.entry("isVerified", user.getIsVerified() != null ? user.getIsVerified() : false)
+                Map.entry("isVerified", user.getIsVerified() != null ? user.getIsVerified() : false),
+                Map.entry("contactShared", user.getContactShared() != null ? user.getContactShared() : false)
         ));
     }
 
@@ -116,6 +117,7 @@ public class UserController {
         if (body.containsKey("businessDescription")) user.setBusinessDescription(body.get("businessDescription"));
         if (body.containsKey("serviceCity")) user.setServiceCity(body.get("serviceCity"));
         if (body.containsKey("city")) user.setCity(body.get("city"));
+        if (body.containsKey("contactShared")) user.setContactShared(Boolean.parseBoolean(String.valueOf(body.get("contactShared"))));
 
         if (body.containsKey("role")) {
             try {
@@ -195,15 +197,21 @@ public class UserController {
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return ResponseEntity.ok(Map.ofEntries(
-                Map.entry("id", user.getId()),
-                Map.entry("userCode", user.getUserCode() != null ? user.getUserCode() : ""),
-                Map.entry("name", user.getName() != null ? user.getName() : "Unknown User"),
-                Map.entry("role", user.getRole().name()),
-                Map.entry("profilePhoto", user.getProfilePhoto() != null ? user.getProfilePhoto() : ""),
-                Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
-                Map.entry("kycStatus", user.getKycStatus())
-        ));
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("id", user.getId());
+        response.put("userCode", user.getUserCode() != null ? user.getUserCode() : "");
+        response.put("name", user.getName() != null ? user.getName() : "Unknown User");
+        response.put("role", user.getRole().name());
+        response.put("profilePhoto", user.getProfilePhoto() != null ? user.getProfilePhoto() : "");
+        response.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : "");
+        response.put("kycStatus", user.getKycStatus());
+        
+        if (Boolean.TRUE.equals(user.getContactShared())) {
+            response.put("email", user.getEmail());
+            response.put("phone", user.getPhone());
+        }
+        
+        return ResponseEntity.ok(response);
     }
 
     // Search users by name or 10-digit userCode

@@ -98,7 +98,7 @@ const DashboardPage = () => {
       api.get('/listings/my').then(r => setMyListings(r.data)).catch(() => {}).finally(() => setLoadingListings(false));
     }
     if (activeTab === 'profile') {
-      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role, profilePhoto: r.data.profilePhoto || '', city: r.data.city || '' }); }).catch(() => {});
+      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role, profilePhoto: r.data.profilePhoto || '', city: r.data.city || '', contactShared: r.data.contactShared || false }); }).catch(() => {});
     }
     if (activeTab === 'notifications') {
       api.get('/notifications').then(r => setNotifications(r.data)).catch(() => {});
@@ -476,6 +476,23 @@ const DashboardPage = () => {
                       ) : (
                         <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3">{profile.phone || 'Not set'}</p>
                       )}
+                    </div>
+                    {/* Privacy Toggle */}
+                    <div className="md:col-span-2 mt-2">
+                      <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center justify-between shadow-sm">
+                        <div>
+                          <h4 className="text-sm font-bold text-gray-900">Share Contact Details</h4>
+                          <p className="text-xs text-gray-500 mt-1">Allow others to see your email and phone number on your public profile</p>
+                        </div>
+                        <button
+                          type="button"
+                          disabled={!editingProfile}
+                          onClick={() => setProfileForm(p => ({ ...p, contactShared: !p.contactShared }))}
+                          className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${!editingProfile ? 'opacity-50 cursor-not-allowed' : ''} ${profileForm.contactShared ? 'bg-primary-600' : 'bg-gray-200'}`}
+                        >
+                          <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${profileForm.contactShared ? 'translate-x-5' : 'translate-x-0'}`} />
+                        </button>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">City</label>

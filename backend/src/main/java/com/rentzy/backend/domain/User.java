@@ -98,7 +98,11 @@ public class User implements UserDetails {
 
     @Column
     @Builder.Default
-    private String kycStatus = "NONE"; // NONE, PENDING, APPROVED, REJECTED
+    private String kycStatus = "PENDING"; // PENDING, APPROVED, REJECTED
+
+    @Column
+    @Builder.Default
+    private Boolean contactShared = false;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @JsonIgnore

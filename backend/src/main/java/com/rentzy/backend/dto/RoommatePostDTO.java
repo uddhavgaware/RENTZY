@@ -46,10 +46,11 @@ public class RoommatePostDTO {
             userDTO = RoommateUserDTO.builder()
                 .id(post.getUser().getId())
                 .name(post.getUser().getName())
-                .email(post.getUser().getEmail())
                 .role(post.getUser().getRole() != null ? post.getUser().getRole().name() : null)
                 .isVerified(post.getUser().getIsVerified())
                 .gender(post.getUser().getGender())
+                .email(Boolean.TRUE.equals(post.getUser().getContactShared()) ? post.getUser().getEmail() : null)
+                .phone(Boolean.TRUE.equals(post.getUser().getContactShared()) ? post.getUser().getPhone() : null)
                 .build();
         }
 
