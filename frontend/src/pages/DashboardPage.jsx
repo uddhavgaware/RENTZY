@@ -223,20 +223,49 @@ const DashboardPage = () => {
   const [kycDocType, setKycDocType] = useState('AADHAAR');
   const [kycDocNumber, setKycDocNumber] = useState('');
   const [kycCameraActive, setKycCameraActive] = useState(false);
-  const [kycPhotos, setKycPhotos] = useState({ front: null, back: null, face: null });
+  const [kycPhotos, setKycPhotos] = useState({ front: null, back: null, face: null, licence: null });
   const [kycCurrentCapture, setKycCurrentCapture] = useState(null);
   const [kycFacingMode, setKycFacingMode] = useState('environment');
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const streamRef = useRef(null); // Holds the MediaStream so we can attach it after video mounts
+  const [faceDetected, setFaceDetected] = useState(false);
+  const animationFrameRef = useRef(null);
 
   // Attach stream to <video> element AFTER it mounts (when kycCameraActive becomes true)
   useEffect(() => {
     if (kycCameraActive && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
       videoRef.current.play().catch(() => {});
+      
+      if (kycCurrentCapture === 'face') {
+        setFaceDetected(false);
+        const scanFace = async () => {
+          if (!videoRef.current || videoRef.current.readyState < 2) {
+             animationFrameRef.current = requestAnimationFrame(scanFace);
+             return;
+          }
+          if ('FaceDetector' in window) {
+            try {
+              const detector = new window.FaceDetector({ maxDetectedFaces: 1 });
+              const faces = await detector.detect(videoRef.current);
+              setFaceDetected(faces.length > 0);
+            } catch (e) {
+               if (!faceDetected) setTimeout(() => setFaceDetected(true), 2500);
+            }
+          } else {
+            if (!faceDetected) setTimeout(() => setFaceDetected(true), 2500);
+          }
+          animationFrameRef.current = requestAnimationFrame(scanFace);
+        };
+        scanFace();
+      }
     }
-  }, [kycCameraActive]);
+    
+    return () => {
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    };
+  }, [kycCameraActive, kycCurrentCapture]);
 
   const startCamera = async (step) => {
     try {
@@ -310,8 +339,12 @@ const DashboardPage = () => {
   }
 
   const handleKycSubmit = async () => {
-    if (!kycPhotos.front || !kycPhotos.back || !kycPhotos.face || !kycDocNumber || !kycDocType) {
-       showModal({ type: 'alert', title: 'Incomplete', message: "Please capture front, back, and face photos.", onConfirm: closeModal });
+    if (!profile?.name || !profile?.phone || !profile?.city) {
+       showModal({ type: 'alert', title: 'Incomplete Profile', message: 'Please complete your Profile Details (Name, Phone, City) before submitting KYC.', onConfirm: closeModal });
+       return;
+    }
+    if (!kycPhotos.front || !kycPhotos.back || !kycPhotos.face || !kycDocNumber || !kycDocType || (profile?.role === 'MOVER' && !kycPhotos.licence)) {
+       showModal({ type: 'alert', title: 'Incomplete', message: profile?.role === 'MOVER' ? "Please capture all documents including Driving Licence and provide document details." : "Please capture front, back, and face photos, and provide document details.", onConfirm: closeModal });
        return;
     }
     setUploadingKyc(true);
@@ -320,6 +353,9 @@ const DashboardPage = () => {
       formData.append('files', dataURLtoFile(kycPhotos.front, 'front.jpg'));
       formData.append('files', dataURLtoFile(kycPhotos.back, 'back.jpg'));
       formData.append('files', dataURLtoFile(kycPhotos.face, 'face.jpg'));
+      if (profile?.role === 'MOVER' && kycPhotos.licence) {
+        formData.append('files', dataURLtoFile(kycPhotos.licence, 'licence.jpg'));
+      }
       
       const uploadRes = await api.post('/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -609,20 +645,22 @@ const DashboardPage = () => {
                             
                             {/* CAMERA VIEW (Shared) */}
                             {kycCameraActive && (
-                              <div className="relative rounded-xl overflow-hidden bg-black w-full h-[65vh] sm:h-[500px] flex items-center justify-center border-4 border-primary-500 shadow-2xl">
+                              <div className="relative rounded-xl overflow-hidden bg-black w-full max-w-[450px] aspect-square mx-auto flex items-center justify-center border-4 border-primary-500 shadow-2xl">
                                 <video ref={videoRef} className={`w-full h-full object-cover ${kycCurrentCapture === 'face' ? '-scale-x-100' : ''}`} autoPlay playsInline muted></video>
                                 
                                 {/* Overlay for Face */}
                                 {kycCurrentCapture === 'face' && (
                                   <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-                                    <div className="w-48 h-64 border-4 border-green-500 rounded-[50%] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)]"></div>
-                                    <p className="text-white font-bold mt-4 drop-shadow-md">Align your face inside the oval</p>
+                                    <div className={`w-56 h-72 border-4 ${faceDetected ? 'border-green-500' : 'border-red-500'} rounded-[50%] shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] transition-colors duration-300`}></div>
+                                    <p className={`font-bold mt-4 drop-shadow-md px-4 py-1.5 rounded-full backdrop-blur-md text-xs sm:text-sm transition-colors duration-300 ${faceDetected ? 'bg-green-500/80 text-white' : 'bg-red-500/80 text-white'}`}>
+                                      {faceDetected ? '✓ Face Detected! Ready to Capture' : 'Align your face inside the oval'}
+                                    </p>
                                   </div>
                                 )}
                                 
                                 <div className="absolute top-4 right-4 z-20">
-                                  <button onClick={toggleCamera} className="bg-black/50 hover:bg-black/70 text-white p-2 rounded-full backdrop-blur transition-colors">
-                                    🔄 Switch
+                                  <button onClick={toggleCamera} className="w-12 h-12 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center backdrop-blur-md transition-all active:scale-90 border border-white/20 shadow-lg">
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
                                   </button>
                                 </div>
                                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4 z-20">
@@ -632,7 +670,7 @@ const DashboardPage = () => {
                               </div>
                             )}
 
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className={`grid grid-cols-1 md:grid-cols-${profile?.role === 'MOVER' ? '4' : '3'} gap-4`}>
                               {/* FRONT */}
                               <div className="flex flex-col gap-2">
                                 <span className="text-xs font-bold text-gray-500 uppercase">1. Front Side</span>
@@ -677,6 +715,23 @@ const DashboardPage = () => {
                                   </div>
                                 )}
                               </div>
+                              
+                              {/* MOVER LICENCE */}
+                              {profile?.role === 'MOVER' && (
+                                <div className="flex flex-col gap-2">
+                                  <span className="text-xs font-bold text-gray-500 uppercase">4. Driving Licence</span>
+                                  {!kycPhotos.licence ? (
+                                    <button disabled={kycCameraActive} onClick={() => startCamera('licence')} className="h-32 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center hover:bg-gray-50 hover:border-primary-500 transition-colors disabled:opacity-50">
+                                      <span className="text-gray-500 text-sm font-medium">🚗 Capture Licence</span>
+                                    </button>
+                                  ) : (
+                                    <div className="relative h-32 rounded-xl overflow-hidden bg-black group">
+                                      <img src={kycPhotos.licence} alt="Licence" className="w-full h-full object-cover opacity-80" />
+                                      <button onClick={() => retakePhoto('licence')} className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 text-white text-sm font-medium transition-opacity">Retake</button>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                             
                             <canvas ref={canvasRef} className="hidden"></canvas>
@@ -685,7 +740,7 @@ const DashboardPage = () => {
                           <div className="pt-6 flex justify-end">
                             <button 
                               onClick={handleKycSubmit} 
-                              disabled={!kycPhotos.front || !kycPhotos.back || !kycPhotos.face || !kycDocNumber || uploadingKyc} 
+                              disabled={uploadingKyc} 
                               className="bg-primary-600 text-white px-6 py-2.5 rounded-xl font-medium disabled:opacity-50 transition-colors"
                             >
                               {uploadingKyc ? 'Submitting...' : 'Submit for Verification'}

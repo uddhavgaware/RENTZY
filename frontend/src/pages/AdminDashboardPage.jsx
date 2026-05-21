@@ -682,126 +682,145 @@ const AdminDashboardPage = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                      {filteredUsers.map(u => (
-                        <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
-                          <td className="px-6 py-4">
-                            {u.role !== 'ADMIN' ? (
-                              <input 
-                                type="checkbox" 
-                                className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
-                                checked={selectedUsers.includes(u.id)}
-                                onChange={() => toggleSelectUser(u.id)}
-                              />
-                            ) : (
-                              <div className="w-4 h-4"></div>
-                            )}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
-                                {u.name?.charAt(0)}
-                              </div>
-                              <span className={`font-medium ${u.isBlocked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>{u.name}</span>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col">
-                              <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">{u.email}</span>
-                              {u.phone && <span className="text-gray-500 text-xs mt-1">📞 {u.phone}</span>}
-                              {u.gender && <span className="text-gray-400 text-xs mt-0.5">👤 {u.gender} {u.dob ? `| ${u.dob}` : ''}</span>}
-                              {u.occupation && <span className="text-gray-400 text-xs mt-0.5">💼 {u.occupation}</span>}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col gap-1 items-start">
-                              <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' :
-                                u.role === 'OWNER' ? 'bg-blue-100 text-blue-700' :
-                                u.role === 'MOVER' ? 'bg-green-100 text-green-700' :
-                                'bg-gray-100 text-gray-700'
-                              }`}>
-                                {u.role}
-                              </span>
-                              {(u.role === 'OWNER' || u.role === 'MOVER') && (
-                                <span className={`text-[10px] font-bold uppercase tracking-wider ${
-                                  u.kycStatus === 'APPROVED' ? 'text-green-600' :
-                                  u.kycStatus === 'PENDING' ? 'text-yellow-600' :
-                                  u.kycStatus === 'REJECTED' ? 'text-red-600' :
-                                  'text-gray-400'
-                                }`}>
-                                  KYC: {u.kycStatus || 'NONE'}
-                                </span>
+                      {(() => {
+                        const pendingMovers = filteredUsers.filter(u => u.kycStatus === 'PENDING' && u.role === 'MOVER');
+                        const pendingOwners = filteredUsers.filter(u => u.kycStatus === 'PENDING' && u.role === 'OWNER');
+                        const otherUsers = filteredUsers.filter(u => !(u.kycStatus === 'PENDING' && (u.role === 'MOVER' || u.role === 'OWNER')));
+                        
+                        const renderUserRow = (u) => (
+                          <tr key={u.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                            <td className="px-6 py-4">
+                              {u.role !== 'ADMIN' ? (
+                                <input 
+                                  type="checkbox" 
+                                  className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500 cursor-pointer"
+                                  checked={selectedUsers.includes(u.id)}
+                                  onChange={() => toggleSelectUser(u.id)}
+                                />
+                              ) : (
+                                <div className="w-4 h-4"></div>
                               )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4">
-                            {u.role !== 'ADMIN' && (
-                              <div className="flex flex-col gap-2">
-                                {u.kycStatus === 'PENDING' && (u.role === 'OWNER' || u.role === 'MOVER') && (
-                                    <div className="flex flex-col gap-1">
-                                      <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">{u.kycDocumentType || 'Document'}: {u.kycDocumentNumber || 'No Number'}</p>
-                                      <div className="flex flex-wrap gap-1 mb-1">
-                                        {u.kycDocumentUrl?.split(',').map((url, i) => (
-                                          <a 
-                                            key={i}
-                                            href={url} 
-                                            target="_blank" 
-                                            rel="noopener noreferrer" 
-                                            className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold hover:bg-blue-100 text-center"
-                                          >
-                                            View {i === 0 ? 'Front' : i === 1 ? 'Back' : 'Face'}
-                                          </a>
-                                        ))}
-                                      </div>
-                                      <div className="flex items-center gap-2 mt-1">
-                                        <button
-                                          onClick={() => approveKyc(u.id)}
-                                          className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded font-medium hover:bg-green-100"
-                                        >
-                                          Approve
-                                        </button>
-                                        <button
-                                          onClick={() => rejectKyc(u.id)}
-                                          className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-medium hover:bg-red-100"
-                                        >
-                                          Reject
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-                                {(u.kycStatus === 'APPROVED' || u.kycStatus === 'REJECTED') && (u.role === 'OWNER' || u.role === 'MOVER') && (
-                                    <button
-                                      onClick={() => undoKyc(u.id)}
-                                      className="text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded font-medium hover:bg-gray-200 dark:hover:bg-slate-600 mt-1 w-fit"
-                                    >
-                                      Undo KYC Action
-                                    </button>
-                                )}
-                                <div className="flex gap-2">
-                                  <button
-                                    onClick={() => warnUser(u.id)}
-                                    className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
-                                  >
-                                    Warn
-                                  </button>
-                                  <button
-                                    onClick={() => toggleBlockUser(u.id, u.isBlocked)}
-                                    className={`${u.isBlocked ? 'text-green-600 hover:text-green-700 hover:bg-green-50' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'} px-2 py-1 rounded-lg transition-colors text-xs font-semibold`}
-                                  >
-                                    {u.isBlocked ? 'Unblock' : 'Block'}
-                                  </button>
-                                  <button
-                                    onClick={() => deleteUser(u.id)}
-                                    className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
-                                  >
-                                    Delete
-                                  </button>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
+                                  {u.name?.charAt(0)}
                                 </div>
+                                <span className={`font-medium ${u.isBlocked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>{u.name}</span>
                               </div>
-                            )}
-                          </td>
-                        </tr>
-                      ))}
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col">
+                                <span className="text-gray-600 dark:text-gray-300 text-sm font-medium">{u.email}</span>
+                                {u.phone && <span className="text-gray-500 text-xs mt-1">📞 {u.phone}</span>}
+                                {u.gender && <span className="text-gray-400 text-xs mt-0.5">👤 {u.gender} {u.dob ? `| ${u.dob}` : ''}</span>}
+                                {u.occupation && <span className="text-gray-400 text-xs mt-0.5">💼 {u.occupation}</span>}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="flex flex-col gap-1 items-start">
+                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                  u.role === 'ADMIN' ? 'bg-purple-100 text-purple-700' :
+                                  u.role === 'OWNER' ? 'bg-blue-100 text-blue-700' :
+                                  u.role === 'MOVER' ? 'bg-green-100 text-green-700' :
+                                  'bg-gray-100 text-gray-700'
+                                }`}>
+                                  {u.role}
+                                </span>
+                                {(u.role === 'OWNER' || u.role === 'MOVER') && (
+                                  <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                                    u.kycStatus === 'APPROVED' ? 'text-green-600' :
+                                    u.kycStatus === 'PENDING' ? 'text-yellow-600' :
+                                    u.kycStatus === 'REJECTED' ? 'text-red-600' :
+                                    'text-gray-400'
+                                  }`}>
+                                    KYC: {u.kycStatus || 'NONE'}
+                                  </span>
+                                )}
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              {u.role !== 'ADMIN' && (
+                                <div className="flex flex-col gap-2">
+                                  {u.kycStatus === 'PENDING' && (u.role === 'OWNER' || u.role === 'MOVER') && (
+                                      <div className="flex flex-col gap-1">
+                                        <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">{u.kycDocumentType || 'Document'}: {u.kycDocumentNumber || 'No Number'}</p>
+                                        <div className="flex flex-wrap gap-1 mb-1">
+                                          {u.kycDocumentUrl?.split(',').map((url, i) => (
+                                            <a 
+                                              key={i}
+                                              href={url} 
+                                              target="_blank" 
+                                              rel="noopener noreferrer" 
+                                              className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold hover:bg-blue-100 text-center"
+                                            >
+                                              View {i === 0 ? 'Front' : i === 1 ? 'Back' : i === 2 ? 'Face' : 'Licence'}
+                                            </a>
+                                          ))}
+                                        </div>
+                                        <div className="flex items-center gap-2 mt-1">
+                                          <button
+                                            onClick={() => approveKyc(u.id)}
+                                            className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded font-medium hover:bg-green-100"
+                                          >
+                                            Approve
+                                          </button>
+                                          <button
+                                            onClick={() => rejectKyc(u.id)}
+                                            className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-medium hover:bg-red-100"
+                                          >
+                                            Reject
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+                                  {(u.kycStatus === 'APPROVED' || u.kycStatus === 'REJECTED') && (u.role === 'OWNER' || u.role === 'MOVER') && (
+                                      <button
+                                        onClick={() => undoKyc(u.id)}
+                                        className="text-xs bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded font-medium hover:bg-gray-200 dark:hover:bg-slate-600 mt-1 w-fit"
+                                      >
+                                        Undo KYC Action
+                                      </button>
+                                  )}
+                                  <div className="flex gap-2">
+                                    <button
+                                      onClick={() => warnUser(u.id)}
+                                      className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
+                                    >
+                                      Warn
+                                    </button>
+                                    <button
+                                      onClick={() => toggleBlockUser(u.id, u.isBlocked)}
+                                      className={`${u.isBlocked ? 'text-green-600 hover:text-green-700 hover:bg-green-50' : 'text-orange-600 hover:text-orange-700 hover:bg-orange-50'} px-2 py-1 rounded-lg transition-colors text-xs font-semibold`}
+                                    >
+                                      {u.isBlocked ? 'Unblock' : 'Block'}
+                                    </button>
+                                    <button
+                                      onClick={() => deleteUser(u.id)}
+                                      className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+
+                        return (
+                          <>
+                            {pendingMovers.length > 0 && <tr><td colSpan="5" className="px-6 py-2 bg-orange-50 dark:bg-orange-900/30 text-orange-800 dark:text-orange-400 font-bold text-xs uppercase tracking-wider border-y border-orange-100 dark:border-orange-900/50">Pending Mover KYC Approvals ({pendingMovers.length})</td></tr>}
+                            {pendingMovers.map(renderUserRow)}
+                            
+                            {pendingOwners.length > 0 && <tr><td colSpan="5" className="px-6 py-2 bg-blue-50 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 font-bold text-xs uppercase tracking-wider border-y border-blue-100 dark:border-blue-900/50">Pending Owner KYC Approvals ({pendingOwners.length})</td></tr>}
+                            {pendingOwners.map(renderUserRow)}
+
+                            {otherUsers.length > 0 && <tr><td colSpan="5" className="px-6 py-2 bg-gray-50 dark:bg-slate-700/50 text-gray-800 dark:text-gray-300 font-bold text-xs uppercase tracking-wider border-y border-gray-100 dark:border-white/10">All Other Users ({otherUsers.length})</td></tr>}
+                            {otherUsers.map(renderUserRow)}
+                          </>
+                        );
+                      })()}
                     </tbody>
                   </table>
                 </div>
