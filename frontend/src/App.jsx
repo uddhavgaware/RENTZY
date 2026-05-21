@@ -56,7 +56,8 @@ const AdminRoute = ({ children }) => {
 };
 
 function App() {
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "872152634254-62koq8amssj0d0l6gqnta33kv3is670u.apps.googleusercontent.com";
+  // Google Client ID must be set via VITE_GOOGLE_CLIENT_ID env var (never hardcode here)
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>

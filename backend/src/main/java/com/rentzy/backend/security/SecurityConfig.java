@@ -31,19 +31,33 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
+                // ── Public: Auth endpoints ──
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/uploads/**").permitAll()  // Public: serve uploaded images
+                // ── Public: Static uploads ──
+                .requestMatchers("/uploads/**").permitAll()
+                // ── Public: WebSocket ──
+                .requestMatchers("/ws/**").permitAll()
+                // ── Public: Listing reads ──
                 .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/**").permitAll()
+                // ── Public: Review reads ──
                 .requestMatchers(HttpMethod.GET, "/api/reviews", "/api/reviews/**").permitAll()
+                // ── Public: Roommate reads ──
                 .requestMatchers(HttpMethod.GET, "/api/roommates", "/api/roommates/**").permitAll()
+                // ── Public: User reads (owner profile, support button, user search) ──
+                .requestMatchers(HttpMethod.GET, "/api/users/admin").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/search").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                // ── Listing mutations: OWNER / ADMIN only ──
                 .requestMatchers(HttpMethod.POST, "/api/listings/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/listings/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/listings/**").hasAnyRole("OWNER", "ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/listings/**").hasAnyRole("OWNER", "ADMIN")
+                // ── Admin-only ──
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/moving/admin/**").hasRole("ADMIN")
+                // ── Mover-only ──
                 .requestMatchers("/api/moving/vendor/**").hasRole("MOVER")
-                .requestMatchers("/ws/**").permitAll()
+                // ── Everything else requires authentication ──
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

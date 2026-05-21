@@ -36,7 +36,7 @@ public class AuthService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    @org.springframework.beans.factory.annotation.Value("${google.client.id:872152634254-62koq8amssj0d0l6gqnta33kv3is670u.apps.googleusercontent.com}")
+    @org.springframework.beans.factory.annotation.Value("${google.client.id}")
     private String googleClientId;
 
     @org.springframework.beans.factory.annotation.Value("${frontend.url:http://localhost:5173}")
