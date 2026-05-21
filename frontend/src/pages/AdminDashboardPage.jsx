@@ -753,6 +753,7 @@ const AdminDashboardPage = () => {
                                           </a>
                                         ))}
                                       </div>
+                                      <div className="flex items-center gap-2 mt-1">
                                         <button
                                           onClick={() => approveKyc(u.id)}
                                           className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded font-medium hover:bg-green-100"
