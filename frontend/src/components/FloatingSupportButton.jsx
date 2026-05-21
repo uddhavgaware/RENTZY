@@ -131,7 +131,7 @@ const FloatingSupportButton = () => {
   };
 
   return (
-    <div className="fixed bottom-22 md:bottom-6 right-6 z-[999] flex flex-col items-end gap-3 font-sans select-none">
+    <div className="fixed bottom-28 md:bottom-6 right-6 z-[999] flex flex-col items-end gap-3 font-sans select-none">
 
       {/* Interactive AI Chat Window */}
       {open && (
