@@ -202,7 +202,7 @@ const LandingPage = () => {
     }
   }, []);
 
-  const AI_SCORES = [98, 95, 93, 91, 88, 85];
+
 
   return (
     <div className="flex flex-col min-h-screen overflow-x-hidden">
@@ -366,9 +366,9 @@ const LandingPage = () => {
                     to={`/listings/${listing.id}`}
                     className="group relative bg-white/5 hover:bg-white/8 border border-white/10 hover:border-indigo-500/40 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10"
                   >
-                    {/* AI Score Badge */}
+                    {/* Location Badge */}
                     <div className="absolute top-3 left-3 z-10 flex items-center gap-1 bg-indigo-600/90 text-white text-[10px] font-black px-2 py-1 rounded-full shadow-lg">
-                      ✨ {AI_SCORES[idx] || 85}% Match
+                      📍 Near You
                     </div>
                     {listing.imageUrl || (listing.images && listing.images[0]) ? (
                       <img
@@ -570,8 +570,8 @@ const LandingPage = () => {
                       <Star size={18} className="fill-current" />
                     </div>
                     <div>
-                      <h4 className="text-white font-bold text-sm">98% Match Score</h4>
-                      <p className="text-gray-400 text-[11px]">Highly compatible preferences</p>
+                      <h4 className="text-white font-bold text-sm">AI Compatibility Engine</h4>
+                      <p className="text-gray-400 text-[11px]">10-factor weighted algorithm</p>
                     </div>
                   </div>
                   <div className="text-right">

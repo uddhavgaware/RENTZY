@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Upload, IndianRupee, MapPin, Home, AlignLeft, CheckCircle2, X, Star, Image, Map as MapIcon } from 'lucide-react';
+import { Upload, IndianRupee, MapPin, Home, AlignLeft, CheckCircle2, X, Star, Image, Map as MapIcon, Sparkles } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 import { useAuth } from '../context/AuthContext';
@@ -115,6 +115,44 @@ const PostPropertyPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [aiGenerating, setAiGenerating] = useState(false);
+
+  const generateAIDescription = () => {
+    setAiGenerating(true);
+    setTimeout(() => {
+      const type = formData.type || 'property';
+      const config = formData.configuration || '';
+      const furnish = formData.furnishing || '';
+      const area = formData.areaSqft ? `${formData.areaSqft} sq.ft.` : '';
+      const face = formData.facing || '';
+      const elec = formData.electricityBill === 'Included' ? 'electricity included' : '';
+      const water = formData.waterSupply === 'Included' ? 'water supply included' : '';
+      const maint = formData.maintenance === 'Included' ? 'maintenance included' : '';
+      const selectedAmenities = amenities.length > 0 ? amenities.join(', ') : '';
+      const loc = formData.areaName || formData.villageCityTown || formData.location || '';
+      const price = formData.price ? `₹${parseInt(formData.price).toLocaleString('en-IN')}/month` : '';
+
+      const inclusions = [elec, water, maint].filter(Boolean);
+      const inclusionsText = inclusions.length > 0 ? `Inclusions: ${inclusions.join(', ')}.` : '';
+
+      const openings = [
+        `Welcome to this beautifully maintained ${furnish.toLowerCase()} ${config} ${type.toLowerCase()}`,
+        `Discover this stunning ${furnish.toLowerCase()} ${config} ${type.toLowerCase()}`,
+        `A premium ${furnish.toLowerCase()} ${config} ${type.toLowerCase()} awaits you`,
+      ];
+      const opening = openings[Math.floor(Math.random() * openings.length)];
+
+      let desc = `${opening}${loc ? ` located in the prime area of ${loc}` : ''}.`;
+      if (area) desc += ` Spanning ${area}${face ? ` with a pleasant ${face.toLowerCase()}-facing orientation` : ''}, this property offers ample natural light and ventilation.`;
+      if (selectedAmenities) desc += ` Key amenities include ${selectedAmenities} — everything you need for a comfortable modern lifestyle.`;
+      if (inclusionsText) desc += ` ${inclusionsText}`;
+      if (price) desc += ` Available at just ${price} — zero brokerage, direct owner listing.`;
+      desc += ` Schedule a visit today and experience it firsthand!`;
+
+      setFormData(prev => ({ ...prev, description: desc }));
+      setAiGenerating(false);
+    }, 1500);
+  };
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -443,8 +481,24 @@ const PostPropertyPage = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                  <textarea name="description" value={formData.description} onChange={handleChange} rows="4" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="Describe your property..." required></textarea>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <button
+                      type="button"
+                      onClick={generateAIDescription}
+                      disabled={aiGenerating}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 ${
+                        aiGenerating
+                          ? 'bg-indigo-100 text-indigo-400 cursor-wait animate-pulse'
+                          : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-indigo-500/20'
+                      }`}
+                    >
+                      <Sparkles size={14} className={aiGenerating ? 'animate-spin' : ''} />
+                      {aiGenerating ? 'Writing...' : '✨ Generate with AI'}
+                    </button>
+                  </div>
+                  <textarea name="description" value={formData.description} onChange={handleChange} rows="5" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="Describe your property or click 'Generate with AI' to auto-write a professional description..." required></textarea>
+                  <p className="text-xs text-gray-400 mt-1">💡 Tip: Fill in the property details above first, then click "Generate with AI" for a better description.</p>
                 </div>
               </div>
             )}

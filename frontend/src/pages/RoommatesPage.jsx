@@ -366,8 +366,8 @@ const RoommatesPage = () => {
         highlightText="Perfect Match"
         highlightColorClass="text-pink-400"
         subtitle="Connect with like-minded people, split the rent, and make lifelong friends in your new city."
-        videoSrc="https://videos.pexels.com/video-files/1779202/1779202-uhd_2560_1440_30fps.mp4"
-        fallbackImg="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1920&q=80"
+        videoSrc="https://videos.pexels.com/video-files/5977797/5977797-uhd_2560_1440_25fps.mp4"
+        fallbackImg="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1920&q=80"
       >
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full max-w-lg mx-auto">
           <button 
@@ -555,13 +555,58 @@ const RoommatesPage = () => {
                 
                 let matchScore = null;
                 if (!isOwner && myPost) {
-                  let score = 0;
-                  let total = 4;
-                  if (myPost.smokingPref === roommate.smokingPref || myPost.smokingPref === 'Smoking Okay' || roommate.smokingPref === 'Smoking Okay') score++;
-                  if (myPost.drinkingPref === roommate.drinkingPref || myPost.drinkingPref === 'Drinking Okay' || roommate.drinkingPref === 'Drinking Okay') score++;
-                  if (myPost.petsPref === roommate.petsPref || myPost.petsPref === 'Pets Welcome' || roommate.petsPref === 'Pets Welcome') score++;
-                  if (myPost.targetOccupation === 'Any' || roommate.targetOccupation === 'Any' || myPost.targetOccupation === roommate.targetOccupation) score++;
-                  matchScore = Math.round((score / total) * 100);
+                  let weightedScore = 0;
+                  let totalWeight = 0;
+
+                  // Factor 1: Smoking (weight: 15)
+                  totalWeight += 15;
+                  if (myPost.smokingPref === roommate.smokingPref) weightedScore += 15;
+                  else if (myPost.smokingPref === 'Smoking Okay' || roommate.smokingPref === 'Smoking Okay') weightedScore += 10;
+
+                  // Factor 2: Drinking (weight: 12)
+                  totalWeight += 12;
+                  if (myPost.drinkingPref === roommate.drinkingPref) weightedScore += 12;
+                  else if (myPost.drinkingPref === 'Drinking Okay' || roommate.drinkingPref === 'Drinking Okay') weightedScore += 8;
+
+                  // Factor 3: Pets (weight: 8)
+                  totalWeight += 8;
+                  if (myPost.petsPref === roommate.petsPref) weightedScore += 8;
+                  else if (myPost.petsPref === 'Pets Welcome' || roommate.petsPref === 'Pets Welcome') weightedScore += 5;
+
+                  // Factor 4: Dietary (weight: 15)
+                  totalWeight += 15;
+                  if (myPost.dietaryPref === roommate.dietaryPref) weightedScore += 15;
+                  else if (myPost.dietaryPref === 'Any' || roommate.dietaryPref === 'Any') weightedScore += 10;
+
+                  // Factor 5: Sleep Schedule (weight: 12)
+                  totalWeight += 12;
+                  if (myPost.sleepSchedule === roommate.sleepSchedule) weightedScore += 12;
+                  else if (myPost.sleepSchedule === 'Flexible' || roommate.sleepSchedule === 'Flexible') weightedScore += 8;
+
+                  // Factor 6: Cleanliness (weight: 10)
+                  totalWeight += 10;
+                  if (myPost.cleanlinessLevel === roommate.cleanlinessLevel) weightedScore += 10;
+                  else if (myPost.cleanlinessLevel === 'Moderate' || roommate.cleanlinessLevel === 'Moderate') weightedScore += 6;
+
+                  // Factor 7: Occupation (weight: 8)
+                  totalWeight += 8;
+                  if (myPost.targetOccupation === 'Any' || roommate.targetOccupation === 'Any' || myPost.targetOccupation === roommate.targetOccupation) weightedScore += 8;
+
+                  // Factor 8: Gender Preference (weight: 10)
+                  totalWeight += 10;
+                  if (myPost.targetGender === 'Any' || roommate.targetGender === 'Any' || myPost.targetGender === roommate.targetGender) weightedScore += 10;
+                  else if ((myPost.gender || myPost.user?.gender) && roommate.targetGender === (myPost.gender || myPost.user?.gender)) weightedScore += 10;
+
+                  // Factor 9: Budget Range (weight: 10) — within 30% = full, within 60% = half
+                  totalWeight += 10;
+                  if (myPost.budget && roommate.budget) {
+                    const budgetDiff = Math.abs(myPost.budget - roommate.budget) / Math.max(myPost.budget, roommate.budget);
+                    if (budgetDiff <= 0.15) weightedScore += 10;
+                    else if (budgetDiff <= 0.3) weightedScore += 7;
+                    else if (budgetDiff <= 0.6) weightedScore += 3;
+                  }
+
+                  matchScore = Math.round((weightedScore / totalWeight) * 100);
                 }
 
                 const splitRent = roommate.totalCapacity > 1 && roommate.budget ? Math.round(roommate.budget / roommate.totalCapacity) : null;

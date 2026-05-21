@@ -51,11 +51,10 @@ const FloatingSupportButton = () => {
     }
   };
 
-  const handleSendMessage = (textToSend = '') => {
+  const handleSendMessage = async (textToSend = '') => {
     const query = textToSend.trim() || inputValue.trim();
     if (!query) return;
 
-    // Add user message
     const userMsg = {
       sender: 'user',
       text: query,
@@ -66,64 +65,142 @@ const FloatingSupportButton = () => {
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    // AI Semantic response generation
-    setTimeout(() => {
+    const lower = query.toLowerCase();
+
+    // Intent detection
+    const isGreeting = /^(hi|hello|hey|yo|sup|hola)\b/i.test(lower);
+    const wantsRoommate = /roommate|roomie|flatmate|partner|friend|match/i.test(lower);
+    const wantsMover = /packer|mover|moving|shift|truck|relocat/i.test(lower);
+    const wantsPost = /owner|list|post|rent out|add property/i.test(lower);
+    const wantsBrokerage = /brokerage|free|charge|commission|fee/i.test(lower);
+
+    // Extract location keywords (Indian cities/areas)
+    const locationPatterns = /(?:in|near|at|around|from)\s+([a-z\s]+?)(?:\s+under|\s+below|\s+within|\s+for|\s*$)/i;
+    const locMatch = lower.match(locationPatterns);
+    let searchLocation = locMatch ? locMatch[1].trim() : '';
+
+    // Also try direct city names
+    const knownCities = ['pune', 'mumbai', 'bangalore', 'bengaluru', 'delhi', 'kolhapur', 'satara', 'hyderabad', 'chennai', 'koregaon park', 'viman nagar', 'hinjewadi', 'kothrud', 'wakad', 'baner', 'hadapsar'];
+    if (!searchLocation) {
+      for (const city of knownCities) {
+        if (lower.includes(city)) { searchLocation = city; break; }
+      }
+    }
+
+    // Extract budget
+    const budgetMatch = lower.match(/(?:under|below|within|budget)\s*₹?\s*(\d+[,.]?\d*)\s*(k|lakh|thousand)?/i);
+    let maxBudget = null;
+    if (budgetMatch) {
+      maxBudget = parseFloat(budgetMatch[1].replace(',', ''));
+      if (budgetMatch[2] && /k|thousand/i.test(budgetMatch[2])) maxBudget *= 1000;
+      if (budgetMatch[2] && /lakh/i.test(budgetMatch[2])) maxBudget *= 100000;
+    }
+
+    try {
       let replyText = '';
       let actionButton = null;
-      const lower = query.toLowerCase();
+      let listingCards = null;
 
-      if (lower.includes('pune') || lower.includes('kolhapur') || lower.includes('satara') || lower.includes('maharashtra')) {
-        replyText = 'Excellent choice! Maharashtra is booming! We have active PGs, flats, and roommates available across Pune (Koregaon Park, Viman Nagar), Kolhapur, and Satara. All 100% brokerage-free!';
-        actionButton = {
-          label: '🔍 Browse Maharashtra Stays',
-          onClick: () => { navigate('/listings?location=Maharashtra'); setOpen(false); }
-        };
-      } else if (lower.includes('bangalore') || lower.includes('bengaluru') || lower.includes('karnataka')) {
-        replyText = 'Bangalore has some of our top-rated smart co-living homes and IT hub PGs! Check out our brokerage-free options in Indiranagar, HSR, and Whitefield.';
-        actionButton = {
-          label: '🏢 View Bangalore Flats',
-          onClick: () => { navigate('/listings?location=Bangalore'); setOpen(false); }
-        };
-      } else if (lower.includes('brokerage') || lower.includes('free') || lower.includes('charge') || lower.includes('commission')) {
-        replyText = 'Rentzy is completely brokerage-free! No hidden commissions, no middle-men. You connect directly with government ID-verified owners to book visits.';
-        actionButton = {
-          label: '🏠 Find A Stay Now',
-          onClick: () => { navigate('/listings'); setOpen(false); }
-        };
-      } else if (lower.includes('roommate') || lower.includes('roomie') || lower.includes('roomy') || lower.includes('partner') || lower.includes('friend')) {
-        replyText = 'Our AI Roommate Finder matches you with highly compatible partners based on lifestyle, diet (Veg/Non-Veg), gender preference, and hobbies!';
+      if (isGreeting) {
+        replyText = 'Hello! 👋 I\'m Rentzy AI — your smart property assistant. I can search real listings for you! Try asking:\n• "Flats in Pune under 15k"\n• "PG near Koregaon Park"\n• "Find me a roommate"';
+      } else if (wantsRoommate) {
+        replyText = 'Our AI Roommate Finder matches you with compatible partners using a 10-factor algorithm — analyzing diet, lifestyle, sleep habits, budget range, and more for a real compatibility score!';
         actionButton = {
           label: '🤝 Find Roommates',
           onClick: () => { navigate('/roommates'); setOpen(false); }
         };
-      } else if (lower.includes('packer') || lower.includes('mover') || lower.includes('moving') || lower.includes('shift') || lower.includes('truck')) {
-        replyText = 'Need relocation assistance? Rentzy Packers & Movers offers government ID-verified professional moving assistance with instant automated quotes!';
+      } else if (wantsMover) {
+        replyText = 'Need to relocate? Rentzy Movers provides verified packing & moving services with real-time route tracking on satellite maps!';
         actionButton = {
-          label: '🚚 Packers & Movers',
+          label: '🚚 Book Movers',
           onClick: () => { navigate('/movers'); setOpen(false); }
         };
-      } else if (lower.includes('hi') || lower.includes('hello') || lower.includes('hey') || lower.includes('yo')) {
-        replyText = 'Hello there! Rentzy AI here. I can help you locate PGs/flats in Pune, Satara, Kolhapur, find roommates, or guide you with packers & movers. What are you looking for today?';
-      } else if (lower.includes('owner') || lower.includes('list') || lower.includes('post') || lower.includes('rent out')) {
-        replyText = 'Listing your PG or Flat is completely free and takes less than 3 minutes! You can reach thousands of verified seekers instantly.';
+      } else if (wantsPost) {
+        replyText = 'Listing your property is 100% free! Our AI can even auto-write a professional description for you based on your property details. ✨';
         actionButton = {
-          label: '📤 Post Free Property',
+          label: '📤 Post Property Free',
           onClick: () => { navigate('/post-property'); setOpen(false); }
         };
+      } else if (wantsBrokerage) {
+        replyText = 'Rentzy is completely brokerage-free! No hidden commissions, no middlemen. You connect directly with KYC-verified owners.';
+        actionButton = {
+          label: '🏠 Browse Listings',
+          onClick: () => { navigate('/listings'); setOpen(false); }
+        };
+      } else if (searchLocation || maxBudget) {
+        // Actually search the database
+        const params = {};
+        if (searchLocation) params.location = searchLocation;
+        if (maxBudget) params.maxPrice = maxBudget;
+        params.size = 5;
+
+        const res = await api.get('/listings', { params });
+        const results = res.data?.content || res.data || [];
+
+        if (results.length > 0) {
+          const budgetText = maxBudget ? ` under ₹${maxBudget.toLocaleString('en-IN')}` : '';
+          replyText = `Found ${results.length} properties${searchLocation ? ` in ${searchLocation.charAt(0).toUpperCase() + searchLocation.slice(1)}` : ''}${budgetText}! Here are the top picks:`;
+          listingCards = results.slice(0, 3).map(l => ({
+            id: l.id,
+            title: l.title,
+            price: l.price,
+            location: l.location,
+            type: l.type,
+          }));
+          actionButton = {
+            label: `🔍 View All ${results.length} Results`,
+            onClick: () => { navigate(`/listings?location=${encodeURIComponent(searchLocation || '')}`); setOpen(false); }
+          };
+        } else {
+          replyText = `No listings found${searchLocation ? ` in ${searchLocation}` : ''}${maxBudget ? ` under ₹${maxBudget.toLocaleString('en-IN')}` : ''} yet. Try a broader search or browse all available properties!`;
+          actionButton = {
+            label: '🏠 Browse All Listings',
+            onClick: () => { navigate('/listings'); setOpen(false); }
+          };
+        }
       } else {
-        replyText = "I'm on it! Rentzy simplifies finding premium, zero-brokerage apartments, PGs, and verified roommates in key cities. How else can I assist you?";
+        // Try a general search with the whole query
+        try {
+          const res = await api.get('/listings', { params: { location: query, size: 3 } });
+          const results = res.data?.content || res.data || [];
+          if (results.length > 0) {
+            replyText = `I found ${results.length} listings matching "${query}":`;
+            listingCards = results.slice(0, 3).map(l => ({
+              id: l.id,
+              title: l.title,
+              price: l.price,
+              location: l.location,
+              type: l.type,
+            }));
+            actionButton = {
+              label: '🔍 View All Results',
+              onClick: () => { navigate(`/listings?location=${encodeURIComponent(query)}`); setOpen(false); }
+            };
+          } else {
+            replyText = 'I can help you find PGs, flats, roommates, or movers! Try asking something like:\n• "2BHK in Pune under 20k"\n• "PG near Hinjewadi"\n• "Find roommates in Kothrud"';
+          }
+        } catch {
+          replyText = 'I can help you find PGs, flats, roommates, or movers! Try asking something like:\n• "Flats in Pune under 20k"\n• "PG near Koregaon Park"\n• "Find roommates"';
+        }
       }
 
       const aiMsg = {
         sender: 'ai',
         text: replyText,
         action: actionButton,
+        listings: listingCards,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
 
       setMessages(prev => [...prev, aiMsg]);
-      setIsTyping(false);
-    }, 1200);
+    } catch (err) {
+      setMessages(prev => [...prev, {
+        sender: 'ai',
+        text: 'Oops, something went wrong searching our database. Please try again!',
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      }]);
+    }
+    setIsTyping(false);
   };
 
   const handleQuickOption = (opt) => {
@@ -233,7 +310,31 @@ const FloatingSupportButton = () => {
                         ? 'bg-indigo-600 text-white rounded-tr-none'
                         : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-700 rounded-tl-none'
                       }`}>
-                      <p className="text-xs leading-relaxed font-semibold">{msg.text}</p>
+                      <p className="text-xs leading-relaxed font-semibold whitespace-pre-line">{msg.text}</p>
+
+                      {/* Real Listing Cards from Database */}
+                      {msg.listings && msg.listings.length > 0 && (
+                        <div className="mt-2.5 space-y-1.5">
+                          {msg.listings.map(l => (
+                            <div
+                              key={l.id}
+                              onClick={() => { navigate(`/listings/${l.id}`); setOpen(false); }}
+                              className="flex items-center gap-2.5 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-100 dark:border-gray-600 cursor-pointer hover:bg-indigo-50 dark:hover:bg-indigo-950/30 hover:border-indigo-200 dark:hover:border-indigo-800 transition-all group"
+                            >
+                              <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-900/50 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 flex-shrink-0 text-xs font-black group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                🏠
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-[11px] font-bold text-gray-900 dark:text-white truncate">{l.title}</p>
+                                <p className="text-[9px] text-gray-500 dark:text-gray-400 truncate">{l.location}</p>
+                              </div>
+                              <span className="text-[10px] font-black text-indigo-600 dark:text-indigo-400 flex-shrink-0">
+                                ₹{l.price?.toLocaleString('en-IN')}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                       {msg.action && (
                         <button
@@ -266,10 +367,10 @@ const FloatingSupportButton = () => {
               {/* Predefined Quick Pills */}
               <div className="px-4 py-2 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex gap-1.5 overflow-x-auto hide-scrollbar flex-shrink-0">
                 {[
-                  'Stays in Pune',
-                  'Zero Brokerage',
+                  'Flats in Pune',
+                  'PG under 10k',
                   'Find Roommates',
-                  'Relocation movers'
+                  'Book Movers'
                 ].map(opt => (
                   <button
                     key={opt}
