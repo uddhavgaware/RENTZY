@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Truck, MapPin, Calendar, Package, CheckCircle2, ShieldCheck, PhoneCall, AlertCircle } from 'lucide-react';
+import { Truck, MapPin, Calendar, Package, CheckCircle2, ShieldCheck, PhoneCall, AlertCircle, Mail, Phone } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -230,15 +230,36 @@ const MoverDashboardPage = () => {
                       </div>
 
                       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 bg-gray-50 p-3 rounded-2xl w-full md:w-auto">
-                          <div className="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold">
-                            {job.user?.name?.charAt(0)}
+                        <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex-1 w-full md:w-auto shadow-sm">
+                          <p className="text-[10px] font-extrabold text-primary-600 mb-2 uppercase tracking-widest border-b border-gray-200 pb-1.5">Customer Details</p>
+                          <div className="flex items-center gap-3 mb-3">
+                            <div className="w-10 h-10 bg-primary-100 text-primary-700 rounded-full flex items-center justify-center font-bold flex-shrink-0">
+                              {job.user?.name?.charAt(0)}
+                            </div>
+                            <div>
+                              <p className="font-bold text-gray-900 text-sm">{job.user?.name}</p>
+                              <p className="text-sm text-gray-700 font-medium">{job.user?.phone || 'No phone provided'}</p>
+                              {job.user?.email && <p className="text-xs text-gray-500 truncate">{job.user?.email}</p>}
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-gray-900 text-sm">Customer: {job.user?.name}</p>
-                            <a href={`tel:${job.user?.phone}`} className="text-primary-600 font-medium text-sm flex items-center gap-1 hover:underline">
-                              <PhoneCall size={14} /> {job.user?.phone || 'No phone provided'}
-                            </a>
+                          
+                          {/* Contact Action Buttons */}
+                          <div className="flex gap-2 pt-3 border-t border-gray-200">
+                            {job.user?.phone && (
+                              <>
+                                <a href={`tel:${job.user?.phone}`} className="flex-1 flex items-center justify-center gap-1.5 bg-gray-900 text-white text-xs font-bold px-2 py-2 rounded-lg hover:bg-gray-800 transition-all active:scale-95 shadow-sm">
+                                  <Phone size={14} /> Call
+                                </a>
+                                <a href={`https://wa.me/${job.user?.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] text-white text-xs font-bold px-2 py-2 rounded-lg hover:bg-[#1ebd5a] transition-all active:scale-95 shadow-sm">
+                                  WhatsApp
+                                </a>
+                              </>
+                            )}
+                            {job.user?.email && (
+                              <a href={`mailto:${job.user?.email}`} className="flex-1 flex items-center justify-center gap-1.5 bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs font-bold px-2 py-2 rounded-lg transition-all active:scale-95 shadow-sm">
+                                <Mail size={14} /> Email
+                              </a>
+                            )}
                           </div>
                         </div>
                         {job.status === 'ASSIGNED' && (

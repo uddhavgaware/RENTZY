@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { User, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck } from 'lucide-react';
+import { User, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import api from '../services/api';
@@ -830,12 +830,33 @@ const DashboardPage = () => {
                         
                         {/* Tenant Details for Owner */}
                         {user?.role === 'OWNER' && booking.tenant && (
-                          <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex-1 w-full md:w-auto">
-                            <p className="text-xs font-bold text-gray-500 mb-1 uppercase tracking-wider">Tenant Details</p>
-                            <p className="font-bold text-gray-900 text-sm">{booking.tenant.name}</p>
-                            <p className="text-sm text-gray-600">{booking.tenant.phone || 'No phone provided'}</p>
-                            <p className="text-xs text-gray-500 truncate">{booking.tenant.email}</p>
-                            {booking.tenant.userCode && <p className="text-xs text-primary-600 font-medium mt-1">ID: {booking.tenant.userCode}</p>}
+                          <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 flex-1 w-full md:w-auto shadow-sm">
+                            <p className="text-[10px] font-extrabold text-primary-600 mb-2 uppercase tracking-widest border-b border-gray-200 pb-1.5 flex items-center gap-1.5">
+                              <User size={12} /> Tenant Details
+                            </p>
+                            <div className="mb-3">
+                              <p className="font-bold text-gray-900 text-sm">{booking.tenant.name}</p>
+                              <p className="text-sm text-gray-700 font-medium mt-0.5">{booking.tenant.phone || 'No phone provided'}</p>
+                              <p className="text-xs text-gray-500 truncate mt-0.5">{booking.tenant.email}</p>
+                              {booking.tenant.userCode && <p className="text-xs text-primary-600 font-bold mt-1 bg-primary-50 inline-block px-2 py-0.5 rounded-md">ID: {booking.tenant.userCode}</p>}
+                            </div>
+                            
+                            {/* Contact Action Buttons */}
+                            <div className="flex gap-2 pt-3 border-t border-gray-200">
+                              {booking.tenant.phone && (
+                                <>
+                                  <a href={`tel:${booking.tenant.phone}`} className="flex-1 flex items-center justify-center gap-1.5 bg-gray-900 text-white text-xs font-bold px-2 py-2 rounded-lg hover:bg-gray-800 transition-all active:scale-95 shadow-sm">
+                                    <Phone size={14} /> Call
+                                  </a>
+                                  <a href={`https://wa.me/${booking.tenant.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] text-white text-xs font-bold px-2 py-2 rounded-lg hover:bg-[#1ebd5a] transition-all active:scale-95 shadow-sm">
+                                    WhatsApp
+                                  </a>
+                                </>
+                              )}
+                              <a href={`mailto:${booking.tenant.email}`} className="flex-1 flex items-center justify-center gap-1.5 bg-blue-100 text-blue-800 hover:bg-blue-200 text-xs font-bold px-2 py-2 rounded-lg transition-all active:scale-95 shadow-sm">
+                                <Mail size={14} /> Email
+                              </a>
+                            </div>
                           </div>
                         )}
 
