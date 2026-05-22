@@ -206,17 +206,32 @@ const ListingDetailsPage = () => {
     }
   };
 
-  const handleCopyLink = () => {
+  const handleCopyLink = async () => {
     if (!listing) return;
     const slug = slugify(listing.title);
     const longLink = `${window.location.origin}/listings/${listing.id}/${slug}`;
-    navigator.clipboard.writeText(longLink);
-    showModal({
-      type: 'success',
-      title: 'Link Copied!',
-      message: 'Interesting descriptive link copied to clipboard successfully!',
-      onConfirm: closeModal
-    });
+    
+    const shareData = {
+      title: `${listing.title} | RentXY`,
+      text: `Check out this amazing ${listing.type} in ${listing.location} for ₹${listing.price?.toLocaleString('en-IN')}/month on RentXY!`,
+      url: longLink,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Error sharing:', err);
+      }
+    } else {
+      navigator.clipboard.writeText(longLink);
+      showModal({
+        type: 'success',
+        title: 'Link Copied!',
+        message: 'Link copied to clipboard successfully!',
+        onConfirm: closeModal
+      });
+    }
   };
 
   if (loading) {
