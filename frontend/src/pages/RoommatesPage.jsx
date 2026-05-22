@@ -958,7 +958,6 @@ const RoommatesPage = () => {
                   {loading ? 'Loading...' : 'Load More Roommates'}
                 </button>
               </div>
-              </div>
             )}
             </div>
           )}
