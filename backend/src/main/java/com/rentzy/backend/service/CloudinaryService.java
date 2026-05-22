@@ -24,4 +24,13 @@ public class CloudinaryService {
             
         return uploadResult.get("secure_url").toString();
     }
+
+    public String uploadBase64(String base64Image) throws IOException {
+        String publicId = UUID.randomUUID().toString();
+        
+        Map uploadResult = cloudinary.uploader().upload(base64Image, 
+            ObjectUtils.asMap("public_id", publicId));
+            
+        return uploadResult.get("secure_url").toString();
+    }
 }

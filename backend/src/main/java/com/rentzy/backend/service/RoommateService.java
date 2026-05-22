@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +22,7 @@ public class RoommateService {
     private final RoommatePostRepository repository;
     private final UserRepository userRepository;
     private final LocationExpansionService locationExpansionService;
+    private final CloudinaryService cloudinaryService;
 
     public Page<RoommatePost> getAllPosts(String location, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -53,6 +55,21 @@ public class RoommateService {
             (user.getGender() == null || user.getGender().trim().isEmpty())) {
             user.setGender(post.getGender());
             userRepository.save(user);
+        }
+        
+        if (post.getImages() != null && !post.getImages().isEmpty()) {
+            List<String> processedImages = post.getImages().stream().map(image -> {
+                if (image != null && image.startsWith("data:image")) {
+                    try {
+                        return cloudinaryService.uploadBase64(image);
+                    } catch (Exception e) {
+                        System.err.println("Failed to upload roommate post image to Cloudinary: " + e.getMessage());
+                        return image; // Fallback (might crash DB if too long, but better than silent drop)
+                    }
+                }
+                return image;
+            }).collect(Collectors.toList());
+            post.setImages(processedImages);
         }
         
         return repository.save(post);

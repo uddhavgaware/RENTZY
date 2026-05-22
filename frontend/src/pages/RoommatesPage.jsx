@@ -294,7 +294,32 @@ const RoommatesPage = () => {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
+        reader.onload = (event) => {
+          const img = new Image();
+          img.src = event.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const MAX_WIDTH = 1080;
+            const MAX_HEIGHT = 1080;
+
+            if (width > height && width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            } else if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.7)); // Compress to 70% quality JPEG
+          };
+          img.onerror = error => reject(error);
+        };
         reader.onerror = error => reject(error);
       });
     })).then(base64Images => {
@@ -349,10 +374,10 @@ const RoommatesPage = () => {
 
       const payload = {
         location: locationParts || postFormData.location,
-        budget: parseFloat(postFormData.budget),
-        deposit: parseFloat(postFormData.deposit) || 0,
-        vacancies: parseInt(postFormData.vacancies) || null,
-        totalCapacity: parseInt(postFormData.totalCapacity) || null,
+        budget: postFormData.budget ? parseFloat(postFormData.budget) : null,
+        deposit: postFormData.deposit ? parseFloat(postFormData.deposit) : 0,
+        vacancies: postFormData.vacancies ? parseInt(postFormData.vacancies) : null,
+        totalCapacity: postFormData.totalCapacity ? parseInt(postFormData.totalCapacity) : null,
         preferences: [
           postFormData.flatSize,
           ...(postFormData.preferences ? postFormData.preferences.split(',').map(p => p.trim()) : [])
@@ -384,7 +409,8 @@ const RoommatesPage = () => {
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
-      showModal({ type: 'alert', title: 'Error', message: 'Failed to post request. Make sure you are logged in.', onConfirm: closeModal });
+      const errorMsg = error.response?.data?.message || error.response?.data || 'An error occurred while posting your request. Please try again.';
+      showModal({ type: 'alert', title: 'Error', message: typeof errorMsg === 'string' ? errorMsg : 'Failed to post request.', onConfirm: closeModal });
     }
   };
 
