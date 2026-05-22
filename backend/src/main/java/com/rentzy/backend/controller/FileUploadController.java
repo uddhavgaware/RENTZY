@@ -28,8 +28,13 @@ public class FileUploadController {
             try {
                 String fileDownloadUri = cloudinaryService.uploadFile(file);
                 fileDownloadUris.add(fileDownloadUri);
-            } catch (IOException ex) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            } catch (Exception ex) {
+                try {
+                    String base64 = "data:" + file.getContentType() + ";base64," + java.util.Base64.getEncoder().encodeToString(file.getBytes());
+                    fileDownloadUris.add(base64);
+                } catch (IOException e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+                }
             }
         }
 

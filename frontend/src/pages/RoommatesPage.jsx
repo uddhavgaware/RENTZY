@@ -332,7 +332,7 @@ const RoommatesPage = () => {
     setLoading(true);
     try {
       const response = await api.get('/roommates', { 
-        params: { location: searchInput, page: pageNum, size: 20 } 
+        params: { location: searchInput, page: pageNum, size: 20, sort: 'id,desc' } 
       });
       const results = response.data.content || [];
       setHasMore(!response.data.last);
@@ -571,7 +571,7 @@ const RoommatesPage = () => {
           </div>
 
           {/* Roommates Grid */}
-          {loading ? (
+          {loading && roommates.length === 0 ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
             </div>
@@ -580,7 +580,7 @@ const RoommatesPage = () => {
               No roommate requests found. Be the first to post!
             </div>
           ) : (
-            <>
+            <div className={`relative ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
             {isMapView ? (
               <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
                 {/* Map Search Overlay */}
@@ -958,8 +958,9 @@ const RoommatesPage = () => {
                   {loading ? 'Loading...' : 'Load More Roommates'}
                 </button>
               </div>
+              </div>
             )}
-            </>
+            </div>
           )}
 
         </div>

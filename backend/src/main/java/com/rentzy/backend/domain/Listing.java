@@ -40,6 +40,8 @@ public class Listing {
     private String furnishing; // Fully Furnished, Semi Furnished, Unfurnished
 
     @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "listing_photos", joinColumns = @JoinColumn(name = "listing_id"))
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private List<String> images;
 
     @Column(columnDefinition = "TEXT")

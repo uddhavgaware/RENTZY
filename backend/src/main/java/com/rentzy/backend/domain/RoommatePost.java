@@ -60,7 +60,8 @@ public class RoommatePost {
     private String cleanlinessLevel;
 
     @ElementCollection
-    @Column(columnDefinition = "TEXT")
+    @CollectionTable(name = "roommate_post_photos", joinColumns = @JoinColumn(name = "roommate_post_id"))
+    @Column(name = "image_url", columnDefinition = "TEXT")
     private List<String> images; // Optional photos
 
     private String electricityBill; // Included, Not Included
