@@ -60,6 +60,7 @@ public class RoommatePost {
     private String cleanlinessLevel;
 
     @ElementCollection
+    @Column(columnDefinition = "TEXT")
     private List<String> images; // Optional photos
 
     private String electricityBill; // Included, Not Included

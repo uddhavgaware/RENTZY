@@ -413,6 +413,7 @@ const RoommatesPage = () => {
         areaSqft: postFormData.areaSqft ? parseInt(postFormData.areaSqft) : null,
         gender: postFormData.gender,
         maintenance: postFormData.maintenance,
+        propertyType: postFormData.propertyType,
       };
       await api.post('/roommates', payload);
       setIsModalOpen(false);
