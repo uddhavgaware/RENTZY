@@ -361,6 +361,17 @@ const RoommatesPage = () => {
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
+
+    // Manual Validation
+    if (!postFormData.areaName?.trim() || !postFormData.villageCityTown?.trim() || !postFormData.district?.trim() || !postFormData.pincode?.trim() || !postFormData.budget) {
+      showModal({ type: 'alert', title: 'Missing Details', message: 'Please fill in all required fields: Area Name, City, District, Pincode, and Rent.', onConfirm: closeModal });
+      return;
+    }
+    if (postFormData.pincode && postFormData.pincode.length !== 6) {
+      showModal({ type: 'alert', title: 'Invalid Pincode', message: 'Pincode must be exactly 6 digits.', onConfirm: closeModal });
+      return;
+    }
+
     try {
       // Build combined location string from address fields
       const locationParts = [
@@ -1018,7 +1029,7 @@ const RoommatesPage = () => {
                       <div className="relative flex-1">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
-                          type="text" required value={postFormData.areaName}
+                          type="text" value={postFormData.areaName}
                           onChange={(e) => setPostFormData({...postFormData, areaName: e.target.value})}
                           onBlur={(e) => geocodeAndSetPostLocation(`${e.target.value}, ${postFormData.villageCityTown || 'Pune'}`)}
                           placeholder="e.g. Hinjewadi, Kothrud, Wakad"
@@ -1037,7 +1048,7 @@ const RoommatesPage = () => {
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Village / City / Town <span className="text-red-400">*</span></label>
                       <input
-                        type="text" required value={postFormData.villageCityTown}
+                        type="text" value={postFormData.villageCityTown}
                         onChange={(e) => setPostFormData({...postFormData, villageCityTown: e.target.value})}
                         placeholder="e.g. Pune"
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
@@ -1059,7 +1070,7 @@ const RoommatesPage = () => {
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">District <span className="text-red-400">*</span></label>
                       <input
-                        type="text" required value={postFormData.district}
+                        type="text" value={postFormData.district}
                         onChange={(e) => setPostFormData({...postFormData, district: e.target.value})}
                         placeholder="e.g. Pune"
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
@@ -1068,11 +1079,10 @@ const RoommatesPage = () => {
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Pincode <span className="text-red-400">*</span></label>
                       <input
-                        type="text" required value={postFormData.pincode}
+                        type="text" value={postFormData.pincode}
                         onChange={(e) => setPostFormData({...postFormData, pincode: e.target.value.replace(/\D/g, '').slice(0, 6)})}
                         placeholder="e.g. 411057"
                         maxLength={6}
-                        pattern="[0-9]{6}"
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
                       />
                     </div>
@@ -1188,7 +1198,7 @@ const RoommatesPage = () => {
                       <label className="block text-xs font-medium text-gray-500 mb-1">Total Rent</label>
                       <div className="relative">
                         <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
-                        <input type="number" required value={postFormData.budget}
+                        <input type="number" value={postFormData.budget}
                           onChange={(e) => setPostFormData({...postFormData, budget: e.target.value})}
                           placeholder="15000"
                           className="w-full pl-8 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm" />
