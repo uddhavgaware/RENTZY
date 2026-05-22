@@ -52,8 +52,17 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
     setWishlisted(initialWishlisted);
   }, [initialWishlisted]);
 
+  const getOptimizedImageUrl = (url) => {
+    if (!url) return '';
+    if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+      // Upgraded to w_1080 and q_auto:good for premium retina quality
+      return url.replace('/upload/', '/upload/f_auto,q_auto:good,w_1080/').replace('http://', 'https://');
+    }
+    return url;
+  };
+
   const imageUrl = !imgError && listing.images && listing.images.length > 0
-    ? listing.images[0]
+    ? getOptimizedImageUrl(listing.images[0])
     : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
 
   const typeGradient = TYPE_COLORS[listing.type] || 'from-primary-500 to-primary-700';

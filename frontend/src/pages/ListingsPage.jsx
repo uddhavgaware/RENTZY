@@ -516,8 +516,21 @@ const ListingsPage = () => {
 
         {/* Listings Grid or Map */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} className="bg-white rounded-3xl overflow-hidden border border-gray-100 shadow-sm animate-pulse">
+                <div className="h-52 sm:h-56 bg-gray-200"></div>
+                <div className="p-4 sm:p-5">
+                  <div className="h-5 bg-gray-200 rounded-md w-3/4 mb-3"></div>
+                  <div className="h-4 bg-gray-200 rounded-md w-1/2 mb-4"></div>
+                  <div className="flex gap-2 mb-4">
+                    <div className="h-6 bg-gray-200 rounded-md w-16"></div>
+                    <div className="h-6 bg-gray-200 rounded-md w-16"></div>
+                  </div>
+                  <div className="h-8 bg-gray-200 rounded-md w-full mt-4"></div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : listings.length === 0 ? (
           <div className="col-span-full text-center py-16">

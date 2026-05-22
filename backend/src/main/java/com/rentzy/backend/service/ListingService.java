@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class ListingService {
     private final UserRepository userRepository;
     private final LocationExpansionService locationExpansionService;
 
+    @Cacheable(value = "listings")
     public List<Listing> getAllListings() {
         return listingRepository.findAll();
     }
@@ -86,12 +89,14 @@ public class ListingService {
         return listingRepository.findAll(spec, pageable);
     }
 
+    @Cacheable(value = "listingDetails", key = "#id")
     public Listing getListingById(Long id) {
         return listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
     }
 
     @Transactional
+    @CacheEvict(value = {"listings", "listingDetails"}, allEntries = true)
     public Listing createListing(Listing listing, String ownerEmail) {
         User owner = userRepository.findByEmail(ownerEmail)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -110,11 +115,13 @@ public class ListingService {
     }
 
     @Transactional
+    @CacheEvict(value = {"listings", "listingDetails"}, allEntries = true)
     public void deleteListing(Long id) {
         listingRepository.deleteById(id);
     }
 
     @Transactional
+    @CacheEvict(value = {"listings", "listingDetails"}, allEntries = true)
     public Listing updateListing(Long id, Listing updates, String ownerEmail) {
         Listing existing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));

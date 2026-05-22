@@ -26,6 +26,7 @@ import OfficeSpacePortal from './pages/OfficeSpacePortal';
 import WarehousePortal from './pages/WarehousePortal';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { HelmetProvider } from 'react-helmet-async';
 
 // ✅ Scroll to top on EVERY page navigation — fixes "page stays scrolled down" bug
 // Works globally: covers ALL links site-wide (Navbar, Footer, CTA buttons, cards, etc.)
@@ -60,6 +61,7 @@ function App() {
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 
   return (
+    <HelmetProvider>
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <ThemeProvider>
         <AuthProvider>
@@ -104,6 +106,7 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
+    </HelmetProvider>
   );
 }
 

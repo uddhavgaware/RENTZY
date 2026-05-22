@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { MapPin, Star, Wifi, AirVent, Tv, Wind, Car, Shield, Dumbbell, CheckCircle2, ArrowLeft, Heart, Send, User, BadgeCheck, Image as ImageIcon, Share2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
@@ -258,12 +259,41 @@ const ListingDetailsPage = () => {
     );
   }
 
-  const images = listing.images && listing.images.length > 0 ? listing.images : [fallbackImage];
+  const getOptimizedHeroImage = (url) => {
+    if (!url) return '';
+    if (url.includes('res.cloudinary.com') && url.includes('/upload/')) {
+      return url.replace('/upload/', '/upload/f_auto,q_auto:best,w_1920/').replace('http://', 'https://');
+    }
+    return url;
+  };
+
+  const images = listing.images && listing.images.length > 0 
+    ? listing.images.map(getOptimizedHeroImage) 
+    : [fallbackImage];
   const avgRating = reviewSummary.averageRating;
   const totalReviews = reviewSummary.totalReviews;
 
+  const pageTitle = `${listing.title} in ${listing.location} | RentXY`;
+  const pageDescription = `Rent this beautiful ${listing.type} for ₹${listing.price.toLocaleString('en-IN')}/month in ${listing.location}. ${listing.description?.substring(0, 100) || 'Check out this amazing property on RentXY.'}`;
+  const pageUrl = window.location.href;
+
   return (
     <div className="bg-gradient-to-b from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-slate-900 dark:to-gray-950 min-h-screen pb-16">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={pageUrl} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+        <meta property="og:image" content={images[0]} />
+        <meta property="twitter:card" content="summary_large_image" />
+        <meta property="twitter:url" content={pageUrl} />
+        <meta property="twitter:title" content={pageTitle} />
+        <meta property="twitter:description" content={pageDescription} />
+        <meta property="twitter:image" content={images[0]} />
+      </Helmet>
+
       {showPayment && (
         <PaymentModal listing={listing} bookingId={bookingId} onClose={() => setShowPayment(false)} />
       )}
