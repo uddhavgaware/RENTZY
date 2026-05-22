@@ -14,8 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import java.util.List;
 
+import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class ListingService {
 
     private final ListingRepository listingRepository;
@@ -88,6 +91,7 @@ public class ListingService {
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
     }
 
+    @Transactional
     public Listing createListing(Listing listing, String ownerEmail) {
         User owner = userRepository.findByEmail(ownerEmail)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
@@ -105,10 +109,12 @@ public class ListingService {
                 .toList();
     }
 
+    @Transactional
     public void deleteListing(Long id) {
         listingRepository.deleteById(id);
     }
 
+    @Transactional
     public Listing updateListing(Long id, Listing updates, String ownerEmail) {
         Listing existing = listingRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
