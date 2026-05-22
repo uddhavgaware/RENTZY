@@ -102,17 +102,21 @@ const PremiumHero = ({
           /* Search box form — explicit dark bg fallback for Oppo */
           <form
             onSubmit={handleSearch}
-            className="max-w-3xl mx-auto rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl border border-white/20"
-            style={{
-              background: 'rgba(15, 23, 42, 0.85)',
-              backdropFilter: 'blur(28px)',
-              WebkitBackdropFilter: 'blur(28px)',
-            }}
+            className={cn(
+              "max-w-3xl mx-auto rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 animate-slide-up animation-delay-300 shadow-xl backdrop-blur-xl border",
+              hasVideo
+                ? "bg-white/10 border-white/20"
+                : "bg-white/70 dark:bg-slate-900/80 border-white/50 dark:border-white/10"
+            )}
           >
             {/* Location input */}
             <div
-              className="flex-1 flex items-center rounded-xl sm:rounded-2xl px-4 py-3.5 gap-3 focus-within:ring-2 focus-within:ring-primary-400 transition-all"
-              style={{ background: 'rgba(30, 41, 59, 0.95)', border: '1px solid rgba(255,255,255,0.12)' }}
+              className={cn(
+                "flex-1 flex items-center rounded-xl sm:rounded-2xl px-4 py-3.5 gap-3 focus-within:ring-2 focus-within:ring-primary-400 transition-all border",
+                hasVideo
+                  ? "bg-white/10 border-white/10 text-white"
+                  : "bg-white/90 dark:bg-slate-800/90 border-gray-100 dark:border-white/5 text-gray-900 dark:text-white"
+              )}
             >
               <MapPin size={20} className={cn("flex-shrink-0", highlightColorClass)} />
               <input
@@ -120,7 +124,12 @@ const PremiumHero = ({
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="Enter city or locality..."
-                className="bg-transparent border-none outline-none w-full text-white placeholder-gray-400 font-semibold text-base sm:text-lg"
+                className={cn(
+                  "bg-transparent border-none outline-none w-full font-semibold text-base sm:text-lg",
+                  hasVideo
+                    ? "text-white placeholder-gray-200"
+                    : "text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500"
+                )}
               />
             </div>
 

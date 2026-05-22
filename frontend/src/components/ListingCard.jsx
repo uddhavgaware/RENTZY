@@ -195,7 +195,7 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
                   <span className="text-[10px] font-bold text-primary-700">{listing.owner.name?.charAt(0) || 'U'}</span>
                 )}
               </div>
-              <span className="text-xs font-semibold text-gray-700 hover:text-primary-600 truncate max-w-[100px]">
+              <span className="text-xs font-semibold text-gray-700 hover:text-primary-600 truncate max-w-[150px]">
                 {maskName(listing.owner.name)}
               </span>
             </div>
