@@ -13,4 +13,5 @@ public class RoommateUserDTO {
     private Boolean isVerified;
     private String gender;
     private String phone;
+    private String profilePhoto;
 }

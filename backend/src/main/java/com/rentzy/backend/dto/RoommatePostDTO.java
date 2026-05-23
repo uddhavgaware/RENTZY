@@ -51,6 +51,7 @@ public class RoommatePostDTO {
                 .gender(post.getUser().getGender())
                 .email(Boolean.TRUE.equals(post.getUser().getContactShared()) ? post.getUser().getEmail() : null)
                 .phone(Boolean.TRUE.equals(post.getUser().getContactShared()) ? post.getUser().getPhone() : null)
+                .profilePhoto(post.getUser().getProfilePhoto())
                 .build();
         }
 

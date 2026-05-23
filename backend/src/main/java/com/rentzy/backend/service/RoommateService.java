@@ -26,7 +26,7 @@ public class RoommateService {
     private final CloudinaryService cloudinaryService;
 
     public Page<RoommatePost> getAllPosts(String location, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
         if (location == null || location.trim().isEmpty()) {
             return repository.findAll(pageable);
         }
