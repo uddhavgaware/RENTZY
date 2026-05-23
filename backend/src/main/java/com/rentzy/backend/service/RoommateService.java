@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +46,7 @@ public class RoommateService {
         return repository.findAll(spec, pageable);
     }
 
+    @Transactional
     public RoommatePost createPost(RoommatePost post, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
@@ -75,6 +77,7 @@ public class RoommateService {
         return repository.save(post);
     }
 
+    @Transactional
     public void deletePost(Long id, String userEmail) {
         RoommatePost post = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));

@@ -363,8 +363,8 @@ const RoommatesPage = () => {
     e.preventDefault();
 
     // Manual Validation
-    if (!postFormData.areaName?.trim() || !postFormData.villageCityTown?.trim() || !postFormData.district?.trim() || !postFormData.pincode?.trim() || !postFormData.budget) {
-      showModal({ type: 'alert', title: 'Missing Details', message: 'Please fill in all required fields: Area Name, City, District, Pincode, and Rent.', onConfirm: closeModal });
+    if (!postFormData.areaName?.trim() || !postFormData.villageCityTown?.trim() || !postFormData.district?.trim() || !postFormData.pincode?.trim() || !postFormData.budget || !postFormData.gender) {
+      showModal({ type: 'alert', title: 'Missing Details', message: 'Please fill in all required fields: Area Name, City, District, Pincode, Rent, and Your Gender.', onConfirm: closeModal });
       return;
     }
     if (postFormData.pincode && postFormData.pincode.length !== 6) {
@@ -1262,7 +1262,6 @@ const RoommatesPage = () => {
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">Your Gender <span className="text-red-400">*</span></label>
                     <select 
-                      required 
                       value={postFormData.gender} 
                       onChange={(e) => setPostFormData({...postFormData, gender: e.target.value})} 
                       className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm bg-white"
