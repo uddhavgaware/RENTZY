@@ -1,0 +1,6 @@
+{
+  "appId": "com.rentzy.app",
+  "appName": "RENTZY",
+  "webDir": "dist",
+  "bundledWebRuntime": false
+}
