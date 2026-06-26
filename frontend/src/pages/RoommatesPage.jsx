@@ -363,9 +363,17 @@ const RoommatesPage = () => {
   const handlePostSubmit = async (e) => {
     e.preventDefault();
 
-    // Manual Validation
-    if (!postFormData.areaName?.trim() || !postFormData.villageCityTown?.trim() || !postFormData.district?.trim() || !postFormData.pincode?.trim() || !postFormData.budget || !postFormData.gender) {
-      showModal({ type: 'alert', title: 'Missing Details', message: 'Please fill in all required fields: Area Name, City, District, Pincode, Rent, and Your Gender.', onConfirm: closeModal });
+    // Manual Validation - Relaxed to improve UX
+    if (!postFormData.areaName?.trim() && !postFormData.villageCityTown?.trim()) {
+      showModal({ type: 'alert', title: 'Missing Location', message: 'Please provide at least an Area or City name.', onConfirm: closeModal });
+      return;
+    }
+    if (!postFormData.budget) {
+      showModal({ type: 'alert', title: 'Missing Budget', message: 'Please specify the total rent budget.', onConfirm: closeModal });
+      return;
+    }
+    if (!postFormData.gender) {
+      showModal({ type: 'alert', title: 'Missing Gender', message: 'Please select your gender in the Your Profile section.', onConfirm: closeModal });
       return;
     }
     if (postFormData.pincode && postFormData.pincode.length !== 6) {
