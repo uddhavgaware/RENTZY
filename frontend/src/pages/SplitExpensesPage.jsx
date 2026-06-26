@@ -566,9 +566,14 @@ const SplitExpensesPage = () => {
                   <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-lg shadow-gray-200/40 dark:shadow-black/20 border border-gray-100/80 dark:border-white/5">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Members</h3>
-                      <button onClick={() => setShowAddMember(true)} className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition-colors">
-                        <UserPlus size={14} />Add
-                      </button>
+                      <div className="flex gap-3">
+                        <button onClick={() => setShowInviteModal(true)} className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 transition-colors">
+                          <Users size={14} />Share Link
+                        </button>
+                        <button onClick={() => setShowAddMember(true)} className="flex items-center gap-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition-colors">
+                          <UserPlus size={14} />Add
+                        </button>
+                      </div>
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {memberObjects.map((mo, i) => (
@@ -1061,16 +1066,52 @@ const SplitExpensesPage = () => {
       )}
 
       {/* ── Settle Confirmation Modal ── */}
-      {showSettle && (
+      {showSettle && (() => {
+        const receiver = members.find(u => u.id === showSettle.toUserId);
+        const payer = members.find(u => u.id === showSettle.fromUserId);
+        return (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowSettle(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center" onClick={e => e.stopPropagation()}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center mx-auto mb-4">
               <HandCoins size={28} className="text-emerald-600 dark:text-emerald-400" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Confirm Settlement</h3>
-            <p className="text-gray-500 dark:text-gray-400 mb-1"><span className="font-semibold text-gray-800 dark:text-gray-200">{getMemberName(showSettle.fromUserId)}</span> pays</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Settle Up</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-1"><span className="font-semibold text-gray-800 dark:text-gray-200">{payer?.name || 'Unknown'}</span> pays</p>
             <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1">{formatCurrency(showSettle.amount)}</p>
-            <p className="text-gray-500 dark:text-gray-400 mb-6">to <span className="font-semibold text-gray-800 dark:text-gray-200">{getMemberName(showSettle.toUserId)}</span></p>
+            <p className="text-gray-500 dark:text-gray-400 mb-6">to <span className="font-semibold text-gray-800 dark:text-gray-200">{receiver?.name || 'Unknown'}</span></p>
+
+            {/* UPI Section */}
+            {payer?.id === user?.id && (receiver?.upiId || receiver?.upiQrUrl) && (
+              <div className="mb-6 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl border border-gray-200 dark:border-white/10 text-left">
+                <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">Payment Details</h4>
+                {receiver.upiQrUrl && (
+                  <div className="flex flex-col items-center mb-4">
+                    <img src={receiver.upiQrUrl} alt="UPI QR Code" className="w-40 h-40 object-contain rounded-xl border border-gray-200 dark:border-gray-700 bg-white" />
+                    <p className="text-xs text-gray-500 mt-2">Scan to pay directly via any UPI app</p>
+                  </div>
+                )}
+                {receiver.upiId && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-700 dark:text-gray-300"><strong>UPI ID:</strong> {receiver.upiId}</p>
+                    <a href={`upi://pay?pa=${receiver.upiId}&pn=${encodeURIComponent(receiver.name)}&am=${showSettle.amount}&cu=INR`}
+                       className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95">
+                      Pay via UPI App
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {!receiver?.upiId && !receiver?.upiQrUrl && payer?.id === user?.id && (
+              <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 p-3 rounded-xl text-xs font-medium text-left">
+                {receiver?.name} has not added their UPI details to their profile. You will need to ask them for their payment info.
+              </div>
+            )}
+
+            <div className="w-full h-px bg-gray-100 dark:bg-white/10 mb-6" />
+
+            <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Mark as Settled?</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Only confirm this if you have already sent or received the money.</p>
             <div className="flex gap-3">
               <button onClick={() => setShowSettle(null)} className="flex-1 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-all active:scale-95">Cancel</button>
               <button onClick={() => handleSettle(showSettle)} disabled={actionLoading}
@@ -1080,7 +1121,8 @@ const SplitExpensesPage = () => {
             </div>
           </div>
         </div>
-      )}
+        );
+      })()}
 
       {/* ── Member Stats Modal ── */}
       {showMemberStats && memberStats && (

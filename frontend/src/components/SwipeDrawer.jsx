@@ -30,8 +30,8 @@ const SwipeDrawer = ({ children }) => {
     const isLeftSwipe = distance < -minSwipeDistance;
     const isRightSwipe = distance > minSwipeDistance;
 
-    // Only allow swipe to open if starting near the left edge (e.g. < 40px)
-    if (isRightSwipe && touchStartX.current < 40 && !isOpen) {
+    // Allow swipe to open from anywhere if it's a clear right swipe
+    if (isRightSwipe && !isOpen) {
       setIsOpen(true);
     }
 
