@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon } from 'lucide-react';
+import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon, Split } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../context/AuthContext';
@@ -30,6 +30,7 @@ const Navbar = () => {
     { name: 'Flats', path: '/flats' },
     { name: 'PG/Hostels', path: '/pgs' },
     { name: 'Roommates', path: '/roommates' },
+    { name: 'Split', path: '/split-expenses' },
     { name: 'Movers', path: '/movers' },
   ];
 
@@ -38,6 +39,7 @@ const Navbar = () => {
     { name: 'Flats', path: '/flats', icon: Building2 },
     { name: 'PG/Hostels', path: '/pgs', icon: Warehouse },
     { name: 'Roommates', path: '/roommates', icon: Users },
+    { name: 'Split', path: '/split-expenses', icon: Split },
     { name: 'Movers', path: '/movers', icon: Truck },
     { name: 'Offices', path: '/offices', icon: Briefcase },
     { name: 'Warehouses', path: '/warehouses', icon: Warehouse },

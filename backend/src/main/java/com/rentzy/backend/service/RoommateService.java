@@ -2,6 +2,7 @@ package com.rentzy.backend.service;
 
 import com.rentzy.backend.domain.RoommatePost;
 import com.rentzy.backend.domain.User;
+import com.rentzy.backend.dto.RoommatePostRequest;
 import com.rentzy.backend.repository.RoommatePostRepository;
 import com.rentzy.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -47,10 +48,41 @@ public class RoommateService {
     }
 
     @Transactional
-    public RoommatePost createPost(RoommatePost post, String userEmail) {
+    public RoommatePost createPost(RoommatePostRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        post.setUser(user);
+
+        // Build entity from DTO
+        RoommatePost post = RoommatePost.builder()
+                .user(user)
+                .location(request.getLocation())
+                .budget(request.getBudget())
+                .deposit(request.getDeposit())
+                .propertyType(request.getPropertyType())
+                .latitude(request.getLatitude())
+                .longitude(request.getLongitude())
+                .vacancies(request.getVacancies())
+                .totalCapacity(request.getTotalCapacity())
+                .preferences(request.getPreferences())
+                .gender(request.getGender())
+                .targetOccupation(request.getTargetOccupation())
+                .targetGender(request.getTargetGender())
+                .maintenanceIncluded(request.getMaintenanceIncluded())
+                .availableFrom(request.getAvailableFrom())
+                .agePreference(request.getAgePreference())
+                .dietaryPref(request.getDietaryPref())
+                .smokingPref(request.getSmokingPref())
+                .drinkingPref(request.getDrinkingPref())
+                .petsPref(request.getPetsPref())
+                .sleepSchedule(request.getSleepSchedule())
+                .cleanlinessLevel(request.getCleanlinessLevel())
+                .images(request.getImages())
+                .electricityBill(request.getElectricityBill())
+                .waterSupply(request.getWaterSupply())
+                .maintenance(request.getMaintenance())
+                .facing(request.getFacing())
+                .areaSqft(request.getAreaSqft())
+                .build();
         
         // If user's profile gender is not set or empty, update it with post's gender
         if (post.getGender() != null && !post.getGender().trim().isEmpty() && 
@@ -59,6 +91,7 @@ public class RoommateService {
             userRepository.save(user);
         }
         
+        // Upload base64 images to Cloudinary
         if (post.getImages() != null && !post.getImages().isEmpty()) {
             List<String> processedImages = post.getImages().stream().map(image -> {
                 if (image != null && image.startsWith("data:image")) {
@@ -66,11 +99,11 @@ public class RoommateService {
                         return cloudinaryService.uploadBase64(image);
                     } catch (Exception e) {
                         System.err.println("Failed to upload roommate post image to Cloudinary: " + e.getMessage());
-                        return image; // Fallback (might crash DB if too long, but better than silent drop)
+                        return null; // Drop failed uploads instead of storing huge base64
                     }
                 }
                 return image;
-            }).collect(Collectors.toList());
+            }).filter(img -> img != null).collect(Collectors.toList());
             post.setImages(processedImages);
         }
         
@@ -88,4 +121,5 @@ public class RoommateService {
         repository.deleteById(id);
     }
 }
+
 

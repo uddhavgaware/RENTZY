@@ -2,6 +2,7 @@ package com.rentzy.backend.controller;
 
 import com.rentzy.backend.domain.RoommatePost;
 import com.rentzy.backend.dto.RoommatePostDTO;
+import com.rentzy.backend.dto.RoommatePostRequest;
 import com.rentzy.backend.service.RoommateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +36,8 @@ public class RoommateController {
 
     @PostMapping
     @CacheEvict(value = "roommates", allEntries = true)
-    public ResponseEntity<RoommatePostDTO> createPost(@RequestBody RoommatePost post, Authentication authentication) {
-        RoommatePost savedPost = service.createPost(post, authentication.getName());
+    public ResponseEntity<RoommatePostDTO> createPost(@RequestBody RoommatePostRequest request, Authentication authentication) {
+        RoommatePost savedPost = service.createPost(request, authentication.getName());
         return ResponseEntity.ok(RoommatePostDTO.fromEntity(savedPost));
     }
 

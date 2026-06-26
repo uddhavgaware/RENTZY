@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { User, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail } from 'lucide-react';
+import { User, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import api from '../services/api';
@@ -421,6 +421,7 @@ const DashboardPage = () => {
     { id: 'bookings', name: 'My Bookings', icon: BookOpen },
     { id: 'properties', name: 'My Properties', icon: Home },
     { id: 'moving', name: 'Moving Requests', icon: Truck },
+    { id: 'split', name: 'Split Expenses', icon: Split },
     { id: 'saved', name: 'Saved', icon: Heart },
     { id: 'notifications', name: 'Notifications', icon: Bell },
     { id: 'settings', name: 'Settings', icon: Settings },
@@ -480,7 +481,7 @@ const DashboardPage = () => {
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
-                    <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}>
+                    <button key={tab.id} onClick={() => tab.id === 'split' ? navigate('/split-expenses') : setActiveTab(tab.id)} className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}>
                       <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />{tab.name}
                     </button>
                   );

@@ -71,6 +71,7 @@ const RoommatesPage = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [activeImageIndexes, setActiveImageIndexes] = useState({});
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
@@ -372,6 +373,7 @@ const RoommatesPage = () => {
       return;
     }
 
+    setSubmitting(true);
     try {
       // Build combined location string from address fields
       const locationParts = [
@@ -421,8 +423,16 @@ const RoommatesPage = () => {
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
-      const errorMsg = error.response?.data?.message || error.response?.data || 'An error occurred while posting your request. Please try again.';
-      showModal({ type: 'alert', title: 'Error', message: typeof errorMsg === 'string' ? errorMsg : 'Failed to post request.', onConfirm: closeModal });
+      const errorData = error.response?.data;
+      let errorMsg = 'An error occurred while posting your request. Please try again.';
+      if (typeof errorData === 'string') {
+        errorMsg = errorData;
+      } else if (errorData?.message) {
+        errorMsg = errorData.message;
+      }
+      showModal({ type: 'alert', title: 'Error', message: errorMsg, onConfirm: closeModal });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -1336,7 +1346,10 @@ const RoommatesPage = () => {
               </div>
               <div className="p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
                 <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 px-4 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors">Cancel</button>
-                <button type="submit" className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-bold hover:bg-primary-700 transition-colors shadow-md shadow-primary-600/20">Post Request</button>
+                <button type="submit" disabled={submitting} className={`flex-1 py-3 px-4 text-white rounded-xl font-bold transition-colors shadow-md shadow-primary-600/20 flex items-center justify-center gap-2 ${submitting ? 'bg-primary-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}>
+                  {submitting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
+                  {submitting ? 'Posting...' : 'Post Request'}
+                </button>
               </div>
             </form>
           </div>
