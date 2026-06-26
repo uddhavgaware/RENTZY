@@ -45,6 +45,8 @@ public class UserController {
                 Map.entry("businessDescription", user.getBusinessDescription() != null ? user.getBusinessDescription() : ""),
                 Map.entry("serviceCity", user.getServiceCity() != null ? user.getServiceCity() : ""),
                 Map.entry("city", user.getCity() != null ? user.getCity() : ""),
+                Map.entry("upiId", user.getUpiId() != null ? user.getUpiId() : ""),
+                Map.entry("upiQrUrl", user.getUpiQrUrl() != null ? user.getUpiQrUrl() : ""),
                 Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
                 Map.entry("kycStatus", user.getKycStatus()),
                 Map.entry("kycDocumentUrl", user.getKycDocumentUrl() != null ? user.getKycDocumentUrl() : ""),
@@ -117,6 +119,8 @@ public class UserController {
         if (body.containsKey("businessDescription")) user.setBusinessDescription(body.get("businessDescription"));
         if (body.containsKey("serviceCity")) user.setServiceCity(body.get("serviceCity"));
         if (body.containsKey("city")) user.setCity(body.get("city"));
+        if (body.containsKey("upiId")) user.setUpiId(body.get("upiId"));
+        if (body.containsKey("upiQrUrl")) user.setUpiQrUrl(body.get("upiQrUrl"));
         if (body.containsKey("contactShared")) user.setContactShared(Boolean.parseBoolean(String.valueOf(body.get("contactShared"))));
 
         if (body.containsKey("role")) {
@@ -170,6 +174,8 @@ public class UserController {
                 Map.entry("businessDescription", user.getBusinessDescription() != null ? user.getBusinessDescription() : ""),
                 Map.entry("serviceCity", user.getServiceCity() != null ? user.getServiceCity() : ""),
                 Map.entry("city", user.getCity() != null ? user.getCity() : ""),
+                Map.entry("upiId", user.getUpiId() != null ? user.getUpiId() : ""),
+                Map.entry("upiQrUrl", user.getUpiQrUrl() != null ? user.getUpiQrUrl() : ""),
                 Map.entry("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : ""),
                 Map.entry("kycStatus", user.getKycStatus()),
                 Map.entry("kycDocumentUrl", user.getKycDocumentUrl() != null ? user.getKycDocumentUrl() : ""),
@@ -204,6 +210,8 @@ public class UserController {
         response.put("role", user.getRole().name());
         response.put("profilePhoto", user.getProfilePhoto() != null ? user.getProfilePhoto() : "");
         response.put("createdAt", user.getCreatedAt() != null ? user.getCreatedAt().toString() : "");
+        response.put("upiId", user.getUpiId() != null ? user.getUpiId() : "");
+        response.put("upiQrUrl", user.getUpiQrUrl() != null ? user.getUpiQrUrl() : "");
         response.put("kycStatus", user.getKycStatus());
         
         if (Boolean.TRUE.equals(user.getContactShared())) {

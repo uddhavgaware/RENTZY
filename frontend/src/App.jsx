@@ -30,6 +30,7 @@ const PgHostelPortal = lazy(() => import('./pages/PgHostelPortal'));
 const OfficeSpacePortal = lazy(() => import('./pages/OfficeSpacePortal'));
 const WarehousePortal = lazy(() => import('./pages/WarehousePortal'));
 const SplitExpensesPage = lazy(() => import('./pages/SplitExpensesPage'));
+const JoinSplitGroupPage = lazy(() => import('./pages/JoinSplitGroupPage'));
 
 // ✅ Scroll to top on EVERY page navigation — fixes "page stays scrolled down" bug
 // Works globally: covers ALL links site-wide (Navbar, Footer, CTA buttons, cards, etc.)
@@ -99,6 +100,7 @@ function App() {
                 <Route path="/pgs" element={<PgHostelPortal />} />
                 <Route path="/offices" element={<OfficeSpacePortal />} />
                 <Route path="/warehouses" element={<WarehousePortal />} />
+                <Route path="/join/:inviteCode" element={<JoinSplitGroupPage />} />
 
                 {/* Protected routes — must be logged in */}
                 <Route path="/post-property" element={<ProtectedRoute><PostPropertyPage /></ProtectedRoute>} />

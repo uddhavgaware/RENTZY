@@ -28,6 +28,9 @@ public class SplitGroup {
     @Column(length = 500)
     private String description;
 
+    @Column(unique = true, length = 36)
+    private String inviteCode;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "created_by", nullable = false)
     private User createdBy;
@@ -52,5 +55,6 @@ public class SplitGroup {
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) createdAt = LocalDateTime.now();
+        if (inviteCode == null) inviteCode = java.util.UUID.randomUUID().toString();
     }
 }

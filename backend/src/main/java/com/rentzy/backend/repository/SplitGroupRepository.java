@@ -6,7 +6,11 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
+import java.util.Optional;
+
 public interface SplitGroupRepository extends JpaRepository<SplitGroup, Long> {
+
+    Optional<SplitGroup> findByInviteCode(String inviteCode);
 
     // Find all groups where the user is a member
     @Query("SELECT DISTINCT g FROM SplitGroup g JOIN g.members m WHERE m.user.id = :userId")

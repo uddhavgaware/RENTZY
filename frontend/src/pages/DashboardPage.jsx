@@ -34,7 +34,7 @@ const DashboardPage = () => {
   const [loadingBookings, setLoadingBookings] = useState(false);
   const [loadingListings, setLoadingListings] = useState(false);
   const [editingProfile, setEditingProfile] = useState(false);
-  const [profileForm, setProfileForm] = useState({ name: '', phone: '', role: '', profilePhoto: '', city: '' });
+  const [profileForm, setProfileForm] = useState({ name: '', phone: '', role: '', profilePhoto: '', city: '', upiId: '', upiQrUrl: '' });
   const [savingProfile, setSavingProfile] = useState(false);
   const [editingListing, setEditingListing] = useState(null);
   const [editForm, setEditForm] = useState({});
@@ -102,7 +102,7 @@ const DashboardPage = () => {
       api.get('/listings/my').then(r => setMyListings(r.data)).catch(() => {}).finally(() => setLoadingListings(false));
     }
     if (activeTab === 'profile') {
-      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role, profilePhoto: r.data.profilePhoto || '', city: r.data.city || '', contactShared: r.data.contactShared || false }); }).catch(() => {});
+      api.get('/users/me').then(r => { setProfile(r.data); setProfileForm({ name: r.data.name, phone: r.data.phone || '', role: r.data.role, profilePhoto: r.data.profilePhoto || '', city: r.data.city || '', upiId: r.data.upiId || '', upiQrUrl: r.data.upiQrUrl || '', contactShared: r.data.contactShared || false }); }).catch(() => {});
     }
     if (activeTab === 'notifications') {
       api.get('/notifications').then(r => setNotifications(r.data)).catch(() => {});
@@ -217,6 +217,31 @@ const DashboardPage = () => {
       }
     } catch (err) {
       showModal({ type: 'alert', title: 'Upload Failed', message: 'Failed to upload cropped profile photo.', onConfirm: closeModal });
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleUpiQrUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      showModal({ type: 'alert', title: 'Error', message: 'QR Code image must be less than 2MB', onConfirm: closeModal });
+      return;
+    }
+    
+    setSavingProfile(true);
+    try {
+      const uploadData = new FormData();
+      uploadData.append('files', file);
+      const res = await api.post('/upload', uploadData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      if (res.data && res.data.length > 0) {
+        setProfileForm(prev => ({ ...prev, upiQrUrl: res.data[0] }));
+      }
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Upload Failed', message: 'Failed to upload QR code.', onConfirm: closeModal });
     } finally {
       setSavingProfile(false);
     }
@@ -589,6 +614,40 @@ const DashboardPage = () => {
                       ) : (
                         <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3">{profile.city || 'Not set'}</p>
                       )}
+                    </div>
+
+                    <div className="md:col-span-2 mt-4 border-t border-gray-100 pt-4">
+                      <h3 className="font-bold text-gray-900 mb-4 text-lg">Payment Details (For Split Expenses)</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">UPI ID (VPA)</label>
+                          {editingProfile ? (
+                            <input type="text" value={profileForm.upiId} onChange={e => setProfileForm(p => ({ ...p, upiId: e.target.value }))} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" placeholder="e.g. yourname@okaxis" />
+                          ) : (
+                            <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3">{profile.upiId || 'Not set'}</p>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">UPI QR Code</label>
+                          <div className="flex items-center gap-4">
+                            {profileForm.upiQrUrl ? (
+                              <img src={profileForm.upiQrUrl} alt="UPI QR" className="w-16 h-16 rounded-xl object-cover border border-gray-200 shadow-sm" />
+                            ) : (
+                              <div className="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-400 border border-gray-200">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><rect width="3" height="3" x="7" y="7"/><rect width="3" height="3" x="14" y="7"/><rect width="3" height="3" x="7" y="14"/><rect width="3" height="3" x="14" y="14"/></svg>
+                              </div>
+                            )}
+                            {editingProfile && (
+                              <div>
+                                <label className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 cursor-pointer shadow-sm transition-colors">
+                                  {savingProfile ? 'Uploading...' : 'Upload QR Image'}
+                                  <input type="file" className="hidden" accept="image/*" onChange={handleUpiQrUpload} disabled={savingProfile} />
+                                </label>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>

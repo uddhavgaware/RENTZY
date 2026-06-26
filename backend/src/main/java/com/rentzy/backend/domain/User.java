@@ -183,6 +183,12 @@ public class User implements UserDetails {
     private String city;
 
     @Column
+    private String upiId;
+
+    @Column(length = 1000)
+    private String upiQrUrl;
+
+    @Column
     private LocalDateTime createdAt;
 
     @PrePersist

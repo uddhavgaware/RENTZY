@@ -31,9 +31,8 @@ const CATEGORIES = [
 ];
 
 const SPLIT_TYPES = [
-  { id: 'equal', label: 'Equal', desc: 'Split equally among all' },
-  { id: 'exact', label: 'Exact Amounts', desc: "Specify each person's share" },
-  { id: 'percentage', label: 'Percentage', desc: 'Split by percentage' },
+  { id: 'equal', label: 'Equal', desc: 'Split equally among selected' },
+  { id: 'exact', label: 'Exact Amounts', desc: "Specify each person's share" }
 ];
 
 const AVATARS_COLORS = [
@@ -76,8 +75,11 @@ const SplitExpensesPage = () => {
   const [showAddGroup, setShowAddGroup] = useState(false);
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [showAddMember, setShowAddMember] = useState(false);
+  const [showEditGroup, setShowEditGroup] = useState(false);
+  const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSettle, setShowSettle] = useState(null);
   const [showMemberStats, setShowMemberStats] = useState(null);
+  const [showUpiModal, setShowUpiModal] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -96,7 +98,7 @@ const SplitExpensesPage = () => {
   const [memberForm, setMemberForm] = useState({ identifier: '' }); // email or userCode
   const [expenseForm, setExpenseForm] = useState({
     description: '', amount: '', category: 'other', paidByUserId: '',
-    splitType: 'equal', splits: [], date: new Date().toISOString().split('T')[0], note: ''
+    splitType: 'equal', splits: [], involvedMembers: [], date: new Date().toISOString().split('T')[0], note: ''
   });
 
   // ─── Derived ───────────────────────────────────────
@@ -245,6 +247,22 @@ const SplitExpensesPage = () => {
     } finally { setActionLoading(false); }
   };
 
+  const handleUpdateGroup = async () => {
+    if (!groupForm.name.trim()) return;
+    setActionLoading(true);
+    try {
+      const res = await api.put(`/split/groups/${activeGroup}`, {
+        name: groupForm.name.trim(),
+        description: groupForm.description.trim()
+      });
+      setGroups(prev => prev.map(g => g.id === activeGroup ? res.data : g));
+      setShowEditGroup(false);
+      showToast('Group updated!');
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to update group', 'error');
+    } finally { setActionLoading(false); }
+  };
+
   const handleAddMember = async () => {
     if (!memberForm.identifier.trim()) return;
     setActionLoading(true);
@@ -282,8 +300,9 @@ const SplitExpensesPage = () => {
 
     let splits = [];
     if (expenseForm.splitType === 'equal') {
-      const share = amount / members.length;
-      splits = members.map(m => ({ userId: m.id, amount: share }));
+      const involved = expenseForm.involvedMembers.length > 0 ? expenseForm.involvedMembers : members.map(m => m.id);
+      const share = amount / involved.length;
+      splits = involved.map(userId => ({ userId, amount: share }));
     } else if (expenseForm.splitType === 'exact') {
       splits = expenseForm.splits.filter(s => parseFloat(s.amount) > 0).map(s => ({
         userId: s.userId, amount: parseFloat(s.amount)
@@ -293,17 +312,6 @@ const SplitExpensesPage = () => {
         showToast(`Split amounts (${CURRENCY}${total.toFixed(2)}) don't add up to ${CURRENCY}${amount.toFixed(2)}`, 'error');
         return;
       }
-    } else if (expenseForm.splitType === 'percentage') {
-      const totalPct = expenseForm.splits.reduce((s, x) => s + (parseFloat(x.percentage) || 0), 0);
-      if (Math.abs(totalPct - 100) > 0.01) {
-        showToast(`Percentages add up to ${totalPct.toFixed(1)}%, must be 100%`, 'error');
-        return;
-      }
-      splits = expenseForm.splits.map(s => ({
-        userId: s.userId,
-        amount: (parseFloat(s.percentage) / 100) * amount,
-        percentage: parseFloat(s.percentage)
-      }));
     }
 
     setActionLoading(true);
@@ -337,7 +345,7 @@ const SplitExpensesPage = () => {
   const resetExpenseForm = () => {
     setExpenseForm({
       description: '', amount: '', category: 'other', paidByUserId: '',
-      splitType: 'equal', splits: [], date: new Date().toISOString().split('T')[0], note: ''
+      splitType: 'equal', splits: [], involvedMembers: members.map(m => m.id), date: new Date().toISOString().split('T')[0], note: ''
     });
     setShowAddExpense(false);
     setEditingExpense(null);
@@ -351,8 +359,9 @@ const SplitExpensesPage = () => {
       paidByUserId: exp.paidBy?.id,
       splitType: exp.splitType,
       splits: (exp.shares || []).map(s => ({
-        userId: s.user?.id, amount: s.amount?.toString(), percentage: (s.percentage || '').toString()
+        userId: s.user?.id, amount: s.amount?.toString()
       })),
+      involvedMembers: exp.splitType === 'equal' ? (exp.shares || []).map(s => s.user?.id) : members.map(m => m.id),
       date: exp.date ? exp.date.split('T')[0] : '',
       note: exp.note || ''
     });
@@ -401,10 +410,6 @@ const SplitExpensesPage = () => {
     if (type === 'equal') return [];
     if (type === 'exact') {
       return members.map(m => ({ userId: m.id, amount: (amt / members.length).toFixed(2) }));
-    }
-    if (type === 'percentage') {
-      const pct = (100 / members.length).toFixed(1);
-      return members.map(m => ({ userId: m.id, percentage: pct }));
     }
     return [];
   };
@@ -517,9 +522,17 @@ const SplitExpensesPage = () => {
                           </div>
                         </button>
                         {g.createdBy?.id === user?.id && (
-                          <button onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.id); }} className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-gray-300 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 opacity-0 group-hover:opacity-100 transition-all">
-                            <Trash2 size={14} />
-                          </button>
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-100 dark:border-white/5 p-0.5">
+                            <button onClick={(e) => { e.stopPropagation(); setGroupForm({ name: g.name, description: g.description || '' }); setActiveGroup(g.id); setShowEditGroup(true); }} className="p-1.5 rounded-md text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit Group">
+                              <Edit3 size={14} />
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); setActiveGroup(g.id); setShowInviteModal(true); }} className="p-1.5 rounded-md text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20" title="Invite Link">
+                              <UserPlus size={14} />
+                            </button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.id); }} className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" title="Delete Group">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         )}
                       </div>
                     ))}
@@ -691,7 +704,7 @@ const SplitExpensesPage = () => {
                   )}
 
                   {/* ══════ BALANCES TAB ══════ */}
-                  {activeView === 'balances' && (
+                    {activeView === 'balances' && (
                     <div className="space-y-4 animate-fade-in">
                       <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-lg shadow-gray-200/40 dark:shadow-black/20 border border-gray-100/80 dark:border-white/5">
                         <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Individual Balances</h3>
@@ -974,6 +987,32 @@ const SplitExpensesPage = () => {
                 </div>
               </div>
               {/* Custom Splits */}
+              {expenseForm.splitType === 'equal' && (
+                <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 space-y-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase">Select Members</span>
+                    <span className="text-xs text-gray-400">{expenseForm.involvedMembers.length} / {members.length}</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {members.map(m => {
+                      const isSelected = expenseForm.involvedMembers.includes(m.id);
+                      return (
+                        <button key={m.id} onClick={() => {
+                          setExpenseForm(p => {
+                            const newInvolved = isSelected ? p.involvedMembers.filter(id => id !== m.id) : [...p.involvedMembers, m.id];
+                            return { ...p, involvedMembers: newInvolved, splits: initSplits('equal', p.amount) };
+                          });
+                        }} className={`flex items-center gap-2 p-2 rounded-lg text-sm transition-all text-left ${isSelected ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/50' : 'bg-white dark:bg-slate-900 text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-white/10'}`}>
+                          <div className={`w-4 h-4 rounded border flex items-center justify-center ${isSelected ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300 dark:border-gray-600'}`}>
+                            {isSelected && <Check size={12} className="text-white" />}
+                          </div>
+                          <span className="truncate">{m.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
               {expenseForm.splitType === 'exact' && (
                 <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-3 space-y-2">
                   <div className="flex items-center justify-between mb-1">
@@ -1127,6 +1166,90 @@ const SplitExpensesPage = () => {
                 </div>
               </div>
             ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* ── Edit Group Modal ── */}
+      {showEditGroup && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowEditGroup(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-md"><Edit3 size={20} /></div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">Edit Group</h3>
+              </div>
+              <button onClick={() => setShowEditGroup(false)} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"><X size={20} className="text-gray-400" /></button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Group Name *</label>
+                <input type="text" placeholder="e.g. Flat 204" value={groupForm.name} onChange={e => setGroupForm(p => ({ ...p, name: e.target.value }))}
+                  className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white" autoFocus />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+                <input type="text" placeholder="Optional details..." value={groupForm.description} onChange={e => setGroupForm(p => ({ ...p, description: e.target.value }))}
+                  className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white" />
+              </div>
+              <button onClick={handleUpdateGroup} disabled={!groupForm.name.trim() || actionLoading}
+                className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed text-white font-bold py-3 rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2">
+                {actionLoading && <Loader2 size={16} className="animate-spin" />} Update Group
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Invite Link Modal ── */}
+      {showInviteModal && currentGroup?.inviteCode && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowInviteModal(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-end"><button onClick={() => setShowInviteModal(false)} className="text-gray-400 hover:text-gray-600"><X size={20}/></button></div>
+            <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4">
+              <UserPlus size={28} className="text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Invite Roommates</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm">Share this link to let others join "{currentGroup.name}".</p>
+            <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-white/10 break-all mb-4">
+              <p className="text-sm text-gray-700 dark:text-gray-300 font-medium select-all">{window.location.origin}/join/{currentGroup.inviteCode}</p>
+            </div>
+            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/join/${currentGroup.inviteCode}`); showToast('Link copied!'); setShowInviteModal(false); }}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95">
+              Copy Link
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── Pay UPI Modal ── */}
+      {showUpiModal && (
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowUpiModal(null)}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center" onClick={e => e.stopPropagation()}>
+            <div className="flex justify-end"><button onClick={() => setShowUpiModal(null)} className="text-gray-400 hover:text-gray-600"><X size={20}/></button></div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pay {showUpiModal.name} via UPI</h3>
+            
+            <div className="my-6">
+              {showUpiModal.upiQrUrl ? (
+                <img src={showUpiModal.upiQrUrl} alt="UPI QR" className="w-48 h-48 mx-auto rounded-xl shadow-sm border border-gray-200 object-cover" />
+              ) : (
+                <div className="w-48 h-48 mx-auto rounded-xl bg-gray-50 flex items-center justify-center border border-gray-200">
+                  <span className="text-gray-400 text-sm">No QR Code available</span>
+                </div>
+              )}
+            </div>
+
+            <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-white/10 mb-4 flex items-center justify-between">
+              <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">{showUpiModal.upiId}</span>
+              <button onClick={() => { navigator.clipboard.writeText(showUpiModal.upiId); showToast('UPI ID copied!'); }} className="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded">Copy</button>
+            </div>
+            
+            <button onClick={() => {
+              // Try to open UPI intent on mobile
+              window.location.href = `upi://pay?pa=${showUpiModal.upiId}&pn=${showUpiModal.name}`;
+            }} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95">
+              Open UPI App
+            </button>
           </div>
         </div>
       )}

@@ -50,6 +50,18 @@ public class SplitExpenseService {
     }
 
     @Transactional
+    public SplitGroup updateGroup(Long groupId, String email, String name, String description) {
+        SplitGroup group = findGroup(groupId);
+        User user = findUser(email);
+        if (!group.getCreatedBy().getId().equals(user.getId())) {
+            throw new RuntimeException("Only the group creator can edit this group");
+        }
+        group.setName(name);
+        group.setDescription(description);
+        return groupRepository.save(group);
+    }
+
+    @Transactional
     public void deleteGroup(Long groupId, String email) {
         SplitGroup group = findGroup(groupId);
         User user = findUser(email);
@@ -116,13 +128,40 @@ public class SplitExpenseService {
     }
 
     @Transactional
+    public SplitGroupMember joinGroup(String inviteCode, String requestorEmail) {
+        User userToAdd = findUser(requestorEmail);
+        SplitGroup group = groupRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new RuntimeException("Invalid or expired invite code"));
+
+        if (memberRepository.existsByGroupIdAndUserId(group.getId(), userToAdd.getId())) {
+            throw new RuntimeException("You are already a member of this group");
+        }
+
+        SplitGroupMember member = SplitGroupMember.builder()
+                .group(group)
+                .user(userToAdd)
+                .build();
+        return memberRepository.save(member);
+    }
+
+    @Transactional
     public void removeMember(Long groupId, Long memberId, String email) {
-        assertMember(groupId, email);
+        SplitGroup group = findGroup(groupId);
+        User requestor = findUser(email);
         SplitGroupMember member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new RuntimeException("Member not found"));
+
         if (!member.getGroup().getId().equals(groupId)) {
             throw new RuntimeException("Member does not belong to this group");
         }
+
+        boolean isCreator = group.getCreatedBy().getId().equals(requestor.getId());
+        boolean isSelf = member.getUser().getId().equals(requestor.getId());
+
+        if (!isCreator && !isSelf) {
+            throw new RuntimeException("Only the group creator can remove members");
+        }
+
         memberRepository.delete(member);
     }
 

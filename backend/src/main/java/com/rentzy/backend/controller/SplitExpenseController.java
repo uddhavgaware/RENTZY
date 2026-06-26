@@ -40,6 +40,23 @@ public class SplitExpenseController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping("/groups/{groupId}")
+    public ResponseEntity<SplitGroup> updateGroup(
+            @PathVariable Long groupId,
+            @RequestBody Map<String, String> body,
+            Authentication auth) {
+        String name = body.get("name");
+        String description = body.getOrDefault("description", "");
+        return ResponseEntity.ok(splitExpenseService.updateGroup(groupId, auth.getName(), name, description));
+    }
+
+    @PostMapping("/groups/join/{inviteCode}")
+    public ResponseEntity<SplitGroupMember> joinGroup(
+            @PathVariable String inviteCode,
+            Authentication auth) {
+        return ResponseEntity.ok(splitExpenseService.joinGroup(inviteCode, auth.getName()));
+    }
+
     // ─── Members ─────────────────────────────────────
 
     @GetMapping("/groups/{groupId}/members")
