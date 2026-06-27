@@ -251,6 +251,9 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
+            <a href="/rentxy.apk" download className={cn("p-2 rounded-full transition-colors flex items-center justify-center bg-emerald-100 text-emerald-700", isDarkHero && !isScrolled ? "bg-emerald-500/20 text-emerald-400" : "")} title="Download App">
+              <Download size={22} />
+            </a>
             <button onClick={toggleDarkMode} className={cn("p-2 rounded-full transition-colors", textColorClass)}>
               {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
             </button>
