@@ -285,7 +285,7 @@ public class SplitExpenseService {
     }
 
     @Transactional
-    public SplitSettlement addSettlement(Long groupId, String email, Long fromUserId, Long toUserId, Double amount) {
+    public SplitSettlement addSettlement(Long groupId, String email, Long fromUserId, Long toUserId, Double amount, String paymentScreenshotUrl) {
         assertMember(groupId, email);
         SplitGroup group = findGroup(groupId);
         User fromUser = userRepository.findById(fromUserId)
@@ -299,6 +299,7 @@ public class SplitExpenseService {
                 .fromUser(fromUser)
                 .toUser(toUser)
                 .amount(amount)
+                .paymentScreenshotUrl(paymentScreenshotUrl)
                 .build();
         return settlementRepository.save(settlement);
     }

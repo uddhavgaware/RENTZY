@@ -568,7 +568,7 @@ const PostPropertyPage = () => {
                   <p className="text-xs text-gray-400 mb-3">Click on the map to accurately pin your property's location. This helps tenants find it easily.</p>
                   <div className="h-[250px] rounded-xl overflow-hidden border border-gray-200 shadow-inner z-0 relative">
                     {/* Map Search Overlay */}
-                    <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                    <div className="absolute top-3 left-3 right-3 z-[500] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
                       <div className="pl-3 pr-2 text-gray-400">
                         <MapPin size={16} className="text-primary-500" />
                       </div>

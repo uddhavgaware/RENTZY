@@ -504,7 +504,7 @@ const ListingDetailsPage = () => {
               {listing.latitude && listing.longitude ? (
                 <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-md relative">
                   {/* Map Search Overlay */}
-                  <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                  <div className="absolute top-3 left-3 right-3 z-[500] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
                     <div className="pl-3 pr-2 text-gray-400">
                       <MapPin size={16} className="text-primary-500" />
                     </div>

@@ -11,7 +11,7 @@ import PremiumHero from '../components/PremiumHero';
 function CustomZoomControl() {
   const map = useMap();
   return (
-    <div className="absolute top-2 left-2 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-sm rounded-lg overflow-hidden">
+    <div className="absolute top-2 left-2 z-[500] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-sm rounded-lg overflow-hidden">
       <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomIn(); }} className="p-1.5 hover:bg-gray-100 text-gray-700 transition-colors border-b border-gray-200"><Plus size={14} /></button>
       <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomOut(); }} className="p-1.5 hover:bg-gray-100 text-gray-700 transition-colors"><Minus size={14} /></button>
     </div>
@@ -286,7 +286,7 @@ const MoversPage = () => {
               {activeMapField && (
                 <div className="h-[250px] rounded-xl overflow-hidden border-2 border-primary-300 shadow-inner z-0 relative animate-fadeIn mb-4">
                   {/* Map Search Overlay */}
-                  <div className="absolute top-3 left-3 right-3 z-[1000] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                  <div className="absolute top-3 left-3 right-3 z-[500] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
                     <div className="pl-3 pr-2 text-gray-400">
                       <MapPin size={16} className="text-primary-500" />
                     </div>

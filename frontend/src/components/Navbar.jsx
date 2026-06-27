@@ -123,8 +123,8 @@ const Navbar = () => {
     : {};
 
   const navClass = isCinematicPage
-    ? cn("fixed top-0 z-[100] w-full transition-all duration-300", isScrolled ? "shadow-sm border-b border-white/10 py-1" : "bg-transparent py-4")
-    : cn("sticky top-0 z-[100] w-full shadow-sm border-b", isDarkMode ? "border-white/5" : "border-gray-100");
+    ? cn("fixed top-0 z-[1000] w-full transition-all duration-300", isScrolled ? "shadow-sm border-b border-white/10 py-1" : "bg-transparent py-4")
+    : cn("sticky top-0 z-[1000] w-full shadow-sm border-b", isDarkMode ? "border-white/5" : "border-gray-100");
 
   const textColorClass = isDarkHero && !isScrolled ? "text-white" : "text-gray-900";
   const linkColorClass = isDarkHero && !isScrolled ? "text-white/80 hover:text-white" : "text-gray-600 hover:text-primary-700 font-semibold";
@@ -134,7 +134,7 @@ const Navbar = () => {
   return (
     <>
       {showLogoutConfirm && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in">
           <div className="bg-white rounded-3xl p-8 max-w-sm w-full mx-4 shadow-2xl text-center border border-gray-100">
             <div className="w-16 h-16 bg-red-50 rounded-full flex items-center justify-center mx-auto mb-4">
               <LogOut size={32} className="text-red-500" />
@@ -289,7 +289,7 @@ const Navbar = () => {
       </div>
 
       {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 w-full border-t border-gray-100 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[100]">
+        <div className="md:hidden absolute top-16 left-0 right-0 w-full border-t border-gray-100 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[1000]">
           <div className="pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
               <Link key={link.name} to={link.path} className={cn("block pl-3 pr-4 py-2 border-l-4 text-base font-medium", location.pathname === link.path ? "border-primary-500 text-primary-700 bg-primary-50" : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700")} onClick={() => setIsOpen(false)}>{link.name}</Link>

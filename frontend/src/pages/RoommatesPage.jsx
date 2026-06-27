@@ -16,7 +16,7 @@ function MapUpdater({ center }) {
 function CustomZoomControl() {
   const map = useMap();
   return (
-    <div className="absolute bottom-6 right-4 z-[1000] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-xl rounded-xl overflow-hidden">
+    <div className="absolute bottom-6 right-4 z-[500] flex flex-col bg-white/90 backdrop-blur-md border border-white/50 shadow-xl rounded-xl overflow-hidden">
       <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomIn(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors border-b border-gray-200 active:bg-gray-200" title="Zoom In"><Plus size={18} /></button>
       <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); map.zoomOut(); }} className="p-2.5 hover:bg-gray-100 text-gray-700 transition-colors active:bg-gray-200" title="Zoom Out"><Minus size={18} /></button>
     </div>
@@ -602,7 +602,7 @@ const RoommatesPage = () => {
             {isMapView ? (
               <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
                 {/* Map Search Overlay */}
-                <div className="absolute top-4 right-4 z-[1000] glass-premium rounded-xl p-3 flex flex-col gap-2 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-700">
+                <div className="absolute top-4 right-4 z-[500] glass-premium rounded-xl p-3 flex flex-col gap-2 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-700">
                    <div className="flex items-center gap-2">
                      <div className="w-3 h-3 rounded-full bg-blue-50 border border-white shadow-sm"></div> Flat
                    </div>
@@ -610,7 +610,7 @@ const RoommatesPage = () => {
                      <div className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm"></div> Roommate Request
                    </div>
                 </div>
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[1000] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
+                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[500] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
                   <div className="pl-3 pr-2 text-gray-400">
                     <MapPin size={18} className="text-primary-500" />
                   </div>
@@ -764,7 +764,7 @@ const RoommatesPage = () => {
                         <div>
                           <div className="flex items-center gap-1.5">
                             <h3 className="text-xl font-bold text-gray-900">{maskName(roommate.user?.name) || 'User'}</h3>
-                            {roommate.user?.kycStatus === 'APPROVED' && (
+                            {roommate.user?.isVerified === true && (
                               <div className="group relative flex items-center">
                                 <BadgeCheck size={20} className="text-blue-500 fill-blue-50" />
                                 <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-gray-900 text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">ID Verified</span>
@@ -950,7 +950,13 @@ const RoommatesPage = () => {
 
                     {!isOwner && (
                       <button 
-                        onClick={() => navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`)}
+                        onClick={() => {
+                          if (!isAuthenticated) {
+                            showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
+                            return;
+                          }
+                          navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`);
+                        }}
                         className="w-full bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors mt-4"
                       >
                         <MessageCircle size={18} className="mr-2" />
@@ -1111,7 +1117,7 @@ const RoommatesPage = () => {
                 {/* Embedded Post Map */}
                 <div className="mt-4 h-[220px] w-full rounded-xl overflow-hidden border-2 border-primary-200 relative z-0">
                   {/* Map Search Overlay */}
-                  <div className="absolute top-2 left-2 right-2 z-[1000] rounded-xl p-1 flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg">
+                  <div className="absolute top-2 left-2 right-2 z-[500] rounded-xl p-1 flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg">
                     <div className="pl-2 pr-1.5 text-gray-400">
                       <MapPin size={14} className="text-primary-500" />
                     </div>
@@ -1145,11 +1151,11 @@ const RoommatesPage = () => {
                     <ModalLocationPicker />
                   </MapContainer>
                   
-                  <div className="absolute bottom-2 left-2 z-[1000] bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black text-primary-700 shadow-md border border-primary-100 flex items-center gap-1.5">
+                  <div className="absolute bottom-2 left-2 z-[500] bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black text-primary-700 shadow-md border border-primary-100 flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
                     Roommate Request
                   </div>
-                  <div className="absolute bottom-2 right-14 z-[1000] bg-white/95 backdrop-blur-md px-2 py-1 rounded-md text-[8px] font-black text-gray-500 shadow-md border border-gray-100">
+                  <div className="absolute bottom-2 right-14 z-[500] bg-white/95 backdrop-blur-md px-2 py-1 rounded-md text-[8px] font-black text-gray-500 shadow-md border border-gray-100">
                     Click Map to Pick Pin
                   </div>
                 </div>

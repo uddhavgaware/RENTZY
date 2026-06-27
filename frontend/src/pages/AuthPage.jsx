@@ -231,6 +231,7 @@ const AuthPage = () => {
                       navigate('/dashboard', { replace: true });
                     } catch (err) {
                       setError(err.response?.data?.message || 'Google Login failed');
+                    } finally {
                       setLoading(false);
                     }
                   }}

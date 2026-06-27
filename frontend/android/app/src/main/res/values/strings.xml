@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">RENTZY</string>
-    <string name="title_activity_main">RENTZY</string>
+    <string name="app_name">RentXY</string>
+    <string name="title_activity_main">RentXY</string>
     <string name="package_name">com.rentzy.app</string>
     <string name="custom_url_scheme">com.rentzy.app</string>
 </resources>

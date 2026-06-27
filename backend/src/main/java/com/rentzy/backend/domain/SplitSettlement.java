@@ -42,6 +42,9 @@ public class SplitSettlement {
     @Column(nullable = false)
     private LocalDateTime date;
 
+    @Column(length = 1000)
+    private String paymentScreenshotUrl;
+
     @PrePersist
     protected void onCreate() {
         if (date == null) date = LocalDateTime.now();

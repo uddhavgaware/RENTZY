@@ -80,6 +80,8 @@ const SplitExpensesPage = () => {
   const [showSettle, setShowSettle] = useState(null);
   const [showMemberStats, setShowMemberStats] = useState(null);
   const [showUpiModal, setShowUpiModal] = useState(null);
+  const [showUpiConfig, setShowUpiConfig] = useState(false);
+  const [paymentScreenshot, setPaymentScreenshot] = useState(null);
   const [editingExpense, setEditingExpense] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -382,12 +384,22 @@ const SplitExpensesPage = () => {
   const handleSettle = async (transaction) => {
     setActionLoading(true);
     try {
+      let uploadedUrl = null;
+      if (paymentScreenshot) {
+         const formData = new FormData();
+         formData.append('files', paymentScreenshot);
+         const res = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+         if (res.data && res.data.length > 0) uploadedUrl = res.data[0];
+      }
+
       await api.post(`/split/groups/${activeGroup}/settlements`, {
         fromUserId: transaction.fromUserId,
         toUserId: transaction.toUserId,
-        amount: transaction.amount
+        amount: transaction.amount,
+        paymentScreenshotUrl: uploadedUrl
       });
       setShowSettle(null);
+      setPaymentScreenshot(null);
       showToast('Settlement recorded!');
       await refreshGroupData();
     } catch (err) {
@@ -417,12 +429,56 @@ const SplitExpensesPage = () => {
   // ─── Auth guard ─────────────────────────────────
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
-        <div className="text-center p-8">
-          <Users size={48} className="text-gray-300 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-gray-700 dark:text-gray-300 mb-2">Login Required</h2>
-          <p className="text-gray-500 mb-4">Please sign in to use the Split Expenses feature.</p>
-          <button onClick={() => navigate('/auth')} className="bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl">Sign In</button>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-4 relative overflow-hidden">
+        {/* Background elements */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-400/10 rounded-full blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-teal-400/10 rounded-full blur-[80px] pointer-events-none" />
+
+        <div className="max-w-2xl w-full text-center relative z-10">
+          <div className="w-24 h-24 bg-white dark:bg-slate-900 rounded-3xl shadow-xl shadow-emerald-500/20 flex items-center justify-center mx-auto mb-8 border border-gray-100 dark:border-gray-800 rotate-12 hover:rotate-0 transition-transform duration-500">
+            <PieChart size={40} className="text-emerald-500" />
+          </div>
+          
+          <h1 className="text-4xl md:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-6">
+            Shared living, <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">simplified.</span>
+          </h1>
+          
+          <p className="text-lg md:text-xl text-gray-600 dark:text-gray-400 mb-12 max-w-xl mx-auto">
+            Keep track of shared expenses, balances, and who owes who. Perfect for flatmates, trips, and friends.
+          </p>
+
+          <div className="grid sm:grid-cols-3 gap-6 mb-12 text-left">
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg shadow-gray-200/40 dark:shadow-none border border-gray-100 dark:border-white/5">
+              <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-4">
+                <Receipt size={20} />
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Track Expenses</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Add bills and split them equally, exactly, or by percentage.</p>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg shadow-gray-200/40 dark:shadow-none border border-gray-100 dark:border-white/5">
+              <div className="w-10 h-10 rounded-full bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-4">
+                <ArrowRightLeft size={20} />
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Settle Up</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Record payments and instantly settle debts via UPI.</p>
+            </div>
+            <div className="bg-white dark:bg-slate-900 p-6 rounded-3xl shadow-lg shadow-gray-200/40 dark:shadow-none border border-gray-100 dark:border-white/5">
+              <div className="w-10 h-10 rounded-full bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-400 mb-4">
+                <TrendingUp size={20} />
+              </div>
+              <h3 className="font-bold text-gray-900 dark:text-white mb-2">Smart Balances</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Automatically minimizes the number of transactions needed.</p>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <button onClick={() => navigate('/auth?mode=signup')} className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold rounded-2xl shadow-xl shadow-emerald-500/25 transition-all active:scale-95">
+              Get Started Free
+            </button>
+            <button onClick={() => navigate('/auth')} className="w-full sm:w-auto px-8 py-4 bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-900 dark:text-white font-bold rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-none border border-gray-100 dark:border-white/10 transition-all active:scale-95">
+              Log In
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -587,6 +643,9 @@ const SplitExpensesPage = () => {
                           )}
                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{mo.user.name}</span>
                           {mo.user.id === user?.id && <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400 px-1.5 py-0.5 rounded-md">YOU</span>}
+                          {mo.user.id === user?.id && (
+                             <button onClick={() => setShowUpiConfig(true)} className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors">💳 Set UPI</button>
+                          )}
                           <button onClick={() => handleViewMemberStats(mo.user.id)} className="p-0.5 rounded text-gray-300 hover:text-blue-500 transition-all" title="View stats">
                             <Eye size={13} />
                           </button>
@@ -865,7 +924,7 @@ const SplitExpensesPage = () => {
 
       {/* ── Create Group Modal ── */}
       {showAddGroup && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowAddGroup(false)}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowAddGroup(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
@@ -896,7 +955,7 @@ const SplitExpensesPage = () => {
 
       {/* ── Add Member Modal ── */}
       {showAddMember && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowAddMember(false)}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowAddMember(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
@@ -923,7 +982,7 @@ const SplitExpensesPage = () => {
 
       {/* ── Add / Edit Expense Modal ── */}
       {showAddExpense && (
-        <div className="fixed inset-0 z-[150] flex items-start justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4 overflow-y-auto" onClick={resetExpenseForm}>
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4 overflow-y-auto" onClick={resetExpenseForm}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-lg w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up my-8" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
@@ -1070,7 +1129,7 @@ const SplitExpensesPage = () => {
         const receiver = members.find(u => u.id === showSettle.toUserId);
         const payer = members.find(u => u.id === showSettle.fromUserId);
         return (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowSettle(null)}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowSettle(null)}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center mx-auto mb-4">
               <HandCoins size={28} className="text-emerald-600 dark:text-emerald-400" />
@@ -1110,10 +1169,16 @@ const SplitExpensesPage = () => {
 
             <div className="w-full h-px bg-gray-100 dark:bg-white/10 mb-6" />
 
+            <div className="mb-6 text-left">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Upload Payment Screenshot (Optional)</label>
+              <input type="file" accept="image/*" onChange={e => setPaymentScreenshot(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+              {paymentScreenshot && <p className="text-xs text-emerald-600 mt-2">Selected: {paymentScreenshot.name}</p>}
+            </div>
+
             <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Mark as Settled?</h4>
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Only confirm this if you have already sent or received the money.</p>
             <div className="flex gap-3">
-              <button onClick={() => setShowSettle(null)} className="flex-1 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-all active:scale-95">Cancel</button>
+              <button onClick={() => { setShowSettle(null); setPaymentScreenshot(null); }} className="flex-1 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-all active:scale-95">Cancel</button>
               <button onClick={() => handleSettle(showSettle)} disabled={actionLoading}
                 className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2">
                 {actionLoading && <Loader2 size={16} className="animate-spin" />} Confirm
@@ -1126,7 +1191,7 @@ const SplitExpensesPage = () => {
 
       {/* ── Member Stats Modal ── */}
       {showMemberStats && memberStats && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => { setShowMemberStats(null); setMemberStats(null); }}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => { setShowMemberStats(null); setMemberStats(null); }}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
@@ -1214,7 +1279,7 @@ const SplitExpensesPage = () => {
 
       {/* ── Edit Group Modal ── */}
       {showEditGroup && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowEditGroup(false)}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowEditGroup(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
@@ -1245,7 +1310,7 @@ const SplitExpensesPage = () => {
 
       {/* ── Invite Link Modal ── */}
       {showInviteModal && currentGroup?.inviteCode && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowInviteModal(false)}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowInviteModal(false)}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center" onClick={e => e.stopPropagation()}>
             <div className="flex justify-end"><button onClick={() => setShowInviteModal(false)} className="text-gray-400 hover:text-gray-600"><X size={20}/></button></div>
             <div className="w-16 h-16 rounded-full bg-indigo-50 dark:bg-indigo-900/30 flex items-center justify-center mx-auto mb-4">
@@ -1266,7 +1331,7 @@ const SplitExpensesPage = () => {
 
       {/* ── Pay UPI Modal ── */}
       {showUpiModal && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowUpiModal(null)}>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowUpiModal(null)}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center" onClick={e => e.stopPropagation()}>
             <div className="flex justify-end"><button onClick={() => setShowUpiModal(null)} className="text-gray-400 hover:text-gray-600"><X size={20}/></button></div>
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Pay {showUpiModal.name} via UPI</h3>
@@ -1292,6 +1357,57 @@ const SplitExpensesPage = () => {
             }} className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95">
               Open UPI App
             </button>
+          </div>
+        </div>
+      )}
+      {/* ── Set UPI Config Modal ── */}
+      {showUpiConfig && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setShowUpiConfig(false)}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-xl font-bold text-gray-900 dark:text-white">Your UPI Details</h3>
+              <button onClick={() => setShowUpiConfig(false)} className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors"><X size={20} className="text-gray-400" /></button>
+            </div>
+            
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              setActionLoading(true);
+              try {
+                const upiId = e.target.elements['upiId'].value;
+                const fileInput = e.target.elements['upiQr'];
+                let uploadedQrUrl = user?.upiQrUrl;
+                
+                if (fileInput && fileInput.files[0]) {
+                   const formData = new FormData();
+                   formData.append('files', fileInput.files[0]);
+                   const res = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+                   if (res.data && res.data.length > 0) uploadedQrUrl = res.data[0];
+                }
+
+                await api.put('/users/me', { upiId, upiQrUrl: uploadedQrUrl });
+                showToast('UPI details updated successfully!');
+                setShowUpiConfig(false);
+                // Optionally refresh user data if necessary
+              } catch (err) {
+                showToast('Failed to update UPI details', 'error');
+              } finally { setActionLoading(false); }
+            }}>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">UPI ID</label>
+                  <input type="text" name="upiId" defaultValue={user?.upiId || ''} placeholder="e.g. name@okhdfcbank" className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">UPI QR Code Image</label>
+                  <input type="file" name="upiQr" accept="image/*" className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+                  {user?.upiQrUrl && <p className="text-xs text-gray-400 mt-2">You already have a QR code uploaded. Select a new one to replace it.</p>}
+                </div>
+                
+                <button type="submit" disabled={actionLoading} className="w-full mt-4 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2">
+                  {actionLoading && <Loader2 size={16} className="animate-spin" />} Save Details
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

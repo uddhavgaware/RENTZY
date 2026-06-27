@@ -163,8 +163,9 @@ public class SplitExpenseController {
         Long fromUserId = Long.parseLong(body.get("fromUserId").toString());
         Long toUserId = Long.parseLong(body.get("toUserId").toString());
         Double amount = Double.parseDouble(body.get("amount").toString());
+        String paymentScreenshotUrl = body.containsKey("paymentScreenshotUrl") ? (String) body.get("paymentScreenshotUrl") : null;
         return ResponseEntity.ok(splitExpenseService.addSettlement(
-                groupId, auth.getName(), fromUserId, toUserId, amount));
+                groupId, auth.getName(), fromUserId, toUserId, amount, paymentScreenshotUrl));
     }
 
     // ─── Balances & Stats ────────────────────────────
