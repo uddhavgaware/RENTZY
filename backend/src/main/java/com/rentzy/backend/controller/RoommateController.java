@@ -29,16 +29,15 @@ public class RoommateController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size
     ) {
-        Page<RoommatePostDTO> dtos = service.getAllPosts(location, page, size)
-                .map(RoommatePostDTO::fromEntity);
+        Page<RoommatePostDTO> dtos = service.getAllPosts(location, page, size);
         return ResponseEntity.ok(dtos);
     }
 
     @PostMapping
     @CacheEvict(value = "roommates", allEntries = true)
     public ResponseEntity<RoommatePostDTO> createPost(@RequestBody RoommatePostRequest request, Authentication authentication) {
-        RoommatePost savedPost = service.createPost(request, authentication.getName());
-        return ResponseEntity.ok(RoommatePostDTO.fromEntity(savedPost));
+        RoommatePostDTO savedPost = service.createPost(request, authentication.getName());
+        return ResponseEntity.ok(savedPost);
     }
 
     @DeleteMapping("/{id}")

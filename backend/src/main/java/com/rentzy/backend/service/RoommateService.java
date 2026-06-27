@@ -26,10 +26,11 @@ public class RoommateService {
     private final LocationExpansionService locationExpansionService;
     private final CloudinaryService cloudinaryService;
 
-    public Page<RoommatePost> getAllPosts(String location, int page, int size) {
+    @Transactional(readOnly = true)
+    public Page<RoommatePostDTO> getAllPosts(String location, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"));
         if (location == null || location.trim().isEmpty()) {
-            return repository.findAll(pageable);
+            return repository.findAll(pageable).map(com.rentzy.backend.dto.RoommatePostDTO::fromEntity);
         }
 
         List<String> expandedLocations = locationExpansionService.getExpandedLocations(location);
@@ -44,11 +45,11 @@ public class RoommateService {
             return cb.or(locPredicates);
         };
 
-        return repository.findAll(spec, pageable);
+        return repository.findAll(spec, pageable).map(com.rentzy.backend.dto.RoommatePostDTO::fromEntity);
     }
 
     @Transactional
-    public RoommatePost createPost(RoommatePostRequest request, String userEmail) {
+    public com.rentzy.backend.dto.RoommatePostDTO createPost(RoommatePostRequest request, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -107,7 +108,8 @@ public class RoommateService {
             post.setImages(processedImages);
         }
         
-        return repository.save(post);
+        RoommatePost saved = repository.save(post);
+        return com.rentzy.backend.dto.RoommatePostDTO.fromEntity(saved);
     }
 
     @Transactional

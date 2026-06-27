@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon, Split } from 'lucide-react';
+import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon, Split, Download } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../context/AuthContext';
@@ -184,6 +184,9 @@ const Navbar = () => {
             <button onClick={toggleDarkMode} className={cn("p-2 rounded-full transition-colors hover:bg-gray-100/20", linkColorClass)} title="Toggle Dark Mode">
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+            <a href="/rentxy.apk" download className={cn("text-sm font-bold transition-colors flex items-center gap-1 text-emerald-600 hover:text-emerald-700", isDarkHero && !isScrolled ? "text-emerald-400 hover:text-emerald-300" : "")}>
+              <Download size={16} /> App
+            </a>
             <Link to="/post-property" className={cn("text-sm font-medium transition-colors", linkColorClass)}>Post Property</Link>
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
