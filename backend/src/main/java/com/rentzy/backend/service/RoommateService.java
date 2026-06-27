@@ -2,6 +2,7 @@ package com.rentzy.backend.service;
 
 import com.rentzy.backend.domain.RoommatePost;
 import com.rentzy.backend.domain.User;
+import com.rentzy.backend.dto.RoommatePostDTO;
 import com.rentzy.backend.dto.RoommatePostRequest;
 import com.rentzy.backend.repository.RoommatePostRepository;
 import com.rentzy.backend.repository.UserRepository;
