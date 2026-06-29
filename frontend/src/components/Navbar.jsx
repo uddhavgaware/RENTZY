@@ -254,6 +254,7 @@ const Navbar = () => {
             {/* Minimal native mobile top header (just the logo on the left) */}
           </div>
         </div>
+      </div>
     </nav>
     </>
   );
