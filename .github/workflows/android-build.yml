@@ -57,7 +57,7 @@ jobs:
         run: ./gradlew assembleRelease
 
       - name: Copy APK to Public Web Folder
-        run: cp frontend/android/app/build/outputs/apk/release/app-release.apk frontend/public/rentxy.apk
+        run: cp frontend/android/app/build/outputs/apk/release/*release*.apk frontend/public/rentxy.apk
 
       - name: Commit and Push APK to Repo
         uses: stefanzweifel/git-auto-commit-action@v5

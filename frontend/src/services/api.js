@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 // Detect if running inside a Capacitor native shell (Android/iOS)
-const isNativePlatform = () => {
+export const isNativePlatform = () => {
   try {
     return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
   } catch {

@@ -16,6 +16,14 @@ const STATS = [
 
 const CATEGORIES = [
   {
+    to: '/split-expenses',
+    label: 'Split Expenses',
+    tag: 'Finance',
+    img: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=800&q=80',
+    color: 'from-emerald-600/80 to-teal-900/90',
+    emoji: '💸',
+  },
+  {
     to: '/pgs',
     label: 'PGs & Hostels',
     tag: 'Budget-Friendly',
@@ -420,12 +428,12 @@ const LandingPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="flex overflow-x-auto hide-scrollbar gap-4 md:grid md:grid-cols-3 lg:grid-cols-7 pb-4 md:pb-0 snap-x snap-mandatory">
             {CATEGORIES.map(({ to, label, tag, img, color, emoji }, i) => (
               <Link
                 key={to}
                 to={to}
-                className="group relative overflow-hidden rounded-2xl sm:rounded-3xl aspect-[3/4] shadow-md hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
+                className="snap-start flex-shrink-0 w-40 md:w-auto group block relative rounded-2xl overflow-hidden aspect-[4/5] sm:aspect-square md:aspect-auto md:h-56 shadow-lg shadow-gray-200/50 dark:shadow-black/20 transform transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl"
                 style={{ animationDelay: `${i * 0.1}s`, animationFillMode: 'both' }}
               >
                 <img
