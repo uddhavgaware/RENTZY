@@ -15,10 +15,12 @@ const isNativePlatform = () => {
 const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl) return envUrl;
-  if (isNativePlatform()) {
-    // Android emulator: 10.0.2.2 maps to host machine's localhost
-    return 'http://10.0.2.2:8080/api';
+  
+  if (import.meta.env.PROD || isNativePlatform()) {
+    // Android APK and Production Web will use this URL
+    return 'https://rentxy.onrender.com/api';
   }
+  
   return 'http://localhost:8080/api';
 };
 

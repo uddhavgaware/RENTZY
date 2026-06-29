@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Building2, Users, Truck, User, Search, MessageSquare, Heart } from 'lucide-react';
+import { Home, Building2, Users, User, Search, PieChart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
@@ -19,14 +19,14 @@ const MobileBottomNav = () => {
 
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
-    { path: '/flats', icon: Building2, label: 'Flats' },
-    { path: '/pgs', icon: Search, label: 'PGs' },
+    { path: '/listings', icon: Search, label: 'Search' },
+    { path: '/split-expenses', icon: PieChart, label: 'Split' },
     { path: '/roommates', icon: Users, label: 'Mates' },
     { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
   ];
 
   // Hide on certain pages where bottom nav would interfere
-  const hiddenPaths = ['/messages', '/auth'];
+  const hiddenPaths = ['/messages'];
   if (hiddenPaths.some(p => location.pathname.startsWith(p))) return null;
 
   return (
@@ -34,8 +34,8 @@ const MobileBottomNav = () => {
       <div className="flex justify-around items-center h-16 px-1">
         {navItems.map(({ path, icon: Icon, label }) => {
           const isActive = location.pathname === path || 
-            (path === '/flats' && location.pathname === '/flats') ||
-            (path === '/pgs' && location.pathname === '/pgs') ||
+            (path === '/listings' && location.pathname.startsWith('/listings')) ||
+            (path === '/split-expenses' && location.pathname === '/split-expenses') ||
             (path === '/dashboard' && location.pathname.startsWith('/dashboard'));
           
           return (

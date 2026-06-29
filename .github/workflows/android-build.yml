@@ -41,6 +41,7 @@ jobs:
         working-directory: ./frontend
         env:
           VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
+          VITE_API_URL: https://rentxy.onrender.com/api
         run: npm run build
 
       - name: Sync Capacitor
