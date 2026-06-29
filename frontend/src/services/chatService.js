@@ -10,6 +10,8 @@ class ChatService {
   constructor() {
     this.stompClient = null;
     this.callbacks = [];
+    this._userId = null;
+    this._boundOnline = null;
   }
 
   // Connect to WebSocket
@@ -18,6 +20,8 @@ class ChatService {
       console.warn('ChatService: Cannot connect without a valid userId');
       return;
     }
+
+    this._userId = userId;
 
     // If already connected, just update the callback
     if (this.stompClient && this.stompClient.active) {
@@ -36,9 +40,12 @@ class ChatService {
       return;
     }
     
-    const socket = new SockJS(WS_URL);
+    // STOMP client with a WebSocket factory — creates a FRESH SockJS on each
+    // connection attempt. This is critical because SockJS instances are single-use;
+    // after a disconnect they cannot be reused. Without this, reconnect after
+    // going offline would silently fail.
     this.stompClient = new Client({
-      webSocketFactory: () => socket,
+      webSocketFactory: () => new SockJS(WS_URL),
       connectHeaders: {
         Authorization: `Bearer ${token}`
       },
@@ -72,12 +79,40 @@ class ChatService {
     };
 
     this.stompClient.activate();
+
+    // Listen for the browser/app coming back online and force a reconnect
+    if (!this._boundOnline) {
+      this._boundOnline = () => this.forceReconnect();
+      window.addEventListener('online', this._boundOnline);
+    }
+  }
+
+  // Force a fresh reconnect — useful when the device comes back online
+  forceReconnect() {
+    if (!this._userId) return;
+    console.log('ChatService: Network back online, forcing reconnect...');
+
+    // Deactivate the old client (if any) without triggering its internal reconnect
+    if (this.stompClient) {
+      try { this.stompClient.deactivate(); } catch (_) { /* ignore */ }
+      this.stompClient = null;
+    }
+
+    // Re-establish with a fresh SockJS + STOMP client
+    const currentCallbacks = [...this.callbacks];
+    this.connect(this._userId, currentCallbacks[0] || null);
   }
 
   disconnect() {
     if (this.stompClient !== null) {
       this.stompClient.deactivate();
+      this.stompClient = null;
     }
+    if (this._boundOnline) {
+      window.removeEventListener('online', this._boundOnline);
+      this._boundOnline = null;
+    }
+    this._userId = null;
     console.log("Disconnected from Chat WebSocket");
     this.callbacks = [];
   }

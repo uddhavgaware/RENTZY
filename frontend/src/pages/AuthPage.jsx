@@ -44,7 +44,12 @@ const AuthPage = () => {
         setEmailOtpSent(true);
       }
     } catch (err) {
-      setError(err.response?.data?.message || err.message || 'An error occurred during authentication');
+      // Handle network errors (common on Android when API is unreachable)
+      if (!err.response && (err.message === 'Network Error' || err.code === 'ERR_NETWORK')) {
+        setError('Cannot reach the server. Please check your internet connection and try again.');
+      } else {
+        setError(err.response?.data?.message || err.userMessage || err.message || 'An error occurred during authentication');
+      }
     } finally {
       setLoading(false);
     }

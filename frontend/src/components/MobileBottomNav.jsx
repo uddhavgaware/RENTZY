@@ -1,11 +1,21 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Building2, Users, Truck, User, Search, MessageSquare, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 const MobileBottomNav = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
+
+  const handleNav = async (e, path) => {
+    e.preventDefault();
+    try {
+      await Haptics.impact({ style: ImpactStyle.Light });
+    } catch (err) {}
+    navigate(path);
+  };
 
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
@@ -32,6 +42,7 @@ const MobileBottomNav = () => {
             <Link
               key={path}
               to={path}
+              onClick={(e) => handleNav(e, path)}
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-all duration-200 ${
                 isActive 
                   ? 'text-primary-600' 

@@ -251,75 +251,9 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            <a href="/rentxy.apk" download className={cn("p-2 rounded-full transition-colors flex items-center justify-center bg-emerald-100 text-emerald-700", isDarkHero && !isScrolled ? "bg-emerald-500/20 text-emerald-400" : "")} title="Download App">
-              <Download size={22} />
-            </a>
-            <button onClick={toggleDarkMode} className={cn("p-2 rounded-full transition-colors", textColorClass)}>
-              {isDarkMode ? <Sun size={22} /> : <Moon size={22} />}
-            </button>
-            <button onClick={() => setIsOpen(!isOpen)} className={cn("inline-flex items-center justify-center p-2 rounded-md transition-colors hover:bg-gray-100/20", textColorClass)}>
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Minimal native mobile top header (just the logo on the left) */}
           </div>
         </div>
-      </div>
-
-      {/* Premium Mobile Horizontal Swipe Navigation */}
-      <div
-        className="md:hidden border-t border-white/10 dark:border-white/5 overflow-x-auto flex items-center gap-3 px-4 py-2.5 hide-scrollbar scroll-smooth"
-        style={{
-          backgroundColor: isDarkMode ? 'rgba(15, 23, 42, 0.98)' : 'rgba(255, 255, 255, 0.98)',
-          backdropFilter: 'blur(16px)',
-          WebkitBackdropFilter: 'blur(16px)',
-        }}
-      >
-        {mobileSwipeLinks.map((link) => {
-          const isActive = location.pathname === link.path;
-          const Icon = link.icon;
-          return (
-            <Link
-              key={link.name}
-              to={link.path}
-              className={cn(
-                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap border",
-                isActive
-                  ? "bg-primary-600 text-white border-primary-600 shadow-sm shadow-primary-600/25"
-                  : "bg-gray-50 text-gray-600 border-gray-200/60 hover:bg-gray-100 hover:text-gray-900"
-              )}
-            >
-              <Icon size={13} className={cn("transition-transform duration-300", isActive && "scale-110")} />
-              {link.name}
-            </Link>
-          );
-        })}
-      </div>
-
-      {isOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 w-full border-t border-gray-100 dark:border-white/5 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl z-[1000]">
-          <div className="pt-2 pb-3 space-y-1">
-            {navLinks.map((link) => (
-              <Link key={link.name} to={link.path} className={cn("block pl-3 pr-4 py-2 border-l-4 text-base font-medium", location.pathname === link.path ? "border-primary-500 text-primary-700 bg-primary-50" : "border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700")} onClick={() => setIsOpen(false)}>{link.name}</Link>
-            ))}
-            <Link to="/post-property" className="block pl-3 pr-4 py-2 border-l-4 border-transparent text-base font-medium text-gray-500 hover:bg-gray-50" onClick={() => setIsOpen(false)}>Post Property</Link>
-          </div>
-          <div className="pt-4 pb-3 border-t border-gray-200">
-            {isAuthenticated ? (
-              <div className="space-y-1">
-                <Link to="/dashboard" className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100" onClick={() => setIsOpen(false)}>Dashboard</Link>
-                <Link to="/messages" className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100" onClick={() => setIsOpen(false)}>Messages</Link>
-                {isAdmin && <Link to="/admin" className="block px-4 py-2 text-base font-medium text-purple-600 hover:text-purple-800 hover:bg-purple-50" onClick={() => setIsOpen(false)}>Admin Dashboard</Link>}
-                {user?.role === 'MOVER' && <Link to="/mover-dashboard" className="block px-4 py-2 text-base font-medium text-gray-900 hover:bg-gray-100" onClick={() => setIsOpen(false)}>Vendor Portal</Link>}
-                <button onClick={handleLogout} className="block w-full text-left px-4 py-2 text-base font-medium text-red-500 hover:text-red-700 hover:bg-red-50">Sign out</button>
-              </div>
-            ) : (
-              <div className="flex flex-col space-y-2 px-4">
-                <Link to="/auth" className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50" onClick={() => setIsOpen(false)}>Log in</Link>
-                <Link to="/auth?mode=signup" className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700" onClick={() => setIsOpen(false)}>Sign up</Link>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </nav>
     </>
   );

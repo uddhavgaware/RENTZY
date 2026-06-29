@@ -1,11 +1,11 @@
-import React, { useEffect, Suspense, lazy } from 'react';
+import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Layout from './components/Layout';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { HelmetProvider } from 'react-helmet-async';
-import { Loader2 } from 'lucide-react';
+import { Loader2, WifiOff, Wifi } from 'lucide-react';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ListingsPage = lazy(() => import('./pages/ListingsPage'));
@@ -67,6 +67,56 @@ const SuspenseFallback = () => (
   </div>
 );
 
+// 🌐 Network Status Handler — shows offline/online toasts and refreshes auth on reconnect
+function NetworkStatusHandler() {
+  const { refreshUser, isAuthenticated } = useAuth();
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [showOnlineToast, setShowOnlineToast] = useState(false);
+
+  const handleOnline = useCallback(() => {
+    setIsOffline(false);
+    setShowOnlineToast(true);
+    // Refresh user session when coming back online to prevent stale token issues
+    if (isAuthenticated) {
+      refreshUser().catch(() => {});
+    }
+    setTimeout(() => setShowOnlineToast(false), 3000);
+  }, [isAuthenticated, refreshUser]);
+
+  const handleOffline = useCallback(() => {
+    setIsOffline(true);
+    setShowOnlineToast(false);
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [handleOnline, handleOffline]);
+
+  return (
+    <>
+      {/* Offline Banner */}
+      {isOffline && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-red-600 text-white text-center py-2 px-4 text-sm font-semibold flex items-center justify-center gap-2 shadow-lg animate-slideDown">
+          <WifiOff size={16} />
+          You are offline. Some features may not work.
+        </div>
+      )}
+      {/* Back Online Toast */}
+      {showOnlineToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] bg-green-600 text-white py-2 px-6 rounded-full text-sm font-semibold flex items-center gap-2 shadow-xl animate-fadeIn">
+          <Wifi size={16} />
+          Back online!
+        </div>
+      )}
+    </>
+  );
+}
+
 function App() {
   // Google Client ID must be set via VITE_GOOGLE_CLIENT_ID env var (never hardcode here)
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
@@ -79,6 +129,7 @@ function App() {
         <Router>
           {/* ScrollToTop must be INSIDE <Router> so it can use useLocation() */}
           <ScrollToTop />
+          <NetworkStatusHandler />
           <Layout>
             <Suspense fallback={<SuspenseFallback />}>
               <Routes>
