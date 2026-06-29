@@ -3,15 +3,22 @@ name: Build Android APK
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'frontend/public/rentxy.apk'
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -44,12 +51,21 @@ jobs:
         working-directory: ./frontend/android
         run: chmod +x gradlew
 
-      - name: Build Android APK
+      - name: Build Android Release APK
         working-directory: ./frontend/android
-        run: ./gradlew assembleDebug
+        run: ./gradlew assembleRelease
+
+      - name: Copy APK to Public Web Folder
+        run: cp frontend/android/app/build/outputs/apk/release/app-release.apk frontend/public/rentxy.apk
+
+      - name: Commit and Push APK to Repo
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update android apk for web download [skip ci]"
+          file_pattern: frontend/public/rentxy.apk
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: RENTZY-app-debug.apk
-          path: frontend/android/app/build/outputs/apk/debug/app-debug.apk
+          name: RENTZY-app-release.apk
+          path: frontend/public/rentxy.apk
