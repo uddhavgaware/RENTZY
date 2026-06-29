@@ -4,7 +4,7 @@ import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldChe
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../context/AuthContext';
-import api from '../services/api';
+import api, { isNativePlatform } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
 
 function cn(...inputs) { return twMerge(clsx(inputs)); }
@@ -162,6 +162,7 @@ const Navbar = () => {
       className={navClass}
       style={{
         ...(isCinematicPage ? navScrolledStyle : { backgroundColor: isDarkMode ? '#0f172a' : '#ffffff' }),
+        paddingTop: isNativePlatform() ? 'max(env(safe-area-inset-top), 24px)' : undefined
       }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -184,9 +185,11 @@ const Navbar = () => {
             <button onClick={toggleDarkMode} className={cn("p-2 rounded-full transition-colors hover:bg-gray-100/20", linkColorClass)} title="Toggle Dark Mode">
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <a href="/rentxy.apk" download className={cn("text-sm font-bold transition-colors flex items-center gap-1 text-emerald-600 hover:text-emerald-700", isDarkHero && !isScrolled ? "text-emerald-400 hover:text-emerald-300" : "")}>
-              <Download size={16} /> App
-            </a>
+            {!isNativePlatform() && (
+              <a href="/rentxy.apk" download className={cn("text-sm font-bold transition-colors flex items-center gap-1 text-emerald-600 hover:text-emerald-700", isDarkHero && !isScrolled ? "text-emerald-400 hover:text-emerald-300" : "")}>
+                <Download size={16} /> App
+              </a>
+            )}
             <Link to="/post-property" className={cn("text-sm font-medium transition-colors", linkColorClass)}>Post Property</Link>
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
@@ -251,9 +254,11 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            <a href="/rentxy.apk" download className={cn("px-3 py-1.5 text-xs font-bold rounded-full transition-colors flex items-center gap-1 shadow-sm", isDarkHero && !isScrolled ? "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm" : "bg-primary-600 text-white hover:bg-primary-700")} title="Download App">
-              <Download size={14} /> Get App
-            </a>
+            {!isNativePlatform() && (
+              <a href="/rentxy.apk" download className={cn("px-3 py-1.5 text-xs font-bold rounded-full transition-colors flex items-center gap-1 shadow-sm", isDarkHero && !isScrolled ? "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm" : "bg-primary-600 text-white hover:bg-primary-700")} title="Download App">
+                <Download size={14} /> Get App
+              </a>
+            )}
           </div>
         </div>
       </div>
