@@ -755,8 +755,12 @@ const SplitExpensesPage = () => {
                                     </div>
                                   </div>
                                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                                    <button onClick={() => handleEditExpense(exp)} className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-400 hover:text-blue-600 transition-colors"><Edit3 size={14} /></button>
-                                    <button onClick={() => handleDeleteExpense(exp.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                                    {(exp.paidBy?.id === user?.id || currentGroup?.createdBy?.id === user?.id) && (
+                                      <>
+                                        <button onClick={() => handleEditExpense(exp)} className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-400 hover:text-blue-600 transition-colors"><Edit3 size={14} /></button>
+                                        <button onClick={() => handleDeleteExpense(exp.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                                      </>
+                                    )}
                                   </div>
                                 </div>
                               </div>
