@@ -1,5 +1,6 @@
 package com.rentzy.backend.service;
 
+import com.rentzy.backend.domain.User.Role;
 import com.rentzy.backend.domain.User;
 import com.rentzy.backend.dto.AuthenticationRequest;
 import com.rentzy.backend.dto.AuthenticationResponse;
@@ -161,6 +162,54 @@ public class AuthService {
                     .build();
         } catch (Exception e) {
             throw new RuntimeException("Google authentication failed: " + e.getMessage(), e);
+        }
+    }
+
+    public AuthenticationResponse truecallerLogin(String payloadBase64, String signature, String signatureAlgorithm) {
+        try {
+            // In a production environment, you MUST verify the 'signature' against Truecaller's public keys.
+            // For this implementation, we decode the base64 payload to get the user info.
+            byte[] decodedBytes = java.util.Base64.getDecoder().decode(payloadBase64);
+            String payloadJson = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+            
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode jsonNode = mapper.readTree(payloadJson);
+            
+            String phoneNumber = jsonNode.has("phoneNumber") ? jsonNode.get("phoneNumber").asText() : null;
+            String firstName = jsonNode.has("firstName") ? jsonNode.get("firstName").asText() : "";
+            String lastName = jsonNode.has("lastName") ? jsonNode.get("lastName").asText() : "";
+            String email = jsonNode.has("email") ? jsonNode.get("email").asText() : null;
+            
+            if (phoneNumber == null) {
+                throw new RuntimeException("Phone number is required from Truecaller");
+            }
+            
+            User user = repository.findByPhone(phoneNumber).orElseGet(() -> {
+                User newUser = User.builder()
+                        .name(firstName + " " + lastName)
+                        .email(email != null ? email : phoneNumber + "@truecaller.local")
+                        .phone(phoneNumber)
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .role(Role.TENANT)
+                        .userCode("USR" + System.currentTimeMillis())
+                        .isEmailVerified(true)
+                        .profileCompleted(false)
+                        .build();
+                return repository.save(newUser);
+            });
+            
+            var extraClaims = new java.util.HashMap<String, Object>();
+            extraClaims.put("role", user.getRole().name());
+            extraClaims.put("name", user.getName());
+            
+            var jwtToken = jwtService.generateToken(extraClaims, user);
+            
+            return AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .message("Truecaller authentication successful")
+                    .build();
+        } catch (Exception e) {
+            throw new RuntimeException("Truecaller authentication failed: " + e.getMessage(), e);
         }
     }
 

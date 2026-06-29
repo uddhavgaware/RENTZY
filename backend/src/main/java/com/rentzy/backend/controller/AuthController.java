@@ -46,6 +46,11 @@ public class AuthController {
         return ResponseEntity.ok(service.googleLogin(request.getTokenId()));
     }
 
+    @PostMapping("/truecaller")
+    public ResponseEntity<AuthenticationResponse> truecallerLogin(@RequestBody com.rentzy.backend.dto.TruecallerLoginRequest request) {
+        return ResponseEntity.ok(service.truecallerLogin(request.getPayload(), request.getSignature(), request.getSignatureAlgorithm()));
+    }
+
     @PostMapping("/send-otp")
     public ResponseEntity<String> sendOtp(@RequestBody SendOtpRequest request) {
         otpService.sendOtp(request.getPhone());

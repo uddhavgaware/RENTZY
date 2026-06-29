@@ -82,6 +82,11 @@ export const AuthProvider = ({ children }) => {
     await fetchProfileAfterLogin(response.data.token);
   };
 
+  const loginWithTruecaller = async (payload, signature, signatureAlgorithm) => {
+    const response = await api.post('/auth/truecaller', { payload, signature, signatureAlgorithm });
+    await fetchProfileAfterLogin(response.data.token);
+  };
+
   const loginWithOtp = async (phone, otp) => {
     const response = await api.post('/auth/verify-otp', { phone, otp });
     await fetchProfileAfterLogin(response.data.token);
@@ -114,6 +119,7 @@ export const AuthProvider = ({ children }) => {
     isAdmin: user?.role === 'ADMIN',
     login,
     loginWithGoogle,
+    loginWithTruecaller,
     loginWithOtp,
     verifyEmailOtp,
     register,
