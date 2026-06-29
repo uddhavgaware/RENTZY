@@ -251,7 +251,9 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            {/* Minimal native mobile top header (just the logo on the left) */}
+            <a href="/rentxy.apk" download className={cn("px-3 py-1.5 text-xs font-bold rounded-full transition-colors flex items-center gap-1 shadow-sm", isDarkHero && !isScrolled ? "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm" : "bg-primary-600 text-white hover:bg-primary-700")} title="Download App">
+              <Download size={14} /> Get App
+            </a>
           </div>
         </div>
       </div>
