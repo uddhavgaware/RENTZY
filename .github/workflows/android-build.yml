@@ -54,7 +54,9 @@ jobs:
 
       - name: Build Android Release APK
         working-directory: ./frontend/android
-        run: ./gradlew assembleRelease
+        run: |
+          ./gradlew clean
+          ./gradlew assembleRelease
 
       - name: Copy APK to Public Web Folder
         run: cp frontend/android/app/build/outputs/apk/release/*release*.apk frontend/public/rentxy.apk
