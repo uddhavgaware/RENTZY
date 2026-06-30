@@ -2,7 +2,7 @@ import api from './api';
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://rentxy.onrender.com/api' : 'http://localhost:8080/api');
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? 'https://rentxybookings.onrender.com/api' : 'http://localhost:8080/api');
 // Extract base URL for websocket by removing /api if needed, assuming WS is on the root
 const WS_URL = API_BASE_URL.replace('/api', '') + '/ws';
 

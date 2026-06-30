@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Users, Split, X, ChevronRight } from 'lucide-react';
+import { Users, Split, X, ChevronRight, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const SwipeDrawer = ({ children }) => {
@@ -47,6 +47,7 @@ const SwipeDrawer = ({ children }) => {
   }, [location.pathname]);
 
   const navItems = [
+    { path: '/post-property', icon: Building2, label: 'Post Property' },
     { path: '/roommates', icon: Users, label: 'Find Roommates' },
     { path: '/split-expenses', icon: Split, label: 'Split Expenses', requiresAuth: true },
   ];

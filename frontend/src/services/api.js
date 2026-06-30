@@ -18,7 +18,7 @@ const getBaseUrl = () => {
   
   if (import.meta.env.PROD || isNativePlatform()) {
     // Android APK and Production Web will use this URL
-    return 'https://rentxy.onrender.com/api';
+    return 'https://rentxybookings.onrender.com/api';
   }
   
   return 'http://localhost:8080/api';

@@ -37,7 +37,7 @@ public class TruecallerPlugin extends Plugin {
                 .loginTextSuffix(R.string.login_text_suffix)
                 .ctaTextPrefix(TruecallerSdkScope.CTA_TEXT_PREFIX_USE)
                 .buttonShapeOptions(TruecallerSdkScope.BUTTON_SHAPE_ROUNDED)
-                .privacyPolicyUrl("https://rentxy.in/privacy-policy")
+                .privacyPolicyUrl("https://rentxy.in/privacy")
                 .termsOfServiceUrl("https://rentxy.in/terms")
                 .footerType(TruecallerSdkScope.FOOTER_TYPE_NONE)
                 .consentTitleOption(TruecallerSdkScope.SDK_CONSENT_TITLE_LOG_IN)

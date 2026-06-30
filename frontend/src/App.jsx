@@ -25,6 +25,7 @@ const OwnerProfilePage = lazy(() => import('./pages/OwnerProfilePage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const FaqPage = lazy(() => import('./pages/FaqPage'));
 const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
 const FlatRentalPortal = lazy(() => import('./pages/FlatRentalPortal'));
 const PgHostelPortal = lazy(() => import('./pages/PgHostelPortal'));
 const OfficeSpacePortal = lazy(() => import('./pages/OfficeSpacePortal'));
@@ -146,6 +147,7 @@ function App() {
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/faq" element={<FaqPage />} />
                 <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/owner/:id" element={<OwnerProfilePage />} />
                 <Route path="/flats" element={<FlatRentalPortal />} />
                 <Route path="/pgs" element={<PgHostelPortal />} />

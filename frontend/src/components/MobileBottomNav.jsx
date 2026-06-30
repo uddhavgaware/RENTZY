@@ -7,7 +7,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 const MobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isOwner } = useAuth();
 
   const handleNav = async (e, path) => {
     e.preventDefault();
@@ -20,7 +20,10 @@ const MobileBottomNav = () => {
   const navItems = [
     { path: '/', icon: Home, label: 'Home' },
     { path: '/listings', icon: Search, label: 'Search' },
-    { path: '/split-expenses', icon: PieChart, label: 'Split' },
+    ...(isOwner 
+      ? [{ path: '/post-property', icon: Building2, label: 'Post' }]
+      : [{ path: '/split-expenses', icon: PieChart, label: 'Split' }]
+    ),
     { path: '/roommates', icon: Users, label: 'Mates' },
     { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
   ];
@@ -36,6 +39,7 @@ const MobileBottomNav = () => {
           const isActive = location.pathname === path || 
             (path === '/listings' && location.pathname.startsWith('/listings')) ||
             (path === '/split-expenses' && location.pathname === '/split-expenses') ||
+            (path === '/post-property' && location.pathname === '/post-property') ||
             (path === '/dashboard' && location.pathname.startsWith('/dashboard'));
           
           return (
