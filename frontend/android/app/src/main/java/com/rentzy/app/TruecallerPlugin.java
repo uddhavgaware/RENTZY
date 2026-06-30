@@ -33,7 +33,8 @@ public class TruecallerPlugin extends Plugin {
                 .consentMode(TruecallerSdkScope.CONSENT_MODE_BOTTOMSHEET)
                 .buttonColor(android.graphics.Color.parseColor("#2F5299"))
                 .buttonTextColor(android.graphics.Color.WHITE)
-                // removed prefix and suffix as they use missing constants
+                .loginTextPrefix("Log in to continue")
+                .loginTextSuffix("to continue")
                 .ctaTextPrefix(TruecallerSdkScope.CTA_TEXT_PREFIX_USE)
                 .buttonShapeOptions(TruecallerSdkScope.BUTTON_SHAPE_ROUNDED)
                 .privacyPolicyUrl("https://rentxy.in/privacy-policy")
@@ -109,7 +110,7 @@ public class TruecallerPlugin extends Plugin {
         if (activity instanceof FragmentActivity) {
             TruecallerSDK.getInstance().onActivityResultObtained((FragmentActivity) activity, requestCode, resultCode, data);
         } else {
-            TruecallerSDK.getInstance().onActivityResultObtained(activity, requestCode, resultCode, data);
+            Log.e("TruecallerPlugin", "Activity is not a FragmentActivity, cannot pass to onActivityResultObtained");
         }
     }
 }
