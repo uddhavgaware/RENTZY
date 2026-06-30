@@ -169,7 +169,12 @@ public class AuthService {
         try {
             // In a production environment, you MUST verify the 'signature' against Truecaller's public keys.
             // For this implementation, we decode the base64 payload to get the user info.
-            byte[] decodedBytes = java.util.Base64.getDecoder().decode(payloadBase64);
+            byte[] decodedBytes;
+            try {
+                decodedBytes = java.util.Base64.getDecoder().decode(payloadBase64);
+            } catch (IllegalArgumentException e) {
+                decodedBytes = java.util.Base64.getUrlDecoder().decode(payloadBase64);
+            }
             String payloadJson = new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
             
             com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
@@ -185,9 +190,20 @@ public class AuthService {
             }
             
             User user = repository.findByPhone(phoneNumber).orElseGet(() -> {
+                // If Truecaller provided an email, check if an account already exists (e.g. from Google Login)
+                if (email != null && !email.isEmpty()) {
+                    var existingByEmail = repository.findByEmail(email);
+                    if (existingByEmail.isPresent()) {
+                        // Link the Truecaller phone number to the existing account
+                        User existingUser = existingByEmail.get();
+                        existingUser.setPhone(phoneNumber);
+                        return repository.save(existingUser);
+                    }
+                }
+                
                 User newUser = User.builder()
                         .name(firstName + " " + lastName)
-                        .email(email != null ? email : phoneNumber + "@truecaller.local")
+                        .email(email != null && !email.isEmpty() ? email : phoneNumber + "@truecaller.local")
                         .phone(phoneNumber)
                         .password(passwordEncoder.encode(UUID.randomUUID().toString()))
                         .role(Role.TENANT)
