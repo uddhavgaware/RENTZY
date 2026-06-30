@@ -5,4 +5,6 @@
     <string name="package_name">com.rentzy.app</string>
     <string name="custom_url_scheme">com.rentzy.app</string>
     <string name="truecaller_app_key">62boqhahdstzjuhonqwz2xccoan7iylkx7jkqrs3y9m</string>
+    <string name="login_text_prefix">Log in to continue</string>
+    <string name="login_text_suffix">to continue</string>
 </resources>
