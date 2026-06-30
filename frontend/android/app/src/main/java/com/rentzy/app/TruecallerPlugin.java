@@ -6,6 +6,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -33,7 +34,6 @@ public class TruecallerPlugin extends Plugin {
                 .buttonColor(android.graphics.Color.parseColor("#2F5299"))
                 .buttonTextColor(android.graphics.Color.WHITE)
                 .loginTextPrefix(TruecallerSdkScope.LOGIN_TEXT_PREFIX_TO_CONTINUE)
-                .loginTextSuffix(TruecallerSdkScope.LOGIN_TEXT_SUFFIX_TO_CONTINUE)
                 .ctaTextPrefix(TruecallerSdkScope.CTA_TEXT_PREFIX_USE)
                 .buttonShapeOptions(TruecallerSdkScope.BUTTON_SHAPE_ROUNDED)
                 .privacyPolicyUrl("https://rentxy.in/privacy-policy")
@@ -54,10 +54,14 @@ public class TruecallerPlugin extends Plugin {
         
         savedCall = call;
         Activity activity = getActivity();
-        if (activity != null) {
-            TruecallerSDK.getInstance().getUserProfile(activity);
-        } else {
+        if (activity == null) {
             call.reject("Activity is null");
+            return;
+        }
+        if (activity instanceof FragmentActivity) {
+            TruecallerSDK.getInstance().getUserProfile((FragmentActivity) activity);
+        } else {
+            call.reject("Activity is not a FragmentActivity — cannot start Truecaller login.");
         }
     }
 
