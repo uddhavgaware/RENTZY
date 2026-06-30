@@ -399,9 +399,31 @@ const AuthPage = () => {
                           if (isMobile) {
                             const reqNonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
                             window.location.href = `truecallersdk://truesdk/web_verify?requestNonce=${reqNonce}&partnerKey=${import.meta.env.VITE_TRUECALLER_APP_KEY}&partnerName=RentXY&lang=en`;
-                            setTimeout(() => {
-                              if (document.hasFocus()) {
-                                setError('Truecaller app is not installed.');
+                            
+                            setLoading(true);
+                            let attempts = 0;
+                            const interval = setInterval(async () => {
+                              try {
+                                attempts++;
+                                if (attempts > 60) {
+                                   clearInterval(interval);
+                                   setLoading(false);
+                                   setError('Truecaller Login timed out.');
+                                   return;
+                                }
+                                
+                                const res = await api.get(`/api/auth/truecaller/status?nonce=${reqNonce}`);
+                                if (res.data && res.data.token) {
+                                   clearInterval(interval);
+                                   login(res.data.token);
+                                   navigate('/dashboard', { replace: true });
+                                }
+                              } catch (err) {
+                                if (err.response && err.response.status !== 404) {
+                                   clearInterval(interval);
+                                   setLoading(false);
+                                   setError('Truecaller authentication failed.');
+                                }
                               }
                             }, 2000);
                           } else {

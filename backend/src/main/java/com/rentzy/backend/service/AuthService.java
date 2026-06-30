@@ -25,6 +25,11 @@ import java.util.UUID;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
@@ -45,6 +50,9 @@ public class AuthService {
 
     // Temporary storage for email OTPs
     private final Map<String, String> emailOtpStorage = new ConcurrentHashMap<>();
+
+    // Temporary storage for Truecaller Web log ins (nonce -> AuthResponse)
+    private final Map<String, AuthenticationResponse> truecallerWebLogins = new ConcurrentHashMap<>();
 
     public AuthenticationResponse register(RegisterRequest request) {
         if (repository.findByEmail(request.getEmail()).isPresent()) {
@@ -227,6 +235,93 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("Truecaller authentication failed: " + e.getMessage(), e);
         }
+    }
+
+    public void truecallerWebCallback(String requestNonce, String accessToken) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            HttpEntity<String> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    "https://profile4.truecaller.com/v1/default",
+                    HttpMethod.GET,
+                    entity,
+                    String.class
+            );
+
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            com.fasterxml.jackson.databind.JsonNode jsonNode = mapper.readTree(response.getBody());
+
+            String phoneNumber = null;
+            if (jsonNode.has("phoneNumbers") && jsonNode.get("phoneNumbers").isArray() && jsonNode.get("phoneNumbers").size() > 0) {
+                phoneNumber = jsonNode.get("phoneNumbers").get(0).asText();
+            }
+
+            String name = "";
+            if (jsonNode.has("name") && jsonNode.get("name").has("first") && jsonNode.get("name").has("last")) {
+                name = jsonNode.get("name").get("first").asText() + " " + jsonNode.get("name").get("last").asText();
+            } else if (jsonNode.has("name") && jsonNode.get("name").has("first")) {
+                name = jsonNode.get("name").get("first").asText();
+            }
+
+            String email = null;
+            if (jsonNode.has("emailAddresses") && jsonNode.get("emailAddresses").isArray() && jsonNode.get("emailAddresses").size() > 0) {
+                email = jsonNode.get("emailAddresses").get(0).asText();
+            }
+
+            if (phoneNumber == null) {
+                throw new RuntimeException("Phone number is required from Truecaller");
+            }
+
+            String finalEmail = email;
+            String finalPhoneNumber = phoneNumber;
+            String finalName = name;
+
+            User user = repository.findByPhone(finalPhoneNumber).orElseGet(() -> {
+                // If Truecaller provided an email, check if an account already exists (e.g. from Google Login)
+                if (finalEmail != null && !finalEmail.isEmpty()) {
+                    var existingByEmail = repository.findByEmail(finalEmail);
+                    if (existingByEmail.isPresent()) {
+                        User existingUser = existingByEmail.get();
+                        existingUser.setPhone(finalPhoneNumber);
+                        return repository.save(existingUser);
+                    }
+                }
+                
+                User newUser = User.builder()
+                        .name(finalName.isEmpty() ? "Truecaller User" : finalName)
+                        .email(finalEmail != null && !finalEmail.isEmpty() ? finalEmail : finalPhoneNumber + "@truecaller.local")
+                        .phone(finalPhoneNumber)
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .role(Role.TENANT)
+                        .userCode("USR" + System.currentTimeMillis())
+                        .isEmailVerified(true)
+                        .profileCompleted(false)
+                        .build();
+                return repository.save(newUser);
+            });
+
+            var extraClaims = new java.util.HashMap<String, Object>();
+            extraClaims.put("role", user.getRole().name());
+            extraClaims.put("name", user.getName());
+            
+            var jwtToken = jwtService.generateToken(extraClaims, user);
+            
+            AuthenticationResponse authResponse = AuthenticationResponse.builder()
+                    .token(jwtToken)
+                    .message("Truecaller web authentication successful")
+                    .build();
+
+            truecallerWebLogins.put(requestNonce, authResponse);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public AuthenticationResponse pollTruecallerWebLogin(String requestNonce) {
+        return truecallerWebLogins.remove(requestNonce);
     }
 
     public void forgotPassword(String email) {

@@ -14,9 +14,12 @@ import com.rentzy.backend.service.OtpService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.rentzy.backend.dto.TruecallerWebCallbackRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -49,6 +52,22 @@ public class AuthController {
     @PostMapping("/truecaller")
     public ResponseEntity<AuthenticationResponse> truecallerLogin(@RequestBody com.rentzy.backend.dto.TruecallerLoginRequest request) {
         return ResponseEntity.ok(service.truecallerLogin(request.getPayload(), request.getSignature(), request.getSignatureAlgorithm()));
+    }
+
+    @PostMapping("/truecaller/callback")
+    public ResponseEntity<Void> truecallerWebCallback(@RequestBody TruecallerWebCallbackRequest request) {
+        service.truecallerWebCallback(request.getRequestNonce(), request.getAccess_token());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/truecaller/status")
+    public ResponseEntity<?> truecallerWebStatus(@RequestParam("nonce") String nonce) {
+        AuthenticationResponse response = service.pollTruecallerWebLogin(nonce);
+        if (response != null) {
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(404).body("Pending");
+        }
     }
 
     @PostMapping("/send-otp")
