@@ -89,7 +89,16 @@ public class TruecallerPlugin extends Plugin {
         @Override
         public void onFailureProfileShared(@NonNull TrueError trueError) {
             if (savedCall != null) {
-                savedCall.reject("Truecaller error: " + trueError.getErrorType());
+                String errorMessage = "Truecaller error: " + trueError.getErrorType();
+                if (trueError.getErrorType() == 5) {
+                    errorMessage = "Truecaller app is not installed or you are not logged in.";
+                } else if (trueError.getErrorType() == 2) {
+                    errorMessage = "Truecaller login cancelled by user.";
+                } else if (trueError.getErrorType() == 1) {
+                    errorMessage = "Network error while connecting to Truecaller.";
+                }
+                
+                savedCall.reject(errorMessage);
                 savedCall = null;
             }
         }
