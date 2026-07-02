@@ -435,6 +435,8 @@ const RoommatesPage = () => {
       await api.post('/roommates', payload);
       setIsModalOpen(false);
       setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Room', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
+      showModal({ type: 'alert', title: 'Success', message: 'Roommate request posted successfully!', onConfirm: closeModal });
+      setActiveTab('all');
       fetchRoommates();
     } catch (error) {
       console.error('Failed to post roommate request', error);
