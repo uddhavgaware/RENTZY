@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
+import MoverRouteMap from '../components/MoverRouteMap';
 
 const MoverDashboardPage = () => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -268,6 +269,11 @@ const MoverDashboardPage = () => {
                           </button>
                         )}
                       </div>
+
+                      {/* Display the Route Map */}
+                      {job.status === 'ASSIGNED' && (
+                        <MoverRouteMap job={job} />
+                      )}
                     </div>
                   ))
                 )}
