@@ -455,11 +455,7 @@ const RoommatesPage = () => {
         title: 'Success', 
         message: 'Roommate request posted successfully!', 
         onConfirm: () => {
-          closeModal();
-          setSearchInput('');
-          setActiveTab('all');
-          setPage(0);
-          fetchRoommates(0, false);
+          window.location.reload();
         }
       });
       
@@ -1115,6 +1111,7 @@ const RoommatesPage = () => {
                           onChange={(e) => setPostFormData({...postFormData, areaName: e.target.value})}
                           onBlur={(e) => geocodeAndSetPostLocation(`${e.target.value}, ${postFormData.villageCityTown || 'Pune'}`)}
                           placeholder="e.g. Hinjewadi, Kothrud, Wakad"
+                          required
                           className="w-full pl-9 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-sm"
                         />
                       </div>
@@ -1133,6 +1130,7 @@ const RoommatesPage = () => {
                         type="text" value={postFormData.villageCityTown}
                         onChange={(e) => setPostFormData({...postFormData, villageCityTown: e.target.value})}
                         placeholder="e.g. Pune"
+                        required
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
                       />
                     </div>
@@ -1155,6 +1153,7 @@ const RoommatesPage = () => {
                         type="text" value={postFormData.district}
                         onChange={(e) => setPostFormData({...postFormData, district: e.target.value})}
                         placeholder="e.g. Pune"
+                        required
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
                       />
                     </div>
