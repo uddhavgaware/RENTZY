@@ -75,6 +75,9 @@ const ListingDetailsPage = () => {
   const [mapCenter, setMapCenter] = useState(null);
   const [mapSearchQuery, setMapSearchQuery] = useState('');
   const [fetchError, setFetchError] = useState(null);
+  const [nearbyAmenities, setNearbyAmenities] = useState({ hospitals: [], gyms: [], transit: [] });
+  const [loadingAmenities, setLoadingAmenities] = useState(false);
+  const [amenitiesError, setAmenitiesError] = useState(false);
 
   const handleMapSearch = async (e) => {
     if (e) e.preventDefault();
@@ -148,6 +151,70 @@ const ListingDetailsPage = () => {
       }).catch(() => {});
     }
   }, [id, isAuthenticated]);
+
+  useEffect(() => {
+    if (listing?.latitude && listing?.longitude) {
+      const fetchAmenities = async () => {
+        setLoadingAmenities(true);
+        setAmenitiesError(false);
+        try {
+          const lat = listing.latitude;
+          const lon = listing.longitude;
+          const radius = 1000;
+          const query = `
+            [out:json];
+            (
+              node["amenity"="hospital"](around:${radius},${lat},${lon});
+              node["leisure"="fitness_centre"](around:${radius},${lat},${lon});
+              node["railway"="station"](around:${radius},${lat},${lon});
+              node["public_transport"="station"](around:${radius},${lat},${lon});
+            );
+            out center 20;
+          `;
+          
+          const res = await fetch(`https://overpass-api.de/api/interpreter`, {
+            method: 'POST',
+            body: query
+          });
+          
+          if (!res.ok) throw new Error('Overpass API failed');
+          
+          const data = await res.json();
+          
+          const hospitals = [];
+          const gyms = [];
+          const transit = [];
+          
+          data.elements.forEach(el => {
+            const name = el.tags?.name || 'Unnamed';
+            if (el.tags?.amenity === 'hospital') {
+              hospitals.push({ name, lat: el.lat, lon: el.lon });
+            } else if (el.tags?.leisure === 'fitness_centre') {
+              gyms.push({ name, lat: el.lat, lon: el.lon });
+            } else if (el.tags?.railway === 'station' || el.tags?.public_transport === 'station') {
+              transit.push({ name, lat: el.lat, lon: el.lon });
+            }
+          });
+          
+          // Simple deduplication by name
+          const dedupe = (arr) => Array.from(new Map(arr.map(item => [item.name, item])).values()).slice(0, 3);
+          
+          setNearbyAmenities({
+            hospitals: dedupe(hospitals).filter(i => i.name !== 'Unnamed'),
+            gyms: dedupe(gyms).filter(i => i.name !== 'Unnamed'),
+            transit: dedupe(transit).filter(i => i.name !== 'Unnamed')
+          });
+        } catch (error) {
+          console.error("Failed to fetch nearby amenities:", error);
+          setAmenitiesError(true);
+        } finally {
+          setLoadingAmenities(false);
+        }
+      };
+      
+      fetchAmenities();
+    }
+  }, [listing?.latitude, listing?.longitude]);
 
   const handleBook = async (payNow) => {
     if (!isAuthenticated) { navigate('/auth'); return; }
@@ -629,6 +696,60 @@ const ListingDetailsPage = () => {
                 </div>
               )}
             </div>
+
+            {/* ===== Nearby Amenities Section ===== */}
+            {listing.latitude && listing.longitude && (
+              <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
+                <h2 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-2">🏥 Nearby Amenities <span className="text-sm font-normal text-gray-400 ml-auto">(within 1km)</span></h2>
+                
+                {loadingAmenities ? (
+                  <div className="flex flex-col items-center justify-center py-6 text-gray-400 space-y-3">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+                    <span className="text-sm font-medium animate-pulse">Scanning area via satellite...</span>
+                  </div>
+                ) : amenitiesError ? (
+                  <div className="text-center py-6 text-sm text-gray-400 bg-gray-50 rounded-2xl border border-gray-100">
+                    Failed to load nearby amenities. Please try again later.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Hospitals */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5"><Heart size={14} className="text-red-400" /> Hospitals</h3>
+                      {nearbyAmenities.hospitals.length > 0 ? (
+                        <div className="space-y-2">
+                          {nearbyAmenities.hospitals.map((h, i) => (
+                            <div key={i} className="text-sm font-medium text-gray-700 bg-gray-50/80 dark:bg-slate-800/80 dark:text-gray-200 px-3 py-2 rounded-xl border border-gray-100 dark:border-white/5 truncate shadow-sm transition-all hover:bg-white" title={h.name}>{h.name}</div>
+                          ))}
+                        </div>
+                      ) : <span className="text-xs text-gray-400">None within 1km</span>}
+                    </div>
+                    {/* Gyms */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5"><Dumbbell size={14} className="text-indigo-400" /> Fitness</h3>
+                      {nearbyAmenities.gyms.length > 0 ? (
+                        <div className="space-y-2">
+                          {nearbyAmenities.gyms.map((g, i) => (
+                            <div key={i} className="text-sm font-medium text-gray-700 bg-gray-50/80 dark:bg-slate-800/80 dark:text-gray-200 px-3 py-2 rounded-xl border border-gray-100 dark:border-white/5 truncate shadow-sm transition-all hover:bg-white" title={g.name}>{g.name}</div>
+                          ))}
+                        </div>
+                      ) : <span className="text-xs text-gray-400">None within 1km</span>}
+                    </div>
+                    {/* Transit */}
+                    <div>
+                      <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">🚉 Transit Stations</h3>
+                      {nearbyAmenities.transit.length > 0 ? (
+                        <div className="space-y-2">
+                          {nearbyAmenities.transit.map((t, i) => (
+                            <div key={i} className="text-sm font-medium text-gray-700 bg-gray-50/80 dark:bg-slate-800/80 dark:text-gray-200 px-3 py-2 rounded-xl border border-gray-100 dark:border-white/5 truncate shadow-sm transition-all hover:bg-white" title={t.name}>{t.name}</div>
+                          ))}
+                        </div>
+                      ) : <span className="text-xs text-gray-400">None within 1km</span>}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* ===== Reviews Section ===== */}
             <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-100 dark:border-white/5 p-6 md:p-8 shadow-xl shadow-gray-100/40 dark:shadow-black/30">
