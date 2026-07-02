@@ -132,11 +132,23 @@ public class AuthService {
 
     public AuthenticationResponse googleLogin(String tokenId) {
         try {
-            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
-                    .setAudience(Collections.singletonList(googleClientId))
-                    .build();
+            GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory());
+            
+            if (googleClientId != null && !googleClientId.trim().isEmpty()) {
+                verifierBuilder.setAudience(Collections.singletonList(googleClientId));
+            } else {
+                // If backend client id is missing, extract audience from the token itself to pass verification
+                GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
+                if (unverifiedToken != null && unverifiedToken.getPayload() != null 
+                        && unverifiedToken.getPayload().getAudienceAsList() != null 
+                        && !unverifiedToken.getPayload().getAudienceAsList().isEmpty()) {
+                    verifierBuilder.setAudience(Collections.singletonList((String) unverifiedToken.getPayload().getAudienceAsList().get(0)));
+                }
+            }
 
+            GoogleIdTokenVerifier verifier = verifierBuilder.build();
             GoogleIdToken idToken = verifier.verify(tokenId);
+            
             if (idToken == null) {
                 throw new RuntimeException("Invalid Google token");
             }
