@@ -24,7 +24,7 @@ const Modal = ({ isOpen, type = 'alert', title, message, onConfirm, onCancel, de
   };
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+    <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform scale-100 transition-transform">
         <div className="flex items-start mb-4 relative">
           <div className="flex items-center gap-4 flex-1 pr-8">

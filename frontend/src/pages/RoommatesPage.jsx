@@ -383,7 +383,11 @@ const RoommatesPage = () => {
       return;
     }
     if (!postFormData.budget) {
-      showModal({ type: 'alert', title: 'Missing Budget', message: 'Please specify the total rent budget.', onConfirm: closeModal });
+      showModal({ type: 'alert', title: 'Missing Room Rent', message: 'Please specify the total room rent / budget.', onConfirm: closeModal });
+      return;
+    }
+    if (!postFormData.deposit) {
+      showModal({ type: 'alert', title: 'Missing Deposit', message: 'Please specify the deposit amount. Enter 0 if none.', onConfirm: closeModal });
       return;
     }
     if (!postFormData.gender) {
@@ -445,14 +449,19 @@ const RoommatesPage = () => {
       setIsPosting(false);
       setIsModalOpen(false);
       setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Room', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
-      showModal({ type: 'alert', title: 'Success', message: 'Roommate request posted successfully!', onConfirm: closeModal });
       
-      // Delay fetching slightly to ensure backend transactions commit and state settles
-      setTimeout(() => {
-        setActiveTab('all');
-        setPage(0);
-        fetchRoommates(0, false);
-      }, 300);
+      showModal({ 
+        type: 'alert', 
+        title: 'Success', 
+        message: 'Roommate request posted successfully!', 
+        onConfirm: () => {
+          closeModal();
+          setSearchInput('');
+          setActiveTab('all');
+          setPage(0);
+          fetchRoommates(0, false);
+        }
+      });
       
     } catch (error) {
       setIsPosting(false);
