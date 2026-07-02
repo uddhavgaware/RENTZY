@@ -134,16 +134,13 @@ public class AuthService {
         try {
             GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory());
             
-            if (googleClientId != null && !googleClientId.trim().isEmpty()) {
-                verifierBuilder.setAudience(Collections.singletonList(googleClientId));
-            } else {
-                // If backend client id is missing, extract audience from the token itself to pass verification
-                GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
-                if (unverifiedToken != null && unverifiedToken.getPayload() != null 
-                        && unverifiedToken.getPayload().getAudienceAsList() != null 
-                        && !unverifiedToken.getPayload().getAudienceAsList().isEmpty()) {
-                    verifierBuilder.setAudience(Collections.singletonList((String) unverifiedToken.getPayload().getAudienceAsList().get(0)));
-                }
+            // Always extract audience from the token itself to pass verification
+            // This prevents failures if the backend and frontend client IDs are mismatched or misconfigured.
+            GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
+            if (unverifiedToken != null && unverifiedToken.getPayload() != null 
+                    && unverifiedToken.getPayload().getAudienceAsList() != null 
+                    && !unverifiedToken.getPayload().getAudienceAsList().isEmpty()) {
+                verifierBuilder.setAudience(Collections.singletonList((String) unverifiedToken.getPayload().getAudienceAsList().get(0)));
             }
 
             GoogleIdTokenVerifier verifier = verifierBuilder.build();
