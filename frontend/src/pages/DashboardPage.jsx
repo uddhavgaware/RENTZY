@@ -452,6 +452,13 @@ const DashboardPage = () => {
     { id: 'settings', name: 'Settings', icon: Settings },
   ];
 
+  if (user?.role === 'ADMIN') {
+    tabs.push({ id: 'admin', name: 'Admin Dashboard', icon: ShieldCheck });
+  }
+  if (user?.role === 'MOVER') {
+    tabs.push({ id: 'mover-portal', name: 'Vendor Portal', icon: Truck });
+  }
+
   const statusColors = { CONFIRMED: 'bg-green-100 text-green-700', CANCELLED: 'bg-red-100 text-red-700', PENDING: 'bg-yellow-100 text-yellow-700' };
 
   const confirmLogout = () => {
@@ -506,7 +513,16 @@ const DashboardPage = () => {
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
                   return (
-                    <button key={tab.id} onClick={() => tab.id === 'split' ? navigate('/split-expenses') : setActiveTab(tab.id)} className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}>
+                    <button 
+                      key={tab.id} 
+                      onClick={() => {
+                        if (tab.id === 'split') navigate('/split-expenses');
+                        else if (tab.id === 'admin') navigate('/admin');
+                        else if (tab.id === 'mover-portal') navigate('/mover-dashboard');
+                        else setActiveTab(tab.id);
+                      }} 
+                      className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}
+                    >
                       <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />{tab.name}
                     </button>
                   );

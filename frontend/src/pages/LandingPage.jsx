@@ -274,6 +274,7 @@ const LandingPage = () => {
             { to: '/roommates', label: '🤝 Roommates' },
             { to: '/split-expenses', label: '💸 Split Expenses' },
             { to: '/warehouses', label: '📦 Warehouses' },
+            { to: '/movers', label: '🚚 Movers' },
           ].map(({ to, label }) => (
             <Link key={to} to={to} className="inline-flex items-center px-4 py-2 bg-white/10 backdrop-blur-md hover:bg-white/20 border border-white/20 text-white rounded-full text-sm font-semibold shadow-sm transition-all active:scale-95">{label}</Link>
           ))}
