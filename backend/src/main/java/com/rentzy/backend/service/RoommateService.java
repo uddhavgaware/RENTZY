@@ -113,6 +113,85 @@ public class RoommateService {
         return com.rentzy.backend.dto.RoommatePostDTO.fromEntity(saved);
     }
 
+    @Transactional(readOnly = true)
+    public List<RoommatePostDTO> getSmartMatches(String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        List<RoommatePost> allPosts = repository.findAll();
+        List<RoommatePostDTO> matchedPosts = new ArrayList<>();
+        
+        for (RoommatePost post : allPosts) {
+            // Don't match with own posts
+            if (post.getUser().getId().equals(user.getId())) continue;
+            
+            int matchScore = 0;
+            int totalCriteria = 0;
+            
+            // Score Dietary Preference
+            if (user.getDietaryPref() != null && !user.getDietaryPref().isEmpty() && !"Any".equalsIgnoreCase(user.getDietaryPref())) {
+                totalCriteria++;
+                if (user.getDietaryPref().equalsIgnoreCase(post.getDietaryPref()) || "Any".equalsIgnoreCase(post.getDietaryPref())) {
+                    matchScore += 20;
+                }
+            }
+            
+            // Score Smoking Preference
+            if (user.getSmokingPref() != null && !user.getSmokingPref().isEmpty() && !"Any".equalsIgnoreCase(user.getSmokingPref())) {
+                totalCriteria++;
+                if (user.getSmokingPref().equalsIgnoreCase(post.getSmokingPref()) || "Any".equalsIgnoreCase(post.getSmokingPref())) {
+                    matchScore += 20;
+                }
+            }
+            
+            // Score Drinking Preference
+            if (user.getDrinkingPref() != null && !user.getDrinkingPref().isEmpty() && !"Any".equalsIgnoreCase(user.getDrinkingPref())) {
+                totalCriteria++;
+                if (user.getDrinkingPref().equalsIgnoreCase(post.getDrinkingPref()) || "Any".equalsIgnoreCase(post.getDrinkingPref())) {
+                    matchScore += 20;
+                }
+            }
+            
+            // Score Sleep Schedule
+            if (user.getSleepSchedule() != null && !user.getSleepSchedule().isEmpty() && !"Any".equalsIgnoreCase(user.getSleepSchedule())) {
+                totalCriteria++;
+                if (user.getSleepSchedule().equalsIgnoreCase(post.getSleepSchedule()) || "Any".equalsIgnoreCase(post.getSleepSchedule())) {
+                    matchScore += 20;
+                }
+            }
+            
+            // Score Cleanliness Level
+            if (user.getCleanlinessLevel() != null && !user.getCleanlinessLevel().isEmpty() && !"Any".equalsIgnoreCase(user.getCleanlinessLevel())) {
+                totalCriteria++;
+                if (user.getCleanlinessLevel().equalsIgnoreCase(post.getCleanlinessLevel()) || "Any".equalsIgnoreCase(post.getCleanlinessLevel())) {
+                    matchScore += 20;
+                }
+            }
+            
+            // If user hasn't set any preferences, base score is 0
+            int matchPercentage = 0;
+            if (totalCriteria > 0) {
+                // Normalize score to 100% based on how many criteria were actually evaluated
+                matchPercentage = (matchScore * 100) / (totalCriteria * 20);
+            }
+            
+            RoommatePostDTO dto = RoommatePostDTO.fromEntity(post);
+            dto.setMatchPercentage(matchPercentage);
+            matchedPosts.add(dto);
+        }
+        
+        // Sort by match percentage descending, then by id descending
+        matchedPosts.sort((p1, p2) -> {
+            int cmp = Integer.compare(p2.getMatchPercentage(), p1.getMatchPercentage());
+            if (cmp == 0) {
+                return Long.compare(p2.getId(), p1.getId());
+            }
+            return cmp;
+        });
+        
+        return matchedPosts;
+    }
+
     @Transactional
     public void deletePost(Long id, String userEmail) {
         RoommatePost post = repository.findById(id)

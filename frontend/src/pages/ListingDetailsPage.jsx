@@ -109,6 +109,15 @@ const ListingDetailsPage = () => {
     return match ? `https://www.youtube.com/embed/${match[1]}` : null;
   };
 
+  const getBuildingDetails = async (buildingId) => {
+    try {
+      const res = await api.get(`/buildings/${buildingId}`);
+      return res.data;
+    } catch (e) {
+      return null;
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -408,6 +417,21 @@ const ListingDetailsPage = () => {
                   </div>
                 </div>
               )}
+
+              {/* Building Info Snippet */}
+              {listing.building && (
+                <div className="mt-6 p-4 bg-indigo-50/50 dark:bg-indigo-900/20 rounded-2xl border border-indigo-100 dark:border-indigo-800/30 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xs font-bold text-indigo-500 uppercase tracking-wider mb-1">Part of Building / Society</h4>
+                    <p className="font-bold text-gray-900 dark:text-gray-100 text-lg">{listing.building.name}</p>
+                    <p className="text-sm text-gray-500 mt-0.5">{listing.building.location}</p>
+                  </div>
+                  {/* Later this button can route to building profile page */}
+                  <button className="px-4 py-2 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-800 text-indigo-600 dark:text-indigo-400 text-sm font-bold rounded-xl shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    View Building
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Property Specifications (Area & Facing) */}
@@ -462,6 +486,55 @@ const ListingDetailsPage = () => {
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Mess & Food Options */}
+            {listing.messAvailable && (
+              <div className="bg-orange-50/50 dark:bg-orange-950/20 rounded-3xl border border-orange-100 dark:border-orange-500/20 p-6 md:p-8 shadow-xl shadow-orange-100/40 dark:shadow-black/30 animate-fadeIn">
+                <h2 className="text-xl font-bold text-orange-600 dark:text-orange-400 mb-6 flex items-center gap-2">🍽️ Mess & Food Facilities</h2>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-2xl border border-orange-100 dark:border-white/5 shadow-sm">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Mess Type</span>
+                    <span className="font-extrabold text-gray-800 dark:text-gray-100">{listing.messType || 'Veg Only'}</span>
+                  </div>
+                  
+                  <div className="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-2xl border border-orange-100 dark:border-white/5 shadow-sm">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Meals Provided</span>
+                    <div className="flex flex-wrap gap-1 mt-0.5">
+                      {listing.mealsProvided?.map(meal => (
+                        <span key={meal} className="bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-full text-xs font-bold">
+                          {meal}
+                        </span>
+                      )) || <span className="text-gray-500">Not specified</span>}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-2xl border border-orange-100 dark:border-white/5 shadow-sm">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Mess Fee</span>
+                    <span className={`font-extrabold ${listing.messIncludedInRent ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
+                      {listing.messIncludedInRent ? 'Included in Rent' : `₹${listing.messPrice}/mo`}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col p-4 bg-white dark:bg-slate-800 rounded-2xl border border-orange-100 dark:border-white/5 shadow-sm">
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Cooking</span>
+                    <span className="font-extrabold text-gray-800 dark:text-gray-100">
+                      {listing.cookingAllowed ? 'Self Cooking Allowed ✅' : 'Not Allowed ❌'}
+                    </span>
+                  </div>
+                </div>
+
+                {listing.messTimings && (
+                  <div className="mt-4 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-orange-100 dark:border-white/5 shadow-sm flex items-center gap-3">
+                    <div className="text-xl">⏰</div>
+                    <div>
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">Timings</span>
+                      <span className="font-bold text-gray-800 dark:text-gray-100">{listing.messTimings}</span>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

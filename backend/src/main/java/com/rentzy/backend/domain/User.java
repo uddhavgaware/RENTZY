@@ -188,6 +188,25 @@ public class User implements UserDetails {
     @Column(length = 1000)
     private String upiQrUrl;
 
+    // Lifestyle preferences for Smart Match
+    @Column
+    private String dietaryPref;
+    
+    @Column
+    private String smokingPref;
+    
+    @Column
+    private String drinkingPref;
+    
+    @Column
+    private String petsPref;
+    
+    @Column
+    private String sleepSchedule;
+    
+    @Column
+    private String cleanlinessLevel;
+
     @Column
     private LocalDateTime createdAt;
 

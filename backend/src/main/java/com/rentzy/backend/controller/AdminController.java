@@ -145,6 +145,13 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/users/{id}/make-admin")
+    public ResponseEntity<User> makeAdmin(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setRole(User.Role.ADMIN);
+        return ResponseEntity.ok(userRepository.save(user));
+    }
+
     @GetMapping("/listings")
     public ResponseEntity<List<Listing>> getAllListings() {
         return ResponseEntity.ok(listingRepository.findAll());

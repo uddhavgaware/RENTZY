@@ -2,8 +2,12 @@ package com.rentzy.backend.controller;
 
 import com.rentzy.backend.domain.User;
 import com.rentzy.backend.domain.UserReview;
+import com.rentzy.backend.domain.Building;
+import com.rentzy.backend.domain.BuildingReview;
 import com.rentzy.backend.repository.UserRepository;
 import com.rentzy.backend.repository.UserReviewRepository;
+import com.rentzy.backend.repository.BuildingRepository;
+import com.rentzy.backend.repository.BuildingReviewRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +24,8 @@ public class UserReviewController {
 
     private final UserReviewRepository userReviewRepository;
     private final UserRepository userRepository;
+    private final BuildingRepository buildingRepository;
+    private final BuildingReviewRepository buildingReviewRepository;
 
     @PostMapping("/{reviewedUserId}")
     public ResponseEntity<?> submitReview(
@@ -66,6 +72,58 @@ public class UserReviewController {
         Map<String, Object> summary = new HashMap<>();
         Double avg = userReviewRepository.findAverageRatingByReviewedUserId(reviewedUserId);
         Long count = userReviewRepository.countByReviewedUserId(reviewedUserId);
+        summary.put("averageRating", avg != null ? Math.round(avg * 10.0) / 10.0 : 0);
+        summary.put("totalReviews", count);
+        return ResponseEntity.ok(summary);
+    }
+
+    // --- Building Review Endpoints ---
+
+    @PostMapping("/building/{buildingId}")
+    public ResponseEntity<?> submitBuildingReview(
+            @PathVariable Long buildingId,
+            @RequestBody Map<String, Object> body,
+            Authentication authentication) {
+        
+        User reviewer = userRepository.findByEmail(authentication.getName())
+                .orElseThrow(() -> new RuntimeException("Reviewer not found"));
+        Building building = buildingRepository.findById(buildingId)
+                .orElseThrow(() -> new RuntimeException("Building not found"));
+
+        if (reviewer.getId().equals(building.getOwner().getId())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "You cannot review your own building"));
+        }
+
+        Integer rating = (Integer) body.get("rating");
+        String comment = (String) body.get("comment");
+
+        if (rating == null || rating < 1 || rating > 5) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Rating must be between 1 and 5"));
+        }
+
+        BuildingReview review = buildingReviewRepository.findByReviewerEmailAndBuildingId(authentication.getName(), buildingId)
+                .orElse(BuildingReview.builder()
+                        .reviewer(reviewer)
+                        .building(building)
+                        .build());
+
+        review.setRating(rating);
+        review.setComment(comment);
+        BuildingReview saved = buildingReviewRepository.save(review);
+
+        return ResponseEntity.ok(saved);
+    }
+
+    @GetMapping("/building/{buildingId}")
+    public ResponseEntity<List<BuildingReview>> getReviewsForBuilding(@PathVariable Long buildingId) {
+        return ResponseEntity.ok(buildingReviewRepository.findByBuildingIdOrderByCreatedAtDesc(buildingId));
+    }
+
+    @GetMapping("/building/{buildingId}/summary")
+    public ResponseEntity<Map<String, Object>> getBuildingReviewSummary(@PathVariable Long buildingId) {
+        Map<String, Object> summary = new HashMap<>();
+        Double avg = buildingReviewRepository.findAverageRatingByBuildingId(buildingId);
+        Long count = buildingReviewRepository.countByBuildingId(buildingId);
         summary.put("averageRating", avg != null ? Math.round(avg * 10.0) / 10.0 : 0);
         summary.put("totalReviews", count);
         return ResponseEntity.ok(summary);

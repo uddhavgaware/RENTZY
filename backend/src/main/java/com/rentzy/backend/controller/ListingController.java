@@ -50,6 +50,11 @@ public class ListingController {
         return ResponseEntity.ok(service.getListingsByOwnerId(ownerId));
     }
 
+    @GetMapping("/building/{buildingId}")
+    public ResponseEntity<List<Listing>> getListingsByBuildingId(@PathVariable Long buildingId) {
+        return ResponseEntity.ok(service.getListingsByBuildingId(buildingId));
+    }
+
     @PostMapping
     @CacheEvict(value = "listings", allEntries = true)
     public ResponseEntity<Listing> createListing(@RequestBody Listing listing, Authentication authentication) {

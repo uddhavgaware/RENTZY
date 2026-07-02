@@ -79,6 +79,7 @@ const RoommatesPage = () => {
   const [isMapView, setIsMapView] = useState(false);
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
   const [modalMapSearchQuery, setModalMapSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
 
   const mapSearchInputRef = useRef(null);
 
@@ -332,11 +333,17 @@ const RoommatesPage = () => {
   const fetchRoommates = async (pageNum = 0, isAppend = false) => {
     setLoading(true);
     try {
-      const response = await api.get('/roommates', { 
-        params: { location: searchInput, page: pageNum, size: 20, sort: 'id,desc' } 
-      });
-      const results = response.data.content || [];
-      setHasMore(!response.data.last);
+      let response;
+      if (activeTab === 'smartMatch') {
+        response = await api.get('/roommates/matches');
+      } else {
+        response = await api.get('/roommates', { 
+          params: { location: searchInput, page: pageNum, size: 20, sort: 'id,desc' } 
+        });
+      }
+      
+      const results = activeTab === 'smartMatch' ? response.data : (response.data.content || []);
+      setHasMore(activeTab === 'smartMatch' ? false : !response.data.last);
       
       if (isAppend) {
         setRoommates(prev => [...prev, ...results]);
@@ -353,7 +360,7 @@ const RoommatesPage = () => {
   useEffect(() => {
     setPage(0);
     fetchRoommates(0, false);
-  }, [searchInput]);
+  }, [searchInput, activeTab]);
 
   const handleSearch = () => {
     setPage(0);
@@ -588,6 +595,28 @@ const RoommatesPage = () => {
             </div>
           </div>
 
+          {/* Tabs */}
+          <div className="flex gap-4 mb-8 pb-2 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab('all')}
+              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'all' ? 'bg-primary-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
+            >
+              All Requests
+            </button>
+            <button
+              onClick={() => {
+                if (!isAuthenticated) {
+                  showModal({ type: 'alert', title: 'Login Required', message: 'Please log in to use Smart Match.', onConfirm: closeModal });
+                  return;
+                }
+                setActiveTab('smartMatch');
+              }}
+              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'smartMatch' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-gray-200'}`}
+            >
+              🔥 Smart Matches
+            </button>
+          </div>
+
           {/* Roommates Grid */}
           {loading && roommates.length === 0 ? (
             <div className="flex justify-center items-center h-64">
@@ -685,8 +714,8 @@ const RoommatesPage = () => {
                 const isOwner = user?.email === roommate.user?.email;
                 const myPost = roommates.find(r => r.user?.email === user?.email);
                 
-                let matchScore = null;
-                if (!isOwner && myPost) {
+                let matchScore = roommate.matchPercentage != null ? roommate.matchPercentage : null;
+                if (matchScore === null && !isOwner && myPost) {
                   let weightedScore = 0;
                   let totalWeight = 0;
 

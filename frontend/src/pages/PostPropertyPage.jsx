@@ -116,6 +116,13 @@ const PostPropertyPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [myBuildings, setMyBuildings] = useState([]);
+
+  useEffect(() => {
+    if (isOwner) {
+      api.get('/buildings/my').then(res => setMyBuildings(res.data)).catch(console.error);
+    }
+  }, [isOwner]);
 
   const generateAIDescription = () => {
     setAiGenerating(true);
@@ -175,6 +182,14 @@ const PostPropertyPage = () => {
     maintenance: 'Not Included',
     facing: 'East',
     areaSqft: '',
+    buildingId: '',
+    messAvailable: false,
+    messType: 'Veg Only',
+    messIncludedInRent: false,
+    messPrice: '',
+    mealsProvided: [],
+    messTimings: '',
+    cookingAllowed: false,
   });
 
   const [mapPosition, setMapPosition] = useState(null);
@@ -304,7 +319,8 @@ const PostPropertyPage = () => {
           images: imageUrls,
           amenities: amenities,
           latitude: mapPosition ? mapPosition.lat : null,
-          longitude: mapPosition ? mapPosition.lng : null
+          longitude: mapPosition ? mapPosition.lng : null,
+          building: formData.buildingId ? { id: formData.buildingId } : null
         };
         await api.post('/listings', payload);
         setIsSubmitted(true);
@@ -429,6 +445,18 @@ const PostPropertyPage = () => {
                     </select>
                   </div>
                 </div>
+                
+                {/* Building Link (Optional) */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Link to a Building Profile (Optional)</label>
+                  <select name="buildingId" value={formData.buildingId} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
+                    <option value="">No Building Profile</option>
+                    {myBuildings.map(b => (
+                      <option key={b.id} value={b.id}>{b.name} - {b.location}</option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-gray-400 mt-1">Group this listing under one of your building profiles.</p>
+                </div>
 
                 <div className="bg-gray-50/80 p-5 rounded-2xl border border-gray-100 space-y-4">
                   <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider flex items-center gap-1">
@@ -474,6 +502,68 @@ const PostPropertyPage = () => {
                     <input type="number" name="areaSqft" value={formData.areaSqft} onChange={handleChange} min="1" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 1200" required />
                   </div>
                 </div>
+
+                {/* Mess Options for PG/Hostel */}
+                {['PG', 'Hostel'].includes(formData.type) && (
+                  <div className="bg-orange-50/50 p-5 rounded-2xl border border-orange-100 space-y-4 animate-fadeIn">
+                    <h3 className="text-xs font-black text-orange-500 uppercase tracking-wider flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block" />
+                      Mess & Food Options
+                    </h3>
+                    <div className="flex items-center gap-3">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input type="checkbox" checked={formData.messAvailable} onChange={(e) => setFormData({...formData, messAvailable: e.target.checked})} className="rounded text-orange-500 focus:ring-orange-500 w-4 h-4" />
+                        <span className="text-sm font-bold text-gray-700">Mess Facility Available</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer ml-4">
+                        <input type="checkbox" checked={formData.cookingAllowed} onChange={(e) => setFormData({...formData, cookingAllowed: e.target.checked})} className="rounded text-orange-500 focus:ring-orange-500 w-4 h-4" />
+                        <span className="text-sm font-bold text-gray-700">Self Cooking Allowed</span>
+                      </label>
+                    </div>
+
+                    {formData.messAvailable && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+                        <div>
+                          <label className="block text-xs font-bold text-gray-600 mb-1.5">Mess Type</label>
+                          <select name="messType" value={formData.messType} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 outline-none">
+                            <option value="Veg Only">Veg Only</option>
+                            <option value="Non-Veg">Non-Veg Included</option>
+                            <option value="Both">Both Available</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-600 mb-1.5">Meals Provided</label>
+                          <div className="flex gap-2">
+                            {['Breakfast', 'Lunch', 'Dinner'].map(meal => (
+                              <label key={meal} className="flex items-center gap-1 text-sm bg-white px-2 py-1 rounded border border-gray-200 cursor-pointer">
+                                <input type="checkbox" checked={formData.mealsProvided.includes(meal)} onChange={(e) => {
+                                  const meals = e.target.checked ? [...formData.mealsProvided, meal] : formData.mealsProvided.filter(m => m !== meal);
+                                  setFormData({...formData, mealsProvided: meals});
+                                }} className="rounded text-orange-500 focus:ring-orange-500 w-3 h-3" />
+                                {meal}
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-600 mb-1.5 flex items-center gap-2">
+                            Mess Fee
+                            <label className="flex items-center gap-1 cursor-pointer font-normal text-gray-500">
+                              <input type="checkbox" checked={formData.messIncludedInRent} onChange={(e) => setFormData({...formData, messIncludedInRent: e.target.checked})} className="rounded text-orange-500 w-3 h-3" /> Included in Rent
+                            </label>
+                          </label>
+                          {!formData.messIncludedInRent && (
+                            <input type="number" name="messPrice" value={formData.messPrice} onChange={handleChange} placeholder="e.g. 2000" className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold text-gray-600 mb-1.5">Timings</label>
+                          <input type="text" name="messTimings" value={formData.messTimings} onChange={handleChange} placeholder="e.g. 8AM-10AM, 8PM-10PM" className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Property Title</label>

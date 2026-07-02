@@ -78,9 +78,38 @@ public class Listing {
     @Column
     private Integer areaSqft; // Area in square feet
 
+    // Mess & Food Options (For PG/Hostel)
+    @Column
+    @Builder.Default
+    private Boolean messAvailable = false;
+
+    @Column
+    private String messType; // Veg Only, Non-Veg, Both
+
+    @Column
+    @Builder.Default
+    private Boolean messIncludedInRent = false;
+
+    @Column
+    private Double messPrice;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> mealsProvided; // Breakfast, Lunch, Dinner
+
+    @Column
+    private String messTimings;
+
+    @Column
+    @Builder.Default
+    private Boolean cookingAllowed = false;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "building_id")
+    private Building building;
 
     @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore

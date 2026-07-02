@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import ListingCard from '../components/ListingCard';
-import { BadgeCheck, Calendar, MapPin, Mail, MessageCircle, ArrowLeft, Star, User } from 'lucide-react';
+import { BadgeCheck, Calendar, MapPin, Mail, MessageCircle, ArrowLeft, Star, User, Building2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const maskName = (name) => {
@@ -18,6 +18,7 @@ const OwnerProfilePage = () => {
   const { user } = useAuth();
   const [owner, setOwner] = useState(null);
   const [listings, setListings] = useState([]);
+  const [buildings, setBuildings] = useState([]);
   const [userReviews, setUserReviews] = useState([]);
   const [userReviewSummary, setUserReviewSummary] = useState({ averageRating: 0, totalReviews: 0 });
   const [loading, setLoading] = useState(true);
@@ -33,14 +34,16 @@ const OwnerProfilePage = () => {
     const fetchOwnerAndListings = async () => {
       setLoading(true);
       try {
-        const [userRes, listingsRes, reviewsRes, summaryRes] = await Promise.all([
+        const [userRes, listingsRes, buildingsRes, reviewsRes, summaryRes] = await Promise.all([
           api.get(`/users/${id}`),
           api.get(`/listings/owner/${id}`),
+          api.get(`/buildings/owner/${id}`),
           api.get(`/user-reviews/user/${id}`),
           api.get(`/user-reviews/user/${id}/summary`)
         ]);
         setOwner(userRes.data);
         setListings(listingsRes.data);
+        setBuildings(buildingsRes.data);
         setUserReviews(reviewsRes.data);
         setUserReviewSummary(summaryRes.data);
       } catch (err) {
@@ -155,10 +158,16 @@ const OwnerProfilePage = () => {
             {/* Stats */}
             <div className="flex gap-4 sm:gap-6 mt-6 md:mt-0 flex-wrap justify-center">
               {owner.role === 'OWNER' && (
-                <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-100 text-center min-w-[120px]">
-                  <p className="text-3xl font-extrabold text-primary-600 mb-1">{listings.length}</p>
-                  <p className="text-[10px] sm:text-xs text-gray-500 font-bold uppercase tracking-wider">Active Properties</p>
-                </div>
+                <>
+                  <div className="bg-gray-50 rounded-2xl p-4 sm:p-6 border border-gray-100 text-center min-w-[120px]">
+                    <p className="text-3xl font-extrabold text-primary-600 mb-1">{listings.length}</p>
+                    <p className="text-[10px] sm:text-xs text-gray-500 font-bold uppercase tracking-wider">Active Properties</p>
+                  </div>
+                  <div className="bg-indigo-50 rounded-2xl p-4 sm:p-6 border border-indigo-100 text-center min-w-[120px]">
+                    <p className="text-3xl font-extrabold text-indigo-600 mb-1">{buildings.length}</p>
+                    <p className="text-[10px] sm:text-xs text-indigo-700 font-bold uppercase tracking-wider">Buildings</p>
+                  </div>
+                </>
               )}
               <div className="bg-amber-50 rounded-2xl p-4 sm:p-6 border border-amber-100 text-center min-w-[120px]">
                 <div className="flex items-center justify-center gap-1 mb-1">
@@ -191,6 +200,38 @@ const OwnerProfilePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {listings.map(listing => (
                 <ListingCard key={listing.id} listing={listing} />
+              ))}
+            </div>
+          )}
+
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 mt-12 flex items-center">
+            <Building2 className="text-indigo-500 mr-2" /> Buildings & Societies
+          </h2>
+
+          {buildings.length === 0 ? (
+            <div className="glass-card rounded-3xl p-12 text-center border border-dashed border-indigo-200 bg-indigo-50/30">
+              <div className="w-16 h-16 bg-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-indigo-500">
+                <Building2 size={24} />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-1">No Buildings Added</h3>
+              <p className="text-gray-500 text-sm">This owner has not added any building profiles yet.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {buildings.map(building => (
+                <div key={building.id} className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600 mb-4">
+                    <Building2 size={24} />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-1">{building.name}</h3>
+                  <p className="text-sm text-gray-500 mb-4">{building.location}</p>
+                  <button 
+                    onClick={() => navigate(`/buildings/${building.id}`)}
+                    className="w-full py-2 bg-indigo-50 text-indigo-700 font-bold text-sm rounded-xl hover:bg-indigo-100 transition-colors"
+                  >
+                    View Building Profile
+                  </button>
+                </div>
               ))}
             </div>
           )}

@@ -33,6 +33,12 @@ public class RoommateController {
         return ResponseEntity.ok(dtos);
     }
 
+    @GetMapping("/matches")
+    public ResponseEntity<List<RoommatePostDTO>> getSmartMatches(Authentication authentication) {
+        List<RoommatePostDTO> matches = service.getSmartMatches(authentication.getName());
+        return ResponseEntity.ok(matches);
+    }
+
     @PostMapping
     @CacheEvict(value = "roommates", allEntries = true)
     public ResponseEntity<RoommatePostDTO> createPost(@RequestBody RoommatePostRequest request, Authentication authentication) {

@@ -105,6 +105,7 @@ const ListingsPage = () => {
   const [minPrice, setMinPrice] = useState('');
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedAmenities, setSelectedAmenities] = useState([]);
+  const [messAvailableOnly, setMessAvailableOnly] = useState(false);
   const [sortBy, setSortBy] = useState('');
 
   // Location autocomplete
@@ -212,6 +213,11 @@ const ListingsPage = () => {
         );
       }
 
+      // Client-side Mess filter
+      if (messAvailableOnly) {
+        results = results.filter(listing => listing.messAvailable);
+      }
+
       if (isAppend) {
         setListings(prev => [...prev, ...results]);
       } else {
@@ -231,7 +237,7 @@ const ListingsPage = () => {
   useEffect(() => {
     setPage(0);
     fetchListings(0, false);
-  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities]);
+  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities, messAvailableOnly]);
 
   // Load wishlist IDs
   useEffect(() => {
@@ -282,6 +288,7 @@ const ListingsPage = () => {
     setMinPrice('');
     setMaxPrice('');
     setSelectedAmenities([]);
+    setMessAvailableOnly(false);
     setSortBy('');
     setSearchInput('');
     setAppliedLocation('');
@@ -289,7 +296,7 @@ const ListingsPage = () => {
   };
 
   const activeFilterCount = [
-    minPrice, maxPrice, appliedLocation, ...selectedAmenities
+    minPrice, maxPrice, appliedLocation, ...selectedAmenities, messAvailableOnly ? 'mess' : null
   ].filter(Boolean).length;
 
   return (
@@ -426,6 +433,24 @@ const ListingsPage = () => {
                       </button>
                     ))}
                   </div>
+
+                  {/* Mess Filter */}
+                  {(activeType === 'all' || activeType === 'pg') && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${messAvailableOnly ? 'bg-orange-500 border-orange-500' : 'bg-white border-gray-300 group-hover:border-orange-400'}`}>
+                          {messAvailableOnly && <CheckCircle2 size={14} className="text-white" />}
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={messAvailableOnly}
+                          onChange={(e) => setMessAvailableOnly(e.target.checked)}
+                          className="hidden"
+                        />
+                        <span className="text-sm font-bold text-gray-700">Mess / Food Facility Available</span>
+                      </label>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -459,6 +484,12 @@ const ListingsPage = () => {
                         <button onClick={() => toggleAmenity(a)} className="ml-1"><X size={12} /></button>
                       </span>
                     ))}
+                    {messAvailableOnly && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 text-orange-700 text-xs font-medium rounded-full">
+                        Mess Available
+                        <button onClick={() => setMessAvailableOnly(false)} className="ml-1"><X size={12} /></button>
+                      </span>
+                    )}
                   </div>
                   <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-700 font-medium whitespace-nowrap ml-4">
                     Clear All

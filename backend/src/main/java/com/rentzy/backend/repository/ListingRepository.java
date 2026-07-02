@@ -11,6 +11,7 @@ public interface ListingRepository extends JpaRepository<Listing, Long>, JpaSpec
     List<Listing> findByType(String type);
     List<Listing> findByLocationContainingIgnoreCase(String location);
     List<Listing> findByOwnerEmail(String email);
+    List<Listing> findByBuildingId(Long buildingId);
 
     @Query("SELECT l FROM Listing l WHERE " +
            "(:type = '' OR LOWER(l.type) = LOWER(:type)) AND " +

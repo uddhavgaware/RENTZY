@@ -223,6 +223,25 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const makeAdmin = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Make Admin',
+      message: 'Are you sure you want to upgrade this user to Admin? They will have full access to the platform.',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          const res = await api.post(`/admin/users/${id}/make-admin`);
+          setUsers(prev => prev.map(u => u.id === id ? res.data : u));
+          showModal({ type: 'alert', title: 'Success', message: 'User upgraded to admin successfully.', onConfirm: closeModal });
+        } catch (err) {
+          setError(err.response?.data?.message || err.userMessage || 'Failed to make user admin.');
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
   const toggleSelectUser = (id) => {
     setSelectedUsers(prev => prev.includes(id) ? prev.filter(uid => uid !== id) : [...prev, id]);
   };
@@ -827,6 +846,12 @@ const AdminDashboardPage = () => {
                                       className="text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
                                     >
                                       Delete
+                                    </button>
+                                    <button
+                                      onClick={() => makeAdmin(u.id)}
+                                      className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
+                                    >
+                                      Make Admin
                                     </button>
                                   </div>
                                 </div>

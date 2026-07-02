@@ -210,7 +210,9 @@ const AuthPage = () => {
                         setError('Google Login failed: No idToken');
                       }
                     } catch (err) {
-                      setError(err.message || 'Google Login Failed');
+                      const errorDetail = err?.message || JSON.stringify(err);
+                      setError(`Google Login Failed: ${errorDetail}`);
+                      console.error('Google Sign In Error:', err);
                     } finally {
                       setLoading(false);
                     }

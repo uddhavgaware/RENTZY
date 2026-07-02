@@ -4,11 +4,13 @@ import com.rentzy.backend.domain.Listing;
 import com.rentzy.backend.domain.User;
 import com.rentzy.backend.repository.ListingRepository;
 import com.rentzy.backend.repository.UserRepository;
+import com.rentzy.backend.repository.BuildingRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.JoinType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +27,7 @@ public class ListingService {
 
     private final ListingRepository listingRepository;
     private final UserRepository userRepository;
+    private final BuildingRepository buildingRepository;
     private final LocationExpansionService locationExpansionService;
 
     @Cacheable(value = "listings")
@@ -50,11 +53,20 @@ public class ListingService {
 
             if (!expandedLocations.isEmpty()) {
                 Predicate[] locPredicates = expandedLocations.stream()
-                        .map(loc -> cb.like(cb.lower(root.get("location")), "%" + loc.toLowerCase() + "%"))
+                        .map(loc -> cb.or(
+                            cb.like(cb.lower(root.get("location")), "%" + loc.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.join("owner", JoinType.LEFT).get("name")), "%" + loc.toLowerCase() + "%"),
+                            cb.like(cb.lower(root.join("building", JoinType.LEFT).get("name")), "%" + loc.toLowerCase() + "%")
+                        ))
                         .toArray(Predicate[]::new);
                 predicates.add(cb.or(locPredicates));
             } else if (location != null && !location.trim().isEmpty()) {
-                predicates.add(cb.like(cb.lower(root.get("location")), "%" + location.toLowerCase() + "%"));
+                String searchStr = "%" + location.toLowerCase() + "%";
+                predicates.add(cb.or(
+                    cb.like(cb.lower(root.get("location")), searchStr),
+                    cb.like(cb.lower(root.join("owner", JoinType.LEFT).get("name")), searchStr),
+                    cb.like(cb.lower(root.join("building", JoinType.LEFT).get("name")), searchStr)
+                ));
             }
 
             if (minPrice != null && minPrice > 0) {
@@ -95,12 +107,19 @@ public class ListingService {
                 .orElseThrow(() -> new RuntimeException("Listing not found"));
     }
 
+    public List<Listing> getListingsByBuildingId(Long buildingId) {
+        return listingRepository.findByBuildingId(buildingId);
+    }
+
     @Transactional
     @CacheEvict(value = {"listings", "listingDetails"}, allEntries = true)
     public Listing createListing(Listing listing, String ownerEmail) {
         User owner = userRepository.findByEmail(ownerEmail)
                 .orElseThrow(() -> new RuntimeException("Owner not found"));
         listing.setOwner(owner);
+        if (listing.getBuilding() != null && listing.getBuilding().getId() != null) {
+            listing.setBuilding(buildingRepository.findById(listing.getBuilding().getId()).orElse(null));
+        }
         return listingRepository.save(listing);
     }
 
@@ -143,6 +162,22 @@ public class ListingService {
         if (updates.getStatus() != null) existing.setStatus(updates.getStatus());
         if (updates.getFacing() != null) existing.setFacing(updates.getFacing());
         if (updates.getAreaSqft() != null) existing.setAreaSqft(updates.getAreaSqft());
+        
+        // Mess Options
+        if (updates.getMessAvailable() != null) existing.setMessAvailable(updates.getMessAvailable());
+        if (updates.getMessType() != null) existing.setMessType(updates.getMessType());
+        if (updates.getMessIncludedInRent() != null) existing.setMessIncludedInRent(updates.getMessIncludedInRent());
+        if (updates.getMessPrice() != null) existing.setMessPrice(updates.getMessPrice());
+        if (updates.getMealsProvided() != null) existing.setMealsProvided(updates.getMealsProvided());
+        if (updates.getMessTimings() != null) existing.setMessTimings(updates.getMessTimings());
+        if (updates.getCookingAllowed() != null) existing.setCookingAllowed(updates.getCookingAllowed());
+        
+        if (updates.getBuilding() != null && updates.getBuilding().getId() != null) {
+            existing.setBuilding(buildingRepository.findById(updates.getBuilding().getId()).orElse(null));
+        } else if (updates.getBuilding() == null) {
+            existing.setBuilding(null); // Allow removing building assignment
+        }
+
         return listingRepository.save(existing);
     }
 }
