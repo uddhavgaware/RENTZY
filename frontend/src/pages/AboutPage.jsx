@@ -139,6 +139,7 @@ const AboutPage = () => {
               </div>
               <span className="font-bold text-gray-900 mb-1">Call Us</span>
               <span className="text-sm text-gray-500 font-medium">+91 8767532364</span>
+              <span className="text-sm text-gray-500 font-medium mt-1">+91 8208022201</span>
             </a>
             <a href="mailto:rentxybookings@gmail.com" className="group flex flex-col items-center bg-gray-50 hover:bg-primary-50 rounded-2xl p-7 border border-gray-100 hover:border-primary-200 transition-all hover:-translate-y-1 hover:shadow-md duration-300">
               <div className="w-14 h-14 rounded-2xl bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 mb-4 group-hover:bg-primary-600 group-hover:text-white transition-all">

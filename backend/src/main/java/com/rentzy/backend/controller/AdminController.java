@@ -10,6 +10,7 @@ import com.rentzy.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.util.List;
 import java.util.Map;
@@ -146,7 +147,12 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/make-admin")
-    public ResponseEntity<User> makeAdmin(@PathVariable Long id) {
+    public ResponseEntity<?> makeAdmin(@PathVariable Long id) {
+        String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        if (!"uddhavgaware80@gmail.com".equalsIgnoreCase(currentEmail)) {
+            return ResponseEntity.status(403).body(Map.of("message", "Only the Head Admin can promote users to Admin."));
+        }
+        
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setRole(User.Role.ADMIN);
         return ResponseEntity.ok(userRepository.save(user));

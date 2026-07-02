@@ -63,8 +63,8 @@ public class ListingController {
 
     @DeleteMapping("/{id}")
     @CacheEvict(value = "listings", allEntries = true)
-    public ResponseEntity<Void> deleteListing(@PathVariable Long id) {
-        service.deleteListing(id);
+    public ResponseEntity<Void> deleteListing(@PathVariable Long id, Authentication authentication) {
+        service.deleteListing(id, authentication.getName());
         return ResponseEntity.noContent().build();
     }
 

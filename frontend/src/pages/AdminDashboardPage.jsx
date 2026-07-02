@@ -43,7 +43,7 @@ const customMapPinIcon = (color) => divIcon({
 });
 
 const AdminDashboardPage = () => {
-  const { isAdmin, loading } = useAuth();
+  const { isAdmin, loading, user } = useAuth();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [users, setUsers] = useState([]);
@@ -847,12 +847,14 @@ const AdminDashboardPage = () => {
                                     >
                                       Delete
                                     </button>
-                                    <button
-                                      onClick={() => makeAdmin(u.id)}
-                                      className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
-                                    >
-                                      Make Admin
-                                    </button>
+                                    {user?.email === 'uddhavgaware80@gmail.com' && (
+                                      <button
+                                        onClick={() => makeAdmin(u.id)}
+                                        className="text-purple-600 hover:text-purple-700 hover:bg-purple-50 px-2 py-1 rounded-lg transition-colors text-xs font-semibold"
+                                      >
+                                        Make Admin
+                                      </button>
+                                    )}
                                   </div>
                                 </div>
                               )}

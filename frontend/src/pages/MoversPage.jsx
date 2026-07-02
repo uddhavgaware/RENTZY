@@ -406,7 +406,7 @@ const MoversPage = () => {
                 showModal({
                   type: 'alert',
                   title: 'Join Shifting Partner Network',
-                  message: 'To list your packer & mover business on Rentzy, please email your business registration document to rentxybookings@gmail.com or WhatsApp us at +91 8767532364.',
+                  message: 'To list your packer & mover business on Rentzy, please email your business registration document to rentxybookings@gmail.com or WhatsApp us at +91 8767532364 or +91 8208022201.',
                   onConfirm: closeModal
                 });
               }}

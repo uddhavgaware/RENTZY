@@ -135,7 +135,12 @@ public class ListingService {
 
     @Transactional
     @CacheEvict(value = {"listings", "listingDetails"}, allEntries = true)
-    public void deleteListing(Long id) {
+    public void deleteListing(Long id, String ownerEmail) {
+        Listing existing = listingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        if (!existing.getOwner().getEmail().equals(ownerEmail)) {
+            throw new RuntimeException("Not authorized to delete this listing");
+        }
         listingRepository.deleteById(id);
     }
 
