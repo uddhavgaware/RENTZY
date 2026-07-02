@@ -133,14 +133,16 @@ const AboutPage = () => {
           <p className="text-gray-500 mb-12 text-base sm:text-lg">We're a small team that genuinely cares. Reach out anytime.</p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <a href="tel:+918767532364" className="group flex flex-col items-center bg-gray-50 hover:bg-primary-50 rounded-2xl p-7 border border-gray-100 hover:border-primary-200 transition-all hover:-translate-y-1 hover:shadow-md duration-300">
+            <div className="group flex flex-col items-center bg-gray-50 hover:bg-primary-50 rounded-2xl p-7 border border-gray-100 hover:border-primary-200 transition-all hover:-translate-y-1 hover:shadow-md duration-300">
               <div className="w-14 h-14 rounded-2xl bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 mb-4 group-hover:bg-primary-600 group-hover:text-white transition-all">
                 <Phone size={24} />
               </div>
-              <span className="font-bold text-gray-900 mb-1">Call Us</span>
-              <span className="text-sm text-gray-500 font-medium">+91 8767532364</span>
-              <span className="text-sm text-gray-500 font-medium mt-1">+91 8208022201</span>
-            </a>
+              <span className="font-bold text-gray-900 mb-2">Call Us</span>
+              <div className="flex flex-col items-center gap-1.5">
+                <a href="tel:+918767532364" className="text-sm text-gray-500 font-medium hover:text-primary-600 transition-colors">+91 8767532364</a>
+                <a href="tel:+918208022201" className="text-sm text-gray-500 font-medium hover:text-primary-600 transition-colors">+91 8208022201</a>
+              </div>
+            </div>
             <a href="mailto:rentxybookings@gmail.com" className="group flex flex-col items-center bg-gray-50 hover:bg-primary-50 rounded-2xl p-7 border border-gray-100 hover:border-primary-200 transition-all hover:-translate-y-1 hover:shadow-md duration-300">
               <div className="w-14 h-14 rounded-2xl bg-primary-50 border border-primary-100 flex items-center justify-center text-primary-600 mb-4 group-hover:bg-primary-600 group-hover:text-white transition-all">
                 <Mail size={24} />

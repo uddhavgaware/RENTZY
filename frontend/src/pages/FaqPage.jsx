@@ -195,14 +195,24 @@ const FaqPage = () => {
             >
               Email Support
             </a>
-            <a
-              href="https://wa.me/918767532364"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/15 hover:bg-white/25 text-white font-bold rounded-xl text-sm border border-white/20 transition-colors"
-            >
-              WhatsApp Us
-            </a>
+            <div className="flex gap-2">
+              <a
+                href="https://wa.me/918767532364"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-white font-bold rounded-xl text-sm border border-[#25D366]/30 transition-colors"
+              >
+                WhatsApp 1
+              </a>
+              <a
+                href="https://wa.me/918208022201"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-white font-bold rounded-xl text-sm border border-[#25D366]/30 transition-colors"
+              >
+                WhatsApp 2
+              </a>
+            </div>
           </div>
         </div>
       </div>

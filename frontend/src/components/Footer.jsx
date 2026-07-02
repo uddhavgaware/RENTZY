@@ -46,7 +46,8 @@ const Footer = () => {
             <h3 className="text-sm font-semibold tracking-wider uppercase mb-4 text-gray-300">Support</h3>
             <ul className="space-y-3">
               <li><Link to="/faq" className="text-gray-400 hover:text-primary-400 transition-colors">FAQ</Link></li>
-              <li><a href="https://wa.me/918767532364" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2">WhatsApp Support (FAQs)</a></li>
+              <li><a href="https://wa.me/918767532364" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2">WhatsApp Support 1</a></li>
+              <li><a href="https://wa.me/918208022201" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2">WhatsApp Support 2</a></li>
               <li><Link to="/terms" className="text-gray-400 hover:text-primary-400 transition-colors">Terms of Service</Link></li>
               <li><Link to="/privacy" className="text-gray-400 hover:text-primary-400 transition-colors">Privacy Policy</Link></li>
             </ul>
@@ -57,10 +58,10 @@ const Footer = () => {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <Phone className="text-primary-400 mt-1 flex-shrink-0" size={18} />
-                <span className="text-gray-400 hover:text-white transition-colors cursor-pointer">
-                  <span className="font-medium">+91 8767532364</span><br />
-                  <span className="font-medium ml-6">+91 8208022201</span>
-                </span>
+                <div className="flex flex-col text-gray-400">
+                  <span className="font-medium hover:text-white transition-colors cursor-pointer">+91 8767532364</span>
+                  <span className="font-medium hover:text-white transition-colors cursor-pointer">+91 8208022201</span>
+                </div>
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="text-primary-400 mt-1 flex-shrink-0" size={18} />
