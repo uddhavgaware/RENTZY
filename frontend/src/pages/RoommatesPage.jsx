@@ -69,8 +69,9 @@ const RoommatesPage = () => {
   const [roommates, setRoommates] = useState([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPosting, setIsPosting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [activeImageIndexes, setActiveImageIndexes] = useState({});
@@ -335,10 +336,10 @@ const RoommatesPage = () => {
     try {
       let response;
       if (activeTab === 'smartMatch') {
-        response = await api.get('/roommates/matches');
+        response = await api.get('/roommates/matches', { params: { _t: Date.now() } });
       } else {
         response = await api.get('/roommates', { 
-          params: { location: searchInput, page: pageNum, size: 20, sort: 'id,desc' } 
+          params: { location: searchInput, page: pageNum, size: 20, sort: 'id,desc', _t: Date.now() } 
         });
       }
       
@@ -369,6 +370,12 @@ const RoommatesPage = () => {
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
+    if (isPosting) return;
+
+    if (!user) {
+      showModal({ type: 'alert', title: 'Login Required', message: 'You must be logged in to post a request.', onConfirm: closeModal });
+      return;
+    }
 
     // Manual Validation - Relaxed to improve UX
     if (!postFormData.areaName?.trim() && !postFormData.villageCityTown?.trim()) {
@@ -432,13 +439,23 @@ const RoommatesPage = () => {
         maintenance: postFormData.maintenance,
         propertyType: postFormData.propertyType,
       };
+
+      setIsPosting(true);
       await api.post('/roommates', payload);
+      setIsPosting(false);
       setIsModalOpen(false);
       setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Room', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
       showModal({ type: 'alert', title: 'Success', message: 'Roommate request posted successfully!', onConfirm: closeModal });
-      setActiveTab('all');
-      fetchRoommates();
+      
+      // Delay fetching slightly to ensure backend transactions commit and state settles
+      setTimeout(() => {
+        setActiveTab('all');
+        setPage(0);
+        fetchRoommates(0, false);
+      }, 300);
+      
     } catch (error) {
+      setIsPosting(false);
       console.error('Failed to post roommate request', error);
       const errorData = error.response?.data;
       let errorMsg = 'An error occurred while posting your request. Please try again.';
@@ -696,7 +713,7 @@ const RoommatesPage = () => {
                               <div className="text-primary-700 font-bold mb-3 text-lg">₹{roommate.budget}/mo</div>
                               <div className="flex gap-2">
                                 <button onClick={() => {
-                                  setViewMode('grid');
+                                  setIsMapView(false);
                                   setTimeout(() => {
                                     document.getElementById(`roommate-card-${roommate.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                                   }, 100);
