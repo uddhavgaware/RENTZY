@@ -233,7 +233,10 @@ const AuthPage = () => {
                       setLoading(false);
                     }
                   }}
-                  onError={() => setError('Google Login Failed')}
+                  onError={(errorRes) => {
+                    console.error('Google Login Error:', errorRes);
+                    setError('Google Login Failed: ' + (errorRes?.error || errorRes?.message || 'Check console for details'));
+                  }}
                   theme="outline" size="large" shape="pill"
                 />
               ) : (
@@ -395,10 +398,18 @@ const AuthPage = () => {
                     {import.meta.env.VITE_TRUECALLER_APP_KEY ? (
                       <button 
                         onClick={() => {
-                          const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                          if (isMobile) {
+                          const isAndroid = /Android/i.test(navigator.userAgent);
+                          const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                          
+                          if (isAndroid || isIOS) {
                             const reqNonce = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                            window.location.href = `truecallersdk://truesdk/web_verify?requestNonce=${reqNonce}&partnerKey=${import.meta.env.VITE_TRUECALLER_APP_KEY}&partnerName=RentXY&lang=en`;
+                            const partnerKey = import.meta.env.VITE_TRUECALLER_APP_KEY;
+                            
+                            if (isAndroid) {
+                              window.location.href = `intent://truesdk/web_verify?requestNonce=${reqNonce}&partnerKey=${partnerKey}&partnerName=RentXY&lang=en#Intent;scheme=truecallersdk;package=com.truecaller;fallback_url=https://play.google.com/store/apps/details?id=com.truecaller;end`;
+                            } else {
+                              window.location.href = `truecallersdk://truesdk/web_verify?requestNonce=${reqNonce}&partnerKey=${partnerKey}&partnerName=RentXY&lang=en`;
+                            }
                             
                             setLoading(true);
                             let attempts = 0;
