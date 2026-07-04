@@ -1325,9 +1325,29 @@ const SplitExpensesPage = () => {
             <div className="bg-gray-50 dark:bg-slate-800 p-3 rounded-xl border border-gray-200 dark:border-white/10 break-all mb-4">
               <p className="text-sm text-gray-700 dark:text-gray-300 font-medium select-all">{window.location.origin}/join/{currentGroup.inviteCode}</p>
             </div>
-            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/join/${currentGroup.inviteCode}`); showToast('Link copied!'); setShowInviteModal(false); }}
+            <button onClick={async () => { 
+              const link = `${window.location.origin}/join/${currentGroup.inviteCode}`;
+              if (navigator.share) {
+                try {
+                  await navigator.share({
+                    title: 'Join RentXY Group',
+                    text: `Join our split expenses group "${currentGroup.name}" on RentXY!`,
+                    url: link
+                  });
+                  setShowInviteModal(false);
+                } catch (err) {
+                  navigator.clipboard.writeText(link);
+                  showToast('Link copied!');
+                  setShowInviteModal(false);
+                }
+              } else {
+                navigator.clipboard.writeText(link); 
+                showToast('Link copied!'); 
+                setShowInviteModal(false); 
+              }
+            }}
               className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95">
-              Copy Link
+              Share Link
             </button>
           </div>
         </div>
