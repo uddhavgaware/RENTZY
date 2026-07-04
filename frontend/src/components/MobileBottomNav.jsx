@@ -54,11 +54,12 @@ const MobileBottomNav = () => {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-[90] bg-white/95 backdrop-blur-xl border-t border-gray-200 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.06)]">
       <div className="flex justify-around items-center h-16 px-1">
         {navItems.map(({ path, icon: Icon, label }) => {
-          const isActive = location.pathname === path || 
+          const fullPath = location.pathname + location.search;
+          const isActive = fullPath === path || 
             (path === '/listings' && location.pathname.startsWith('/listings')) ||
             (path === '/split-expenses' && location.pathname === '/split-expenses') ||
             (path === '/post-property' && location.pathname === '/post-property') ||
-            (path === '/dashboard' && location.pathname.startsWith('/dashboard'));
+            (path === '/dashboard' && location.pathname === '/dashboard' && !location.search.includes('tab='));
           
           return (
             <Link

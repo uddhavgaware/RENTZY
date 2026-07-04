@@ -25,7 +25,7 @@ const Layout = ({ children }) => {
   return (
     <div className="min-h-screen flex flex-col font-sans">
       <Navbar />
-      <main className="flex-grow w-full relative pb-20 md:pb-0 overflow-hidden">
+      <main className="flex-grow w-full relative pb-28 md:pb-0 overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

@@ -1009,18 +1009,18 @@ const DashboardPage = () => {
                 ) : (
                   <div className="space-y-4">
                     {myListings.map(listing => (
-                      <div key={listing.id} className="border border-gray-100 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white">
+                      <div key={listing.id} className="border border-gray-100 dark:border-gray-700 rounded-2xl p-5 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 bg-white dark:bg-gray-800">
                         {editingListing === listing.id ? (
                           <div className="space-y-3">
-                            <input value={editForm.title || ''} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))} className="w-full border rounded-xl px-4 py-2 text-sm" placeholder="Title" />
+                            <input value={editForm.title || ''} onChange={e => setEditForm(p => ({ ...p, title: e.target.value }))} className="w-full border dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-xl px-4 py-2 text-sm" placeholder="Title" />
                             <div className="flex gap-3">
-                              <input type="number" value={editForm.price || ''} onChange={e => setEditForm(p => ({ ...p, price: Number(e.target.value) }))} className="flex-1 border rounded-xl px-4 py-2 text-sm" placeholder="Price" />
-                              <input value={editForm.location || ''} onChange={e => setEditForm(p => ({ ...p, location: e.target.value }))} className="flex-1 border rounded-xl px-4 py-2 text-sm" placeholder="Location" />
+                              <input type="number" value={editForm.price || ''} onChange={e => setEditForm(p => ({ ...p, price: Number(e.target.value) }))} className="flex-1 border dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-xl px-4 py-2 text-sm" placeholder="Price" />
+                              <input value={editForm.location || ''} onChange={e => setEditForm(p => ({ ...p, location: e.target.value }))} className="flex-1 border dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-xl px-4 py-2 text-sm" placeholder="Location" />
                             </div>
-                            <textarea value={editForm.description || ''} onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))} rows={2} className="w-full border rounded-xl px-4 py-2 text-sm" placeholder="Description" />
+                            <textarea value={editForm.description || ''} onChange={e => setEditForm(p => ({ ...p, description: e.target.value }))} rows={2} className="w-full border dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-xl px-4 py-2 text-sm" placeholder="Description" />
                             <div className="flex gap-2">
                               <button onClick={() => handleUpdateListing(listing.id)} className="bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700">Save</button>
-                              <button onClick={() => setEditingListing(null)} className="border border-gray-300 text-gray-700 px-4 py-2 rounded-xl text-sm">Cancel</button>
+                              <button onClick={() => setEditingListing(null)} className="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-xl text-sm">Cancel</button>
                             </div>
                           </div>
                         ) : (
@@ -1029,13 +1029,13 @@ const DashboardPage = () => {
                               <img src={listing.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=200'} alt="" className="w-20 h-20 rounded-xl object-cover group-hover:opacity-90 transition-opacity flex-shrink-0" />
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors truncate">{listing.title}</span>
-                                  <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${listing.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : listing.status === 'RENTED' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-600'}`}>
+                                  <span className="font-bold text-gray-900 dark:text-white group-hover:text-primary-600 transition-colors truncate">{listing.title}</span>
+                                  <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${listing.status === 'ACTIVE' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : listing.status === 'RENTED' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'}`}>
                                     {listing.status || 'ACTIVE'}
                                   </span>
                                 </div>
-                                <p className="text-sm text-gray-500">{listing.location}</p>
-                                <p className="text-primary-600 font-bold mt-1">₹{listing.price?.toLocaleString('en-IN')}/mo</p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400">{listing.location}</p>
+                                <p className="text-primary-600 dark:text-primary-400 font-bold mt-1">₹{listing.price?.toLocaleString('en-IN')}/mo</p>
                               </div>
                             </Link>
                             <div className="flex items-center gap-2 flex-shrink-0">
@@ -1047,14 +1047,14 @@ const DashboardPage = () => {
                                     setMyListings(prev => prev.map(l => l.id === listing.id ? { ...l, status: res.data.status } : l));
                                   } catch { showModal({ type: 'alert', title: 'Error', message: 'Failed to update status', onConfirm: closeModal }); }
                                 }}
-                                className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:ring-2 focus:ring-primary-500 outline-none cursor-pointer"
+                                className="text-xs border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-primary-500 outline-none cursor-pointer"
                               >
                                 <option value="ACTIVE">Active</option>
                                 <option value="INACTIVE">Inactive</option>
                                 <option value="RENTED">Rented</option>
                               </select>
-                              <button onClick={() => { setEditingListing(listing.id); setEditForm({ title: listing.title, price: listing.price, location: listing.location, description: listing.description }); }} className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"><Edit3 size={18} /></button>
-                              <button onClick={() => handleDeleteListing(listing.id)} className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 size={18} /></button>
+                              <button onClick={() => { setEditingListing(listing.id); setEditForm({ title: listing.title, price: listing.price, location: listing.location, description: listing.description }); }} className="p-2 text-gray-500 dark:text-gray-400 hover:text-primary-600 hover:bg-primary-50 dark:hover:bg-gray-700 rounded-lg transition-colors"><Edit3 size={18} /></button>
+                              <button onClick={() => handleDeleteListing(listing.id)} className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition-colors"><Trash2 size={18} /></button>
                             </div>
                           </div>
                         )}
