@@ -7,7 +7,7 @@ import { Haptics, ImpactStyle } from '@capacitor/haptics';
 const MobileBottomNav = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, isOwner } = useAuth();
+  const { isAuthenticated, isOwner, user } = useAuth();
 
   const handleNav = async (e, path) => {
     e.preventDefault();
