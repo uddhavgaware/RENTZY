@@ -24,7 +24,7 @@ const MobileBottomNav = () => {
         { path: '/', icon: Home, label: 'Home' },
         { path: '/dashboard?tab=properties', icon: Building2, label: 'My Props' },
         { path: '/post-property', icon: Building2, label: 'Post' },
-        { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
+        { path: '/listings', icon: Search, label: 'All Props' },
       ];
     } else if (role === 'MOVER') {
       return [
