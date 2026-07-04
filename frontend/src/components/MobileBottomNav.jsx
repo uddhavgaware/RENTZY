@@ -17,16 +17,34 @@ const MobileBottomNav = () => {
     navigate(path);
   };
 
-  const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/listings', icon: Search, label: 'Search' },
-    ...(isOwner 
-      ? [{ path: '/post-property', icon: Building2, label: 'Post' }]
-      : [{ path: '/split-expenses', icon: PieChart, label: 'Split' }]
-    ),
-    { path: '/roommates', icon: Users, label: 'Mates' },
-    { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
-  ];
+  const getNavItems = () => {
+    const role = user?.role;
+    if (role === 'OWNER') {
+      return [
+        { path: '/', icon: Home, label: 'Home' },
+        { path: '/dashboard?tab=properties', icon: Building2, label: 'My Props' },
+        { path: '/post-property', icon: Building2, label: 'Post' },
+        { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
+      ];
+    } else if (role === 'MOVER') {
+      return [
+        { path: '/', icon: Home, label: 'Home' },
+        { path: '/mover-dashboard', icon: Building2, label: 'Vendor' },
+        { path: '/dashboard?tab=moving', icon: Users, label: 'Requests' },
+        { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
+      ];
+    }
+    // TENANT or Unauthenticated
+    return [
+      { path: '/', icon: Home, label: 'Home' },
+      { path: '/listings', icon: Search, label: 'Search' },
+      { path: '/split-expenses', icon: PieChart, label: 'Split' },
+      { path: '/roommates', icon: Users, label: 'Mates' },
+      { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
+    ];
+  };
+
+  const navItems = getNavItems();
 
   // Hide on certain pages where bottom nav would interfere
   const hiddenPaths = ['/messages'];

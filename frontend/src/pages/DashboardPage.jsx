@@ -441,23 +441,45 @@ const DashboardPage = () => {
     }
   };
 
-  const tabs = [
-    { id: 'profile', name: 'My Profile', icon: User },
-    { id: 'bookings', name: 'My Bookings', icon: BookOpen },
-    { id: 'properties', name: 'My Properties', icon: Home },
-    { id: 'moving', name: 'Moving Requests', icon: Truck },
-    { id: 'split', name: 'Split Expenses', icon: Split },
-    { id: 'saved', name: 'Saved', icon: Heart },
-    { id: 'notifications', name: 'Notifications', icon: Bell },
-    { id: 'settings', name: 'Settings', icon: Settings },
-  ];
+  const getRoleTabs = () => {
+    const role = user?.role || 'TENANT';
+    let baseTabs = [
+      { id: 'profile', name: 'My Profile', icon: User },
+    ];
 
-  if (user?.role === 'ADMIN') {
-    tabs.push({ id: 'admin', name: 'Admin Dashboard', icon: ShieldCheck });
-  }
-  if (user?.role === 'MOVER') {
-    tabs.push({ id: 'mover-portal', name: 'Vendor Portal', icon: Truck });
-  }
+    if (role === 'OWNER') {
+      baseTabs.push(
+        { id: 'properties', name: 'My Properties', icon: Home },
+        { id: 'bookings', name: 'Received Bookings', icon: BookOpen }
+      );
+    } else if (role === 'MOVER') {
+      baseTabs.push(
+        { id: 'mover-portal', name: 'Vendor Portal', icon: Truck },
+        { id: 'moving', name: 'Moving Requests', icon: Truck }
+      );
+    } else {
+      // TENANT default
+      baseTabs.push(
+        { id: 'bookings', name: 'My Bookings', icon: BookOpen },
+        { id: 'saved', name: 'Saved', icon: Heart },
+        { id: 'split', name: 'Split Expenses', icon: Split },
+        { id: 'moving', name: 'Moving Requests', icon: Truck }
+      );
+    }
+
+    baseTabs.push(
+      { id: 'notifications', name: 'Notifications', icon: Bell },
+      { id: 'settings', name: 'Settings', icon: Settings }
+    );
+
+    if (role === 'ADMIN') {
+      baseTabs.push({ id: 'admin', name: 'Admin Dashboard', icon: ShieldCheck });
+    }
+    
+    return baseTabs;
+  };
+
+  const tabs = getRoleTabs();
 
   const statusColors = { CONFIRMED: 'bg-green-100 text-green-700', CANCELLED: 'bg-red-100 text-red-700', PENDING: 'bg-yellow-100 text-yellow-700' };
 

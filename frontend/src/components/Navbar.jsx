@@ -25,14 +25,32 @@ const Navbar = () => {
   const isCinematicPage = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
   const isDarkHero = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
 
-  const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'Flats', path: '/flats' },
-    { name: 'PG/Hostels', path: '/pgs' },
-    { name: 'Roommates', path: '/roommates' },
-    { name: 'Split', path: '/split-expenses' },
-    { name: 'Movers', path: '/movers' },
-  ];
+  const getNavLinks = () => {
+    const role = user?.role;
+    if (role === 'OWNER') {
+      return [
+        { name: 'Home', path: '/' },
+        { name: 'Dashboard', path: '/dashboard' },
+        { name: 'Flats', path: '/flats' },
+        { name: 'Movers', path: '/movers' },
+      ];
+    } else if (role === 'MOVER') {
+      return [
+        { name: 'Home', path: '/' },
+        { name: 'Dashboard', path: '/dashboard' },
+      ];
+    }
+    return [
+      { name: 'Home', path: '/' },
+      { name: 'Flats', path: '/flats' },
+      { name: 'PG/Hostels', path: '/pgs' },
+      { name: 'Roommates', path: '/roommates' },
+      { name: 'Split', path: '/split-expenses' },
+      { name: 'Movers', path: '/movers' },
+    ];
+  };
+
+  const navLinks = getNavLinks();
 
   const mobileSwipeLinks = [
     { name: 'Home', path: '/', icon: Home },
