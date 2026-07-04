@@ -22,9 +22,10 @@ const MobileBottomNav = () => {
     if (role === 'OWNER') {
       return [
         { path: '/', icon: Home, label: 'Home' },
+        { path: '/listings', icon: Search, label: 'Search' },
         { path: '/dashboard?tab=properties', icon: Building2, label: 'My Props' },
         { path: '/post-property', icon: Building2, label: 'Post' },
-        { path: '/listings', icon: Search, label: 'All Props' },
+        { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
       ];
     } else if (role === 'MOVER') {
       return [
