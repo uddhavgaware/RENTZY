@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Unit 6: Phase Locked Loop (PLL)</title>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Inter:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; line-height: 1.6; margin: 0; padding: 40px 50px; color: #e2e8f0; font-size: 13px; background: #0f172a; }
+    h1 { text-align: center; color: #00f0ff; font-size: 24px; font-weight: 700; border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 30px; letter-spacing: 1px; text-transform: uppercase; }
+    .question-block { page-break-inside: avoid; margin-bottom: 40px; padding: 25px; border: 1px solid #334155; border-radius: 12px; background: #1e293b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+    .question { font-family: 'Roboto Mono', monospace; font-weight: 600; font-size: 14px; color: #38bdf8; margin-bottom: 20px; border-left: 4px solid #00f0ff; padding-left: 15px; }
+    .solution { padding-left: 10px; }
+    .step { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+    .step:last-child { border-bottom: none; }
+    .step-explain { color: #94a3b8; font-size: 13px; font-weight: 600; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+    .theory-list { margin: 10px 0; padding-left: 20px; }
+    .theory-list li { margin-bottom: 10px; color: #cbd5e1; }
+    .theory-list strong { color: #f8fafc; }
+    .graph-container { text-align: center; margin: 20px 0; padding: 20px; background: #0f172a; border-radius: 8px; border: 1px solid #475569; }
+    .graph-title { font-family: 'Roboto Mono', monospace; font-size: 12px; color: #00f0ff; margin-bottom: 15px; }
+    p { margin-top: 0; margin-bottom: 15px; }
+    .marks-tag { display: inline-block; background: #00f0ff; color: #0f172a; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; margin-left: 10px; }
+    @media print { 
+        body { padding: 20px; background: #ffffff; color: #000; } 
+        .question-block { background: #fff; border: 1px solid #ccc; box-shadow: none; }
+        .question { color: #000; border-left-color: #000; }
+        .step-explain, h1, .graph-title { color: #000; }
+        .theory-list li, .theory-list strong { color: #000; }
+        .graph-container { background: #fff; border-color: #ccc; }
+        .marks-tag { background: #000; color: #fff; }
+        svg text { fill: #000 !important; }
+        svg path, svg rect, svg line, svg circle { stroke: #000 !important; }
+    }
+</style>
+</head>
+<body>
+
+<h1>Unit 6: Phase Locked Loop (EDC)</h1>
+
+<!-- Q1 -->
+<div class="question-block">
+<div class="question">Q.1 Explain block diagram of PLL in detail <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Block Diagram</span>
+        <div class="graph-container">
+            <div class="graph-title">Block Diagram of PLL</div>
+            <svg width="500" height="150" viewBox="0 0 500 150">
+                <rect x="100" y="40" width="100" height="60" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                <text x="125" y="70" font-size="12" fill="#fff">Phase</text>
+                <text x="120" y="85" font-size="12" fill="#fff">Detector</text>
+                
+                <rect x="250" y="40" width="100" height="60" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                <text x="265" y="60" font-size="12" fill="#fff">Active</text>
+                <text x="260" y="75" font-size="12" fill="#fff">Low Pass</text>
+                <text x="270" y="90" font-size="12" fill="#fff">Filter</text>
+                
+                <rect x="400" y="40" width="80" height="60" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                <text x="425" y="75" font-size="12" fill="#fff">VCO</text>
+                
+                <path d="M 20,70 L 100,70" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <polygon points="100,70 95,65 95,75" fill="#38bdf8"/>
+                <text x="30" y="60" font-size="12" fill="#38bdf8">fin(t)</text>
+                
+                <path d="M 200,70 L 250,70" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <polygon points="250,70 245,65 245,75" fill="#38bdf8"/>
+                
+                <path d="M 350,70 L 400,70" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <polygon points="400,70 395,65 395,75" fill="#38bdf8"/>
+                
+                <path d="M 480,70 L 490,70 L 490,120 L 150,120 L 150,100" fill="none" stroke="#f43f5e" stroke-width="2"/>
+                <polygon points="150,100 145,105 155,105" fill="#f43f5e"/>
+                <text x="440" y="115" font-size="12" fill="#f43f5e">fout(t)</text>
+            </svg>
+        </div>
+    </div>
+    <div class="step">
+        <span class="step-explain">Introduction (1 Mark)</span>
+        <p>A Phase Locked Loop (PLL) mainly consists of the following <strong>three blocks</strong> –</p>
+        <ul class="theory-list">
+            <li><strong>Phase Detector</strong></li>
+            <li><strong>Active Low Pass Filter</strong></li>
+            <li><strong>Voltage Controlled Oscillator (VCO)</strong></li>
+        </ul>
+        <p>The output of a phase detector is applied as an input of active low pass filter. Similarly, the output of active low pass filter is applied as an input of VCO. The output of VCO is fed back to the second input of the phase detector, forming a closed loop.</p>
+    </div>
+    <div class="step">
+        <span class="step-explain">Working of Each Block (3 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Phase Detector:</strong> It is a multiplier circuit. It compares the phase and frequency of the input signal (\(f_{in}\)) with the feedback signal from VCO (\(f_{out}\)). It produces a DC voltage that is directly proportional to the phase difference between these two signals. Its output contains two frequency components – the sum (\(f_{in} + f_{out}\)) and the difference (\(f_{in} - f_{out}\)) of the two input frequencies.</li>
+            <li><strong>Active Low Pass Filter (LPF):</strong> It receives the output of the phase detector and removes the high-frequency sum component (\(f_{in} + f_{out}\)). Only the low-frequency difference component (a DC voltage) is allowed to pass through. This filter also amplifies the DC control voltage before feeding it to the VCO. The bandwidth of the LPF determines the capture range of the PLL.</li>
+            <li><strong>Voltage Controlled Oscillator (VCO):</strong> It is a free-running oscillator that generates an output signal whose frequency is directly proportional to the input DC control voltage. When no input is applied, it oscillates at its natural free-running frequency (\(f_0\)). When a DC voltage from the LPF is applied, the VCO shifts its frequency to match the input signal. The frequency deviation is directly proportional to the DC voltage present at the output of the low pass filter.</li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">Overall Working of PLL (2 Marks)</span>
+        <p>When an input signal \(f_{in}\) is applied, the phase detector compares it with VCO output \(f_{out}\). If there is any difference in phase or frequency, the phase detector generates an error voltage. This error voltage, after being filtered and amplified by the LPF, drives the VCO. The VCO adjusts its frequency in the direction that reduces the phase error.</p>
+        <p>This process continues until the VCO frequency becomes exactly equal to the input signal frequency (\(f_{out} = f_{in}\)). At this point, the PLL is said to be in a <strong>"locked"</strong> state. Once locked, the PLL tracks any small variations in the input signal frequency.</p>
+    </div>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="question-block">
+<div class="question">Q.2 Explain the characteristics of PLL <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Introduction (1 Mark)</span>
+        <p>PLL operates in one of the <strong>following three modes</strong> depending on whether an input signal is applied and whether the loop has acquired lock:</p>
+        <ul class="theory-list">
+            <li><strong>1. Free running mode</strong></li>
+            <li><strong>2. Capture mode</strong></li>
+            <li><strong>3. Lock mode</strong></li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">1. Free Running Mode (1.5 Marks)</span>
+        <ul class="theory-list">
+            <li>When <strong>no input signal</strong> is applied to the PLL, the VCO operates at its own natural frequency called the <strong>free running frequency (\(f_0\))</strong>.</li>
+            <li>The output of the phase detector is zero because there is no input to compare with.</li>
+            <li>The DC control voltage to the VCO is zero, so the VCO runs independently.</li>
+            <li>The free running frequency is determined by the external timing components R1 and C1 connected to the VCO. The formula is: \( f_0 = \dfrac{0.3}{R_1 C_1} \)</li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">2. Capture Mode (1.5 Marks)</span>
+        <ul class="theory-list">
+            <li>When an input signal having some frequency is applied to PLL, the phase detector begins to compare the input frequency with VCO output.</li>
+            <li>The output signal frequency of VCO will start to change and move towards the input frequency.</li>
+            <li>At this stage, the PLL is said to be operating in the <strong>capture mode</strong>. The loop is trying to "capture" or "acquire" the input signal.</li>
+            <li>The range of input frequencies over which the PLL can successfully acquire a lock is called the <strong>Capture Range (\(2f_c\))</strong>. It is always smaller than or equal to the lock range.</li>
+            <li>Capture range depends on the bandwidth of the low pass filter.</li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">3. Lock Mode (2 Marks)</span>
+        <ul class="theory-list">
+            <li>The output signal frequency of VCO changes continuously until it becomes exactly equal to the input signal frequency (\(f_{out} = f_{in}\)).</li>
+            <li>At this point, the PLL is said to be in the <strong>lock mode</strong> (also called the <strong>tracking mode</strong>).</li>
+            <li>Once locked, the phase difference between \(f_{in}\) and \(f_{out}\) is constant and the PLL tracks any further variations in the input signal.</li>
+            <li>The range of input frequencies over which the PLL can maintain lock (once already acquired) is called the <strong>Lock Range (\(2f_L\))</strong>.</li>
+            <li>Lock Range is always greater than or equal to the Capture Range: \( 2f_L \geq 2f_c \).</li>
+            <li>If the input frequency goes outside the lock range, the PLL will lose lock and go back to the free running mode.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="question-block">
+<div class="question">Q.3 List different types of phase detectors. Explain any one. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Types of Phase Detectors (1 Mark)</span>
+        <p>There are 3 types of phase detectors used in PLL:</p>
+        <ol class="theory-list">
+            <li><strong>Ex-OR phase detector</strong> (Digital type)</li>
+            <li><strong>Edge triggered phase detector</strong> (Digital type)</li>
+            <li><strong>Monolithic phase detector</strong> (Analog type)</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <span class="step-explain">a) EXOR Phase Detector (2.5 Marks)</span>
+        <div class="graph-container">
+            <div class="graph-title">Fig(a): EX-OR Phase Detector</div>
+            <svg width="400" height="100" viewBox="0 0 400 100">
+                <path d="M 140,20 Q 160,50 140,80" fill="none" stroke="#fff" stroke-width="2"/>
+                <path d="M 150,20 Q 170,50 150,80 Q 200,80 230,50 Q 200,20 150,20" fill="none" stroke="#fff" stroke-width="2"/>
+                <line x1="80" y1="35" x2="160" y2="35" stroke="#fff" stroke-width="2"/>
+                <line x1="80" y1="65" x2="160" y2="65" stroke="#fff" stroke-width="2"/>
+                <line x1="230" y1="50" x2="280" y2="50" stroke="#fff" stroke-width="2"/>
+                <text x="60" y="40" font-size="12" fill="#fff">fs</text>
+                <text x="60" y="70" font-size="12" fill="#fff">fo</text>
+                <text x="290" y="55" font-size="12" fill="#fff">Vdc</text>
+            </svg>
+        </div>
+        <p>Figure shows the digital type XOR phase detector. It uses <strong>CMOS type 4070 Quad 2-input XOR gate</strong>. The output of the XOR gate is HIGH when <strong>only one</strong> of the input signals \(f_s\) (or) \(f_o\) is HIGH. This type of detection is used when both the input signals are square waves.</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(b): Input & Output Waveforms</div>
+            <svg width="400" height="150" viewBox="0 0 400 150">
+                <text x="20" y="30" font-size="12" fill="#fff">fs</text>
+                <path d="M 50,30 L 100,30 L 100,10 L 150,10 L 150,30 L 200,30 L 200,10 L 250,10 L 250,30 L 300,30 L 300,10 L 350,10" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <text x="20" y="75" font-size="12" fill="#fff">fo</text>
+                <path d="M 50,75 L 120,75 L 120,55 L 170,55 L 170,75 L 220,75 L 220,55 L 270,55 L 270,75 L 320,75 L 320,55 L 370,55" fill="none" stroke="#f43f5e" stroke-width="2"/>
+                <text x="15" y="125" font-size="12" fill="#fff">Vdc</text>
+                <path d="M 50,135 L 100,135 L 100,105 L 120,105 L 120,135 L 150,135 L 150,105 L 170,105 L 170,135 L 200,135 L 200,105 L 220,105 L 220,135" fill="none" stroke="#10b981" stroke-width="2"/>
+            </svg>
+        </div>
+        
+        <p>The input and output waveforms for \(f_s = f_o\) are shown in fig(b). In this figure \(f_s\) is leading \(f_o\) by \(\phi\) degrees.</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(c): DC Output Voltage Vs Phase Difference Φ</div>
+            <svg width="300" height="150" viewBox="0 0 300 150">
+                <line x1="50" y1="120" x2="250" y2="120" stroke="#fff" stroke-width="1.5"/>
+                <line x1="50" y1="120" x2="50" y2="20" stroke="#fff" stroke-width="1.5"/>
+                <text x="5" y="30" font-size="10" fill="#fff">Vcc=Vmax</text>
+                <text x="20" y="75" font-size="10" fill="#fff">Vcc/2</text>
+                <text x="260" y="125" font-size="12" fill="#fff">Φ</text>
+                <path d="M 50,120 L 150,20 L 250,120" fill="none" stroke="#eab308" stroke-width="2"/>
+                <text x="145" y="135" font-size="12" fill="#fff">π</text>
+                <text x="245" y="135" font-size="12" fill="#fff">2π</text>
+                <line x1="150" y1="120" x2="150" y2="20" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="50" y1="70" x2="150" y2="70" stroke="#fff" stroke-dasharray="2,2"/>
+            </svg>
+        </div>
+        <p>It can be seen that the <strong>maximum dc output voltage</strong> occurs when the phase difference is \(\pi\) because the output of the gate remains high throughout.</p>
+        <p>The slope of the curve gives the <strong>conversion ratio \(K_\phi\)</strong> of the phase detector. So the conversion ratio \(K_\phi\) for a supply voltage \(V_{cc} = 5V\) is:</p>
+        <p style="color: #10b981; font-weight: 600;">\( K_\phi = \dfrac{V_{cc}}{\pi} = \dfrac{5}{\pi} = 1.59 \) V/rad</p>
+    </div>
+
+    <div class="step">
+        <span class="step-explain">b) Edge Triggered Phase Detector (2.5 Marks)</span>
+        <div class="graph-container">
+            <div class="graph-title">Fig(a): Edge Triggered Phase Detector (R-S Flip Flop using NOR gates)</div>
+            <svg width="400" height="120" viewBox="0 0 400 120">
+                <path d="M 150,20 Q 170,35 150,50 Q 200,50 230,35 Q 200,20 150,20" fill="none" stroke="#fff" stroke-width="2"/>
+                <circle cx="235" cy="35" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+                <line x1="100" y1="25" x2="155" y2="25" stroke="#fff" stroke-width="2"/>
+                <text x="80" y="30" font-size="12" fill="#fff">fs</text>
+                <text x="100" y="15" font-size="10" fill="#fff">S</text>
+                <line x1="240" y1="35" x2="280" y2="35" stroke="#fff" stroke-width="2"/>
+                <text x="290" y="40" font-size="12" fill="#fff">output</text>
+                <path d="M 150,70 Q 170,85 150,100 Q 200,100 230,85 Q 200,70 150,70" fill="none" stroke="#fff" stroke-width="2"/>
+                <circle cx="235" cy="85" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+                <line x1="100" y1="95" x2="155" y2="95" stroke="#fff" stroke-width="2"/>
+                <text x="80" y="100" font-size="12" fill="#fff">fo</text>
+                <text x="100" y="115" font-size="10" fill="#fff">R</text>
+                <line x1="240" y1="85" x2="280" y2="85" stroke="#fff" stroke-width="2"/>
+                <!-- Cross coupling lines -->
+                <path d="M 260,35 L 270,35 L 270,60 L 120,60 L 120,75 L 155,75" fill="none" stroke="#fff" stroke-width="1.5"/>
+                <path d="M 260,85 L 270,85 L 270,110 L 120,110 L 120,45 L 155,45" fill="none" stroke="#fff" stroke-width="1.5"/>
+            </svg>
+        </div>
+        <p>The edge triggered digital phase detector is shown in figure (a). The circuit is an <strong>R-S flip flop made by NOR gates</strong>. This circuit is useful when \(f_s\) and \(f_o\) are <strong>both pulse waveforms with duty cycle less than 50%</strong>.</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(b): Input and Output Waveforms</div>
+            <svg width="400" height="150" viewBox="0 0 400 150">
+                <text x="10" y="30" font-size="12" fill="#fff">fs</text>
+                <path d="M 40,30 L 80,30 L 80,10 L 100,10 L 100,30 L 180,30 L 180,10 L 200,10 L 200,30 L 280,30 L 280,10 L 300,10 L 300,30 L 350,30" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <text x="10" y="75" font-size="12" fill="#fff">fo</text>
+                <path d="M 40,75 L 120,75 L 120,55 L 140,55 L 140,75 L 220,75 L 220,55 L 240,55 L 240,75 L 320,75 L 320,55 L 340,55 L 340,75" fill="none" stroke="#f43f5e" stroke-width="2"/>
+                <text x="0" y="125" font-size="12" fill="#fff">output</text>
+                <path d="M 40,135 L 80,135 L 80,105 L 120,105 L 120,135 L 180,135 L 180,105 L 220,105 L 220,135 L 280,135 L 280,105 L 320,105 L 320,135 L 350,135" fill="none" stroke="#10b981" stroke-width="2"/>
+                <line x1="80" y1="10" x2="80" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="120" y1="55" x2="120" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="180" y1="10" x2="180" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="220" y1="55" x2="220" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+            </svg>
+        </div>
+        <p>The output of the R-S flip flop changes its state on the <strong>leading edge</strong> of \(f_s\) and \(f_o\) as shown in fig(b). The variation of dc output voltage vs \(\phi\) is shown in fig(c).</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(c): DC Output Voltage Vs Φ (Linear up to 2π)</div>
+            <svg width="300" height="150" viewBox="0 0 300 150">
+                <line x1="50" y1="120" x2="250" y2="120" stroke="#fff" stroke-width="1.5"/>
+                <line x1="50" y1="120" x2="50" y2="20" stroke="#fff" stroke-width="1.5"/>
+                <text x="5" y="30" font-size="10" fill="#fff">Vcc=Vmax</text>
+                <text x="260" y="125" font-size="12" fill="#fff">Φ</text>
+                <path d="M 50,120 L 200,20 L 200,120" fill="none" stroke="#eab308" stroke-width="2"/>
+                <text x="120" y="135" font-size="12" fill="#fff">π</text>
+                <text x="195" y="135" font-size="12" fill="#fff">2π</text>
+                <line x1="200" y1="120" x2="200" y2="20" stroke="#fff" stroke-dasharray="2,2"/>
+                <text x="65" y="15" font-size="10" fill="#fff">Slope = conversion gain KΦ</text>
+            </svg>
+        </div>
+        <p>This type of detector has <strong>better capture, tracking and locking characteristics</strong> as the dc output voltage is <strong>linear up to 360°</strong> compared to only 180° in the case of the EX-OR detector. Therefore, the conversion ratio is:</p>
+        <p style="color: #10b981; font-weight: 600;">\( K_\phi = \dfrac{V_{cc}}{2\pi} \)</p>
+    </div>
+</div>
+</div>
+
+<!-- Q4 -->
+<div class="question-block">
+<div class="question">Q.4 Draw pin diagram of IC 565 & explain its pins <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Pin Diagram (3 Marks)</span>
+        <div class="graph-container">
+            <div class="graph-title">Pin Diagram of IC 565 (14-Pin DIP)</div>
+            <svg width="250" height="280" viewBox="0 0 250 280">
+                <rect x="70" y="30" width="110" height="220" fill="#1e293b" stroke="#00f0ff" stroke-width="2" rx="4"/>
+                <path d="M 110,30 A 15 15 0 0 0 140,30" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                
+                <line x1="40" y1="50" x2="70" y2="50" stroke="#fff" stroke-width="2"/> <text x="20" y="55" font-size="10" fill="#fff">1</text>
+                <line x1="40" y1="75" x2="70" y2="75" stroke="#fff" stroke-width="2"/> <text x="20" y="80" font-size="10" fill="#fff">2</text>
+                <line x1="40" y1="100" x2="70" y2="100" stroke="#fff" stroke-width="2"/> <text x="20" y="105" font-size="10" fill="#fff">3</text>
+                <line x1="40" y1="125" x2="70" y2="125" stroke="#fff" stroke-width="2"/> <text x="20" y="130" font-size="10" fill="#fff">4</text>
+                <line x1="40" y1="150" x2="70" y2="150" stroke="#fff" stroke-width="2"/> <text x="20" y="155" font-size="10" fill="#fff">5</text>
+                <line x1="40" y1="175" x2="70" y2="175" stroke="#fff" stroke-width="2"/> <text x="20" y="180" font-size="10" fill="#fff">6</text>
+                <line x1="40" y1="200" x2="70" y2="200" stroke="#fff" stroke-width="2"/> <text x="20" y="205" font-size="10" fill="#fff">7</text>
+                
+                <text x="78" y="55" font-size="8" fill="#fff">-Vcc (neg supply)</text>
+                <text x="78" y="80" font-size="8" fill="#fff">Input</text>
+                <text x="78" y="105" font-size="8" fill="#fff">Input</text>
+                <text x="78" y="130" font-size="8" fill="#fff">VCO output</text>
+                <text x="78" y="150" font-size="8" fill="#fff">Phase comparator</text>
+                <text x="78" y="158" font-size="8" fill="#fff">VCO input</text>
+                <text x="78" y="180" font-size="8" fill="#fff">Reference output</text>
+                <text x="78" y="200" font-size="8" fill="#fff">Demodulated output /</text>
+                <text x="78" y="210" font-size="8" fill="#fff">VCO control voltage</text>
+
+                <line x1="180" y1="50" x2="210" y2="50" stroke="#fff" stroke-width="2"/> <text x="220" y="55" font-size="10" fill="#fff">14</text>
+                <line x1="180" y1="75" x2="210" y2="75" stroke="#fff" stroke-width="2"/> <text x="220" y="80" font-size="10" fill="#fff">13</text>
+                <line x1="180" y1="100" x2="210" y2="100" stroke="#fff" stroke-width="2"/> <text x="220" y="105" font-size="10" fill="#fff">12</text>
+                <line x1="180" y1="125" x2="210" y2="125" stroke="#fff" stroke-width="2"/> <text x="220" y="130" font-size="10" fill="#fff">11</text>
+                <line x1="180" y1="150" x2="210" y2="150" stroke="#fff" stroke-width="2"/> <text x="220" y="155" font-size="10" fill="#fff">10</text>
+                <line x1="180" y1="175" x2="210" y2="175" stroke="#fff" stroke-width="2"/> <text x="220" y="180" font-size="10" fill="#fff">9</text>
+                <line x1="180" y1="200" x2="210" y2="200" stroke="#fff" stroke-width="2"/> <text x="220" y="205" font-size="10" fill="#fff">8</text>
+
+                <text x="148" y="55" font-size="8" fill="#fff">NC</text>
+                <text x="148" y="80" font-size="8" fill="#fff">NC</text>
+                <text x="148" y="105" font-size="8" fill="#fff">NC</text>
+                <text x="148" y="130" font-size="8" fill="#fff">NC</text>
+                <text x="138" y="155" font-size="8" fill="#fff">+Vcc</text>
+                <text x="130" y="175" font-size="8" fill="#fff">Timing</text>
+                <text x="130" y="183" font-size="8" fill="#fff">capacitor C1</text>
+                <text x="130" y="200" font-size="8" fill="#fff">Timing</text>
+                <text x="130" y="210" font-size="8" fill="#fff">resistor R1</text>
+            </svg>
+        </div>
+    </div>
+    <div class="step">
+        <span class="step-explain">Pin Descriptions (3 Marks)</span>
+        <p>IC 565 is a 14 pin IC, operated from a <strong>dual power supply</strong> +V (at pin no. 10) and -V (at pin no. 1).</p>
+        <ul class="theory-list">
+            <li><strong>Pin no 1:</strong> Negative supply voltage (-Vcc). This is the ground reference for the dual supply configuration.</li>
+            <li><strong>Pin no 2 & 3:</strong> Signal input for the phase detector. The input signal whose frequency is to be tracked is applied between these two pins.</li>
+            <li><strong>Pin no 4:</strong> VCO output is available at this pin. This is the square wave output of the internal VCO.</li>
+            <li><strong>Pin no 4 & 5:</strong> These are shorted externally so that the VCO output is applied for phase detection. In some applications, the PLL loop is broken and some external circuit is connected between pin no 4 and 5.</li>
+            <li><strong>Pin no 6:</strong> Reference dc voltage is available. This is used as a bias reference internally.</li>
+            <li><strong>Pin no 7:</strong> Demodulated output / VCO control voltage. If the input signal between pin no 2 and 3 is an FM signal, then at pin no 7 we get the FM demodulated output.</li>
+            <li><strong>Pin no 8 and 9:</strong> External timing components R1 and C1 for VCO are connected here. They determine the free running frequency of the VCO using: \( f_0 = \dfrac{0.3}{R_1 C_1} \)</li>
+            <li><strong>Pin no 10:</strong> Positive supply voltage (+Vcc).</li>
+            <li><strong>Pin no 11-14:</strong> NC (No Connection). These pins are not used internally.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="question-block">
+<div class="question">Q.5 Explain features of IC 565 <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Features of IC 565 PLL (Write 1 point = 1 mark approx.)</span>
+        <p>The key features and specifications of the Phase Locked Loop IC 565 are:</p>
+        <ul class="theory-list">
+            <li><strong>1. Power Supply Range:</strong> It operates over a wide power supply voltage range of <strong>±5V to ±12V</strong> (dual supply). This makes it versatile for use in different circuit configurations.</li>
+            <li><strong>2. Wide Operating Frequency:</strong> The VCO free running frequency can be adjusted over a very wide range, from <strong>0.001 Hz to 500 kHz</strong>, by selecting appropriate values of external timing components R1 and C1. The free running frequency is given by: \( f_0 = \dfrac{0.3}{R_1 C_1} \).</li>
+            <li><strong>3. High Frequency Stability:</strong> The center frequency of the VCO is highly stable, with a typical temperature drift of only <strong>200 ppm/°C</strong> (parts per million per degree Celsius). This ensures reliable operation over temperature variations.</li>
+            <li><strong>4. Adjustable Bandwidth:</strong> The bandwidth of the PLL (i.e., capture range and lock range) can be easily adjusted by changing the value of an external filter capacitor connected between pin 7 and the supply.</li>
+            <li><strong>5. Triangle Wave Output:</strong> A highly linear <strong>triangle wave output</strong> is available at pin 9 (timing capacitor). This can be used for waveform generation applications.</li>
+            <li><strong>6. FM Demodulation:</strong> The IC provides excellent linearity for <strong>FM demodulation</strong> applications. When an FM signal is applied at the input, the demodulated audio signal is available at pin 7.</li>
+            <li><strong>7. TTL/DTL Compatibility:</strong> The square wave output of the VCO (pin 4) is TTL and DTL compatible, making it easy to interface with digital circuits.</li>
+            <li><strong>8. Applications:</strong> Frequency multiplier, frequency synthesizer, FM demodulation, motor speed control, tone decoding, FSK (Frequency Shift Keying) demodulation, and signal conditioning.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

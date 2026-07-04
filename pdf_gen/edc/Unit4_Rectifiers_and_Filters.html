@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Unit 4: Rectifiers & Filters</title>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Inter:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; line-height: 1.6; margin: 0; padding: 40px 50px; color: #e2e8f0; font-size: 14px; background: #0f172a; }
+    h1 { text-align: center; color: #00f0ff; font-size: 24px; font-weight: 700; border-bottom: 2px solid #334155; padding-bottom: 15px; margin-bottom: 30px; letter-spacing: 1px; text-transform: uppercase; }
+    .question-block { page-break-inside: avoid; margin-bottom: 40px; padding: 25px; border: 1px solid #334155; border-radius: 12px; background: #1e293b; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+    .question { font-family: 'Roboto Mono', monospace; font-weight: 600; font-size: 15px; color: #38bdf8; margin-bottom: 20px; border-left: 4px solid #00f0ff; padding-left: 15px; }
+    .solution { padding-left: 10px; }
+    .step { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #334155; }
+    .step:last-child { border-bottom: none; }
+    .step-explain { color: #94a3b8; font-size: 13px; font-weight: 700; margin-bottom: 8px; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+    .theory-list { margin: 10px 0; padding-left: 20px; }
+    .theory-list li { margin-bottom: 12px; color: #cbd5e1; }
+    .theory-list strong { color: #f8fafc; }
+    .graph-container { text-align: center; margin: 20px 0; padding: 20px; background: #0f172a; border-radius: 8px; border: 1px solid #475569; }
+    .graph-title { font-family: 'Roboto Mono', monospace; font-size: 12px; color: #00f0ff; margin-bottom: 15px; }
+    p { margin-top: 0; margin-bottom: 15px; }
+    .marks-tag { display: inline-block; background: #00f0ff; color: #0f172a; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 4px; margin-left: 10px; float: right;}
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 15px; font-size: 14px;}
+    th, td { border: 1px solid #475569; padding: 12px 15px; text-align: center; }
+    th { background-color: #334155; color: #38bdf8; font-weight: 600; }
+    td { color: #cbd5e1; }
+    td:nth-child(2) { text-align: left; font-weight: 600; color: #f8fafc;}
+    .highlight { color: #10b981; font-weight: bold; }
+    @media print { 
+        body { padding: 20px; background: #ffffff; color: #000; font-size: 12px;} 
+        .question-block { background: #fff; border: 1px solid #ccc; box-shadow: none; margin-bottom: 20px; padding: 15px;}
+        .question { color: #000; border-left-color: #000; font-size: 14px; margin-bottom: 10px;}
+        .step-explain, h1, .graph-title { color: #000; }
+        .theory-list li, .theory-list strong, td:nth-child(2) { color: #000; }
+        .graph-container { background: #fff; border-color: #ccc; padding: 10px; margin: 10px 0;}
+        .marks-tag { background: #000; color: #fff; float: right; padding: 2px 6px;}
+        svg text { fill: #000 !important; }
+        svg path, svg rect, svg line, svg circle { stroke: #000 !important; }
+        table, th, td { border: 1px solid #000 !important; padding: 8px;}
+        th { background-color: #f0f0f0 !important; color: #000 !important; }
+        td { color: #000 !important; }
+        .step { margin-bottom: 10px; padding-bottom: 10px;}
+    }
+</style>
+</head>
+<body>
+
+<h1>Unit 4: Rectifiers & Filters (EDC)</h1>
+
+<!-- Q1 -->
+<div class="question-block">
+<div class="question">Q.1 What is Half Wave Rectifier? Explain performance parameters of HWR. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Definition (1 Mark)</span>
+        <p>A <strong>Half-Wave Rectifier (HWR)</strong> is an electronic circuit that converts only one half-cycle of an Alternating Current (AC) input into Direct Current (DC) output.</p>
+        
+        <span class="step-explain">Performance Parameters (5 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>1. Peak Inverse Voltage (PIV):</strong> The maximum reverse voltage a diode can withstand without breaking down.<br><span class="highlight">PIV = \( V_m \)</span></li>
+            <li><strong>2. Rectification Efficiency (\(\eta\)):</strong> The ratio of output DC power to input AC power. It tells us how well AC is converted to DC.<br><span class="highlight">\(\eta = \left(\frac{P_{out(DC)}}{P_{in(AC)}}\right) \times 100 = 40.6\%\)</span></li>
+            <li><strong>3. Ripple Factor (\(\gamma\)):</strong> A measure of the purity of the DC output. Lower value means better quality DC.<br><span class="highlight">\(\gamma = \sqrt{\left(\frac{V_{rms}}{V_{dc}}\right)^2 - 1} = 1.21 \text{ (or } 121\% \text{)}\)</span></li>
+            <li><strong>4. Transformer Utilization Factor (TUF):</strong> The ratio of DC power delivered to the load to the AC rating of the transformer secondary.<br><span class="highlight">TUF = 0.287</span></li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="question-block">
+<div class="question">Q.2 Explain performance parameters of FWR. <span class="marks-tag">4 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Performance Parameters of Full-Wave Rectifier (FWR)</span>
+        <p>A Full-Wave Rectifier converts both half-cycles of the AC input into DC output, making it more efficient than HWR.</p>
+        <ul class="theory-list">
+            <li><strong>1. Peak Inverse Voltage (PIV):</strong> Maximum reverse voltage across the non-conducting diode.<br><span class="highlight">PIV = 2\( V_m \)</span> (for Center-Tap)</li>
+            <li><strong>2. Rectification Efficiency (\(\eta\)):</strong> It is double that of a Half-Wave Rectifier.<br><span class="highlight">\(\eta = \left(\frac{P_{out(DC)}}{P_{in(AC)}}\right) \times 100 = 81.2\%\)</span></li>
+            <li><strong>3. Ripple Factor (\(\gamma\)):</strong> It is much lower than HWR, meaning the output is smoother.<br><span class="highlight">\(\gamma = \sqrt{\left(\frac{V_{rms}}{V_{dc}}\right)^2 - 1} = 0.48 \text{ (or } 48\% \text{)}\)</span></li>
+            <li><strong>4. Transformer Utilization Factor (TUF):</strong> Better utilization of the transformer compared to HWR.<br><span class="highlight">TUF = 0.693</span> (for Center-Tap FWR)</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="question-block">
+<div class="question">Q.3 Compare all three rectifiers <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Comparison Table (Easy to Memorize)</span>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr. No.</th>
+                    <th>Parameter</th>
+                    <th>Half-Wave Rectifier</th>
+                    <th>Full-Wave (Center-Tap)</th>
+                    <th>Bridge Rectifier</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1.</td>
+                    <td>Number of Diodes</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <td>2.</td>
+                    <td>DC / Average Current (\(I_{dc}\))</td>
+                    <td>\( \frac{I_m}{\pi} \)</td>
+                    <td>\( \frac{2I_m}{\pi} \)</td>
+                    <td>\( \frac{2I_m}{\pi} \)</td>
+                </tr>
+                <tr>
+                    <td>3.</td>
+                    <td>DC / Average Voltage (\(V_{dc}\))</td>
+                    <td>\( \frac{V_m}{\pi} \)</td>
+                    <td>\( \frac{2V_m}{\pi} \)</td>
+                    <td>\( \frac{2V_m}{\pi} \)</td>
+                </tr>
+                <tr>
+                    <td>4.</td>
+                    <td>RMS Current (\(I_{rms}\))</td>
+                    <td>\( \frac{I_m}{2} \)</td>
+                    <td>\( \frac{I_m}{\sqrt{2}} \)</td>
+                    <td>\( \frac{I_m}{\sqrt{2}} \)</td>
+                </tr>
+                <tr>
+                    <td>5.</td>
+                    <td>Efficiency (\(\eta\))</td>
+                    <td class="highlight">40.6 %</td>
+                    <td class="highlight">81.2 %</td>
+                    <td class="highlight">81.2 %</td>
+                </tr>
+                <tr>
+                    <td>6.</td>
+                    <td>Ripple Factor (\(\gamma\))</td>
+                    <td class="highlight">1.21 (121%)</td>
+                    <td class="highlight">0.48 (48%)</td>
+                    <td class="highlight">0.48 (48%)</td>
+                </tr>
+                <tr>
+                    <td>7.</td>
+                    <td>Ripple Frequency</td>
+                    <td>\( f_{in} \) (50 Hz)</td>
+                    <td>\( 2f_{in} \) (100 Hz)</td>
+                    <td>\( 2f_{in} \) (100 Hz)</td>
+                </tr>
+                <tr>
+                    <td>8.</td>
+                    <td>Peak Inverse Voltage (PIV)</td>
+                    <td>\( V_m \)</td>
+                    <td>\( 2V_m \)</td>
+                    <td>\( V_m \)</td>
+                </tr>
+                <tr>
+                    <td>9.</td>
+                    <td>TUF</td>
+                    <td>0.287</td>
+                    <td>0.693</td>
+                    <td>0.812</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<!-- Q4 -->
+<div class="question-block">
+<div class="question">Q.4 What is a filter? Explain the need & types of filters. <span class="marks-tag">4 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">1. What is a Filter? (1 Mark)</span>
+        <ul class="theory-list">
+            <li>A filter is an electronic circuit placed after a rectifier.</li>
+            <li>Its job is to <strong>remove the unwanted AC components (ripples)</strong> from the pulsating DC output and allow only pure DC to reach the load.</li>
+        </ul>
+        
+        <span class="step-explain">2. Need of Filter (2 Marks)</span>
+        <ul class="theory-list">
+            <li>The output from a rectifier is not pure DC; it is <strong>pulsating DC</strong> (contains both AC and DC).</li>
+            <li>These AC ripples can cause <strong>noise, instability, and damage</strong> to sensitive electronic devices (like radios, TVs, computers).</li>
+            <li>Therefore, a filter is needed to <strong>smooth out the waveform</strong> and provide a stable, constant DC voltage.</li>
+        </ul>
+
+        <span class="step-explain">3. Types of Filters (1 Mark)</span>
+        <ul class="theory-list">
+            <li><strong>1.</strong> Capacitor Filter (Shunt Capacitor)</li>
+            <li><strong>2.</strong> Inductor Filter (Series Inductor)</li>
+            <li><strong>3.</strong> LC Filter (Choke Input Filter)</li>
+            <li><strong>4.</strong> CLC Filter (\(\pi\)-Type Filter)</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="question-block">
+<div class="question">Q.5 Explain Capacitor Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Connection & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Connection:</strong> A large capacitor (C) is connected in <strong>parallel (shunt)</strong> with the load resistor (\(R_L\)).</li>
+            <li><strong>Principle:</strong> A capacitor offers low reactance to AC (passes AC to ground) and infinite reactance to DC (blocks DC). Thus, it bypasses the AC ripple and lets the DC pass through the load. It acts as a storage tank, charging during peak voltage and discharging when voltage drops.</li>
+        </ul>
+        
+        <span class="step-explain">Working / Operation (4 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Charging Phase:</strong> When the rectifier output voltage is increasing, the diode is forward biased. The capacitor quickly <strong>charges up to the peak voltage (\(V_m\))</strong>.</li>
+            <li><strong>Discharging Phase:</strong> When the rectifier output voltage starts to drop below the capacitor's voltage, the diode becomes reverse biased (turns OFF). The capacitor then <strong>slowly discharges</strong> its stored energy through the load resistor (\(R_L\)), maintaining the voltage across the load.</li>
+            <li><strong>Re-charging:</strong> In the next cycle, as soon as the input voltage exceeds the capacitor voltage, the diode turns ON again, and the capacitor quickly recharges to \(V_m\).</li>
+            <li><strong>Result:</strong> This continuous charge-discharge cycle prevents the load voltage from dropping to zero, creating a much smoother DC waveform with a small ripple.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q6 -->
+<div class="question-block">
+<div class="question">Q.6 Explain Inductor Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Connection & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Connection:</strong> An inductor (choke coil 'L') is connected in <strong>series</strong> between the rectifier and the load resistor (\(R_L\)).</li>
+            <li><strong>Principle:</strong> An inductor opposes any change in current. It offers high reactance to AC (blocks ripples) and zero reactance to DC (allows DC to pass).</li>
+        </ul>
+        
+        <span class="step-explain">Working / Operation (4 Marks)</span>
+        <ul class="theory-list">
+            <li>When the pulsating DC from the rectifier passes through the inductor, the inductor <strong>opposes the rising current</strong> by storing energy in the form of a magnetic field.</li>
+            <li>When the rectifier current starts falling, the inductor <strong>opposes the falling current</strong> by releasing its stored magnetic energy back into the circuit.</li>
+            <li><strong>Result:</strong> This opposition to both rising and falling current smooths out the sudden variations (ripples) in the load current.</li>
+            <li><strong>Key Property:</strong> Higher the value of inductance (L), the smoother the current. Inductor filters work best for <strong>heavy loads</strong> (low \(R_L\), high current).</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q7 -->
+<div class="question-block">
+<div class="question">Q.7 Explain LC Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Construction & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Construction:</strong> It is a combination of a <strong>Series Inductor (L)</strong> and a <strong>Shunt Capacitor (C)</strong>. It is also called an "L-Section" or "Choke Input" filter.</li>
+            <li><strong>Principle:</strong> It combines the advantages of both components. The series Inductor <strong>blocks</strong> the AC ripple, and the parallel Capacitor <strong>short-circuits</strong> any remaining AC ripple to ground. Pure DC flows to the load.</li>
+        </ul>
+        
+        <span class="step-explain">Role of Bleeder Resistor (\(R_b\)) (4 Marks)</span>
+        <ul class="theory-list">
+            <li>A bleeder resistor (\(R_b\)) is connected in parallel with the capacitor and the load.</li>
+            <li><strong>Why is it needed?</strong> An inductor requires a continuous flow of current to function properly. If the load is removed or is very light (high resistance), the current through the inductor might become discontinuous.</li>
+            <li>If current is suddenly interrupted, the inductor produces a <strong>massive back EMF</strong> (\( V = L \cdot \frac{di}{dt} \)).</li>
+            <li>This high voltage spike can <strong>destroy the rectifier diodes</strong> (exceeding PIV) and puncture the filter capacitor.</li>
+            <li><strong>Conclusion:</strong> The bleeder resistor ensures a minimum, continuous current always flows through the inductor, preventing dangerous voltage spikes, thus protecting the circuit.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q8 -->
+<div class="question-block">
+<div class="question">Q.8 Explain CLC (\(\pi\)) Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Construction & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Construction:</strong> It consists of a shunt capacitor (\(C_1\)), a series inductor (\(L\)), and another shunt capacitor (\(C_2\)). Because its circuit diagram looks like the Greek letter Pi (\(\pi\)), it is called a <strong>\(\pi\)-filter</strong>.</li>
+            <li><strong>Principle:</strong> It acts as a two-stage filter, combining a capacitor input filter (\(C_1\)) with an LC filter (\(L\) and \(C_2\)).</li>
+        </ul>
+        
+        <span class="step-explain">Working / Operation (4 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Action of \(C_1\):</strong> The first capacitor \(C_1\) acts just like a normal shunt capacitor filter. It charges to peak voltage and removes a majority of the AC ripple. However, the output is still somewhat pulsating.</li>
+            <li><strong>Action of L:</strong> The series inductor L offers high impedance to the remaining AC ripple and drops the AC voltage, blocking it from passing to the load.</li>
+            <li><strong>Action of \(C_2\):</strong> The second capacitor \(C_2\) bypasses any tiny remaining AC ripple that made it past the inductor, safely sending it to ground.</li>
+            <li><strong>Advantages:</strong> Because it uses three filtering elements, the <strong>ripple factor is extremely low</strong>. It provides a very smooth, almost perfect DC output voltage. It is widely used in power supplies.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+</body>
+</html>

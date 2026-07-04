@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentXY Platform Roles</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-900: #312e81;
+            --primary-800: #3730a3;
+            --primary-600: #4f46e5;
+            --primary-100: #e0e7ff;
+            --gray-900: #111827;
+            --gray-500: #6b7280;
+            --gray-50: #f9fafb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff;
+            color: var(--gray-900);
+            -webkit-print-color-adjust: exact;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--primary-100);
+        }
+
+        .header h1 {
+            font-size: 36px;
+            font-weight: 900;
+            margin: 0;
+            color: var(--primary-900);
+            line-height: 1.2;
+        }
+
+        .header .subtitle {
+            font-size: 18px;
+            color: var(--gray-500);
+            margin-top: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: var(--primary-100);
+            color: var(--primary-600);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 15px;
+        }
+
+        /* Team Section */
+        .team-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .team-card {
+            display: flex;
+            align-items: center;
+            background: var(--gray-50);
+            border-radius: 20px;
+            padding: 30px;
+            gap: 30px;
+            border: 1px solid #f3f4f6;
+            page-break-inside: avoid;
+        }
+
+        .avatar-container {
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .info {
+            flex-grow: 1;
+        }
+
+        .info h3 {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 0 0 5px 0;
+            color: var(--gray-900);
+        }
+
+        .info .role {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-600);
+            margin: 0 0 10px 0;
+        }
+
+        .info .bio {
+            font-size: 14px;
+            line-height: 1.6;
+            color: var(--gray-500);
+            margin: 0;
+        }
+        
+        .role-perks {
+            margin-top: 12px;
+            background: white;
+            padding: 12px;
+            border-radius: 10px;
+            border: 1px solid var(--primary-100);
+        }
+        
+        .role-perks h4 {
+            margin: 0 0 8px 0;
+            color: var(--primary-900);
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        
+        .role-perks ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 13px;
+            color: var(--gray-500);
+            line-height: 1.5;
+        }
+
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray-500);
+            padding-top: 20px;
+            border-top: 1px solid var(--primary-100);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <span class="badge">✦ Platform Roles</span>
+            <h1>RentXY Ecosystem</h1>
+            <p class="subtitle">The people who make zero-brokerage renting possible</p>
+        </div>
+
+        <div class="team-grid">
+            
+            <!-- Flat Owner -->
+            <div class="team-card">
+                <div class="avatar-container">
+                    <img src="./flat_owner.png" alt="Flat Owner" class="avatar">
+                </div>
+                <div class="info">
+                    <h3>Property Owners</h3>
+                    <p class="role">Flat & Villa Listings</p>
+                    <p class="bio">Owners looking to rent out their vacant properties quickly without paying middlemen.</p>
+                    <div class="role-perks">
+                        <h4>Key Job Roles & Responsibilities:</h4>
+                        <ul>
+                            <li><strong>Property Management:</strong> Create detailed listings, upload high-quality photos, and set competitive rent prices.</li>
+                            <li><strong>Tenant Screening:</strong> Review potential tenants, verify backgrounds, and ensure KYC compliance.</li>
+                            <li><strong>Property Maintenance:</strong> Ensure the property is clean, safe, and move-in ready for new tenants.</li>
+                            <li><strong>Rent Collection:</strong> Manage digital rent agreements and track monthly rent payments.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hostel Manager -->
+            <div class="team-card">
+                <div class="avatar-container">
+                    <img src="./hostel_manager.png" alt="Hostel Manager" class="avatar">
+                </div>
+                <div class="info">
+                    <h3>Hostel & PG Managers</h3>
+                    <p class="role">Shared Accommodations</p>
+                    <p class="bio">Administrators managing multiple rooms and beds for students and working professionals.</p>
+                    <div class="role-perks">
+                        <h4>Key Job Roles & Responsibilities:</h4>
+                        <ul>
+                            <li><strong>Inventory Management:</strong> Track live bed availability, occupancy rates, and room assignments.</li>
+                            <li><strong>Facility Operations:</strong> Oversee daily food operations, WiFi, laundry, and housekeeping services.</li>
+                            <li><strong>Resident Support:</strong> Address resident complaints, enforce hostel rules, and ensure a safe environment.</li>
+                            <li><strong>Bulk Administration:</strong> Handle digital onboarding and monthly invoicing for dozens of students at once.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Packer & Mover -->
+            <div class="team-card">
+                <div class="avatar-container">
+                    <img src="./packer_mover.png" alt="Packer and Mover" class="avatar">
+                </div>
+                <div class="info">
+                    <h3>Packers & Movers</h3>
+                    <p class="role">Relocation Partners</p>
+                    <p class="bio">Verified logistics vendors that help users securely move their furniture and belongings.</p>
+                    <div class="role-perks">
+                        <h4>Key Job Roles & Responsibilities:</h4>
+                        <ul>
+                            <li><strong>Estimation & Quoting:</strong> Assess moving requirements and provide transparent, upfront pricing.</li>
+                            <li><strong>Packing Services:</strong> Safely pack fragile items, dismantle furniture, and secure belongings for transit.</li>
+                            <li><strong>Logistics & Transport:</strong> Safely load, drive, and unload goods from the source to the destination.</li>
+                            <li><strong>Customer Service:</strong> Maintain punctuality, resolve damages (if any), and ensure a stress-free move.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tenant -->
+            <div class="team-card">
+                <div class="avatar-container">
+                    <img src="./tenant.png" alt="Tenant" class="avatar">
+                </div>
+                <div class="info">
+                    <h3>Tenants & Roommates</h3>
+                    <p class="role">End Users</p>
+                    <p class="bio">Students, families, and professionals looking for their next home or a compatible roommate.</p>
+                    <div class="role-perks">
+                        <h4>Key Job Roles & Responsibilities:</h4>
+                        <ul>
+                            <li><strong>Property Hunting:</strong> Search, filter, and shortlist properties based on budget and lifestyle preferences.</li>
+                            <li><strong>Financial Planning:</strong> Budget for security deposits, monthly rent, and moving expenses.</li>
+                            <li><strong>Property Care:</strong> Maintain the flat or room in good condition and adhere to the owner's or hostel's rules.</li>
+                            <li><strong>Roommate Matching:</strong> Communicate with potential roommates to ensure compatibility in dietary and lifestyle habits.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            Generated for RentXY Ecosystem • July 2026
+        </div>
+    </div>
+</body>
+</html>

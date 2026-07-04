@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>All Units Compressed</title>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;600&family=Inter:wght@400;600;700&display=swap');
+    * { box-sizing: border-box; }
+    /* Removed page-break-inside restrictions and reduced all paddings */
+    body { font-family: 'Inter', sans-serif; line-height: 1.15; margin: 0; padding: 0; color: #000; font-size: 11px; background: #fff; }
+    h1 { text-align: center; color: #000; font-size: 14px; font-weight: 700; border-bottom: 1px solid #ccc; padding-bottom: 2px; margin-bottom: 5px; margin-top: 5px; }
+    .question-block { margin-bottom: 5px; padding: 5px; border: 1px solid #ccc; background: #fff; box-shadow: none; }
+    .question { font-family: 'Roboto Mono', monospace; font-weight: 600; font-size: 12px; color: #000; margin-bottom: 5px; border-left: 2px solid #000; padding-left: 5px; }
+    .solution { padding-left: 2px; }
+    .step { margin-bottom: 5px; padding-bottom: 2px; border-bottom: 1px dashed #ccc; }
+    .step:last-child { border-bottom: none; }
+    .step-explain { color: #222; font-size: 11px; font-weight: bold; margin-bottom: 2px; display: block; }
+    .theory-list { margin: 2px 0; padding-left: 15px; }
+    .theory-list li { margin-bottom: 2px; color: #000; }
+    .theory-list strong { color: #000; }
+    .graph-container { text-align: center; margin: 5px 0; padding: 5px; background: #fff; border: 1px solid #ccc; border-radius: 2px; }
+    .graph-title { font-family: 'Roboto Mono', monospace; font-size: 10px; color: #000; margin-bottom: 5px; }
+    p { margin-top: 0; margin-bottom: 3px; }
+    .marks-tag { display: inline-block; background: #eee; color: #000; font-size: 10px; font-weight: 700; padding: 1px 3px; border-radius: 2px; margin-left: 5px; border: 1px solid #ccc; }
+</style>
+</head>
+<body>
+<div style='margin-bottom: 5px;'>
+    <h1>Unit III - Voltage Regulators</h1>
+    
+    <div class="question-block">
+        <div class="question">Q.1 What is Voltage Regulator? Explain its types <span class="marks-tag">(4 Marks)</span></div>
+        <p><strong>Definition:</strong> A voltage regulator is such a device that maintains constant output voltage, instead of any kind of fluctuations in the input voltage being applied or any variations in current drawn by the load.</p>
+        <p><strong>Types of Regulators (based on regulation):</strong></p>
+        <ul>
+            <li><strong>Line Regulator:</strong> The regulator which regulates the output voltage to be constant, in spite of input line variations.</li>
+            <li><strong>Load Regulator:</strong> The regulator which regulates the output voltage to be constant, in spite of the variations in load at the output.</li>
+        </ul>
+        <p><strong>Types of Regulators (based on connection):</strong></p>
+        <ul>
+            <li><strong>Series voltage regulator:</strong> In Series regulator control element is in series with the load.</li>
+            <li><strong>Shunt voltage regulator:</strong> In Shunt regulator control element is in parallel with the load.</li>
+        </ul>
+    </div>
+
+    <div class="question-block">
+        <div class="question">Q.2 Explain Zener Shunt Regulator <span class="marks-tag">(6 Marks)</span></div>
+        <p>The Zener diode is used as a Shunt voltage regulator for regulating voltage across small loads. The Zener diode is connected parallel to the load to make it reverse bias, and once the Zener diode exceeds knee voltage, the voltage across the load will become constant.</p>
+        <p>When the input voltage (Vin) is greater than the Zener voltage (Vz), the diode enters the breakdown region and acts as a low impedance path. As a result, the excess current flows through the diode, limiting the voltage across the load (Vout) to the Zener voltage (Vz). Conversely, when the input voltage (Vin) is lower than the Zener voltage (Vz), the diode remains in the normal forward bias region and allows current to pass through it. In this case, the voltage across the load (Vout) is equal to the input voltage (Vin) minus the forward voltage drop of the diode.</p>
+    </div>
+
+    <div class="question-block">
+        <div class="question">Q.3 Explain Transistor Shunt Regulator <span class="marks-tag">(6 Marks)</span></div>
+        <p>A shunt voltage regulator provides regulation by shunting current away from the load to regulate the output voltage. The voltage drop across series resistance depends upon the current supplied to the load RL. The output voltage is equal to the sum of zener voltage (Vz) and transistor base-emitter voltage (VBE) i.e., <strong>Vout = Vz + VBE</strong>.</p>
+        <p>If the load resistance decreases, the current through base of transistor decreases. As a result, less collector current is shunted. Therefore, the load current becomes larger, thereby maintaining the regulated voltage across the load. Reverse happens should the load resistance increase.</p>
+        <p><strong>Drawbacks:</strong></p>
+        <ul>
+            <li>A large portion of the total current through Rs flows through transistor rather than to the load.</li>
+            <li>There is considerable power loss in Rs.</li>
+            <li>There are problems of overvoltage protection in this circuit.</li>
+        </ul>
+        <p>For these reasons, a series voltage regulator is preferred over the shunt voltage regulator.</p>
+    </div>
+
+    <div class="question-block">
+        <div class="question">Q.4 Explain Transistor Series Regulator <span class="marks-tag">(6 Marks)</span></div>
+        <p>In a series voltage regulator, the control element (a transistor) is placed in series with the load. A Zener diode provides the reference voltage at the base of the transistor. The output voltage is given by <strong>Vout = Vz - VBE</strong>.</p>
+        <p>Any increase in output voltage increases the emitter voltage of the transistor, decreasing its base-emitter voltage. This reduces the conduction of the transistor and restores the output voltage to its regulated value.</p>
+    </div>
+</div><div style='margin-bottom: 5px;'>
+
+<h1>Unit 4: Rectifiers & Filters (EDC)</h1>
+
+<!-- Q1 -->
+<div class="question-block">
+<div class="question">Q.1 What is Half Wave Rectifier? Explain performance parameters of HWR. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Definition (1 Mark)</span>
+        <p>A <strong>Half-Wave Rectifier (HWR)</strong> is an electronic circuit that converts only one half-cycle of an Alternating Current (AC) input into Direct Current (DC) output.</p>
+        
+        <span class="step-explain">Performance Parameters (5 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>1. Peak Inverse Voltage (PIV):</strong> The maximum reverse voltage a diode can withstand without breaking down.<br><span class="highlight">PIV = \( V_m \)</span></li>
+            <li><strong>2. Rectification Efficiency (\(\eta\)):</strong> The ratio of output DC power to input AC power. It tells us how well AC is converted to DC.<br><span class="highlight">\(\eta = \left(\frac{P_{out(DC)}}{P_{in(AC)}}\right) \times 100 = 40.6\%\)</span></li>
+            <li><strong>3. Ripple Factor (\(\gamma\)):</strong> A measure of the purity of the DC output. Lower value means better quality DC.<br><span class="highlight">\(\gamma = \sqrt{\left(\frac{V_{rms}}{V_{dc}}\right)^2 - 1} = 1.21 \text{ (or } 121\% \text{)}\)</span></li>
+            <li><strong>4. Transformer Utilization Factor (TUF):</strong> The ratio of DC power delivered to the load to the AC rating of the transformer secondary.<br><span class="highlight">TUF = 0.287</span></li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="question-block">
+<div class="question">Q.2 Explain performance parameters of FWR. <span class="marks-tag">4 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Performance Parameters of Full-Wave Rectifier (FWR)</span>
+        <p>A Full-Wave Rectifier converts both half-cycles of the AC input into DC output, making it more efficient than HWR.</p>
+        <ul class="theory-list">
+            <li><strong>1. Peak Inverse Voltage (PIV):</strong> Maximum reverse voltage across the non-conducting diode.<br><span class="highlight">PIV = 2\( V_m \)</span> (for Center-Tap)</li>
+            <li><strong>2. Rectification Efficiency (\(\eta\)):</strong> It is double that of a Half-Wave Rectifier.<br><span class="highlight">\(\eta = \left(\frac{P_{out(DC)}}{P_{in(AC)}}\right) \times 100 = 81.2\%\)</span></li>
+            <li><strong>3. Ripple Factor (\(\gamma\)):</strong> It is much lower than HWR, meaning the output is smoother.<br><span class="highlight">\(\gamma = \sqrt{\left(\frac{V_{rms}}{V_{dc}}\right)^2 - 1} = 0.48 \text{ (or } 48\% \text{)}\)</span></li>
+            <li><strong>4. Transformer Utilization Factor (TUF):</strong> Better utilization of the transformer compared to HWR.<br><span class="highlight">TUF = 0.693</span> (for Center-Tap FWR)</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="question-block">
+<div class="question">Q.3 Compare all three rectifiers <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Comparison Table (Easy to Memorize)</span>
+        <table>
+            <thead>
+                <tr>
+                    <th>Sr. No.</th>
+                    <th>Parameter</th>
+                    <th>Half-Wave Rectifier</th>
+                    <th>Full-Wave (Center-Tap)</th>
+                    <th>Bridge Rectifier</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1.</td>
+                    <td>Number of Diodes</td>
+                    <td>1</td>
+                    <td>2</td>
+                    <td>4</td>
+                </tr>
+                <tr>
+                    <td>2.</td>
+                    <td>DC / Average Current (\(I_{dc}\))</td>
+                    <td>\( \frac{I_m}{\pi} \)</td>
+                    <td>\( \frac{2I_m}{\pi} \)</td>
+                    <td>\( \frac{2I_m}{\pi} \)</td>
+                </tr>
+                <tr>
+                    <td>3.</td>
+                    <td>DC / Average Voltage (\(V_{dc}\))</td>
+                    <td>\( \frac{V_m}{\pi} \)</td>
+                    <td>\( \frac{2V_m}{\pi} \)</td>
+                    <td>\( \frac{2V_m}{\pi} \)</td>
+                </tr>
+                <tr>
+                    <td>4.</td>
+                    <td>RMS Current (\(I_{rms}\))</td>
+                    <td>\( \frac{I_m}{2} \)</td>
+                    <td>\( \frac{I_m}{\sqrt{2}} \)</td>
+                    <td>\( \frac{I_m}{\sqrt{2}} \)</td>
+                </tr>
+                <tr>
+                    <td>5.</td>
+                    <td>Efficiency (\(\eta\))</td>
+                    <td class="highlight">40.6 %</td>
+                    <td class="highlight">81.2 %</td>
+                    <td class="highlight">81.2 %</td>
+                </tr>
+                <tr>
+                    <td>6.</td>
+                    <td>Ripple Factor (\(\gamma\))</td>
+                    <td class="highlight">1.21 (121%)</td>
+                    <td class="highlight">0.48 (48%)</td>
+                    <td class="highlight">0.48 (48%)</td>
+                </tr>
+                <tr>
+                    <td>7.</td>
+                    <td>Ripple Frequency</td>
+                    <td>\( f_{in} \) (50 Hz)</td>
+                    <td>\( 2f_{in} \) (100 Hz)</td>
+                    <td>\( 2f_{in} \) (100 Hz)</td>
+                </tr>
+                <tr>
+                    <td>8.</td>
+                    <td>Peak Inverse Voltage (PIV)</td>
+                    <td>\( V_m \)</td>
+                    <td>\( 2V_m \)</td>
+                    <td>\( V_m \)</td>
+                </tr>
+                <tr>
+                    <td>9.</td>
+                    <td>TUF</td>
+                    <td>0.287</td>
+                    <td>0.693</td>
+                    <td>0.812</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<!-- Q4 -->
+<div class="question-block">
+<div class="question">Q.4 What is a filter? Explain the need & types of filters. <span class="marks-tag">4 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">1. What is a Filter? (1 Mark)</span>
+        <ul class="theory-list">
+            <li>A filter is an electronic circuit placed after a rectifier.</li>
+            <li>Its job is to <strong>remove the unwanted AC components (ripples)</strong> from the pulsating DC output and allow only pure DC to reach the load.</li>
+        </ul>
+        
+        <span class="step-explain">2. Need of Filter (2 Marks)</span>
+        <ul class="theory-list">
+            <li>The output from a rectifier is not pure DC; it is <strong>pulsating DC</strong> (contains both AC and DC).</li>
+            <li>These AC ripples can cause <strong>noise, instability, and damage</strong> to sensitive electronic devices (like radios, TVs, computers).</li>
+            <li>Therefore, a filter is needed to <strong>smooth out the waveform</strong> and provide a stable, constant DC voltage.</li>
+        </ul>
+
+        <span class="step-explain">3. Types of Filters (1 Mark)</span>
+        <ul class="theory-list">
+            <li><strong>1.</strong> Capacitor Filter (Shunt Capacitor)</li>
+            <li><strong>2.</strong> Inductor Filter (Series Inductor)</li>
+            <li><strong>3.</strong> LC Filter (Choke Input Filter)</li>
+            <li><strong>4.</strong> CLC Filter (\(\pi\)-Type Filter)</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="question-block">
+<div class="question">Q.5 Explain Capacitor Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Connection & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Connection:</strong> A large capacitor (C) is connected in <strong>parallel (shunt)</strong> with the load resistor (\(R_L\)).</li>
+            <li><strong>Principle:</strong> A capacitor offers low reactance to AC (passes AC to ground) and infinite reactance to DC (blocks DC). Thus, it bypasses the AC ripple and lets the DC pass through the load. It acts as a storage tank, charging during peak voltage and discharging when voltage drops.</li>
+        </ul>
+        
+        <span class="step-explain">Working / Operation (4 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Charging Phase:</strong> When the rectifier output voltage is increasing, the diode is forward biased. The capacitor quickly <strong>charges up to the peak voltage (\(V_m\))</strong>.</li>
+            <li><strong>Discharging Phase:</strong> When the rectifier output voltage starts to drop below the capacitor's voltage, the diode becomes reverse biased (turns OFF). The capacitor then <strong>slowly discharges</strong> its stored energy through the load resistor (\(R_L\)), maintaining the voltage across the load.</li>
+            <li><strong>Re-charging:</strong> In the next cycle, as soon as the input voltage exceeds the capacitor voltage, the diode turns ON again, and the capacitor quickly recharges to \(V_m\).</li>
+            <li><strong>Result:</strong> This continuous charge-discharge cycle prevents the load voltage from dropping to zero, creating a much smoother DC waveform with a small ripple.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q6 -->
+<div class="question-block">
+<div class="question">Q.6 Explain Inductor Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Connection & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Connection:</strong> An inductor (choke coil 'L') is connected in <strong>series</strong> between the rectifier and the load resistor (\(R_L\)).</li>
+            <li><strong>Principle:</strong> An inductor opposes any change in current. It offers high reactance to AC (blocks ripples) and zero reactance to DC (allows DC to pass).</li>
+        </ul>
+        
+        <span class="step-explain">Working / Operation (4 Marks)</span>
+        <ul class="theory-list">
+            <li>When the pulsating DC from the rectifier passes through the inductor, the inductor <strong>opposes the rising current</strong> by storing energy in the form of a magnetic field.</li>
+            <li>When the rectifier current starts falling, the inductor <strong>opposes the falling current</strong> by releasing its stored magnetic energy back into the circuit.</li>
+            <li><strong>Result:</strong> This opposition to both rising and falling current smooths out the sudden variations (ripples) in the load current.</li>
+            <li><strong>Key Property:</strong> Higher the value of inductance (L), the smoother the current. Inductor filters work best for <strong>heavy loads</strong> (low \(R_L\), high current).</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q7 -->
+<div class="question-block">
+<div class="question">Q.7 Explain LC Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Construction & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Construction:</strong> It is a combination of a <strong>Series Inductor (L)</strong> and a <strong>Shunt Capacitor (C)</strong>. It is also called an "L-Section" or "Choke Input" filter.</li>
+            <li><strong>Principle:</strong> It combines the advantages of both components. The series Inductor <strong>blocks</strong> the AC ripple, and the parallel Capacitor <strong>short-circuits</strong> any remaining AC ripple to ground. Pure DC flows to the load.</li>
+        </ul>
+        
+        <span class="step-explain">Role of Bleeder Resistor (\(R_b\)) (4 Marks)</span>
+        <ul class="theory-list">
+            <li>A bleeder resistor (\(R_b\)) is connected in parallel with the capacitor and the load.</li>
+            <li><strong>Why is it needed?</strong> An inductor requires a continuous flow of current to function properly. If the load is removed or is very light (high resistance), the current through the inductor might become discontinuous.</li>
+            <li>If current is suddenly interrupted, the inductor produces a <strong>massive back EMF</strong> (\( V = L \cdot \frac{di}{dt} \)).</li>
+            <li>This high voltage spike can <strong>destroy the rectifier diodes</strong> (exceeding PIV) and puncture the filter capacitor.</li>
+            <li><strong>Conclusion:</strong> The bleeder resistor ensures a minimum, continuous current always flows through the inductor, preventing dangerous voltage spikes, thus protecting the circuit.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q8 -->
+<div class="question-block">
+<div class="question">Q.8 Explain CLC (\(\pi\)) Filter in detail. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Construction & Principle (2 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Construction:</strong> It consists of a shunt capacitor (\(C_1\)), a series inductor (\(L\)), and another shunt capacitor (\(C_2\)). Because its circuit diagram looks like the Greek letter Pi (\(\pi\)), it is called a <strong>\(\pi\)-filter</strong>.</li>
+            <li><strong>Principle:</strong> It acts as a two-stage filter, combining a capacitor input filter (\(C_1\)) with an LC filter (\(L\) and \(C_2\)).</li>
+        </ul>
+        
+        <span class="step-explain">Working / Operation (4 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Action of \(C_1\):</strong> The first capacitor \(C_1\) acts just like a normal shunt capacitor filter. It charges to peak voltage and removes a majority of the AC ripple. However, the output is still somewhat pulsating.</li>
+            <li><strong>Action of L:</strong> The series inductor L offers high impedance to the remaining AC ripple and drops the AC voltage, blocking it from passing to the load.</li>
+            <li><strong>Action of \(C_2\):</strong> The second capacitor \(C_2\) bypasses any tiny remaining AC ripple that made it past the inductor, safely sending it to ground.</li>
+            <li><strong>Advantages:</strong> Because it uses three filtering elements, the <strong>ripple factor is extremely low</strong>. It provides a very smooth, almost perfect DC output voltage. It is widely used in power supplies.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+</div><div style='margin-bottom: 5px;'>
+
+<h1>Unit 6: Phase Locked Loop (EDC)</h1>
+
+<!-- Q1 -->
+<div class="question-block">
+<div class="question">Q.1 Explain block diagram of PLL in detail <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Block Diagram</span>
+        <div class="graph-container">
+            <div class="graph-title">Block Diagram of PLL</div>
+            <svg width="500" height="150" viewBox="0 0 500 150">
+                <rect x="100" y="40" width="100" height="60" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                <text x="125" y="70" font-size="12" fill="#fff">Phase</text>
+                <text x="120" y="85" font-size="12" fill="#fff">Detector</text>
+                
+                <rect x="250" y="40" width="100" height="60" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                <text x="265" y="60" font-size="12" fill="#fff">Active</text>
+                <text x="260" y="75" font-size="12" fill="#fff">Low Pass</text>
+                <text x="270" y="90" font-size="12" fill="#fff">Filter</text>
+                
+                <rect x="400" y="40" width="80" height="60" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                <text x="425" y="75" font-size="12" fill="#fff">VCO</text>
+                
+                <path d="M 20,70 L 100,70" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <polygon points="100,70 95,65 95,75" fill="#38bdf8"/>
+                <text x="30" y="60" font-size="12" fill="#38bdf8">fin(t)</text>
+                
+                <path d="M 200,70 L 250,70" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <polygon points="250,70 245,65 245,75" fill="#38bdf8"/>
+                
+                <path d="M 350,70 L 400,70" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <polygon points="400,70 395,65 395,75" fill="#38bdf8"/>
+                
+                <path d="M 480,70 L 490,70 L 490,120 L 150,120 L 150,100" fill="none" stroke="#f43f5e" stroke-width="2"/>
+                <polygon points="150,100 145,105 155,105" fill="#f43f5e"/>
+                <text x="440" y="115" font-size="12" fill="#f43f5e">fout(t)</text>
+            </svg>
+        </div>
+    </div>
+    <div class="step">
+        <span class="step-explain">Introduction (1 Mark)</span>
+        <p>A Phase Locked Loop (PLL) mainly consists of the following <strong>three blocks</strong> –</p>
+        <ul class="theory-list">
+            <li><strong>Phase Detector</strong></li>
+            <li><strong>Active Low Pass Filter</strong></li>
+            <li><strong>Voltage Controlled Oscillator (VCO)</strong></li>
+        </ul>
+        <p>The output of a phase detector is applied as an input of active low pass filter. Similarly, the output of active low pass filter is applied as an input of VCO. The output of VCO is fed back to the second input of the phase detector, forming a closed loop.</p>
+    </div>
+    <div class="step">
+        <span class="step-explain">Working of Each Block (3 Marks)</span>
+        <ul class="theory-list">
+            <li><strong>Phase Detector:</strong> It is a multiplier circuit. It compares the phase and frequency of the input signal (\(f_{in}\)) with the feedback signal from VCO (\(f_{out}\)). It produces a DC voltage that is directly proportional to the phase difference between these two signals. Its output contains two frequency components – the sum (\(f_{in} + f_{out}\)) and the difference (\(f_{in} - f_{out}\)) of the two input frequencies.</li>
+            <li><strong>Active Low Pass Filter (LPF):</strong> It receives the output of the phase detector and removes the high-frequency sum component (\(f_{in} + f_{out}\)). Only the low-frequency difference component (a DC voltage) is allowed to pass through. This filter also amplifies the DC control voltage before feeding it to the VCO. The bandwidth of the LPF determines the capture range of the PLL.</li>
+            <li><strong>Voltage Controlled Oscillator (VCO):</strong> It is a free-running oscillator that generates an output signal whose frequency is directly proportional to the input DC control voltage. When no input is applied, it oscillates at its natural free-running frequency (\(f_0\)). When a DC voltage from the LPF is applied, the VCO shifts its frequency to match the input signal. The frequency deviation is directly proportional to the DC voltage present at the output of the low pass filter.</li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">Overall Working of PLL (2 Marks)</span>
+        <p>When an input signal \(f_{in}\) is applied, the phase detector compares it with VCO output \(f_{out}\). If there is any difference in phase or frequency, the phase detector generates an error voltage. This error voltage, after being filtered and amplified by the LPF, drives the VCO. The VCO adjusts its frequency in the direction that reduces the phase error.</p>
+        <p>This process continues until the VCO frequency becomes exactly equal to the input signal frequency (\(f_{out} = f_{in}\)). At this point, the PLL is said to be in a <strong>"locked"</strong> state. Once locked, the PLL tracks any small variations in the input signal frequency.</p>
+    </div>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="question-block">
+<div class="question">Q.2 Explain the characteristics of PLL <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Introduction (1 Mark)</span>
+        <p>PLL operates in one of the <strong>following three modes</strong> depending on whether an input signal is applied and whether the loop has acquired lock:</p>
+        <ul class="theory-list">
+            <li><strong>1. Free running mode</strong></li>
+            <li><strong>2. Capture mode</strong></li>
+            <li><strong>3. Lock mode</strong></li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">1. Free Running Mode (1.5 Marks)</span>
+        <ul class="theory-list">
+            <li>When <strong>no input signal</strong> is applied to the PLL, the VCO operates at its own natural frequency called the <strong>free running frequency (\(f_0\))</strong>.</li>
+            <li>The output of the phase detector is zero because there is no input to compare with.</li>
+            <li>The DC control voltage to the VCO is zero, so the VCO runs independently.</li>
+            <li>The free running frequency is determined by the external timing components R1 and C1 connected to the VCO. The formula is: \( f_0 = \dfrac{0.3}{R_1 C_1} \)</li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">2. Capture Mode (1.5 Marks)</span>
+        <ul class="theory-list">
+            <li>When an input signal having some frequency is applied to PLL, the phase detector begins to compare the input frequency with VCO output.</li>
+            <li>The output signal frequency of VCO will start to change and move towards the input frequency.</li>
+            <li>At this stage, the PLL is said to be operating in the <strong>capture mode</strong>. The loop is trying to "capture" or "acquire" the input signal.</li>
+            <li>The range of input frequencies over which the PLL can successfully acquire a lock is called the <strong>Capture Range (\(2f_c\))</strong>. It is always smaller than or equal to the lock range.</li>
+            <li>Capture range depends on the bandwidth of the low pass filter.</li>
+        </ul>
+    </div>
+    <div class="step">
+        <span class="step-explain">3. Lock Mode (2 Marks)</span>
+        <ul class="theory-list">
+            <li>The output signal frequency of VCO changes continuously until it becomes exactly equal to the input signal frequency (\(f_{out} = f_{in}\)).</li>
+            <li>At this point, the PLL is said to be in the <strong>lock mode</strong> (also called the <strong>tracking mode</strong>).</li>
+            <li>Once locked, the phase difference between \(f_{in}\) and \(f_{out}\) is constant and the PLL tracks any further variations in the input signal.</li>
+            <li>The range of input frequencies over which the PLL can maintain lock (once already acquired) is called the <strong>Lock Range (\(2f_L\))</strong>.</li>
+            <li>Lock Range is always greater than or equal to the Capture Range: \( 2f_L \geq 2f_c \).</li>
+            <li>If the input frequency goes outside the lock range, the PLL will lose lock and go back to the free running mode.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="question-block">
+<div class="question">Q.3 List different types of phase detectors. Explain any one. <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Types of Phase Detectors (1 Mark)</span>
+        <p>There are 3 types of phase detectors used in PLL:</p>
+        <ol class="theory-list">
+            <li><strong>Ex-OR phase detector</strong> (Digital type)</li>
+            <li><strong>Edge triggered phase detector</strong> (Digital type)</li>
+            <li><strong>Monolithic phase detector</strong> (Analog type)</li>
+        </ol>
+    </div>
+    
+    <div class="step">
+        <span class="step-explain">a) EXOR Phase Detector (2.5 Marks)</span>
+        <div class="graph-container">
+            <div class="graph-title">Fig(a): EX-OR Phase Detector</div>
+            <svg width="400" height="100" viewBox="0 0 400 100">
+                <path d="M 140,20 Q 160,50 140,80" fill="none" stroke="#fff" stroke-width="2"/>
+                <path d="M 150,20 Q 170,50 150,80 Q 200,80 230,50 Q 200,20 150,20" fill="none" stroke="#fff" stroke-width="2"/>
+                <line x1="80" y1="35" x2="160" y2="35" stroke="#fff" stroke-width="2"/>
+                <line x1="80" y1="65" x2="160" y2="65" stroke="#fff" stroke-width="2"/>
+                <line x1="230" y1="50" x2="280" y2="50" stroke="#fff" stroke-width="2"/>
+                <text x="60" y="40" font-size="12" fill="#fff">fs</text>
+                <text x="60" y="70" font-size="12" fill="#fff">fo</text>
+                <text x="290" y="55" font-size="12" fill="#fff">Vdc</text>
+            </svg>
+        </div>
+        <p>Figure shows the digital type XOR phase detector. It uses <strong>CMOS type 4070 Quad 2-input XOR gate</strong>. The output of the XOR gate is HIGH when <strong>only one</strong> of the input signals \(f_s\) (or) \(f_o\) is HIGH. This type of detection is used when both the input signals are square waves.</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(b): Input & Output Waveforms</div>
+            <svg width="400" height="150" viewBox="0 0 400 150">
+                <text x="20" y="30" font-size="12" fill="#fff">fs</text>
+                <path d="M 50,30 L 100,30 L 100,10 L 150,10 L 150,30 L 200,30 L 200,10 L 250,10 L 250,30 L 300,30 L 300,10 L 350,10" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <text x="20" y="75" font-size="12" fill="#fff">fo</text>
+                <path d="M 50,75 L 120,75 L 120,55 L 170,55 L 170,75 L 220,75 L 220,55 L 270,55 L 270,75 L 320,75 L 320,55 L 370,55" fill="none" stroke="#f43f5e" stroke-width="2"/>
+                <text x="15" y="125" font-size="12" fill="#fff">Vdc</text>
+                <path d="M 50,135 L 100,135 L 100,105 L 120,105 L 120,135 L 150,135 L 150,105 L 170,105 L 170,135 L 200,135 L 200,105 L 220,105 L 220,135" fill="none" stroke="#10b981" stroke-width="2"/>
+            </svg>
+        </div>
+        
+        <p>The input and output waveforms for \(f_s = f_o\) are shown in fig(b). In this figure \(f_s\) is leading \(f_o\) by \(\phi\) degrees.</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(c): DC Output Voltage Vs Phase Difference Φ</div>
+            <svg width="300" height="150" viewBox="0 0 300 150">
+                <line x1="50" y1="120" x2="250" y2="120" stroke="#fff" stroke-width="1.5"/>
+                <line x1="50" y1="120" x2="50" y2="20" stroke="#fff" stroke-width="1.5"/>
+                <text x="5" y="30" font-size="10" fill="#fff">Vcc=Vmax</text>
+                <text x="20" y="75" font-size="10" fill="#fff">Vcc/2</text>
+                <text x="260" y="125" font-size="12" fill="#fff">Φ</text>
+                <path d="M 50,120 L 150,20 L 250,120" fill="none" stroke="#eab308" stroke-width="2"/>
+                <text x="145" y="135" font-size="12" fill="#fff">π</text>
+                <text x="245" y="135" font-size="12" fill="#fff">2π</text>
+                <line x1="150" y1="120" x2="150" y2="20" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="50" y1="70" x2="150" y2="70" stroke="#fff" stroke-dasharray="2,2"/>
+            </svg>
+        </div>
+        <p>It can be seen that the <strong>maximum dc output voltage</strong> occurs when the phase difference is \(\pi\) because the output of the gate remains high throughout.</p>
+        <p>The slope of the curve gives the <strong>conversion ratio \(K_\phi\)</strong> of the phase detector. So the conversion ratio \(K_\phi\) for a supply voltage \(V_{cc} = 5V\) is:</p>
+        <p style="color: #10b981; font-weight: 600;">\( K_\phi = \dfrac{V_{cc}}{\pi} = \dfrac{5}{\pi} = 1.59 \) V/rad</p>
+    </div>
+
+    <div class="step">
+        <span class="step-explain">b) Edge Triggered Phase Detector (2.5 Marks)</span>
+        <div class="graph-container">
+            <div class="graph-title">Fig(a): Edge Triggered Phase Detector (R-S Flip Flop using NOR gates)</div>
+            <svg width="400" height="120" viewBox="0 0 400 120">
+                <path d="M 150,20 Q 170,35 150,50 Q 200,50 230,35 Q 200,20 150,20" fill="none" stroke="#fff" stroke-width="2"/>
+                <circle cx="235" cy="35" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+                <line x1="100" y1="25" x2="155" y2="25" stroke="#fff" stroke-width="2"/>
+                <text x="80" y="30" font-size="12" fill="#fff">fs</text>
+                <text x="100" y="15" font-size="10" fill="#fff">S</text>
+                <line x1="240" y1="35" x2="280" y2="35" stroke="#fff" stroke-width="2"/>
+                <text x="290" y="40" font-size="12" fill="#fff">output</text>
+                <path d="M 150,70 Q 170,85 150,100 Q 200,100 230,85 Q 200,70 150,70" fill="none" stroke="#fff" stroke-width="2"/>
+                <circle cx="235" cy="85" r="5" fill="none" stroke="#fff" stroke-width="2"/>
+                <line x1="100" y1="95" x2="155" y2="95" stroke="#fff" stroke-width="2"/>
+                <text x="80" y="100" font-size="12" fill="#fff">fo</text>
+                <text x="100" y="115" font-size="10" fill="#fff">R</text>
+                <line x1="240" y1="85" x2="280" y2="85" stroke="#fff" stroke-width="2"/>
+                <!-- Cross coupling lines -->
+                <path d="M 260,35 L 270,35 L 270,60 L 120,60 L 120,75 L 155,75" fill="none" stroke="#fff" stroke-width="1.5"/>
+                <path d="M 260,85 L 270,85 L 270,110 L 120,110 L 120,45 L 155,45" fill="none" stroke="#fff" stroke-width="1.5"/>
+            </svg>
+        </div>
+        <p>The edge triggered digital phase detector is shown in figure (a). The circuit is an <strong>R-S flip flop made by NOR gates</strong>. This circuit is useful when \(f_s\) and \(f_o\) are <strong>both pulse waveforms with duty cycle less than 50%</strong>.</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(b): Input and Output Waveforms</div>
+            <svg width="400" height="150" viewBox="0 0 400 150">
+                <text x="10" y="30" font-size="12" fill="#fff">fs</text>
+                <path d="M 40,30 L 80,30 L 80,10 L 100,10 L 100,30 L 180,30 L 180,10 L 200,10 L 200,30 L 280,30 L 280,10 L 300,10 L 300,30 L 350,30" fill="none" stroke="#38bdf8" stroke-width="2"/>
+                <text x="10" y="75" font-size="12" fill="#fff">fo</text>
+                <path d="M 40,75 L 120,75 L 120,55 L 140,55 L 140,75 L 220,75 L 220,55 L 240,55 L 240,75 L 320,75 L 320,55 L 340,55 L 340,75" fill="none" stroke="#f43f5e" stroke-width="2"/>
+                <text x="0" y="125" font-size="12" fill="#fff">output</text>
+                <path d="M 40,135 L 80,135 L 80,105 L 120,105 L 120,135 L 180,135 L 180,105 L 220,105 L 220,135 L 280,135 L 280,105 L 320,105 L 320,135 L 350,135" fill="none" stroke="#10b981" stroke-width="2"/>
+                <line x1="80" y1="10" x2="80" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="120" y1="55" x2="120" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="180" y1="10" x2="180" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+                <line x1="220" y1="55" x2="220" y2="135" stroke="#fff" stroke-dasharray="2,2"/>
+            </svg>
+        </div>
+        <p>The output of the R-S flip flop changes its state on the <strong>leading edge</strong> of \(f_s\) and \(f_o\) as shown in fig(b). The variation of dc output voltage vs \(\phi\) is shown in fig(c).</p>
+        
+        <div class="graph-container">
+            <div class="graph-title">Fig(c): DC Output Voltage Vs Φ (Linear up to 2π)</div>
+            <svg width="300" height="150" viewBox="0 0 300 150">
+                <line x1="50" y1="120" x2="250" y2="120" stroke="#fff" stroke-width="1.5"/>
+                <line x1="50" y1="120" x2="50" y2="20" stroke="#fff" stroke-width="1.5"/>
+                <text x="5" y="30" font-size="10" fill="#fff">Vcc=Vmax</text>
+                <text x="260" y="125" font-size="12" fill="#fff">Φ</text>
+                <path d="M 50,120 L 200,20 L 200,120" fill="none" stroke="#eab308" stroke-width="2"/>
+                <text x="120" y="135" font-size="12" fill="#fff">π</text>
+                <text x="195" y="135" font-size="12" fill="#fff">2π</text>
+                <line x1="200" y1="120" x2="200" y2="20" stroke="#fff" stroke-dasharray="2,2"/>
+                <text x="65" y="15" font-size="10" fill="#fff">Slope = conversion gain KΦ</text>
+            </svg>
+        </div>
+        <p>This type of detector has <strong>better capture, tracking and locking characteristics</strong> as the dc output voltage is <strong>linear up to 360°</strong> compared to only 180° in the case of the EX-OR detector. Therefore, the conversion ratio is:</p>
+        <p style="color: #10b981; font-weight: 600;">\( K_\phi = \dfrac{V_{cc}}{2\pi} \)</p>
+    </div>
+</div>
+</div>
+
+<!-- Q4 -->
+<div class="question-block">
+<div class="question">Q.4 Draw pin diagram of IC 565 & explain its pins <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Pin Diagram (3 Marks)</span>
+        <div class="graph-container">
+            <div class="graph-title">Pin Diagram of IC 565 (14-Pin DIP)</div>
+            <svg width="250" height="280" viewBox="0 0 250 280">
+                <rect x="70" y="30" width="110" height="220" fill="#1e293b" stroke="#00f0ff" stroke-width="2" rx="4"/>
+                <path d="M 110,30 A 15 15 0 0 0 140,30" fill="none" stroke="#00f0ff" stroke-width="2"/>
+                
+                <line x1="40" y1="50" x2="70" y2="50" stroke="#fff" stroke-width="2"/> <text x="20" y="55" font-size="10" fill="#fff">1</text>
+                <line x1="40" y1="75" x2="70" y2="75" stroke="#fff" stroke-width="2"/> <text x="20" y="80" font-size="10" fill="#fff">2</text>
+                <line x1="40" y1="100" x2="70" y2="100" stroke="#fff" stroke-width="2"/> <text x="20" y="105" font-size="10" fill="#fff">3</text>
+                <line x1="40" y1="125" x2="70" y2="125" stroke="#fff" stroke-width="2"/> <text x="20" y="130" font-size="10" fill="#fff">4</text>
+                <line x1="40" y1="150" x2="70" y2="150" stroke="#fff" stroke-width="2"/> <text x="20" y="155" font-size="10" fill="#fff">5</text>
+                <line x1="40" y1="175" x2="70" y2="175" stroke="#fff" stroke-width="2"/> <text x="20" y="180" font-size="10" fill="#fff">6</text>
+                <line x1="40" y1="200" x2="70" y2="200" stroke="#fff" stroke-width="2"/> <text x="20" y="205" font-size="10" fill="#fff">7</text>
+                
+                <text x="78" y="55" font-size="8" fill="#fff">-Vcc (neg supply)</text>
+                <text x="78" y="80" font-size="8" fill="#fff">Input</text>
+                <text x="78" y="105" font-size="8" fill="#fff">Input</text>
+                <text x="78" y="130" font-size="8" fill="#fff">VCO output</text>
+                <text x="78" y="150" font-size="8" fill="#fff">Phase comparator</text>
+                <text x="78" y="158" font-size="8" fill="#fff">VCO input</text>
+                <text x="78" y="180" font-size="8" fill="#fff">Reference output</text>
+                <text x="78" y="200" font-size="8" fill="#fff">Demodulated output /</text>
+                <text x="78" y="210" font-size="8" fill="#fff">VCO control voltage</text>
+
+                <line x1="180" y1="50" x2="210" y2="50" stroke="#fff" stroke-width="2"/> <text x="220" y="55" font-size="10" fill="#fff">14</text>
+                <line x1="180" y1="75" x2="210" y2="75" stroke="#fff" stroke-width="2"/> <text x="220" y="80" font-size="10" fill="#fff">13</text>
+                <line x1="180" y1="100" x2="210" y2="100" stroke="#fff" stroke-width="2"/> <text x="220" y="105" font-size="10" fill="#fff">12</text>
+                <line x1="180" y1="125" x2="210" y2="125" stroke="#fff" stroke-width="2"/> <text x="220" y="130" font-size="10" fill="#fff">11</text>
+                <line x1="180" y1="150" x2="210" y2="150" stroke="#fff" stroke-width="2"/> <text x="220" y="155" font-size="10" fill="#fff">10</text>
+                <line x1="180" y1="175" x2="210" y2="175" stroke="#fff" stroke-width="2"/> <text x="220" y="180" font-size="10" fill="#fff">9</text>
+                <line x1="180" y1="200" x2="210" y2="200" stroke="#fff" stroke-width="2"/> <text x="220" y="205" font-size="10" fill="#fff">8</text>
+
+                <text x="148" y="55" font-size="8" fill="#fff">NC</text>
+                <text x="148" y="80" font-size="8" fill="#fff">NC</text>
+                <text x="148" y="105" font-size="8" fill="#fff">NC</text>
+                <text x="148" y="130" font-size="8" fill="#fff">NC</text>
+                <text x="138" y="155" font-size="8" fill="#fff">+Vcc</text>
+                <text x="130" y="175" font-size="8" fill="#fff">Timing</text>
+                <text x="130" y="183" font-size="8" fill="#fff">capacitor C1</text>
+                <text x="130" y="200" font-size="8" fill="#fff">Timing</text>
+                <text x="130" y="210" font-size="8" fill="#fff">resistor R1</text>
+            </svg>
+        </div>
+    </div>
+    <div class="step">
+        <span class="step-explain">Pin Descriptions (3 Marks)</span>
+        <p>IC 565 is a 14 pin IC, operated from a <strong>dual power supply</strong> +V (at pin no. 10) and -V (at pin no. 1).</p>
+        <ul class="theory-list">
+            <li><strong>Pin no 1:</strong> Negative supply voltage (-Vcc). This is the ground reference for the dual supply configuration.</li>
+            <li><strong>Pin no 2 & 3:</strong> Signal input for the phase detector. The input signal whose frequency is to be tracked is applied between these two pins.</li>
+            <li><strong>Pin no 4:</strong> VCO output is available at this pin. This is the square wave output of the internal VCO.</li>
+            <li><strong>Pin no 4 & 5:</strong> These are shorted externally so that the VCO output is applied for phase detection. In some applications, the PLL loop is broken and some external circuit is connected between pin no 4 and 5.</li>
+            <li><strong>Pin no 6:</strong> Reference dc voltage is available. This is used as a bias reference internally.</li>
+            <li><strong>Pin no 7:</strong> Demodulated output / VCO control voltage. If the input signal between pin no 2 and 3 is an FM signal, then at pin no 7 we get the FM demodulated output.</li>
+            <li><strong>Pin no 8 and 9:</strong> External timing components R1 and C1 for VCO are connected here. They determine the free running frequency of the VCO using: \( f_0 = \dfrac{0.3}{R_1 C_1} \)</li>
+            <li><strong>Pin no 10:</strong> Positive supply voltage (+Vcc).</li>
+            <li><strong>Pin no 11-14:</strong> NC (No Connection). These pins are not used internally.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+<!-- Q5 -->
+<div class="question-block">
+<div class="question">Q.5 Explain features of IC 565 <span class="marks-tag">6 Marks</span></div>
+<div class="solution">
+    <div class="step">
+        <span class="step-explain">Features of IC 565 PLL (Write 1 point = 1 mark approx.)</span>
+        <p>The key features and specifications of the Phase Locked Loop IC 565 are:</p>
+        <ul class="theory-list">
+            <li><strong>1. Power Supply Range:</strong> It operates over a wide power supply voltage range of <strong>±5V to ±12V</strong> (dual supply). This makes it versatile for use in different circuit configurations.</li>
+            <li><strong>2. Wide Operating Frequency:</strong> The VCO free running frequency can be adjusted over a very wide range, from <strong>0.001 Hz to 500 kHz</strong>, by selecting appropriate values of external timing components R1 and C1. The free running frequency is given by: \( f_0 = \dfrac{0.3}{R_1 C_1} \).</li>
+            <li><strong>3. High Frequency Stability:</strong> The center frequency of the VCO is highly stable, with a typical temperature drift of only <strong>200 ppm/°C</strong> (parts per million per degree Celsius). This ensures reliable operation over temperature variations.</li>
+            <li><strong>4. Adjustable Bandwidth:</strong> The bandwidth of the PLL (i.e., capture range and lock range) can be easily adjusted by changing the value of an external filter capacitor connected between pin 7 and the supply.</li>
+            <li><strong>5. Triangle Wave Output:</strong> A highly linear <strong>triangle wave output</strong> is available at pin 9 (timing capacitor). This can be used for waveform generation applications.</li>
+            <li><strong>6. FM Demodulation:</strong> The IC provides excellent linearity for <strong>FM demodulation</strong> applications. When an FM signal is applied at the input, the demodulated audio signal is available at pin 7.</li>
+            <li><strong>7. TTL/DTL Compatibility:</strong> The square wave output of the VCO (pin 4) is TTL and DTL compatible, making it easy to interface with digital circuits.</li>
+            <li><strong>8. Applications:</strong> Frequency multiplier, frequency synthesizer, FM demodulation, motor speed control, tone decoding, FSK (Frequency Shift Keying) demodulation, and signal conditioning.</li>
+        </ul>
+    </div>
+</div>
+</div>
+
+</div>
+</body>
+</html>

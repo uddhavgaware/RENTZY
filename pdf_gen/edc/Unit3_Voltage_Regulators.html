@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Unit 3: Voltage Regulators</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; line-height: 1.3; margin: 0; padding: 10px; font-size: 12px; }
+    h1 { text-align: center; font-size: 18px; margin-bottom: 10px; }
+    .question-block { margin-bottom: 15px; padding: 10px; border: 1px solid #ccc; }
+    .question { font-weight: 600; font-size: 14px; margin-bottom: 10px; color: #000; }
+    .marks-tag { font-weight: bold; }
+    ul { margin: 5px 0; padding-left: 20px; }
+    p { margin: 5px 0; }
+</style>
+</head>
+<body>
+    <h1>Unit III - Voltage Regulators</h1>
+    
+    <div class="question-block">
+        <div class="question">Q.1 What is Voltage Regulator? Explain its types <span class="marks-tag">(4 Marks)</span></div>
+        <p><strong>Definition:</strong> A voltage regulator is such a device that maintains constant output voltage, instead of any kind of fluctuations in the input voltage being applied or any variations in current drawn by the load.</p>
+        <p><strong>Types of Regulators (based on regulation):</strong></p>
+        <ul>
+            <li><strong>Line Regulator:</strong> The regulator which regulates the output voltage to be constant, in spite of input line variations.</li>
+            <li><strong>Load Regulator:</strong> The regulator which regulates the output voltage to be constant, in spite of the variations in load at the output.</li>
+        </ul>
+        <p><strong>Types of Regulators (based on connection):</strong></p>
+        <ul>
+            <li><strong>Series voltage regulator:</strong> In Series regulator control element is in series with the load.</li>
+            <li><strong>Shunt voltage regulator:</strong> In Shunt regulator control element is in parallel with the load.</li>
+        </ul>
+    </div>
+
+    <div class="question-block">
+        <div class="question">Q.2 Explain Zener Shunt Regulator <span class="marks-tag">(6 Marks)</span></div>
+        <p>The Zener diode is used as a Shunt voltage regulator for regulating voltage across small loads. The Zener diode is connected parallel to the load to make it reverse bias, and once the Zener diode exceeds knee voltage, the voltage across the load will become constant.</p>
+        <p>When the input voltage (Vin) is greater than the Zener voltage (Vz), the diode enters the breakdown region and acts as a low impedance path. As a result, the excess current flows through the diode, limiting the voltage across the load (Vout) to the Zener voltage (Vz). Conversely, when the input voltage (Vin) is lower than the Zener voltage (Vz), the diode remains in the normal forward bias region and allows current to pass through it. In this case, the voltage across the load (Vout) is equal to the input voltage (Vin) minus the forward voltage drop of the diode.</p>
+    </div>
+
+    <div class="question-block">
+        <div class="question">Q.3 Explain Transistor Shunt Regulator <span class="marks-tag">(6 Marks)</span></div>
+        <p>A shunt voltage regulator provides regulation by shunting current away from the load to regulate the output voltage. The voltage drop across series resistance depends upon the current supplied to the load RL. The output voltage is equal to the sum of zener voltage (Vz) and transistor base-emitter voltage (VBE) i.e., <strong>Vout = Vz + VBE</strong>.</p>
+        <p>If the load resistance decreases, the current through base of transistor decreases. As a result, less collector current is shunted. Therefore, the load current becomes larger, thereby maintaining the regulated voltage across the load. Reverse happens should the load resistance increase.</p>
+        <p><strong>Drawbacks:</strong></p>
+        <ul>
+            <li>A large portion of the total current through Rs flows through transistor rather than to the load.</li>
+            <li>There is considerable power loss in Rs.</li>
+            <li>There are problems of overvoltage protection in this circuit.</li>
+        </ul>
+        <p>For these reasons, a series voltage regulator is preferred over the shunt voltage regulator.</p>
+    </div>
+
+    <div class="question-block">
+        <div class="question">Q.4 Explain Transistor Series Regulator <span class="marks-tag">(6 Marks)</span></div>
+        <p>In a series voltage regulator, the control element (a transistor) is placed in series with the load. A Zener diode provides the reference voltage at the base of the transistor. The output voltage is given by <strong>Vout = Vz - VBE</strong>.</p>
+        <p>Any increase in output voltage increases the emitter voltage of the transistor, decreasing its base-emitter voltage. This reduces the conduction of the transistor and restores the output voltage to its regulated value.</p>
+    </div>
+</body>
+</html>
