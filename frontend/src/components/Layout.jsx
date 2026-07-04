@@ -5,7 +5,6 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import FloatingSupportButton from './FloatingSupportButton';
 import MobileBottomNav from './MobileBottomNav';
-import SwipeDrawer from './SwipeDrawer';
 
 const pageVariants = {
   initial: { opacity: 0, x: 20 },
@@ -24,29 +23,27 @@ const Layout = ({ children }) => {
   const hideFooterRoutes = ['/messages'];
 
   return (
-    <SwipeDrawer>
-      <div className="min-h-screen flex flex-col font-sans">
-        <Navbar />
-        <main className="flex-grow w-full relative pb-20 md:pb-0 overflow-hidden">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial="initial"
-              animate="in"
-              exit="out"
-              variants={pageVariants}
-              transition={pageTransition}
-              className="w-full h-full"
-            >
-              {children}
-            </motion.div>
-          </AnimatePresence>
-        </main>
-        {!hideFooterRoutes.includes(location.pathname) && <Footer />}
-        <MobileBottomNav />
-        <FloatingSupportButton />
-      </div>
-    </SwipeDrawer>
+    <div className="min-h-screen flex flex-col font-sans">
+      <Navbar />
+      <main className="flex-grow w-full relative pb-20 md:pb-0 overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial="initial"
+            animate="in"
+            exit="out"
+            variants={pageVariants}
+            transition={pageTransition}
+            className="w-full h-full"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+      {!hideFooterRoutes.includes(location.pathname) && <Footer />}
+      <MobileBottomNav />
+      <FloatingSupportButton />
+    </div>
   );
 };
 
