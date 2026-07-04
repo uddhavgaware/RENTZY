@@ -337,7 +337,12 @@ const DashboardPage = () => {
       setKycCurrentCapture(step);
       setKycCameraActive(true);
     } catch (err) {
-      showModal({ type: 'alert', title: 'Camera Error', message: 'Camera access denied. Please allow camera permission in your browser settings and try again.', onConfirm: closeModal });
+      console.error('Camera Error:', err);
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showModal({ type: 'alert', title: 'Not Supported', message: 'Camera access requires a secure connection (HTTPS or localhost). If you are testing on a local network IP, it will not work.', onConfirm: closeModal });
+      } else {
+        showModal({ type: 'alert', title: 'Camera Error', message: 'Camera access denied or no camera found. Please allow camera permission and try again.', onConfirm: closeModal });
+      }
     }
   };
 
