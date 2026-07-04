@@ -418,13 +418,13 @@ const PostPropertyPage = () => {
                 <h2 className="text-xl font-bold text-gray-900 border-b pb-4">Basic Information</h2>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Property Type</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Property Type</label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                     {['Hostel', 'Flat', 'Apartment', 'PG', 'Independent House', 'Villa', 'Co-living Space'].map((type) => (
                       <label key={type} className="cursor-pointer">
                         <input type="radio" name="type" value={type} checked={formData.type === type} onChange={handleChange} className="peer sr-only" />
-                        <div className="rounded-xl border border-gray-200 p-3 text-center peer-checked:border-primary-500 peer-checked:bg-primary-50 transition-all">
-                          <span className="font-medium text-gray-700 text-sm">{type}</span>
+                        <div className="rounded-xl border border-gray-200 dark:border-white/10 p-3 text-center peer-checked:border-primary-500 peer-checked:bg-primary-50 dark:peer-checked:bg-primary-900/30 transition-all dark:bg-slate-800">
+                          <span className="font-medium text-gray-700 dark:text-gray-200 text-sm">{type}</span>
                         </div>
                       </label>
                     ))}
@@ -433,9 +433,12 @@ const PostPropertyPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Configuration</label>
-                    <select name="configuration" value={formData.configuration} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all">
-                      {['1RK', 'Single Room', '1BHK', '2BHK', '3BHK', '4BHK', 'Studio Apartment'].map(c => <option key={c} value={c}>{c}</option>)}
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Configuration</label>
+                    <select name="configuration" value={formData.configuration} onChange={handleChange} className="w-full border border-gray-300 dark:border-white/10 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-white">
+                      {['Hostel', 'PG', 'Co-living Space'].includes(formData.type) 
+                        ? ['Single Room', 'Double Sharing', 'Triple Sharing', 'Four Sharing'].map(c => <option key={c} value={c}>{c}</option>)
+                        : ['1RK', '1BHK', '2BHK', '3BHK', '4BHK', '4BHK+', 'Studio Apartment'].map(c => <option key={c} value={c}>{c}</option>)
+                      }
                     </select>
                   </div>
                   <div>
@@ -490,70 +493,70 @@ const PostPropertyPage = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Facing Direction <span className="text-red-400">*</span></label>
-                    <select name="facing" value={formData.facing} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" required>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Facing Direction <span className="text-red-400">*</span></label>
+                    <select name="facing" value={formData.facing} onChange={handleChange} className="w-full border border-gray-300 dark:border-white/10 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-white" required>
                       {['East', 'North', 'South', 'West', 'North-East', 'North-West', 'South-East', 'South-West'].map(dir => (
                         <option key={dir} value={dir}>{dir}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Property Area (Sq. Ft.) <span className="text-red-400">*</span></label>
-                    <input type="number" name="areaSqft" value={formData.areaSqft} onChange={handleChange} min="1" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. 1200" required />
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Property Area (Sq. Ft.) <span className="text-red-400">*</span></label>
+                    <input type="number" name="areaSqft" value={formData.areaSqft} onChange={handleChange} min="1" className="w-full border border-gray-300 dark:border-white/10 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-white" placeholder="e.g. 1200" required />
                   </div>
                 </div>
 
                 {/* Mess Options for PG/Hostel */}
                 {['PG', 'Hostel'].includes(formData.type) && (
-                  <div className="bg-orange-50/50 p-5 rounded-2xl border border-orange-100 space-y-4 animate-fadeIn">
+                  <div className="bg-orange-50/50 dark:bg-orange-900/10 p-5 rounded-2xl border border-orange-100 dark:border-orange-800/30 space-y-4 animate-fadeIn">
                     <h3 className="text-xs font-black text-orange-500 uppercase tracking-wider flex items-center gap-1">
                       <span className="w-1.5 h-1.5 rounded-full bg-orange-500 inline-block" />
                       Mess & Food Options
                     </h3>
                     <div className="flex items-center gap-3">
                       <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" checked={formData.messAvailable} onChange={(e) => setFormData({...formData, messAvailable: e.target.checked})} className="rounded text-orange-500 focus:ring-orange-500 w-4 h-4" />
-                        <span className="text-sm font-bold text-gray-700">Mess Facility Available</span>
+                        <input type="checkbox" checked={formData.messAvailable} onChange={(e) => setFormData({...formData, messAvailable: e.target.checked})} className="rounded text-orange-500 focus:ring-orange-500 w-4 h-4 bg-white dark:bg-slate-700" />
+                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">Mess Facility Available</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer ml-4">
-                        <input type="checkbox" checked={formData.cookingAllowed} onChange={(e) => setFormData({...formData, cookingAllowed: e.target.checked})} className="rounded text-orange-500 focus:ring-orange-500 w-4 h-4" />
-                        <span className="text-sm font-bold text-gray-700">Self Cooking Allowed</span>
+                        <input type="checkbox" checked={formData.cookingAllowed} onChange={(e) => setFormData({...formData, cookingAllowed: e.target.checked})} className="rounded text-orange-500 focus:ring-orange-500 w-4 h-4 bg-white dark:bg-slate-700" />
+                        <span className="text-sm font-bold text-gray-700 dark:text-gray-200">Self Cooking Allowed</span>
                       </label>
                     </div>
 
                     {formData.messAvailable && (
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
                         <div>
-                          <label className="block text-xs font-bold text-gray-600 mb-1.5">Mess Type</label>
-                          <select name="messType" value={formData.messType} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 outline-none">
+                          <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1.5">Mess Type</label>
+                          <select name="messType" value={formData.messType} onChange={handleChange} className="w-full border border-gray-300 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 outline-none dark:bg-slate-800 dark:text-white">
                             <option value="Veg Only">Veg Only</option>
                             <option value="Non-Veg">Non-Veg Included</option>
                             <option value="Both">Both Available</option>
                           </select>
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-600 mb-1.5">Meals Provided</label>
+                          <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1.5">Meals Provided</label>
                           <div className="flex gap-2">
                             {['Breakfast', 'Lunch', 'Dinner'].map(meal => (
-                              <label key={meal} className="flex items-center gap-1 text-sm bg-white px-2 py-1 rounded border border-gray-200 cursor-pointer">
+                              <label key={meal} className="flex items-center gap-1 text-sm bg-white dark:bg-slate-700 px-2 py-1 rounded border border-gray-200 dark:border-white/10 cursor-pointer">
                                 <input type="checkbox" checked={formData.mealsProvided.includes(meal)} onChange={(e) => {
                                   const meals = e.target.checked ? [...formData.mealsProvided, meal] : formData.mealsProvided.filter(m => m !== meal);
                                   setFormData({...formData, mealsProvided: meals});
-                                }} className="rounded text-orange-500 focus:ring-orange-500 w-3 h-3" />
-                                {meal}
+                                }} className="rounded text-orange-500 focus:ring-orange-500 w-3 h-3 bg-white dark:bg-slate-600" />
+                                <span className="dark:text-gray-200">{meal}</span>
                               </label>
                             ))}
                           </div>
                         </div>
                         <div>
-                          <label className="block text-xs font-bold text-gray-600 mb-1.5 flex items-center gap-2">
+                          <label className="block text-xs font-bold text-gray-600 dark:text-gray-400 mb-1.5 flex items-center gap-2">
                             Mess Fee
-                            <label className="flex items-center gap-1 cursor-pointer font-normal text-gray-500">
-                              <input type="checkbox" checked={formData.messIncludedInRent} onChange={(e) => setFormData({...formData, messIncludedInRent: e.target.checked})} className="rounded text-orange-500 w-3 h-3" /> Included in Rent
+                            <label className="flex items-center gap-1 cursor-pointer font-normal text-gray-500 dark:text-gray-400">
+                              <input type="checkbox" checked={formData.messIncludedInRent} onChange={(e) => setFormData({...formData, messIncludedInRent: e.target.checked})} className="rounded text-orange-500 w-3 h-3 bg-white dark:bg-slate-700" /> Included in Rent
                             </label>
                           </label>
                           {!formData.messIncludedInRent && (
-                            <input type="number" name="messPrice" value={formData.messPrice} onChange={handleChange} placeholder="e.g. 2000" className="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 outline-none" />
+                            <input type="number" name="messPrice" value={formData.messPrice} onChange={handleChange} placeholder="e.g. 2000" className="w-full border border-gray-300 dark:border-white/10 rounded-xl px-3 py-2 text-sm focus:ring-1 focus:ring-orange-500 outline-none dark:bg-slate-800 dark:text-white" />
                           )}
                         </div>
                         <div>
