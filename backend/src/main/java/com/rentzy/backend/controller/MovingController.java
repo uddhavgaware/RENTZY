@@ -73,8 +73,17 @@ public class MovingController {
         if (!request.getUser().getId().equals(user.getId())) {
             throw new RuntimeException("You can only cancel your own requests");
         }
-        if (!request.getStatus().equals("PENDING")) {
-            throw new RuntimeException("Only pending requests can be cancelled");
+        if (!request.getStatus().equals("PENDING") && !request.getStatus().equals("ASSIGNED")) {
+            throw new RuntimeException("Only pending or assigned requests can be cancelled");
+        }
+        
+        // Notify the vendor if they were already assigned
+        if (request.getStatus().equals("ASSIGNED") && request.getMover() != null) {
+            notificationService.createNotification(
+                    request.getMover().getEmail(),
+                    "The customer cancelled the moving request.",
+                    "SYSTEM"
+            );
         }
         
         request.setStatus("CANCELLED");
@@ -153,6 +162,35 @@ public class MovingController {
         notificationService.createNotification(
                 request.getUser().getEmail(),
                 "👍 Great news! Your moving request has been assigned to " + mover.getName() + ". They will contact you shortly.",
+                "SYSTEM"
+        );
+
+        return ResponseEntity.ok(saved);
+    }
+
+    @PutMapping("/vendor/{id}/release")
+    public ResponseEntity<MovingRequest> releaseRequest(@PathVariable Long id, Authentication auth) {
+        User mover = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        MovingRequest request = movingRequestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        
+        if (request.getMover() == null || !request.getMover().getId().equals(mover.getId())) {
+            throw new RuntimeException("You are not assigned to this request");
+        }
+        if (!"ASSIGNED".equals(request.getStatus())) {
+            throw new RuntimeException("Move is not in ASSIGNED state");
+        }
+        
+        request.setMover(null);
+        request.setStatus("PENDING");
+        
+        MovingRequest saved = movingRequestRepository.save(request);
+
+        // Notify the customer
+        notificationService.createNotification(
+                request.getUser().getEmail(),
+                "The assigned vendor has released the job. Your request is back in the pool for other vendors.",
                 "SYSTEM"
         );
 

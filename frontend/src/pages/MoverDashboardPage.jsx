@@ -80,6 +80,22 @@ const MoverDashboardPage = () => {
     });
   };
 
+  const handleReleaseJob = (id) => showModal({
+    type: 'confirm',
+    title: 'Release Job',
+    message: 'Did negotiation fail? Releasing this job allows other vendors to take it. You will lose this lead.',
+    onConfirm: async () => {
+      closeModal();
+      try {
+        await api.put(`/vendor/${id}/release`);
+        setMyJobs(prev => prev.filter(job => job.id !== id));
+        fetchData(); // Refresh available leads
+      } catch (err) {
+        setError('Failed to release job');
+      }
+    }
+  });
+
   const handleCompleteJob = (id) => {
     showModal({
       type: 'prompt',
@@ -310,9 +326,14 @@ const MoverDashboardPage = () => {
                           </div>
                         </div>
                         {job.status === 'ASSIGNED' && (
-                          <button onClick={() => handleStartJob(job.id)} className="w-full md:w-auto bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
-                            <Truck size={18} /> Start Move (OTP)
-                          </button>
+                          <div className="flex flex-col gap-2 w-full md:w-auto">
+                            <button onClick={() => handleStartJob(job.id)} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
+                              <Truck size={18} /> Start Move (OTP)
+                            </button>
+                            <button onClick={() => handleReleaseJob(job.id)} className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-xl transition-colors text-sm border border-red-200">
+                              Negotiation Failed? Release Job
+                            </button>
+                          </div>
                         )}
                         {job.status === 'IN_TRANSIT' && (
                           <div className="flex flex-col gap-2">

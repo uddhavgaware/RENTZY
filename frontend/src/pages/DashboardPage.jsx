@@ -1193,8 +1193,8 @@ const DashboardPage = () => {
                               <span className={`px-3 py-1 text-xs font-bold rounded-full ${req.status === 'COMPLETED' ? 'bg-green-100 text-green-700' : req.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : req.status === 'CANCELLED' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
                                 {req.status}
                               </span>
-                              {req.status === 'PENDING' && (
-                                <button onClick={() => handleCancelMoving(req.id)} className="text-xs text-red-500 hover:text-red-700 font-medium">Cancel Request</button>
+                              {(req.status === 'PENDING' || req.status === 'ASSIGNED') && (
+                                <button onClick={() => handleCancelMoving(req.id)} className="text-xs text-red-500 hover:text-red-700 font-medium bg-red-50 px-2 py-1 rounded">Cancel Request</button>
                               )}
                               {req.status === 'ASSIGNED' && (
                                 <button onClick={() => {
@@ -1266,7 +1266,7 @@ const DashboardPage = () => {
                                 <ShieldCheck className="text-red-500" size={24} />
                                 <div>
                                   <p className="text-sm font-bold text-gray-900">Security OTPs</p>
-                                  <p className="text-xs text-gray-600">Give Start OTP to begin, End OTP when delivered.</p>
+                                  <p className="text-xs text-gray-600">Negotiate the final price and pay <strong className="text-gray-900">50% Advance (Cash)</strong> before giving the Start OTP.</p>
                                 </div>
                               </div>
                               <div className="flex gap-4">
