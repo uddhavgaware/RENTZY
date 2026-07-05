@@ -1237,7 +1237,10 @@ const DashboardPage = () => {
                           </div>
                           <div className="border-t border-gray-50 pt-3 flex justify-between items-center">
                             <span className="text-sm text-gray-500">Estimated Price:</span>
-                            <span className="font-bold text-primary-600">{req.estimatedPrice ? `₹${req.estimatedPrice.toLocaleString('en-IN')}` : 'To be decided'}</span>
+                            <div className="text-right">
+                              <span className="block font-bold text-primary-600">{req.estimatedPrice ? `₹${req.estimatedPrice.toLocaleString('en-IN')}` : 'To be decided'}</span>
+                              <span className="block text-[10px] text-gray-500 font-bold uppercase mt-1">Payment Method: Cash to Vendor</span>
+                            </div>
                           </div>
                           {req.mover && (
                             <div className="mt-4 bg-primary-50 rounded-xl p-3 flex items-center justify-between border border-primary-100">

@@ -320,6 +320,9 @@ const MoverDashboardPage = () => {
                               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                               Live Tracking Active
                             </div>
+                            <div className="bg-yellow-50 text-yellow-800 p-3 rounded-xl border border-yellow-200 text-sm font-bold text-center">
+                              ⚠️ Collect {job.estimatedPrice ? `₹${job.estimatedPrice.toLocaleString('en-IN')}` : 'Payment'} (Cash) before completing
+                            </div>
                             <button onClick={() => handleCompleteJob(job.id)} className="w-full md:w-auto bg-gray-900 hover:bg-black text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
                               <CheckCircle2 size={18} /> Complete Job (OTP)
                             </button>
