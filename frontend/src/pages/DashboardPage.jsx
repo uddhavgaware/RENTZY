@@ -1240,6 +1240,7 @@ const DashboardPage = () => {
                             <div className="text-right">
                               <span className="block font-bold text-primary-600">{req.estimatedPrice ? `₹${req.estimatedPrice.toLocaleString('en-IN')}` : 'To be decided'}</span>
                               <span className="block text-[10px] text-gray-500 font-bold uppercase mt-1">Payment Method: Cash to Vendor</span>
+                              <span className="block text-[10px] text-orange-600 font-bold mt-1 leading-tight max-w-[200px]">* Pricing is currently negotiation-based. Please negotiate directly with the vendor! (Automated pricing features coming soon)</span>
                             </div>
                           </div>
                           {req.mover && (
