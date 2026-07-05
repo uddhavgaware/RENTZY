@@ -508,6 +508,8 @@ const DashboardPage = () => {
       baseTabs.push({ id: 'admin', name: 'Admin Dashboard', icon: ShieldCheck });
     }
 
+    baseTabs.push({ id: 'logout', name: 'Sign Out', icon: LogOut });
+
     return baseTabs;
   };
 
@@ -573,11 +575,12 @@ const DashboardPage = () => {
                           if (tab.id === 'split') navigate('/split-expenses');
                           else if (tab.id === 'admin') navigate('/admin');
                           else if (tab.id === 'mover-portal') navigate('/mover-dashboard');
+                          else if (tab.id === 'logout') showModal({ type: 'confirm', title: 'Sign Out', message: 'Are you sure you want to sign out?', onConfirm: confirmLogout, onCancel: closeModal });
                           else setActiveTab(tab.id);
                         }}
-                        className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'}`}
+                        className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} ${tab.id === 'logout' ? 'hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 mt-4' : ''}`}
                       >
-                        <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />{tab.name}
+                        <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : tab.id === 'logout' ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'}`} />{tab.name}
                       </button>
                     );
                   })}
@@ -1279,24 +1282,44 @@ const DashboardPage = () => {
                             </div>
                           )}
 
-                          {/* SECURITY OTPs */}
+                          {/* PREMIUM SECURITY OTPs */}
                           {(req.status === 'ASSIGNED' || req.status === 'IN_TRANSIT') && (
-                            <div className="mt-4 border-2 border-red-100 bg-red-50 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
-                              <div className="flex items-center gap-2">
-                                <ShieldCheck className="text-red-500" size={24} />
-                                <div>
-                                  <p className="text-sm font-bold text-gray-900">Security OTPs</p>
-                                  <p className="text-xs text-gray-600">Negotiate the final price and pay <strong className="text-gray-900">50% Advance (Cash)</strong> before giving the Start OTP.</p>
-                                </div>
+                            <div className="mt-6 relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 via-gray-800 to-black p-1 shadow-xl">
+                              <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <ShieldCheck size={100} className="text-white" />
                               </div>
-                              <div className="flex gap-4">
-                                <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 text-center shadow-sm">
-                                  <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">Start OTP</p>
-                                  <p className="text-xl font-black tracking-widest text-primary-600">{req.startOtp}</p>
-                                </div>
-                                <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 text-center shadow-sm">
-                                  <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">End OTP</p>
-                                  <p className="text-xl font-black tracking-widest text-green-600">{req.endOtp}</p>
+                              <div className="relative bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/20">
+                                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <ShieldCheck className="text-green-400" size={20} />
+                                      <h4 className="text-white font-bold tracking-wide uppercase text-sm">Secure Move PINs</h4>
+                                    </div>
+                                    <p className="text-gray-300 text-xs leading-relaxed">
+                                      Share the <strong className="text-white">Start PIN</strong> only after paying the advance. Share the <strong className="text-white">End PIN</strong> only when your goods are safely delivered.
+                                    </p>
+                                  </div>
+                                  
+                                  <div className="flex items-center gap-4 w-full md:w-auto">
+                                    {/* START OTP */}
+                                    <div className={`flex-1 md:w-28 relative rounded-xl border ${req.status === 'IN_TRANSIT' ? 'bg-gray-800/50 border-gray-600 opacity-50' : 'bg-gradient-to-b from-blue-500 to-blue-600 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.5)]'} p-3 text-center transition-all duration-500`}>
+                                      <p className="text-[9px] uppercase font-bold text-white/80 tracking-widest mb-1">Start PIN</p>
+                                      <p className={`text-2xl font-black tracking-widest ${req.status === 'IN_TRANSIT' ? 'text-gray-400 line-through' : 'text-white drop-shadow-md'}`}>
+                                        {req.startOtp}
+                                      </p>
+                                      {req.status === 'IN_TRANSIT' && (
+                                        <div className="absolute -top-2 -right-2 bg-green-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full shadow-sm">USED</div>
+                                      )}
+                                    </div>
+                                    
+                                    {/* END OTP */}
+                                    <div className={`flex-1 md:w-28 relative rounded-xl border ${req.status === 'ASSIGNED' ? 'bg-gray-800/80 border-gray-600 opacity-80' : 'bg-gradient-to-b from-green-500 to-green-600 border-green-400 shadow-[0_0_15px_rgba(34,197,94,0.5)]'} p-3 text-center transition-all duration-500`}>
+                                      <p className="text-[9px] uppercase font-bold text-white/80 tracking-widest mb-1">End PIN</p>
+                                      <p className="text-2xl font-black tracking-widest text-white drop-shadow-md">
+                                        {req.endOtp}
+                                      </p>
+                                    </div>
+                                  </div>
                                 </div>
                               </div>
                             </div>

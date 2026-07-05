@@ -212,7 +212,7 @@ public class MovingController {
         }
         
         String submittedOtp = body.get("otp");
-        if (submittedOtp == null || !submittedOtp.equals(request.getStartOtp())) {
+        if (submittedOtp == null || !submittedOtp.trim().equals(request.getStartOtp())) {
             throw new RuntimeException("Invalid Start OTP");
         }
         
@@ -235,7 +235,7 @@ public class MovingController {
         }
         
         String submittedOtp = body.get("otp");
-        if (submittedOtp == null || !submittedOtp.equals(request.getEndOtp())) {
+        if (submittedOtp == null || !submittedOtp.trim().equals(request.getEndOtp())) {
             throw new RuntimeException("Invalid End OTP");
         }
         

@@ -87,11 +87,6 @@ public class ListingController {
         if (newStatus == null || (!newStatus.equals("ACTIVE") && !newStatus.equals("INACTIVE") && !newStatus.equals("RENTED"))) {
             throw new RuntimeException("Invalid status. Must be ACTIVE, INACTIVE, or RENTED.");
         }
-        Listing listing = service.getListingById(id);
-        if (!listing.getOwner().getEmail().equals(authentication.getName())) {
-            throw new RuntimeException("Not authorized to update this listing");
-        }
-        listing.setStatus(newStatus);
-        return ResponseEntity.ok(service.updateListing(id, listing, authentication.getName()));
+        return ResponseEntity.ok(service.updateListingStatus(id, newStatus, authentication.getName()));
     }
 }

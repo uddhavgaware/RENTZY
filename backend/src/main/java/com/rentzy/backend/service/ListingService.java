@@ -216,4 +216,16 @@ public class ListingService {
 
         return listingRepository.save(existing);
     }
+
+    @Transactional
+    @CacheEvict(value = {"listings", "listingDetails"}, allEntries = true)
+    public Listing updateListingStatus(Long id, String newStatus, String ownerEmail) {
+        Listing existing = listingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Listing not found"));
+        if (!existing.getOwner().getEmail().equals(ownerEmail)) {
+            throw new RuntimeException("Not authorized to update this listing");
+        }
+        existing.setStatus(newStatus);
+        return listingRepository.save(existing);
+    }
 }

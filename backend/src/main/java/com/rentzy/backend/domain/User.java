@@ -140,6 +140,26 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<MovingRequest> assignedMovingRequests;
 
+    @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SplitGroup> createdSplitGroups;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SplitGroupMember> splitGroupMembers;
+
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<UserReview> givenUserReviews;
+
+    @OneToMany(mappedBy = "reviewedUser", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<UserReview> receivedUserReviews;
+
+    @OneToMany(mappedBy = "reviewer", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<BuildingReview> buildingReviews;
+
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Message> sentMessages;
@@ -218,6 +238,15 @@ public class User implements UserDetails {
             SecureRandom rng = new SecureRandom();
             long code = 1000000000L + (long)(rng.nextDouble() * 9000000000L);
             userCode = String.valueOf(code);
+        }
+    }
+
+    @PreRemove
+    private void preRemove() {
+        if (assignedMovingRequests != null) {
+            for (MovingRequest request : assignedMovingRequests) {
+                request.setMover(null);
+            }
         }
     }
 

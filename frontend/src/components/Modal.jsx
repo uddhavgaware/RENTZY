@@ -54,14 +54,19 @@ const Modal = ({ isOpen, type = 'alert', title, message, onConfirm, onCancel, de
           <p className="text-gray-600 text-sm leading-relaxed whitespace-pre-line">{message}</p>
           
           {type === 'prompt' && (
-            <input
-              type="text"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder={placeholder}
-              className="mt-4 w-full p-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all text-sm"
-              autoFocus
-            />
+            <div className="mt-6 relative">
+              <input
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder={placeholder}
+                className="w-full p-4 text-center text-3xl font-black tracking-[0.5em] text-gray-900 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-inner bg-gray-50/50"
+                autoFocus
+              />
+              <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                <div className={`w-2 h-2 rounded-full ${inputValue.trim().length >= 4 ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-300'} transition-colors duration-300`}></div>
+              </div>
+            </div>
           )}
         </div>
 

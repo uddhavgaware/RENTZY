@@ -333,6 +333,11 @@ const Navbar = () => {
             <button onClick={toggleDarkMode} className={cn("p-1.5 rounded-full transition-colors hover:bg-gray-100/20", linkColorClass)} title="Toggle Dark Mode">
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
+            {isAuthenticated && (
+              <button onClick={handleLogout} className={cn("p-1.5 rounded-full transition-colors hover:text-red-600 hover:bg-red-50", linkColorClass)} title="Log out">
+                <LogOut size={20} />
+              </button>
+            )}
             {!isNativePlatform() && (
               <a href="/rentxy.apk" download className={cn("px-3 py-1.5 text-xs font-bold rounded-full transition-colors flex items-center gap-1 shadow-sm", isDarkHero && !isScrolled ? "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm" : "bg-primary-600 text-white hover:bg-primary-700")} title="Download App">
                 <Download size={14} /> Get App

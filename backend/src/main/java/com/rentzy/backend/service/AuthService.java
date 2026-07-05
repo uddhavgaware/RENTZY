@@ -132,7 +132,8 @@ public class AuthService {
 
     public AuthenticationResponse googleLogin(String tokenId) {
         try {
-            GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory());
+            GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                .setAcceptableTimeSkewSeconds(86400); // Allow 24 hours of clock drift for local development
             
             // Always extract audience from the token itself to pass verification
             // This prevents failures if the backend and frontend client IDs are mismatched or misconfigured.
@@ -144,20 +145,44 @@ public class AuthService {
             }
 
             GoogleIdTokenVerifier verifier = verifierBuilder.build();
-            GoogleIdToken idToken = verifier.verify(tokenId);
             
-            if (idToken == null) {
-                throw new RuntimeException("Invalid Google token");
+            if (unverifiedToken == null) {
+                 throw new RuntimeException("Could not parse Google token");
+            }
+            
+            boolean isValid = verifier.verify(unverifiedToken);
+            
+            if (!isValid) {
+                // Determine why it failed for debugging
+                String debugMsg = "Unknown";
+                if (!unverifiedToken.verifyTime(verifier.getClock().currentTimeMillis(), verifier.getAcceptableTimeSkewSeconds())) {
+                    debugMsg = "Token expired or issued in future. System time may be out of sync.";
+                } else if (!unverifiedToken.verifyIssuer(verifier.getIssuers())) {
+                    debugMsg = "Invalid issuer: " + unverifiedToken.getPayload().getIssuer();
+                } else if (!unverifiedToken.verifyAudience(verifier.getAudience())) {
+                    debugMsg = "Invalid audience.";
+                } else {
+                    debugMsg = "Invalid signature.";
+                }
+                throw new RuntimeException("Invalid Google token: " + debugMsg);
             }
 
-            GoogleIdToken.Payload payload = idToken.getPayload();
+            GoogleIdToken.Payload payload = unverifiedToken.getPayload();
             String email = payload.getEmail();
+            if (email == null || email.isEmpty()) {
+                throw new RuntimeException("Google token does not contain an email address");
+            }
+            
             String name = (String) payload.get("name");
+            if (name == null || name.isEmpty()) {
+                name = "Google User";
+            }
 
+            String finalName = name; // for use in lambda
             User user = repository.findByEmail(email).orElseGet(() -> {
                 // Auto-register new Google users
                 User newUser = User.builder()
-                        .name(name)
+                        .name(finalName)
                         .email(email)
                         .password(passwordEncoder.encode(UUID.randomUUID().toString())) // Random secure password
                         .role(User.Role.TENANT) // Default role
@@ -178,7 +203,8 @@ public class AuthService {
                     .message("Google authentication successful")
                     .build();
         } catch (Exception e) {
-            throw new RuntimeException("Google authentication failed: " + e.getMessage(), e);
+            e.printStackTrace();
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 

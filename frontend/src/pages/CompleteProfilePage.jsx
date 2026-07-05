@@ -6,7 +6,7 @@ import { User, Calendar, BookOpen, Briefcase, Camera, CheckCircle2 } from 'lucid
 import ImageCropperModal from '../components/ImageCropperModal';
 
 const CompleteProfilePage = () => {
-  const { user, refreshUser } = useAuth();
+  const { user, refreshUser, logout } = useAuth();
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(false);
@@ -370,6 +370,19 @@ const CompleteProfilePage = () => {
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-70"
               >
                 {loading ? 'Saving Profile...' : 'Complete Profile & Continue'}
+              </button>
+            </div>
+            
+            <div className="text-center mt-4">
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  navigate('/auth');
+                }}
+                className="text-sm font-medium text-gray-500 hover:text-red-600 transition-colors"
+              >
+                Logged in with wrong email? Log out
               </button>
             </div>
           </form>
