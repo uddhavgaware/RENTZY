@@ -327,10 +327,18 @@ const MoverDashboardPage = () => {
                         </div>
                         {job.status === 'ASSIGNED' && (
                           <div className="flex flex-col gap-2 w-full md:w-auto">
+                            <a 
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(job.fromLocation)}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="w-full bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-md shadow-[#4285F4]/30"
+                            >
+                              <MapPin size={18} /> Navigate to Pickup
+                            </a>
                             <button onClick={() => handleStartJob(job.id)} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
                               <Truck size={18} /> Start Move (OTP)
                             </button>
-                            <button onClick={() => handleReleaseJob(job.id)} className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-xl transition-colors text-sm border border-red-200">
+                            <button onClick={() => handleReleaseJob(job.id)} className="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-2 px-4 rounded-xl transition-colors text-sm border border-red-200 mt-2">
                               Negotiation Failed? Release Job
                             </button>
                           </div>
@@ -344,6 +352,14 @@ const MoverDashboardPage = () => {
                             <div className="bg-yellow-50 text-yellow-800 p-3 rounded-xl border border-yellow-200 text-sm font-bold text-center">
                               ⚠️ Collect {job.estimatedPrice ? `₹${job.estimatedPrice.toLocaleString('en-IN')}` : 'Payment'} (Cash) before completing
                             </div>
+                            <a 
+                              href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(job.toLocation)}`} 
+                              target="_blank" 
+                              rel="noopener noreferrer" 
+                              className="w-full md:w-auto bg-[#4285F4] hover:bg-[#3367D6] text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2 shadow-md shadow-[#4285F4]/30"
+                            >
+                              <MapPin size={18} /> Navigate to Drop-off
+                            </a>
                             <button onClick={() => handleCompleteJob(job.id)} className="w-full md:w-auto bg-gray-900 hover:bg-black text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
                               <CheckCircle2 size={18} /> Complete Job (OTP)
                             </button>
