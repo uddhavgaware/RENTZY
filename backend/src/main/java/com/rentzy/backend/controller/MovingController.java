@@ -233,4 +233,25 @@ public class MovingController {
         
         return ResponseEntity.ok(movingRequestRepository.save(request));
     }
+
+    // Customer reviews the vendor
+    @PostMapping("/{id}/review")
+    public ResponseEntity<MovingRequest> submitReview(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        MovingRequest request = movingRequestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        
+        if (!request.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can only review your own moving requests");
+        }
+        if (!"COMPLETED".equals(request.getStatus())) {
+            throw new RuntimeException("You can only review completed moves");
+        }
+        
+        request.setReviewRating(body.get("rating"));
+        request.setReviewComments(body.get("comments"));
+        
+        return ResponseEntity.ok(movingRequestRepository.save(request));
+    }
 }

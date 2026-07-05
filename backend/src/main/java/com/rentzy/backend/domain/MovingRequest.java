@@ -79,4 +79,10 @@ public class MovingRequest {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @Column
+    private String reviewRating; // e.g. "HAPPY", "UNHAPPY"
+
+    @Column(length = 1000)
+    private String reviewComments;
 }

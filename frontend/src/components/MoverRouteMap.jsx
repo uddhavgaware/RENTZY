@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
-import { Navigation, Clock, Activity } from 'lucide-react';
+import { Navigation, Clock, Activity, MapPin, Flag, ExternalLink } from 'lucide-react';
 
 function MapUpdater({ bounds }) {
   const map = useMap();
@@ -103,43 +103,46 @@ const MoverRouteMap = ({ job }) => {
     );
   }
 
+  const navToPickup = () => window.open(`https://www.google.com/maps/dir/?api=1&destination=${job.fromLatitude},${job.fromLongitude}`, '_blank');
+  const navToDropoff = () => window.open(`https://www.google.com/maps/dir/?api=1&destination=${job.toLatitude},${job.toLongitude}`, '_blank');
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mt-4 relative z-0">
+    <div className="bg-white rounded-3xl border border-gray-200 shadow-lg overflow-hidden mt-6 relative z-0 flex flex-col">
       {/* Header Info */}
-      <div className="p-4 bg-gray-900 text-white flex flex-wrap items-center justify-between gap-4 relative z-10">
-        <div className="flex items-center gap-2">
-          <Navigation size={18} className="text-indigo-400" />
-          <span className="font-bold">Live Navigation Route</span>
+      <div className="p-4 bg-gradient-to-r from-gray-900 to-slate-800 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10">
+        <div className="flex items-center gap-3">
+          <div className="bg-indigo-500/20 p-2 rounded-xl border border-indigo-500/30">
+            <Navigation size={20} className="text-indigo-400" />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg leading-tight text-white">Interactive Map</h3>
+            <p className="text-xs text-gray-400">Turn-by-turn navigation available below</p>
+          </div>
         </div>
         
         {loading ? (
-          <div className="text-xs text-gray-400 flex items-center gap-2">
-            <div className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
-            Calculating optimal route...
+          <div className="text-sm font-medium text-indigo-300 flex items-center gap-2 bg-indigo-900/40 px-3 py-1.5 rounded-full border border-indigo-500/20">
+            <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+            Routing...
           </div>
         ) : routeData ? (
-          <div className="flex gap-4">
-            <div className="flex items-center gap-1.5 text-sm font-semibold">
+          <div className="flex flex-wrap gap-2">
+            <div className="flex items-center gap-2 bg-gray-800/80 backdrop-blur px-3 py-1.5 rounded-lg border border-gray-700">
               <Clock size={16} className="text-amber-400" />
-              {routeData.duration} mins
+              <span className="text-sm font-bold text-white">{routeData.duration} mins</span>
             </div>
-            <div className="flex items-center gap-1.5 text-sm font-semibold">
+            <div className="flex items-center gap-2 bg-gray-800/80 backdrop-blur px-3 py-1.5 rounded-lg border border-gray-700">
               <Activity size={16} className="text-green-400" />
-              {routeData.distance} km
+              <span className="text-sm font-bold text-white">{routeData.distance} km</span>
             </div>
-            {usingMapbox && (
-              <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">
-                Traffic Aware
-              </span>
-            )}
           </div>
         ) : (
-          <span className="text-xs text-red-400">{error}</span>
+          <span className="text-sm font-medium text-red-400 bg-red-900/30 px-3 py-1 rounded-lg">{error}</span>
         )}
       </div>
 
       {/* Map Container */}
-      <div className="h-[250px] w-full relative z-0 bg-gray-100">
+      <div className="h-[300px] w-full relative z-0 bg-gray-100">
         {routeData && (
           <MapContainer 
             bounds={[ [job.fromLatitude, job.fromLongitude], [job.toLatitude, job.toLongitude] ]} 
@@ -164,6 +167,26 @@ const MoverRouteMap = ({ job }) => {
             <Marker position={[job.toLatitude, job.toLongitude]} icon={dropoffPin} />
           </MapContainer>
         )}
+      </div>
+
+      {/* Navigation Footer */}
+      <div className="p-4 bg-gray-50 border-t border-gray-200 grid grid-cols-1 sm:grid-cols-2 gap-3 relative z-10">
+        <button 
+          onClick={navToPickup}
+          className="w-full flex items-center justify-center gap-2 bg-white border-2 border-indigo-100 text-indigo-700 hover:bg-indigo-50 hover:border-indigo-300 transition-all font-bold py-3 px-4 rounded-xl shadow-sm"
+        >
+          <MapPin size={18} />
+          Navigate to Pickup
+          <ExternalLink size={14} className="ml-auto opacity-50" />
+        </button>
+        <button 
+          onClick={navToDropoff}
+          className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white border-2 border-indigo-600 transition-all font-bold py-3 px-4 rounded-xl shadow-sm"
+        >
+          <Flag size={18} />
+          Navigate to Drop-off
+          <ExternalLink size={14} className="ml-auto opacity-70" />
+        </button>
       </div>
     </div>
   );

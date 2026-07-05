@@ -61,6 +61,8 @@ const DashboardPage = () => {
   const [movingRequests, setMovingRequests] = useState([]);
   const [loadingMoving, setLoadingMoving] = useState(false);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
+  const [showReviewModal, setShowReviewModal] = useState(null);
+  const [reviewForm, setReviewForm] = useState({ rating: '', comments: '' });
   const [userSettings, setUserSettings] = useState({
     emailNotifications: true,
     smsAlerts: false,
@@ -1203,6 +1205,14 @@ const DashboardPage = () => {
                                   });
                                 }} className="text-xs text-green-600 hover:text-green-800 font-medium">Mark Completed</button>
                               )}
+                              {req.status === 'COMPLETED' && !req.reviewRating && (
+                                <button onClick={() => setShowReviewModal(req)} className="text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">Rate Vendor</button>
+                              )}
+                              {req.status === 'COMPLETED' && req.reviewRating && (
+                                <span className="text-xs text-gray-500 font-medium bg-gray-50 px-2 py-1 rounded-full border border-gray-200">
+                                  Review: {req.reviewRating === 'HAPPY' ? '😄 Happy' : '😞 Not Happy'}
+                                </span>
+                              )}
                             </div>
                             <span className="text-xs text-gray-400">Requested on {new Date(req.createdAt).toLocaleDateString()}</span>
                           </div>
@@ -1398,6 +1408,66 @@ const DashboardPage = () => {
             setImageToCrop(null);
           }}
         />
+      )}
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-scaleIn border border-gray-100 dark:border-white/10">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">Rate Your Vendor</h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">How was your moving experience with {showReviewModal.mover?.name}?</p>
+            
+            <div className="flex gap-4 justify-center mb-6">
+              <button 
+                onClick={() => setReviewForm({ ...reviewForm, rating: 'HAPPY' })}
+                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all ${reviewForm.rating === 'HAPPY' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}
+              >
+                <span className="text-4xl">😄</span>
+                <span className="font-bold">Happy</span>
+              </button>
+              <button 
+                onClick={() => setReviewForm({ ...reviewForm, rating: 'UNHAPPY' })}
+                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all ${reviewForm.rating === 'UNHAPPY' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 hover:border-red-200 text-gray-600'}`}
+              >
+                <span className="text-4xl">😞</span>
+                <span className="font-bold">Not Happy</span>
+              </button>
+            </div>
+
+            <textarea 
+              placeholder="Add optional comments about your experience..."
+              value={reviewForm.comments}
+              onChange={(e) => setReviewForm({ ...reviewForm, comments: e.target.value })}
+              className="w-full rounded-xl border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 resize-none h-24 p-3 text-sm mb-6 bg-gray-50 dark:bg-slate-800 dark:border-slate-700 dark:text-white"
+            />
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => { setShowReviewModal(null); setReviewForm({ rating: '', comments: '' }); }}
+                className="flex-1 px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={async () => {
+                  if (!reviewForm.rating) return;
+                  try {
+                    await api.post(`/moving/${showReviewModal.id}/review`, reviewForm);
+                    setMovingRequests(prev => prev.map(m => m.id === showReviewModal.id ? { ...m, reviewRating: reviewForm.rating, reviewComments: reviewForm.comments } : m));
+                    setShowReviewModal(null);
+                    setReviewForm({ rating: '', comments: '' });
+                  } catch (e) {
+                    console.error("Failed to submit review");
+                  }
+                }}
+                disabled={!reviewForm.rating}
+                className="flex-1 px-4 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Submit Review
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <Modal {...modalConfig} onCancel={closeModal} />
