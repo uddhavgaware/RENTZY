@@ -87,7 +87,7 @@ const MoverDashboardPage = () => {
     onConfirm: async () => {
       closeModal();
       try {
-        await api.put(`/vendor/${id}/release`);
+        await api.put(`/moving/vendor/${id}/release`);
         setMyJobs(prev => prev.filter(job => job.id !== id));
         fetchData(); // Refresh available leads
       } catch (err) {

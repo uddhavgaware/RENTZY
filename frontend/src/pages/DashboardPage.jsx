@@ -1243,19 +1243,38 @@ const DashboardPage = () => {
                             </div>
                           </div>
                           {req.mover && (
-                            <div className="mt-4 bg-primary-50 rounded-xl p-3 flex items-center justify-between border border-primary-100">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 bg-primary-200 text-primary-800 rounded-lg flex items-center justify-center font-bold">
-                                  {req.mover.name?.charAt(0)}
+                            <div className="mt-4 bg-primary-50 rounded-xl p-4 border border-primary-100 flex flex-col gap-3">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 bg-primary-200 text-primary-800 rounded-lg flex items-center justify-center font-bold">
+                                    {req.mover.name?.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold text-gray-900">{req.mover.name}</p>
+                                    <p className="text-xs text-primary-700 font-medium">{req.mover.phone}</p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="text-sm font-bold text-gray-900">{req.mover.name}</p>
-                                  <p className="text-xs text-primary-700 font-medium">{req.mover.phone}</p>
-                                </div>
+                                <span className="text-[10px] uppercase bg-white text-primary-600 px-2 py-1 rounded font-bold border border-primary-200">
+                                  Assigned Vendor
+                                </span>
                               </div>
-                              <span className="text-xs bg-white text-primary-600 px-2 py-1 rounded font-bold border border-primary-200">
-                                Assigned Vendor
-                              </span>
+                              <div className="flex gap-2 pt-2 border-t border-primary-100/50">
+                                {req.mover.phone && (
+                                  <>
+                                    <a href={`tel:${req.mover.phone}`} className="flex-1 flex items-center justify-center gap-1.5 bg-gray-900 text-white text-xs font-bold px-2 py-2 rounded-lg hover:bg-gray-800 transition-all shadow-sm">
+                                      <Phone size={14} /> Call
+                                    </a>
+                                    <a href={`https://wa.me/${req.mover.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] text-white text-xs font-bold px-2 py-2 rounded-lg hover:bg-[#1ebd5a] transition-all shadow-sm">
+                                      WhatsApp
+                                    </a>
+                                  </>
+                                )}
+                                {req.mover.email && (
+                                  <a href={`mailto:${req.mover.email}`} className="flex-1 flex items-center justify-center gap-1.5 bg-white text-primary-800 border border-primary-200 hover:bg-primary-100 text-xs font-bold px-2 py-2 rounded-lg transition-all shadow-sm">
+                                    <Mail size={14} /> Email
+                                  </a>
+                                )}
+                              </div>
                             </div>
                           )}
 
