@@ -29,8 +29,7 @@ const MobileBottomNav = () => {
     } else if (role === 'MOVER') {
       return [
         { path: '/', icon: Home, label: 'Home' },
-        { path: '/mover-dashboard', icon: Building2, label: 'Vendor' },
-        { path: '/dashboard?tab=moving', icon: Users, label: 'Requests' },
+        { path: '/mover-dashboard', icon: Building2, label: 'Jobs' },
         { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
       ];
     }

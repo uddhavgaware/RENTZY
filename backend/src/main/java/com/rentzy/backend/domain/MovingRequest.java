@@ -60,9 +60,21 @@ public class MovingRequest {
     @Column
     private Double estimatedPrice;
 
+    @Column(length = 4)
+    private String startOtp;
+
+    @Column(length = 4)
+    private String endOtp;
+
+    @Column
+    private Double currentLatitude;
+
+    @Column
+    private Double currentLongitude;
+
     @Column
     @Builder.Default
-    private String status = "PENDING"; // PENDING, QUOTED, ASSIGNED, COMPLETED, CANCELLED
+    private String status = "PENDING"; // PENDING, QUOTED, ASSIGNED, IN_TRANSIT, COMPLETED, CANCELLED
 
     @CreationTimestamp
     @Column(updatable = false)

@@ -6,6 +6,24 @@ import ListingCard from '../components/ListingCard';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import ImageCropperModal from '../components/ImageCropperModal';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { divIcon } from 'leaflet';
+
+const truckIcon = divIcon({
+  html: `
+    <div class="flex items-center justify-center">
+      <div class="relative w-10 h-10 flex items-center justify-center">
+        <div class="absolute inset-0 bg-blue-500 rounded-full opacity-35 animate-ping"></div>
+        <div class="relative w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg border-2 border-blue-500">
+          🚚
+        </div>
+      </div>
+    </div>
+  `,
+  className: 'custom-truck-marker',
+  iconSize: [40, 40],
+  iconAnchor: [20, 40]
+});
 
 const slugify = (text) => {
   if (!text) return '';
@@ -109,7 +127,14 @@ const DashboardPage = () => {
     }
     if (activeTab === 'moving') {
       setLoadingMoving(true);
-      api.get('/moving/my').then(r => setMovingRequests(r.data)).catch(() => { }).finally(() => setLoadingMoving(false));
+      const fetchMoving = () => api.get('/moving/my').then(r => setMovingRequests(r.data)).catch(() => { });
+      fetchMoving().finally(() => setLoadingMoving(false));
+      
+      const interval = setInterval(() => {
+        api.get('/moving/my').then(r => setMovingRequests(r.data)).catch(() => { });
+      }, 5000); // Poll every 5 seconds for live tracking updates
+      
+      return () => clearInterval(interval);
     }
   }, [activeTab]);
 
@@ -1218,6 +1243,45 @@ const DashboardPage = () => {
                               <span className="text-xs bg-white text-primary-600 px-2 py-1 rounded font-bold border border-primary-200">
                                 Assigned Vendor
                               </span>
+                            </div>
+                          )}
+
+                          {/* SECURITY OTPs */}
+                          {(req.status === 'ASSIGNED' || req.status === 'IN_TRANSIT') && (
+                            <div className="mt-4 border-2 border-red-100 bg-red-50 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+                              <div className="flex items-center gap-2">
+                                <ShieldCheck className="text-red-500" size={24} />
+                                <div>
+                                  <p className="text-sm font-bold text-gray-900">Security OTPs</p>
+                                  <p className="text-xs text-gray-600">Give Start OTP to begin, End OTP when delivered.</p>
+                                </div>
+                              </div>
+                              <div className="flex gap-4">
+                                <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 text-center shadow-sm">
+                                  <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">Start OTP</p>
+                                  <p className="text-xl font-black tracking-widest text-primary-600">{req.startOtp}</p>
+                                </div>
+                                <div className="bg-white px-4 py-2 rounded-lg border border-gray-200 text-center shadow-sm">
+                                  <p className="text-[10px] uppercase font-bold text-gray-500 mb-1">End OTP</p>
+                                  <p className="text-xl font-black tracking-widest text-green-600">{req.endOtp}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* LIVE TRACKING MAP */}
+                          {req.status === 'IN_TRANSIT' && req.currentLatitude && req.currentLongitude && (
+                            <div className="mt-4 border border-blue-200 rounded-xl overflow-hidden relative shadow-inner">
+                              <div className="absolute top-2 left-2 z-[500] bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-blue-100 shadow flex items-center gap-2">
+                                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                <span className="text-xs font-bold text-blue-900">Live Tracking</span>
+                              </div>
+                              <div className="h-48 w-full">
+                                <MapContainer center={[req.currentLatitude, req.currentLongitude]} zoom={15} scrollWheelZoom={false} zoomControl={false} className="h-full w-full">
+                                  <TileLayer url="https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}" />
+                                  <Marker position={[req.currentLatitude, req.currentLongitude]} icon={truckIcon} />
+                                </MapContainer>
+                              </div>
                             </div>
                           )}
                         </div>

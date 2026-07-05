@@ -564,15 +564,43 @@ const ListingsPage = () => {
             ))}
           </div>
         ) : listings.length === 0 ? (
-          <div className="col-span-full text-center py-16">
-            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="col-span-full text-center py-16 bg-gray-50/50 rounded-3xl border border-gray-100">
+            <div className="w-20 h-20 bg-white shadow-sm rounded-full flex items-center justify-center mx-auto mb-4">
               <Search className="text-gray-400" size={32} />
             </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">No properties found</h3>
-            <p className="text-gray-500 mb-4">Try adjusting your filters or search in a different location.</p>
-            <button onClick={clearFilters} className="text-primary-600 hover:text-primary-700 font-medium">
-              Clear all filters
-            </button>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No properties found</h3>
+            <p className="text-gray-500 mb-6 max-w-md mx-auto">We couldn't find any properties matching your criteria in this area. Would you like us to notify you when new properties are added?</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button onClick={clearFilters} className="text-gray-600 hover:text-gray-900 font-medium px-4 py-2 border border-gray-200 rounded-xl bg-white hover:bg-gray-50 transition-colors">
+                Clear all filters
+              </button>
+              {(appliedLocation || searchInput) && isAuthenticated && (
+                <button 
+                  onClick={async () => {
+                    try {
+                      const res = await api.post('/alerts/subscribe', { 
+                        location: appliedLocation || searchInput, 
+                        propertyType: activeType === 'all' ? 'Flat' : activeType === 'pg' ? 'PG' : 'Flat'
+                      });
+                      import('react-hot-toast').then(({ toast }) => toast.success(res.data.message || 'Subscribed successfully!'));
+                    } catch (err) {
+                      import('react-hot-toast').then(({ toast }) => toast.error(err.response?.data?.error || 'Failed to subscribe'));
+                    }
+                  }}
+                  className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-6 py-2 rounded-xl flex items-center gap-2 shadow-sm transition-all active:scale-95"
+                >
+                  <Bell size={18} /> Notify Me
+                </button>
+              )}
+              {(appliedLocation || searchInput) && !isAuthenticated && (
+                <button 
+                  onClick={() => navigate('/auth')}
+                  className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-6 py-2 rounded-xl flex items-center gap-2 shadow-sm transition-all active:scale-95"
+                >
+                  <Bell size={18} /> Login to get notified
+                </button>
+              )}
+            </div>
           </div>
         ) : isMapView ? (
           <div className="h-[600px] w-full rounded-2xl overflow-hidden border border-gray-200 shadow-sm z-0 relative">

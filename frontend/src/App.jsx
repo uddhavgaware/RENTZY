@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { HelmetProvider } from 'react-helmet-async';
 import { Loader2, WifiOff, Wifi } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ListingsPage = lazy(() => import('./pages/ListingsPage'));
@@ -176,6 +177,7 @@ function App() {
         </AuthProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
+    <Toaster position="top-right" />
     </HelmetProvider>
   );
 }

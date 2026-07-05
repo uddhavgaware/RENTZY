@@ -26,6 +26,7 @@ public class RoommateService {
     private final UserRepository userRepository;
     private final LocationExpansionService locationExpansionService;
     private final CloudinaryService cloudinaryService;
+    private final NotificationService notificationService;
 
     @Transactional(readOnly = true)
     public Page<RoommatePostDTO> getAllPosts(String location, int page, int size) {
@@ -110,6 +111,31 @@ public class RoommateService {
         }
         
         RoommatePost saved = repository.save(post);
+        
+        try {
+            // Find users who have posted in the same location (fuzzy match)
+            if (saved.getLocation() != null) {
+                List<RoommatePost> similarPosts = repository.findAll().stream()
+                    .filter(p -> p.getLocation() != null && p.getLocation().toLowerCase().contains(saved.getLocation().toLowerCase()))
+                    .filter(p -> !p.getUser().getId().equals(user.getId())) // Not self
+                    .toList();
+                
+                // Get unique users from those posts
+                List<User> usersToNotify = similarPosts.stream().map(RoommatePost::getUser).distinct().toList();
+                
+                for (User u : usersToNotify) {
+                    notificationService.createNotification(
+                        u.getEmail(),
+                        "Someone is looking for a roommate in " + saved.getLocation() + "! Check out their profile.",
+                        "ROOMMATE_MATCH",
+                        "/roommates"
+                    );
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send roommate notifications: " + e.getMessage());
+        }
+        
         return com.rentzy.backend.dto.RoommatePostDTO.fromEntity(saved);
     }
 

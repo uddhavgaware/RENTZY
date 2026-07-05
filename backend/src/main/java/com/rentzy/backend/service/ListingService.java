@@ -5,6 +5,8 @@ import com.rentzy.backend.domain.User;
 import com.rentzy.backend.repository.ListingRepository;
 import com.rentzy.backend.repository.UserRepository;
 import com.rentzy.backend.repository.BuildingRepository;
+import com.rentzy.backend.repository.SearchAlertRepository;
+import com.rentzy.backend.domain.SearchAlert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,8 @@ public class ListingService {
     private final UserRepository userRepository;
     private final BuildingRepository buildingRepository;
     private final LocationExpansionService locationExpansionService;
+    private final SearchAlertRepository searchAlertRepository;
+    private final NotificationService notificationService;
 
     @Cacheable(value = "listings")
     public List<Listing> getAllListings() {
@@ -120,7 +124,34 @@ public class ListingService {
         if (listing.getBuilding() != null && listing.getBuilding().getId() != null) {
             listing.setBuilding(buildingRepository.findById(listing.getBuilding().getId()).orElse(null));
         }
-        return listingRepository.save(listing);
+        Listing savedListing = listingRepository.save(listing);
+        
+        // Trigger Search Alerts
+        try {
+            if (savedListing.getLocation() != null && savedListing.getType() != null) {
+                // Find users who have alerts for this location and property type
+                // Since location matching can be fuzzy, we will fetch alerts that match the property type
+                // and then filter by location string matching
+                List<SearchAlert> potentialAlerts = searchAlertRepository.findAll().stream()
+                    .filter(a -> a.getPropertyType().equalsIgnoreCase(savedListing.getType()))
+                    .filter(a -> savedListing.getLocation().toLowerCase().contains(a.getLocation().toLowerCase()))
+                    .filter(a -> !a.getUser().getEmail().equals(ownerEmail)) // Don't notify the owner
+                    .toList();
+                
+                for (SearchAlert alert : potentialAlerts) {
+                    notificationService.createNotification(
+                        alert.getUser().getEmail(),
+                        "A new " + savedListing.getType() + " was just added in " + alert.getLocation() + "!",
+                        "ALERT",
+                        "/property/" + savedListing.getId()
+                    );
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to trigger search alerts: " + e.getMessage());
+        }
+
+        return savedListing;
     }
 
     public List<Listing> getListingsByOwner(String ownerEmail) {

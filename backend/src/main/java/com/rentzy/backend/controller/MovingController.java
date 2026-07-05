@@ -141,6 +141,12 @@ public class MovingController {
         
         request.setMover(mover);
         request.setStatus("ASSIGNED");
+        
+        // Generate random 4-digit OTPs
+        java.util.Random rnd = new java.util.Random();
+        request.setStartOtp(String.format("%04d", rnd.nextInt(10000)));
+        request.setEndOtp(String.format("%04d", rnd.nextInt(10000)));
+
         MovingRequest saved = movingRequestRepository.save(request);
 
         // Notify the customer that a mover has been assigned
@@ -153,8 +159,8 @@ public class MovingController {
         return ResponseEntity.ok(saved);
     }
 
-    @PutMapping("/vendor/{id}/complete")
-    public ResponseEntity<MovingRequest> completeRequest(@PathVariable Long id, Authentication auth) {
+    @PostMapping("/vendor/{id}/verify-start")
+    public ResponseEntity<MovingRequest> verifyStartOtp(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) {
         User mover = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         MovingRequest request = movingRequestRepository.findById(id)
@@ -162,6 +168,37 @@ public class MovingController {
         
         if (request.getMover() == null || !request.getMover().getId().equals(mover.getId())) {
             throw new RuntimeException("You are not assigned to this request");
+        }
+        if (!"ASSIGNED".equals(request.getStatus())) {
+            throw new RuntimeException("Move is not in ASSIGNED state");
+        }
+        
+        String submittedOtp = body.get("otp");
+        if (submittedOtp == null || !submittedOtp.equals(request.getStartOtp())) {
+            throw new RuntimeException("Invalid Start OTP");
+        }
+        
+        request.setStatus("IN_TRANSIT");
+        return ResponseEntity.ok(movingRequestRepository.save(request));
+    }
+
+    @PostMapping("/vendor/{id}/verify-end")
+    public ResponseEntity<MovingRequest> verifyEndOtp(@PathVariable Long id, @RequestBody Map<String, String> body, Authentication auth) {
+        User mover = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        MovingRequest request = movingRequestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        
+        if (request.getMover() == null || !request.getMover().getId().equals(mover.getId())) {
+            throw new RuntimeException("You are not assigned to this request");
+        }
+        if (!"IN_TRANSIT".equals(request.getStatus())) {
+            throw new RuntimeException("Move is not in IN_TRANSIT state");
+        }
+        
+        String submittedOtp = body.get("otp");
+        if (submittedOtp == null || !submittedOtp.equals(request.getEndOtp())) {
+            throw new RuntimeException("Invalid End OTP");
         }
         
         request.setStatus("COMPLETED");
@@ -175,5 +212,25 @@ public class MovingController {
         );
 
         return ResponseEntity.ok(saved);
+    }
+
+    @PutMapping("/vendor/{id}/location")
+    public ResponseEntity<MovingRequest> updateLocation(@PathVariable Long id, @RequestBody Map<String, Double> body, Authentication auth) {
+        User mover = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        MovingRequest request = movingRequestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        
+        if (request.getMover() == null || !request.getMover().getId().equals(mover.getId())) {
+            throw new RuntimeException("You are not assigned to this request");
+        }
+        if (!"IN_TRANSIT".equals(request.getStatus())) {
+            throw new RuntimeException("Live tracking is only available while IN_TRANSIT");
+        }
+        
+        if (body.get("lat") != null) request.setCurrentLatitude(body.get("lat"));
+        if (body.get("lng") != null) request.setCurrentLongitude(body.get("lng"));
+        
+        return ResponseEntity.ok(movingRequestRepository.save(request));
     }
 }

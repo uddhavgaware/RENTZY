@@ -71,20 +71,58 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const latestNotifId = useRef(null);
+
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    const fetchCount = async () => {
+    const fetchNotificationsAndCount = async () => {
       try {
-        const res = await api.get('/notifications/unread-count');
-        setUnreadCount(res.data.count || 0);
+        const [countRes, notifsRes] = await Promise.all([
+          api.get('/notifications/unread-count'),
+          api.get('/notifications')
+        ]);
+        
+        const count = countRes.data.count || 0;
+        setUnreadCount(count);
+        
+        const notifs = notifsRes.data;
+        if (notifs.length > 0) {
+          const newest = notifs[0];
+          // If we have a new notification that we haven't seen yet in this session, toast it!
+          if (latestNotifId.current && newest.id > latestNotifId.current && !newest.isRead) {
+            import('react-hot-toast').then(({ toast }) => {
+              toast.custom((t) => (
+                <div className={`${t.visible ? 'animate-enter' : 'animate-leave'} max-w-sm w-full bg-white shadow-lg rounded-xl pointer-events-auto flex ring-1 ring-black ring-opacity-5`}>
+                  <div className="flex-1 w-0 p-4">
+                    <div className="flex items-start">
+                      <div className="flex-shrink-0 pt-0.5">
+                        <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
+                          <Bell className="h-5 w-5 text-primary-600" />
+                        </div>
+                      </div>
+                      <div className="ml-3 flex-1">
+                        <p className="text-sm font-medium text-gray-900">New Notification</p>
+                        <p className="mt-1 text-sm text-gray-500">{newest.message}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex border-l border-gray-200">
+                    <button onClick={() => { import('react-hot-toast').then(({ toast }) => toast.dismiss(t.id)); if(newest.link) navigate(newest.link); }} className="w-full border border-transparent rounded-none rounded-r-xl p-4 flex items-center justify-center text-sm font-medium text-primary-600 hover:text-primary-500 focus:outline-none">View</button>
+                  </div>
+                </div>
+              ));
+            });
+          }
+          latestNotifId.current = newest.id;
+        }
       } catch {}
     };
 
-    fetchCount(); // Immediate fetch on mount / route change
-    const interval = setInterval(fetchCount, 30000); // Poll every 30s
+    fetchNotificationsAndCount(); // Immediate fetch on mount / route change
+    const interval = setInterval(fetchNotificationsAndCount, 15000); // Poll every 15s (faster for real-time feel)
     return () => clearInterval(interval);
-  }, [isAuthenticated, location.pathname]);
+  }, [isAuthenticated, location.pathname, navigate]);
 
   useEffect(() => {
     const handleClick = (e) => { if (notifRef.current && !notifRef.current.contains(e.target)) setShowNotifs(false); };

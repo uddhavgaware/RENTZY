@@ -93,7 +93,7 @@ const MoversPage = () => {
     toDistrict: '',
     toPincode: '',
     movingDate: '',
-    movingTime: 'Morning (8 AM - 12 PM)',
+    movingTime: '10:00',
     propertySize: '1BHK',
     additionalNotes: ''
   });
@@ -329,11 +329,7 @@ const MoversPage = () => {
                   <label className="text-sm font-medium text-gray-700">Time</label>
                   <div className="relative">
                     <Clock className="absolute left-3 top-3 text-gray-400" size={18} />
-                    <select value={formData.movingTime} onChange={e => setFormData({ ...formData, movingTime: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
-                      <option value="Morning (8 AM - 12 PM)">Morning</option>
-                      <option value="Afternoon (12 PM - 4 PM)">Afternoon</option>
-                      <option value="Evening (4 PM - 8 PM)">Evening</option>
-                    </select>
+                    <input type="time" required value={formData.movingTime} onChange={e => setFormData({ ...formData, movingTime: e.target.value })} className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                   </div>
                 </div>
               </div>

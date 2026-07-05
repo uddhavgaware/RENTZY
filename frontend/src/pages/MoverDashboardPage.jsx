@@ -60,15 +60,37 @@ const MoverDashboardPage = () => {
     }
   };
 
-  const handleCompleteJob = (id) => {
+  const handleStartJob = (id) => {
     showModal({
-      type: 'confirm',
-      title: 'Complete Job',
-      message: 'Mark this move as completed?',
-      onConfirm: async () => {
+      type: 'prompt',
+      title: 'Enter Start OTP',
+      message: 'Please enter the 4-digit Start OTP given by the customer to start this move and begin live tracking.',
+      placeholder: '0000',
+      onConfirm: async (otp) => {
         closeModal();
         try {
-          await api.put(`/moving/vendor/${id}/complete`);
+          await api.post(`/moving/vendor/${id}/verify-start`, { otp });
+          import('react-hot-toast').then(({ toast }) => toast.success('Live Tracking Started!'));
+          fetchData();
+        } catch (err) {
+          showModal({ type: 'alert', title: 'Error', message: err.response?.data?.message || 'Failed to start job.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  const handleCompleteJob = (id) => {
+    showModal({
+      type: 'prompt',
+      title: 'Enter End OTP',
+      message: 'Please enter the 4-digit End OTP given by the customer to mark this job as COMPLETED and stop live tracking.',
+      placeholder: '0000',
+      onConfirm: async (otp) => {
+        closeModal();
+        try {
+          await api.post(`/moving/vendor/${id}/verify-end`, { otp });
+          import('react-hot-toast').then(({ toast }) => toast.success('Job Completed Successfully!'));
           fetchData();
         } catch (err) {
           showModal({ type: 'alert', title: 'Error', message: err.response?.data?.message || 'Failed to complete job.', onConfirm: closeModal });
@@ -77,6 +99,30 @@ const MoverDashboardPage = () => {
       onCancel: closeModal
     });
   };
+
+  useEffect(() => {
+    let watchId;
+    const inTransitJob = myJobs.find(j => j.status === 'IN_TRANSIT');
+    if (inTransitJob) {
+      if ('geolocation' in navigator) {
+        watchId = navigator.geolocation.watchPosition(
+          async (position) => {
+            try {
+              await api.put(`/moving/vendor/${inTransitJob.id}/location`, {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+              });
+            } catch (err) { }
+          },
+          (err) => console.error("Error watching position", err),
+          { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+        );
+      }
+    }
+    return () => {
+      if (watchId !== undefined) navigator.geolocation.clearWatch(watchId);
+    };
+  }, [myJobs]);
 
   if (loading || user?.role !== 'MOVER') return null;
 
@@ -264,14 +310,25 @@ const MoverDashboardPage = () => {
                           </div>
                         </div>
                         {job.status === 'ASSIGNED' && (
-                          <button onClick={() => handleCompleteJob(job.id)} className="w-full md:w-auto bg-gray-900 hover:bg-black text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
-                            <CheckCircle2 size={18} /> Mark as Completed
+                          <button onClick={() => handleStartJob(job.id)} className="w-full md:w-auto bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
+                            <Truck size={18} /> Start Move (OTP)
                           </button>
+                        )}
+                        {job.status === 'IN_TRANSIT' && (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex items-center gap-2 text-green-600 font-bold bg-green-50 px-4 py-2 rounded-xl border border-green-200">
+                              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                              Live Tracking Active
+                            </div>
+                            <button onClick={() => handleCompleteJob(job.id)} className="w-full md:w-auto bg-gray-900 hover:bg-black text-white font-bold py-3 px-8 rounded-xl transition-transform active:scale-95 flex items-center justify-center gap-2">
+                              <CheckCircle2 size={18} /> Complete Job (OTP)
+                            </button>
+                          </div>
                         )}
                       </div>
 
                       {/* Display the Route Map */}
-                      {job.status === 'ASSIGNED' && (
+                      {(job.status === 'ASSIGNED' || job.status === 'IN_TRANSIT') && (
                         <MoverRouteMap job={job} />
                       )}
                     </div>
