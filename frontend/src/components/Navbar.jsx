@@ -16,6 +16,7 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [notificationPermission, setNotificationPermission] = useState('Notification' in window ? Notification.permission : 'denied');
   const notifRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -159,9 +160,22 @@ const Navbar = () => {
   const markAllRead = async () => {
     try {
       await api.put('/notifications/read-all');
-      setUnreadCount(0);
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setUnreadCount(0);
     } catch {}
+  };
+
+  const enableNotifications = async () => {
+    try {
+      if (!('Notification' in window)) return;
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+      if (permission === 'granted') {
+        const { setupPushNotifications } = await import('../utils/pushNotification');
+        await setupPushNotifications();
+        import('react-hot-toast').then(({ toast }) => toast.success('Push notifications enabled!'));
+      }
+    } catch (err) {}
   };
 
   const handleLogout = () => setShowLogoutConfirm(true);
@@ -275,6 +289,12 @@ const Navbar = () => {
                         <h3 className="font-bold text-gray-900 text-sm">Notifications</h3>
                         {unreadCount > 0 && <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline font-medium">Mark all read</button>}
                       </div>
+                      {notificationPermission === 'default' && (
+                        <div className="bg-blue-50 px-4 py-3 flex items-center justify-between border-b border-blue-100">
+                          <p className="text-xs text-blue-800 font-medium pr-2">Turn on push notifications to stay updated on your move!</p>
+                          <button onClick={enableNotifications} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-blue-700 transition-colors shadow-sm whitespace-nowrap">Enable</button>
+                        </div>
+                      )}
                       <div className="max-h-80 overflow-y-auto">
                         {notifications.length === 0 ? (
                           <div className="text-center py-8 text-gray-400 text-sm">No notifications yet</div>
