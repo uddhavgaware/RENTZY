@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import Layout from './components/Layout';
+import GlobalErrorBoundary from './components/GlobalErrorBoundary';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { HelmetProvider } from 'react-helmet-async';
@@ -134,9 +135,10 @@ function App() {
           <ScrollToTop />
           <NetworkStatusHandler />
           <Layout>
-            <Suspense fallback={<SuspenseFallback />}>
-              <Routes>
-                {/* Public routes */}
+            <GlobalErrorBoundary>
+              <Suspense fallback={<SuspenseFallback />}>
+                <Routes>
+                  {/* Public routes */}
                 <Route path="/" element={<LandingPage />} />
                 <Route path="/listings" element={<ListingsPage />} />
                 <Route path="/listings/:id/:slug?" element={<ListingDetailsPage />} />
@@ -168,10 +170,11 @@ function App() {
                 {/* Admin only */}
                 <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
 
-                {/* Fallback route */}
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </Suspense>
+                  {/* Fallback route */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </GlobalErrorBoundary>
           </Layout>
         </Router>
         </AuthProvider>
