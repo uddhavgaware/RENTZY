@@ -50,6 +50,7 @@ const AdminDashboardPage = () => {
   const [listings, setListings] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [movingRequests, setMovingRequests] = useState([]);
+  const [roommateRequests, setRoommateRequests] = useState([]);
   const [stats, setStats] = useState({ users: 0, listings: 0, bookings: 0 });
   const [analytics, setAnalytics] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
@@ -80,13 +81,14 @@ const AdminDashboardPage = () => {
     const fetchAll = async () => {
       setDataLoading(true);
       try {
-        const [usersRes, listingsRes, bookingsRes, statsRes, analyticsRes, movingRes] = await Promise.all([
+        const [usersRes, listingsRes, bookingsRes, statsRes, analyticsRes, movingRes, roommateRequestsRes] = await Promise.all([
           api.get('/admin/users'),
           api.get('/admin/listings'),
           api.get('/admin/bookings'),
           api.get('/admin/stats'),
           api.get('/admin/analytics'),
-          api.get('/moving/admin/all')
+          api.get('/moving/admin/all'),
+          api.get('/roommates/requests/all').catch(() => ({ data: [] }))
         ]);
         setUsers(usersRes.data);
         setListings(listingsRes.data);
@@ -94,6 +96,7 @@ const AdminDashboardPage = () => {
         setStats(statsRes.data);
         setAnalytics(analyticsRes.data);
         setMovingRequests(movingRes.data);
+        setRoommateRequests(roommateRequestsRes.data);
         setError(null);
       } catch (err) {
         console.error('Admin fetch error', err);
@@ -318,6 +321,7 @@ const AdminDashboardPage = () => {
     { id: 'listings', label: 'Listings', icon: Home },
     { id: 'bookings', label: 'Bookings', icon: DollarSign },
     { id: 'moving', label: 'Movers', icon: Truck },
+    { id: 'roommates', label: 'Roommates', icon: Users },
     { id: 'regions', label: 'Regions', icon: MapPin },
   ];
 
@@ -1086,6 +1090,65 @@ const AdminDashboardPage = () => {
                                 )}
                               </div>
                             </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* Roommate Requests Tab */}
+            {activeTab === 'roommates' && (
+              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden mt-6">
+                <div className="p-6 border-b border-gray-100 dark:border-white/10">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                    <Users size={20} className="text-primary-600" /> All Roommate Requests ({roommateRequests.length})
+                  </h2>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50 dark:bg-slate-700/50">
+                      <tr>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sender</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Receiver</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Post Details</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                      {roommateRequests.length === 0 ? (
+                        <tr>
+                          <td colSpan={5} className="text-center py-12 text-gray-400">No roommate requests found.</td>
+                        </tr>
+                      ) : roommateRequests.map(r => (
+                        <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                          <td className="px-6 py-4">
+                            <p className="font-medium text-gray-900 dark:text-white">{r.sender?.name}</p>
+                            <p className="text-xs text-gray-500">{r.sender?.email}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="font-medium text-gray-900 dark:text-white">{r.receiver?.name}</p>
+                            <p className="text-xs text-gray-500">{r.receiver?.email}</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-200">ID: {r.postId}</p>
+                            <p className="text-xs text-gray-500">{r.postLocation} ({r.postPropertyType})</p>
+                          </td>
+                          <td className="px-6 py-4">
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                              r.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                              r.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                              r.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
+                              'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {r.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-sm text-gray-500">
+                            {new Date(r.createdAt).toLocaleDateString()}
                           </td>
                         </tr>
                       ))}

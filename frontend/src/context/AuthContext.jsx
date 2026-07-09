@@ -78,8 +78,22 @@ export const AuthProvider = ({ children }) => {
   };
 
   const loginWithGoogle = async (tokenId) => {
-    const response = await api.post('/auth/google', { tokenId });
-    await fetchProfileAfterLogin(response.data.token);
+    const maxRetries = 3;
+    let attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        const response = await api.post('/auth/google', { tokenId });
+        await fetchProfileAfterLogin(response.data.token);
+        return;
+      } catch (error) {
+        attempt++;
+        if (attempt >= maxRetries) {
+          throw error;
+        }
+        // Wait before retrying (exponential backoff)
+        await new Promise(res => setTimeout(res, 1000 * attempt));
+      }
+    }
   };
 
   const loginWithTruecaller = async (payload, signature, signatureAlgorithm) => {

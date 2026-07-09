@@ -294,7 +294,7 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="bg-gray-50 h-[calc(100vh-64px)] flex overflow-hidden">
+    <div className="bg-gray-50 h-[calc(100dvh-64px)] flex overflow-hidden">
       {/* Sidebar - Contacts List */}
       <div className={`w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex-col flex-shrink-0 ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-100">

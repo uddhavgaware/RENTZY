@@ -11,6 +11,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.Arrays;
+import java.util.stream.Collectors;
+
 @RestController
 @RequestMapping("/api/upload")
 @RequiredArgsConstructor
@@ -20,24 +24,29 @@ public class FileUploadController {
 
     @PostMapping
     public ResponseEntity<List<String>> uploadFiles(@RequestParam("files") MultipartFile[] files) {
-        List<String> fileDownloadUris = new ArrayList<>();
-
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) continue;
-            
-            try {
-                String fileDownloadUri = cloudinaryService.uploadFile(file);
-                fileDownloadUris.add(fileDownloadUri);
-            } catch (Exception ex) {
-                try {
-                    String base64 = "data:" + file.getContentType() + ";base64," + java.util.Base64.getEncoder().encodeToString(file.getBytes());
-                    fileDownloadUris.add(base64);
-                } catch (IOException e) {
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                }
-            }
+        if (files == null || files.length == 0) {
+            return ResponseEntity.ok(new ArrayList<>());
         }
 
-        return ResponseEntity.ok(fileDownloadUris);
+        List<CompletableFuture<String>> uploadFutures = Arrays.stream(files)
+                .filter(file -> !file.isEmpty())
+                .map(file -> CompletableFuture.supplyAsync(() -> {
+                    try {
+                        return cloudinaryService.uploadFile(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to upload file to Cloudinary", e);
+                    }
+                }))
+                .collect(Collectors.toList());
+
+        try {
+            CompletableFuture.allOf(uploadFutures.toArray(new CompletableFuture[0])).join();
+            List<String> fileDownloadUris = uploadFutures.stream()
+                    .map(CompletableFuture::join)
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(fileDownloadUris);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

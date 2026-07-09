@@ -60,6 +60,8 @@ const DashboardPage = () => {
   const [uploadingKyc, setUploadingKyc] = useState(false);
   const [movingRequests, setMovingRequests] = useState([]);
   const [loadingMoving, setLoadingMoving] = useState(false);
+  const [roommateRequests, setRoommateRequests] = useState({ sent: [], received: [] });
+  const [loadingRoommates, setLoadingRoommates] = useState(false);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const [showReviewModal, setShowReviewModal] = useState(null);
   const [reviewForm, setReviewForm] = useState({ rating: '', comments: '' });
@@ -137,6 +139,15 @@ const DashboardPage = () => {
       }, 5000); // Poll every 5 seconds for live tracking updates
       
       return () => clearInterval(interval);
+    }
+    if (activeTab === 'roommates') {
+      setLoadingRoommates(true);
+      Promise.all([
+        api.get('/roommates/requests/my').catch(() => ({ data: [] })),
+        api.get('/roommates/requests/received').catch(() => ({ data: [] }))
+      ]).then(([sentRes, receivedRes]) => {
+        setRoommateRequests({ sent: sentRes.data, received: receivedRes.data });
+      }).finally(() => setLoadingRoommates(false));
     }
   }, [activeTab]);
 
@@ -495,6 +506,7 @@ const DashboardPage = () => {
         { id: 'bookings', name: 'My Bookings', icon: BookOpen },
         { id: 'saved', name: 'Saved', icon: Heart },
         { id: 'split', name: 'Split Expenses', icon: Split },
+        { id: 'roommates', name: 'Roommate Requests', icon: Users },
         { id: 'moving', name: 'Moving Requests', icon: Truck }
       );
     }
@@ -1342,6 +1354,154 @@ const DashboardPage = () => {
                           )}
                         </div>
                       ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ROOMMATE REQUESTS TAB */}
+              {activeTab === 'roommates' && (
+                <div className="animate-fadeIn">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Roommate Requests</h2>
+                  {loadingRoommates ? (
+                    <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>
+                  ) : (
+                    <div className="space-y-8">
+                      {/* Received Requests */}
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">Received Requests</h3>
+                        {roommateRequests.received.length === 0 ? (
+                          <div className="text-center py-8 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-white/5">
+                            <Users size={32} className="mx-auto text-gray-400 mb-2" />
+                            <p className="text-gray-500">No received requests.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {roommateRequests.received.map(req => (
+                              <div key={req.id} className="border border-gray-100 dark:border-white/10 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 bg-white dark:bg-slate-800">
+                                <div className="flex justify-between items-start mb-3">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 font-bold">
+                                      {req.sender?.name?.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-gray-900 dark:text-white">{req.sender?.name}</p>
+                                      <p className="text-xs text-gray-500">{req.sender?.email}</p>
+                                    </div>
+                                  </div>
+                                  <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                    req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                    req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                    req.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
+                                    'bg-yellow-100 text-yellow-700'
+                                  }`}>
+                                    {req.status}
+                                  </span>
+                                </div>
+                                <div className="mb-4">
+                                  <p className="text-xs text-gray-500 mb-1">Post Details:</p>
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white">{req.postLocation} ({req.postPropertyType})</p>
+                                  <p className="text-xs text-gray-500">₹{req.postBudget?.toLocaleString('en-IN')} - ID: {req.postId}</p>
+                                </div>
+                                {req.status === 'PENDING' && (
+                                  <div className="flex gap-3">
+                                    <button 
+                                      onClick={async () => {
+                                        try {
+                                          await api.put(`/roommates/requests/${req.id}/status?status=ACCEPTED`);
+                                          setRoommateRequests(prev => ({ ...prev, received: prev.received.map(r => r.id === req.id ? { ...r, status: 'ACCEPTED' } : r) }));
+                                        } catch {
+                                          showModal({ type: 'alert', title: 'Error', message: 'Failed to accept request.', onConfirm: closeModal });
+                                        }
+                                      }}
+                                      className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded-xl text-sm font-bold transition-colors"
+                                    >
+                                      Accept
+                                    </button>
+                                    <button 
+                                      onClick={async () => {
+                                        try {
+                                          await api.put(`/roommates/requests/${req.id}/status?status=REJECTED`);
+                                          setRoommateRequests(prev => ({ ...prev, received: prev.received.map(r => r.id === req.id ? { ...r, status: 'REJECTED' } : r) }));
+                                        } catch {
+                                          showModal({ type: 'alert', title: 'Error', message: 'Failed to reject request.', onConfirm: closeModal });
+                                        }
+                                      }}
+                                      className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 py-2 rounded-xl text-sm font-bold transition-colors border border-red-200"
+                                    >
+                                      Reject
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Sent Requests */}
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">Sent Requests</h3>
+                        {roommateRequests.sent.length === 0 ? (
+                          <div className="text-center py-8 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-white/5">
+                            <Users size={32} className="mx-auto text-gray-400 mb-2" />
+                            <p className="text-gray-500">No sent requests.</p>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {roommateRequests.sent.map(req => (
+                              <div key={req.id} className="border border-gray-100 dark:border-white/10 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 bg-white dark:bg-slate-800">
+                                <div className="flex justify-between items-start mb-3">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
+                                      {req.receiver?.name?.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <p className="font-bold text-gray-900 dark:text-white">{req.receiver?.name}</p>
+                                      <p className="text-xs text-gray-500">{req.receiver?.email}</p>
+                                    </div>
+                                  </div>
+                                  <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                    req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                    req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                    req.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
+                                    'bg-yellow-100 text-yellow-700'
+                                  }`}>
+                                    {req.status}
+                                  </span>
+                                </div>
+                                <div className="mb-4">
+                                  <p className="text-xs text-gray-500 mb-1">Post Details:</p>
+                                  <p className="text-sm font-medium text-gray-900 dark:text-white">{req.postLocation} ({req.postPropertyType})</p>
+                                  <p className="text-xs text-gray-500">₹{req.postBudget?.toLocaleString('en-IN')} - ID: {req.postId}</p>
+                                </div>
+                                {req.status === 'PENDING' && (
+                                  <button 
+                                    onClick={async () => {
+                                      showModal({
+                                        type: 'confirm', title: 'Cancel Request', message: 'Are you sure you want to cancel this request?',
+                                        onConfirm: async () => {
+                                          closeModal();
+                                          try {
+                                            await api.put(`/roommates/requests/${req.id}/status?status=CANCELLED`);
+                                            setRoommateRequests(prev => ({ ...prev, sent: prev.sent.map(r => r.id === req.id ? { ...r, status: 'CANCELLED' } : r) }));
+                                          } catch {
+                                            showModal({ type: 'alert', title: 'Error', message: 'Failed to cancel request.', onConfirm: closeModal });
+                                          }
+                                        },
+                                        onCancel: closeModal
+                                      });
+                                    }}
+                                    className="w-full bg-gray-50 hover:bg-gray-100 text-gray-600 py-2 rounded-xl text-sm font-bold transition-colors border border-gray-200"
+                                  >
+                                    Cancel Request
+                                  </button>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

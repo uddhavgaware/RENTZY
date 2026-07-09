@@ -164,6 +164,7 @@ const PostPropertyPage = () => {
     title: '',
     description: '',
     type: 'Flat',
+    tenantPreference: 'Anyone',
     configuration: '1BHK',
     furnishing: 'Semi Furnished',
     location: '',
@@ -431,7 +432,13 @@ const PostPropertyPage = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tenant Preference</label>
+                    <select name="tenantPreference" value={formData.tenantPreference} onChange={handleChange} className="w-full border border-gray-300 dark:border-white/10 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-white">
+                      {['Family', 'Bachelors (Men)', 'Bachelors (Women)', 'Anyone', 'Students'].map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Configuration</label>
                     <select name="configuration" value={formData.configuration} onChange={handleChange} className="w-full border border-gray-300 dark:border-white/10 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all dark:bg-slate-800 dark:text-white">

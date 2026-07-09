@@ -34,6 +34,9 @@ public class Listing {
     private String type; // Hostel, Flat, Apartment, PG, Independent House, Villa, Co-living Space
 
     @Column
+    private String tenantPreference; // Family, Bachelors (Men), Bachelors (Women), Anyone, Students
+
+    @Column
     private String configuration; // 1RK, 1BHK, 2BHK, 3BHK, 4BHK, Studio Apartment
 
     @Column

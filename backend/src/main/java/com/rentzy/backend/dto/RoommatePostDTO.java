@@ -38,6 +38,7 @@ public class RoommatePostDTO {
     private String facing;
     private Integer areaSqft;
     private Integer matchPercentage;
+    private String status;
 
     public static RoommatePostDTO fromEntity(RoommatePost post) {
         if (post == null) return null;
@@ -86,6 +87,7 @@ public class RoommatePostDTO {
             .maintenance(post.getMaintenance())
             .facing(post.getFacing())
             .areaSqft(post.getAreaSqft())
+            .status(post.getStatus())
             .build();
     }
 }

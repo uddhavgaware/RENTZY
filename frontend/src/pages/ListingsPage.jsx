@@ -106,6 +106,7 @@ const ListingsPage = () => {
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedAmenities, setSelectedAmenities] = useState([]);
   const [messAvailableOnly, setMessAvailableOnly] = useState(false);
+  const [tenantPreference, setTenantPreference] = useState('');
   const [sortBy, setSortBy] = useState('');
 
   // Location autocomplete
@@ -218,6 +219,11 @@ const ListingsPage = () => {
         results = results.filter(listing => listing.messAvailable);
       }
 
+      // Client-side Tenant Preference filter
+      if (tenantPreference) {
+        results = results.filter(l => !l.tenantPreference || l.tenantPreference === 'Anyone' || l.tenantPreference === tenantPreference);
+      }
+
       if (isAppend) {
         setListings(prev => [...prev, ...results]);
       } else {
@@ -237,7 +243,7 @@ const ListingsPage = () => {
   useEffect(() => {
     setPage(0);
     fetchListings(0, false);
-  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities, messAvailableOnly]);
+  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities, messAvailableOnly, tenantPreference]);
 
   // Load wishlist IDs
   useEffect(() => {
@@ -293,10 +299,11 @@ const ListingsPage = () => {
     setSearchInput('');
     setAppliedLocation('');
     setActiveType('all');
+    setTenantPreference('');
   };
 
   const activeFilterCount = [
-    minPrice, maxPrice, appliedLocation, ...selectedAmenities, messAvailableOnly ? 'mess' : null
+    minPrice, maxPrice, appliedLocation, tenantPreference, ...selectedAmenities, messAvailableOnly ? 'mess' : null
   ].filter(Boolean).length;
 
   return (
@@ -415,8 +422,24 @@ const ListingsPage = () => {
                   </div>
                 </div>
 
+                {/* Tenant Preference */}
+                <div>
+                  <h4 className="text-sm font-bold text-gray-700 mb-3">Tenant Preference</h4>
+                  <select 
+                    value={tenantPreference} 
+                    onChange={e => setTenantPreference(e.target.value)} 
+                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none bg-white"
+                  >
+                    <option value="">Any</option>
+                    <option value="Family">Family</option>
+                    <option value="Bachelors (Men)">Bachelors (Men)</option>
+                    <option value="Bachelors (Women)">Bachelors (Women)</option>
+                    <option value="Students">Students</option>
+                  </select>
+                </div>
+
                 {/* Amenities */}
-                <div className="md:col-span-2">
+                <div className="md:col-span-1">
                   <h4 className="text-sm font-bold text-gray-700 mb-3">Amenities</h4>
                   <div className="flex flex-wrap gap-2">
                     {AMENITIES_LIST.map(amenity => (
@@ -476,6 +499,12 @@ const ListingsPage = () => {
                       <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-full">
                         Max ₹{parseInt(maxPrice).toLocaleString('en-IN')}
                         <button onClick={() => setMaxPrice('')} className="ml-1"><X size={12} /></button>
+                      </span>
+                    )}
+                    {tenantPreference && (
+                      <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full">
+                        {tenantPreference}
+                        <button onClick={() => setTenantPreference('')} className="ml-1"><X size={12} /></button>
                       </span>
                     )}
                     {selectedAmenities.map(a => (

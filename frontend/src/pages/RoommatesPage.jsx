@@ -382,16 +382,16 @@ const RoommatesPage = () => {
       showModal({ type: 'alert', title: 'Missing Location', message: 'Please provide at least an Area or City name.', onConfirm: closeModal });
       return;
     }
-    if (!postFormData.budget) {
+    if (postFormData.budget === '' || postFormData.budget === null || postFormData.budget === undefined) {
       showModal({ type: 'alert', title: 'Missing Room Rent', message: 'Please specify the total room rent / budget.', onConfirm: closeModal });
       return;
     }
-    if (!postFormData.deposit) {
+    if (postFormData.deposit === '' || postFormData.deposit === null || postFormData.deposit === undefined) {
       showModal({ type: 'alert', title: 'Missing Deposit', message: 'Please specify the deposit amount. Enter 0 if none.', onConfirm: closeModal });
       return;
     }
     if (!postFormData.gender) {
-      showModal({ type: 'alert', title: 'Missing Gender', message: 'Please select your gender in the Your Profile section.', onConfirm: closeModal });
+      showModal({ type: 'alert', title: 'Missing Gender', message: 'Please select your gender from the dropdown in the form.', onConfirm: closeModal });
       return;
     }
     if (postFormData.pincode && postFormData.pincode.length !== 6) {
@@ -475,23 +475,56 @@ const RoommatesPage = () => {
     }
   };
 
-  const handleDeletePost = (id) => {
-    showModal({
-      type: 'confirm',
-      title: 'Close Post',
-      message: 'Have you found a roommate or want to close this post?',
-      onConfirm: async () => {
-        closeModal();
-        try {
-          await api.delete(`/roommates/${id}`);
-          setRoommates(prev => prev.filter(r => r.id !== id));
-        } catch {
-          showModal({ type: 'alert', title: 'Error', message: 'Failed to delete post.', onConfirm: closeModal });
-        }
-      },
-      onCancel: closeModal
-    });
-  };
+    const handleDeletePost = (id) => {
+      showModal({
+        type: 'confirm',
+        title: 'Delete Post',
+        message: 'Are you sure you want to delete this post permanently?',
+        onConfirm: async () => {
+          closeModal();
+          try {
+            await api.delete(`/roommates/${id}`);
+            setRoommates(prev => prev.filter(r => r.id !== id));
+          } catch {
+            showModal({ type: 'alert', title: 'Error', message: 'Failed to delete post.', onConfirm: closeModal });
+          }
+        },
+        onCancel: closeModal
+      });
+    };
+
+    const handleGotAMate = (id) => {
+      showModal({
+        type: 'confirm',
+        title: 'Got a Mate',
+        message: 'Have you found a roommate? This will mark your post as fulfilled and remove it from search results.',
+        onConfirm: async () => {
+          closeModal();
+          try {
+            await api.put(`/roommates/${id}/status?status=FULFILLED`);
+            setRoommates(prev => prev.filter(r => r.id !== id));
+            showModal({ type: 'alert', title: 'Success', message: 'Congratulations! Your post has been marked as fulfilled.', onConfirm: closeModal });
+          } catch {
+            showModal({ type: 'alert', title: 'Error', message: 'Failed to update post status.', onConfirm: closeModal });
+          }
+        },
+        onCancel: closeModal
+      });
+    };
+
+    const handleSendRequest = async (id) => {
+      if (!isAuthenticated) {
+        showModal({ type: 'alert', title: 'Login Required', message: 'You must be logged in to send a request.', onConfirm: closeModal });
+        return;
+      }
+      try {
+        await api.post(`/roommates/requests/${id}`);
+        showModal({ type: 'alert', title: 'Success', message: 'Roommate request sent successfully!', onConfirm: closeModal });
+      } catch (error) {
+        const errorMsg = error.response?.data?.message || typeof error.response?.data === 'string' ? error.response.data : 'Failed to send request';
+        showModal({ type: 'alert', title: 'Error', message: errorMsg, onConfirm: closeModal });
+      }
+    };
   const handlePostRequestClick = () => {
     if (!isAuthenticated) {
       showModal({
@@ -845,11 +878,16 @@ const RoommatesPage = () => {
                           </div>
                         </div>
                       </div>
-                      {/* Delete own post */}
+                      {/* Actions for own post */}
                       {isOwner && (
-                        <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Found Roommate (Close Post)">
-                          <Trash2 size={16} />
-                        </button>
+                        <div className="flex gap-2">
+                          <button onClick={() => handleGotAMate(roommate.id)} className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors flex items-center justify-center font-bold text-xs" title="Found Roommate (Close Post)">
+                            Got a Mate!
+                          </button>
+                          <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete Post">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -1002,19 +1040,28 @@ const RoommatesPage = () => {
                     </div>
 
                     {!isOwner && (
-                      <button 
-                        onClick={() => {
-                          if (!isAuthenticated) {
-                            showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
-                            return;
-                          }
-                          navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`);
-                        }}
-                        className="w-full bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors mt-4"
-                      >
-                        <MessageCircle size={18} className="mr-2" />
-                        Message to Join
-                      </button>
+                      <div className="flex gap-2 mt-4">
+                        <button 
+                          onClick={() => handleSendRequest(roommate.id)}
+                          className="flex-1 bg-pink-50 text-pink-700 hover:bg-pink-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors"
+                        >
+                          <Users size={18} className="mr-2" />
+                          Send Request
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (!isAuthenticated) {
+                              showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
+                              return;
+                            }
+                            navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`);
+                          }}
+                          className="flex-1 bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors"
+                        >
+                          <MessageCircle size={18} className="mr-2" />
+                          Message
+                        </button>
+                      </div>
                     )}
                   </div>
                 );

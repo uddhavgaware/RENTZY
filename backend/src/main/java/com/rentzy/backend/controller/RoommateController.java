@@ -3,6 +3,7 @@ package com.rentzy.backend.controller;
 import com.rentzy.backend.domain.RoommatePost;
 import com.rentzy.backend.dto.RoommatePostDTO;
 import com.rentzy.backend.dto.RoommatePostRequest;
+import com.rentzy.backend.dto.RoommateRequestDTO;
 import com.rentzy.backend.service.RoommateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +52,52 @@ public class RoommateController {
     public ResponseEntity<Void> deletePost(@PathVariable Long id, Authentication authentication) {
         service.deletePost(id, authentication.getName());
         return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}/status")
+    @CacheEvict(value = "roommates", allEntries = true)
+    public ResponseEntity<RoommatePostDTO> updatePostStatus(
+            @PathVariable Long id,
+            @RequestParam String status,
+            Authentication authentication) {
+        RoommatePostDTO updated = service.updatePostStatus(id, status, authentication.getName());
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/requests/{postId}")
+    public ResponseEntity<RoommateRequestDTO> sendRequest(
+            @PathVariable Long postId,
+            Authentication authentication) {
+        RoommateRequestDTO request = service.sendRequest(postId, authentication.getName());
+        return ResponseEntity.ok(request);
+    }
+
+    @PutMapping("/requests/{requestId}/status")
+    public ResponseEntity<RoommateRequestDTO> updateRequestStatus(
+            @PathVariable Long requestId,
+            @RequestParam String status,
+            Authentication authentication) {
+        RoommateRequestDTO request = service.updateRequestStatus(requestId, status, authentication.getName());
+        return ResponseEntity.ok(request);
+    }
+
+    @GetMapping("/requests/sent")
+    public ResponseEntity<List<RoommateRequestDTO>> getSentRequests(Authentication authentication) {
+        List<RoommateRequestDTO> requests = service.getSentRequests(authentication.getName());
+        return ResponseEntity.ok(requests);
+    }
+
+    @GetMapping("/requests/received")
+    public ResponseEntity<List<RoommateRequestDTO>> getReceivedRequests(Authentication authentication) {
+        List<RoommateRequestDTO> requests = service.getReceivedRequests(authentication.getName());
+        return ResponseEntity.ok(requests);
+    }
+
+    @GetMapping("/requests/all")
+    public ResponseEntity<List<RoommateRequestDTO>> getAllRequests() {
+        // Assume security configuration ensures only admins can hit this endpoint or handle here
+        List<RoommateRequestDTO> requests = service.getAllRequests();
+        return ResponseEntity.ok(requests);
     }
 }
 

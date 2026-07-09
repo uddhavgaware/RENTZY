@@ -31,7 +31,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000, // 15s timeout — prevents hanging requests on poor networks
+  timeout: 60000, // 60s timeout — prevents hanging requests on poor networks and slow concurrent image uploads
 });
 
 // Add a request interceptor to attach the JWT token
