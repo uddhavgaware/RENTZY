@@ -108,7 +108,7 @@ const AboutPage = () => {
               { icon: Building2, title: 'Properties', desc: 'Browse 2,500+ verified PGs, flats, apartments and villas across 25+ cities.', to: '/listings', cta: 'Browse Now', color: 'text-primary-600 bg-primary-50 border-primary-100' },
               { icon: Users, title: 'Roommates', desc: 'Find compatible roommates filtered by gender, diet, lifestyle and move-in date.', to: '/roommates', cta: 'Find Match', color: 'text-purple-600 bg-purple-50 border-purple-100' },
               { icon: Truck, title: 'Packers & Movers', desc: 'Book trusted, vetted movers directly from the platform — no haggling.', to: '/movers', cta: 'Book Movers', color: 'text-orange-600 bg-orange-50 border-orange-100' },
-              { icon: BadgeCheck, title: 'KYC Verified', desc: 'All owners and vendors are verified with government ID. No fakes, ever.', to: '/about', cta: 'Learn More', color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
+              { icon: BadgeCheck, title: 'KYC Verified', desc: 'All owners and movers are verified with government ID. No fakes, ever.', to: '/about', cta: 'Learn More', color: 'text-emerald-600 bg-emerald-50 border-emerald-100' },
             ].map(({ icon: Icon, title, desc, to, cta, color }) => (
               <div key={title} className="bg-white rounded-2xl sm:rounded-3xl p-6 border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 flex flex-col">
                 <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center mb-4 ${color}`}>

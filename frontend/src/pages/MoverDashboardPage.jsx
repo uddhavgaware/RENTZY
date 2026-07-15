@@ -403,7 +403,7 @@ const MoverDashboardPage = () => {
   const handleReleaseJob = (id) => showModal({
     type: 'confirm',
     title: '⚠️ Release This Job?',
-    message: 'If negotiation failed, releasing this job allows other vendors to claim it. You will lose this lead permanently.',
+    message: 'If negotiation failed, releasing this job allows other movers to claim it. You will lose this lead permanently.',
     onConfirm: async () => {
       closeModal();
       try {

@@ -383,7 +383,7 @@ const MoversPage = () => {
                 <Truck size={32} />
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Verified Partners</h3>
-              <p className="text-gray-500">We only work with background-verified and highly rated vendors.</p>
+              <p className="text-gray-500">We only work with background-verified and highly rated movers.</p>
             </div>
           </div>
 

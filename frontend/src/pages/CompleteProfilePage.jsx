@@ -350,7 +350,7 @@ const CompleteProfilePage = () => {
 
             {formData.role === 'MOVER' && (
               <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 space-y-4">
-                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16} /> Vendor Details</h4>
+                <h4 className="text-sm font-bold text-gray-800 flex items-center gap-2"><Briefcase size={16} /> Mover Details</h4>
                 <div>
                   <label className="block text-xs font-medium text-gray-700">Service City *</label>
                   <input type="text" name="serviceCity" value={formData.serviceCity} onChange={handleChange} placeholder="e.g. Mumbai, Bangalore"

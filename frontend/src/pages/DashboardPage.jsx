@@ -1221,7 +1221,7 @@ const DashboardPage = () => {
                                 }} className="text-xs text-green-600 hover:text-green-800 font-medium">Mark Completed</button>
                               )}
                               {req.status === 'COMPLETED' && !req.reviewRating && (
-                                <button onClick={() => setShowReviewModal(req)} className="text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">Rate Vendor</button>
+                                <button onClick={() => setShowReviewModal(req)} className="text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">Rate Mover</button>
                               )}
                               {req.status === 'COMPLETED' && req.reviewRating && (
                                 <span className="text-xs text-gray-500 font-medium bg-gray-50 px-2 py-1 rounded-full border border-gray-200">
@@ -1254,8 +1254,8 @@ const DashboardPage = () => {
                             <span className="text-sm text-gray-500">Estimated Price:</span>
                             <div className="text-right">
                               <span className="block font-bold text-primary-600">{req.estimatedPrice ? `₹${req.estimatedPrice.toLocaleString('en-IN')}` : 'To be decided'}</span>
-                              <span className="block text-[10px] text-gray-500 font-bold uppercase mt-1">Payment Method: Cash to Vendor</span>
-                              <span className="block text-[10px] text-orange-600 font-bold mt-1 leading-tight max-w-[200px]">* Pricing is currently negotiation-based. Please negotiate directly with the vendor! (Automated pricing features coming soon)</span>
+                              <span className="block text-[10px] text-gray-500 font-bold uppercase mt-1">Payment Method: Cash to Mover</span>
+                              <span className="block text-[10px] text-orange-600 font-bold mt-1 leading-tight max-w-[200px]">* Pricing is currently negotiation-based. Please negotiate directly with the mover! (Automated pricing features coming soon)</span>
                             </div>
                           </div>
                           {req.mover && (
@@ -1271,7 +1271,7 @@ const DashboardPage = () => {
                                   </div>
                                 </div>
                                 <span className="text-[10px] uppercase bg-white text-primary-600 px-2 py-1 rounded font-bold border border-primary-200">
-                                  Assigned Vendor
+                                  Assigned Mover
                                 </span>
                               </div>
                               <div className="flex gap-2 pt-2 border-t border-primary-100/50">
@@ -1620,7 +1620,7 @@ const DashboardPage = () => {
       {showReviewModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-scaleIn border border-gray-100 dark:border-white/10">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">Rate Your Vendor</h3>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">Rate Your Mover</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">How was your moving experience with {showReviewModal.mover?.name}?</p>
             
             <div className="flex gap-4 justify-center mb-6">
