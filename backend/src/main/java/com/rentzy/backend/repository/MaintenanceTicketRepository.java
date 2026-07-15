@@ -1,4 +1,4 @@
-﻿package com.rentzy.backend.repository;
+package com.rentzy.backend.repository;
 
 import com.rentzy.backend.domain.MaintenanceTicket;
 import com.rentzy.backend.domain.User;

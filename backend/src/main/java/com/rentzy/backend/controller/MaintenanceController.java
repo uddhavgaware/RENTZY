@@ -1,4 +1,4 @@
-﻿package com.rentzy.backend.controller;
+package com.rentzy.backend.controller;
 
 import com.rentzy.backend.domain.Listing;
 import com.rentzy.backend.domain.MaintenanceTicket;

@@ -1,4 +1,4 @@
-﻿package com.rentzy.backend.domain;
+package com.rentzy.backend.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
