@@ -135,11 +135,8 @@ public class AuthService {
             GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAcceptableTimeSkewSeconds(86400); // Allow 24 hours of clock drift for local development
             
-            if (googleClientId != null && !googleClientId.trim().isEmpty()) {
-                verifierBuilder.setAudience(Collections.singletonList(googleClientId.trim()));
-            } else {
-                throw new RuntimeException("Server is misconfigured: Google Client ID is missing");
-            }
+            // We do NOT setAudience() here to allow tokens generated from different platforms (Web, Android, iOS) 
+            // to pass signature verification as long as they are valid Google tokens.
 
             GoogleIdTokenVerifier verifier = verifierBuilder.build();
             

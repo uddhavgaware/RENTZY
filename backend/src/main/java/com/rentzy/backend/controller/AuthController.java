@@ -45,8 +45,18 @@ public class AuthController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<AuthenticationResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
-        return ResponseEntity.ok(service.googleLogin(request.getTokenId()));
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
+        try {
+            return ResponseEntity.ok(service.googleLogin(request.getTokenId()));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(com.rentzy.backend.dto.ErrorResponse.builder()
+                    .timestamp(java.time.LocalDateTime.now())
+                    .status(400)
+                    .error("Bad Request")
+                    .message(e.getMessage())
+                    .path("/api/auth/google")
+                    .build());
+        }
     }
 
     @PostMapping("/truecaller")
