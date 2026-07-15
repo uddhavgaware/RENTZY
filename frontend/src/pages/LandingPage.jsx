@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import PremiumHero from '../components/PremiumHero';
 import api from '../services/api';
+import { motion } from 'framer-motion';
 
 const STATS = [
   { value: '2,500+', label: 'Properties Listed' },
@@ -227,7 +228,12 @@ const LandingPage = () => {
         fallbackImg="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1920&q=80"
       >
         {/* Search box */}
-        <div className="max-w-3xl mx-auto glass-premium rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 shadow-xl border border-white/60 dark:border-white/10">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="max-w-3xl mx-auto backdrop-blur-xl bg-white/20 dark:bg-black/20 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/60 dark:border-white/10"
+        >
           {/* Location input */}
           <div className="flex-1 flex items-center bg-white/95 dark:bg-gray-800/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 dark:border-gray-700 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
             <MapPin size={20} className="text-indigo-500 flex-shrink-0" />
@@ -309,7 +315,7 @@ const LandingPage = () => {
               <button onClick={() => { setLocationStatus('idle'); setUserLocation(null); sessionStorage.removeItem('rentzy_city'); setNearbyListings([]); setHeroLocation(''); }} className="ml-1 text-white/40 hover:text-white/70 text-xs transition-colors">(change)</button>
             </div>
           )}
-        </div>
+        </motion.div>
       </PremiumHero>
 
       {/* ═══════════════════════════════════════

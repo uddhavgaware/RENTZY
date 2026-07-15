@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import MoverRouteMap from '../components/MoverRouteMap';
+import { motion, AnimatePresence } from 'framer-motion';
 
 /* ─── Workflow Step Indicator ──────────────────────────────── */
 const WorkflowSteps = ({ status }) => {
@@ -42,17 +43,23 @@ const WorkflowSteps = ({ status }) => {
 };
 
 /* ─── Stat Card ────────────────────────────────────────────── */
-const StatCard = ({ icon: Icon, label, value, accent, sub }) => (
-  <div className={`bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow`}>
-    <div className="flex items-center gap-3 mb-3">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${accent}`}>
-        <Icon size={20} />
+const StatCard = ({ icon: Icon, label, value, accent, sub, delay = 0 }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay }}
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="bg-white/80 backdrop-blur-xl rounded-3xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl transition-all p-6"
+  >
+    <div className="flex items-center gap-4 mb-4">
+      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner ${accent}`}>
+        <Icon size={24} />
       </div>
-      <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">{label}</p>
+      <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{label}</p>
     </div>
-    <p className="text-2xl font-black text-gray-900">{value}</p>
-    {sub && <p className="text-xs text-gray-400 mt-1">{sub}</p>}
-  </div>
+    <p className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600">{value}</p>
+    {sub && <p className="text-xs text-gray-500 font-medium mt-2">{sub}</p>}
+  </motion.div>
 );
 
 /* ─── How It Works Guide ───────────────────────────────────── */

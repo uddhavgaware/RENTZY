@@ -8,6 +8,7 @@ import Modal from '../components/Modal';
 import ImageCropperModal from '../components/ImageCropperModal';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import { divIcon } from 'leaflet';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const truckIcon = divIcon({
   html: `
@@ -39,19 +40,25 @@ const slugify = (text) => {
 };
 
 /* ─── Owner Stat Card ──────────────────────────────────────── */
-const OwnerStatCard = ({ icon: Icon, label, value, sub, accent }) => (
-  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between">
-    <div className="flex justify-between items-start mb-2">
-      <div className={`p-3 rounded-xl ${accent} group-hover:scale-110 transition-transform`}>
-        <Icon size={20} />
+const OwnerStatCard = ({ icon: Icon, label, value, sub, accent, delay = 0 }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay }}
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-6 border border-gray-100 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl hover:shadow-primary-500/10 transition-all group flex flex-col justify-between"
+  >
+    <div className="flex justify-between items-start mb-6">
+      <div className={`p-4 rounded-2xl ${accent} group-hover:scale-110 transition-transform shadow-sm`}>
+        <Icon size={24} />
       </div>
-      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{label}</span>
+      <span className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{label}</span>
     </div>
     <div>
-      <h4 className="text-3xl font-black text-gray-900 leading-none mb-1">{value}</h4>
-      <p className="text-xs text-gray-500 font-medium">{sub}</p>
+      <h4 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 leading-none mb-2">{value}</h4>
+      <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{sub}</p>
     </div>
-  </div>
+  </motion.div>
 );
 
 const DashboardPage = () => {

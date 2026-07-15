@@ -11,4 +11,4 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
 
 # This specifically activates application-prod.properties when run in Docker!
-ENTRYPOINT ["java", "-Xmx300m", "-Xms200m", "-Dspring.profiles.active=prod", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Xmx256m", "-Xms128m", "-XX:MaxMetaspaceSize=96m", "-XX:+UseSerialGC", "-XX:+UseContainerSupport", "-Dspring.profiles.active=prod", "-jar", "app.jar"]

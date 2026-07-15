@@ -4,22 +4,29 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import { MapContainer, TileLayer, Marker, Polyline, Popup } from 'react-leaflet';
 import { divIcon } from 'leaflet';
+import { motion } from 'framer-motion';
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444'];
 
-const StatCard = ({ icon: Icon, label, value, color }) => (
-  <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow p-6 flex items-center gap-5 animate-slide-up">
-    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${color}`}>
-      <Icon size={26} className="text-white" />
+const StatCard = ({ icon: Icon, label, value, color, delay = 0 }) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay }}
+    whileHover={{ y: -5, scale: 1.02 }}
+    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-xl hover:shadow-primary-500/10 transition-all p-6 flex items-center gap-5"
+  >
+    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${color} shadow-inner`}>
+      <Icon size={26} className="text-white drop-shadow-md" />
     </div>
     <div>
       <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">{label}</p>
-      <p className="text-3xl font-bold text-gray-900 dark:text-white">{value}</p>
+      <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300">{value}</p>
     </div>
-  </div>
+  </motion.div>
 );
 
 const customMapPinIcon = (color) => divIcon({
@@ -592,14 +599,19 @@ const AdminDashboardPage = () => {
             {activeTab === 'overview' && (
               <div className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <StatCard icon={Users} label="Total Users" value={filteredUsers.length} color="bg-blue-500" />
-                  <StatCard icon={Home} label="Total Listings" value={filteredListings.length} color="bg-primary-600" />
-                  <StatCard icon={DollarSign} label="Total Bookings" value={filteredBookings.length} color="bg-green-500" />
+                  <StatCard icon={Users} label="Total Users" value={filteredUsers.length} color="from-blue-400 to-blue-600" delay={0.1} />
+                  <StatCard icon={Home} label="Total Listings" value={filteredListings.length} color="from-primary-500 to-indigo-600" delay={0.2} />
+                  <StatCard icon={DollarSign} label="Total Bookings" value={filteredBookings.length} color="from-emerald-400 to-emerald-600" delay={0.3} />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Growth Chart */}
-                  <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.2s', animationFillMode: 'both' }}>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6"
+                  >
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                       <TrendingUp size={20} className="text-primary-600" />
                       Platform Growth
@@ -607,24 +619,39 @@ const AdminDashboardPage = () => {
                     {filteredAnalytics?.growth ? (
                       <div className="h-64">
                         <ResponsiveContainer width="100%" height="100%">
-                          <LineChart data={filteredAnalytics.growth}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" />
+                          <AreaChart data={filteredAnalytics.growth}>
+                            <defs>
+                              <linearGradient id="colorUsers" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                              </linearGradient>
+                              <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                              </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
                             <XAxis dataKey="month" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis yAxisId="left" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
                             <YAxis yAxisId="right" orientation="right" stroke="#10b981" fontSize={12} tickLine={false} axisLine={false} />
-                            <RechartsTooltip contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                            <Line yAxisId="left" type="monotone" dataKey="users" name="New Users" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                            <Line yAxisId="right" type="monotone" dataKey="revenue" name="Revenue (₹)" stroke="#10b981" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                          </LineChart>
+                            <RechartsTooltip contentStyle={{ borderRadius: '16px', border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.9)', backdropFilter: 'blur(8px)', boxShadow: '0 10px 25px -5px rgb(0 0 0 / 0.1)' }} />
+                            <Area yAxisId="left" type="monotone" dataKey="users" name="New Users" stroke="#3b82f6" strokeWidth={3} fillOpacity={1} fill="url(#colorUsers)" activeDot={{ r: 6, strokeWidth: 0 }} />
+                            <Area yAxisId="right" type="monotone" dataKey="revenue" name="Revenue (₹)" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" activeDot={{ r: 6, strokeWidth: 0 }} />
+                          </AreaChart>
                         </ResponsiveContainer>
                       </div>
                     ) : (
                       <div className="h-64 flex items-center justify-center text-gray-400">Loading chart...</div>
                     )}
-                  </div>
+                  </motion.div>
 
                   {/* Property Distribution */}
-                  <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.5 }}
+                    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6"
+                  >
                     <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
                       <Home size={20} className="text-primary-600" />
                       Property Types
@@ -661,10 +688,15 @@ const AdminDashboardPage = () => {
                     ) : (
                       <div className="h-64 flex items-center justify-center text-gray-400">Loading chart...</div>
                     )}
-                  </div>
+                  </motion.div>
                 </div>
 
-                <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-6 animate-slide-up" style={{ animationDelay: '0.4s', animationFillMode: 'both' }}>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.6 }}
+                  className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6"
+                >
                   <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                     <DollarSign size={20} className="text-primary-600" />
                     Recent Bookings
@@ -696,7 +728,7 @@ const AdminDashboardPage = () => {
                       ))}
                     </div>
                   )}
-                </div>
+                </motion.div>
               </div>
             )}
 

@@ -46,6 +46,12 @@ public class PaymentController {
         try {
             // Amount in paise (INR smallest unit)
             int amountInPaise = (int) (booking.getAmount() * 3 * 100); // rent + security deposit
+            
+            if (amountInPaise < 100) {
+                Map<String, Object> error = new HashMap<>();
+                error.put("error", "Amount must be at least 100 paise");
+                return ResponseEntity.badRequest().body(error);
+            }
 
             JSONObject orderRequest = new JSONObject();
             orderRequest.put("amount", amountInPaise);
@@ -68,6 +74,11 @@ public class PaymentController {
             return ResponseEntity.ok(response);
         } catch (RazorpayException e) {
             Map<String, Object> error = new HashMap<>();
+            String errorMsg = e.getMessage().toLowerCase();
+            if (errorMsg.contains("authentication") || errorMsg.contains("unauthorized") || errorMsg.contains("invalid api key")) {
+                error.put("error", "Authentication with payment gateway failed: " + e.getMessage());
+                return ResponseEntity.status(401).body(error);
+            }
             error.put("error", "Failed to create Razorpay order: " + e.getMessage());
             return ResponseEntity.internalServerError().body(error);
         }
@@ -83,6 +94,13 @@ public class PaymentController {
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
 
         try {
+            if (request.getRazorpayOrderId() == null || request.getRazorpayPaymentId() == null || request.getRazorpaySignature() == null) {
+                Map<String, Object> response = new HashMap<>();
+                response.put("status", "failure");
+                response.put("message", "Missing required payment fields");
+                return ResponseEntity.badRequest().body(response);
+            }
+
             // Verify the payment signature
             JSONObject attributes = new JSONObject();
             attributes.put("razorpay_order_id", request.getRazorpayOrderId());

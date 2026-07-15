@@ -8,6 +8,7 @@ import { divIcon } from 'leaflet';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import PaymentModal from '../components/PaymentModal';
+import { motion } from 'framer-motion';
 
 function MapUpdater({ center }) {
   const map = useMap();
@@ -403,7 +404,12 @@ const ListingDetailsPage = () => {
         </div>
 
         {/* Image Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 rounded-3xl overflow-hidden shadow-2xl border border-white/80 dark:border-white/5 bg-white dark:bg-slate-900 p-2">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 rounded-3xl overflow-hidden shadow-2xl border border-white/80 dark:border-white/5 bg-white dark:bg-slate-900 p-2"
+        >
           <div className="md:col-span-2 relative group overflow-hidden rounded-2xl h-[400px]">
             <img src={images[activeImage]} alt={listing.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" onError={(e) => { e.target.onerror = null; e.target.src = fallbackImage; }} />
             <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-semibold border border-white/20 shadow-lg">
@@ -424,7 +430,7 @@ const ListingDetailsPage = () => {
               </div>
             )}
           </div>
-        </div>
+        </motion.div>
 
         {/* Thumbnails */}
         {images.length > 1 && (
@@ -861,7 +867,12 @@ const ListingDetailsPage = () => {
 
           {/* Right: Booking Sidebar */}
           <div className="lg:col-span-1">
-            <div className="bg-white dark:bg-slate-900 rounded-3xl border border-gray-150 dark:border-white/5 shadow-2xl dark:shadow-black/30 p-6 md:p-8 sticky top-24 relative overflow-hidden">
+            <motion.div 
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl border border-gray-100 dark:border-white/5 shadow-2xl shadow-indigo-900/5 dark:shadow-black/30 p-6 md:p-8 sticky top-24 relative overflow-hidden"
+            >
               <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-primary-500 via-indigo-500 to-purple-600" />
               <div className="mb-6 bg-gradient-to-br from-primary-50 to-indigo-50/50 dark:from-primary-900/20 dark:to-indigo-900/10 p-4 rounded-2xl border border-primary-100 dark:border-primary-800/30 flex items-baseline justify-between">
                 <div>
@@ -945,7 +956,7 @@ const ListingDetailsPage = () => {
               <p className="text-[10px] text-center text-gray-400 font-semibold mt-4">
                 🔒 Secured & encrypted transactions.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

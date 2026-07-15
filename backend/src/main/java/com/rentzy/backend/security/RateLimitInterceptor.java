@@ -10,13 +10,23 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.time.Duration;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
 
-    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+    // LRU cache with max 10,000 entries to prevent unbounded memory growth
+    private static final int MAX_CACHE_SIZE = 10_000;
+    private final Map<String, Bucket> cache = Collections.synchronizedMap(
+            new LinkedHashMap<>(256, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, Bucket> eldest) {
+                    return size() > MAX_CACHE_SIZE;
+                }
+            }
+    );
 
     // Strict limits for Auth
     private final Bandwidth authLimit = Bandwidth.classic(10, Refill.greedy(10, Duration.ofMinutes(1)));

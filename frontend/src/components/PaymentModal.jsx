@@ -100,11 +100,6 @@ const PaymentModal = ({ listing, bookingId, onClose }) => {
         {/* Step: Ready */}
         {step === 'ready' && (
           <div className="p-6 space-y-4">
-            <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-              <Lock size={14} />
-              <span>This is a <strong>test payment</strong> — no real money will be charged.</span>
-            </div>
-
             {/* Payment Method Tabs */}
             <div className="flex gap-2">
               <button
@@ -150,21 +145,20 @@ const PaymentModal = ({ listing, bookingId, onClose }) => {
               </div>
             </div>
 
-            {/* Test info based on selected method */}
+            {/* Payment instructions based on selected method */}
             {paymentMethod === 'card' && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
-                <p className="text-xs text-blue-700 font-medium mb-1">🧪 Test Card Details</p>
-                <p className="text-xs text-blue-600 font-mono">Card: 4111 1111 1111 1111</p>
-                <p className="text-xs text-blue-600 font-mono">Expiry: Any future date · CVV: Any 3 digits</p>
+                <p className="text-xs text-blue-700 font-medium mb-1">💳 Card Payment</p>
+                <p className="text-xs text-blue-600">Enter your card details securely on the next screen.</p>
               </div>
             )}
             {paymentMethod === 'upi' && (
               <div className="bg-purple-50 border border-purple-200 rounded-xl px-4 py-3">
                 <p className="text-xs text-purple-700 font-medium mb-1">📱 UPI Payment</p>
-                <p className="text-xs text-purple-600">Pay via Google Pay, PhonePe, Paytm or any UPI app.</p>
-                <p className="text-xs text-purple-600 font-mono mt-1">Test UPI ID: success@razorpay</p>
+                <p className="text-xs text-purple-600">Pay securely via Google Pay, PhonePe, Paytm or any UPI app.</p>
               </div>
             )}
+
 
             <button
               onClick={handlePay}
