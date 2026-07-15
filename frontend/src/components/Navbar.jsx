@@ -270,7 +270,7 @@ const Navbar = () => {
                 )}
                 {user?.role === 'MOVER' && (
                   <Link to="/mover-dashboard" className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-black text-white rounded-lg text-xs font-semibold transition-colors shadow-sm">
-                    Vendor Portal
+                    Mover Dashboard
                   </Link>
                 )}
                 {/* Notifications Bell */}

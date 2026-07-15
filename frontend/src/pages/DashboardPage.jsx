@@ -497,7 +497,7 @@ const DashboardPage = () => {
       );
     } else if (role === 'MOVER') {
       baseTabs.push(
-        { id: 'mover-portal', name: 'Vendor Portal', icon: Truck },
+        { id: 'mover-portal', name: 'Mover Dashboard', icon: Truck },
         { id: 'moving', name: 'Moving Requests', icon: Truck }
       );
     } else {
