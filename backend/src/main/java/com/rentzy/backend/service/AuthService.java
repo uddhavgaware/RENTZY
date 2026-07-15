@@ -135,14 +135,13 @@ public class AuthService {
             GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAcceptableTimeSkewSeconds(86400); // Allow 24 hours of clock drift for local development
             
-            // Always extract audience from the token itself to pass verification
-            // This prevents failures if the backend and frontend client IDs are mismatched or misconfigured.
-            GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
-            if (unverifiedToken != null && unverifiedToken.getPayload() != null 
-                    && unverifiedToken.getPayload().getAudienceAsList() != null 
-                    && !unverifiedToken.getPayload().getAudienceAsList().isEmpty()) {
-                verifierBuilder.setAudience(Collections.singletonList((String) unverifiedToken.getPayload().getAudienceAsList().get(0)));
+            if (googleClientId != null && !googleClientId.isEmpty()) {
+                verifierBuilder.setAudience(Collections.singletonList(googleClientId));
+            } else {
+                throw new RuntimeException("Server is misconfigured: Google Client ID is missing");
             }
+
+            GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
 
             GoogleIdTokenVerifier verifier = verifierBuilder.build();
             
