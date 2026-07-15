@@ -147,6 +147,14 @@ public class MovingController {
         if (!"APPROVED".equals(mover.getKycStatus())) {
             throw new RuntimeException("You must be a verified partner (Approved KYC) to accept jobs. Contact Admin.");
         }
+
+        // 🔒 FRAUD PREVENTION: Block acceptance while already on an active job
+        List<MovingRequest> activeMoverJobs = movingRequestRepository.findByMoverOrderByCreatedAtDesc(mover);
+        boolean hasActiveJob = activeMoverJobs.stream()
+                .anyMatch(j -> "ASSIGNED".equals(j.getStatus()) || "IN_TRANSIT".equals(j.getStatus()));
+        if (hasActiveJob) {
+            throw new RuntimeException("You already have an active job. You cannot accept a new lead while IN TRANSIT or ASSIGNED to another move. Complete or release your current job first.");
+        }
         
         request.setMover(mover);
         request.setStatus("ASSIGNED");
