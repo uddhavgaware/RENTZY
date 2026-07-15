@@ -71,7 +71,6 @@ public class RoommatePost {
     private String facing;
     private Integer areaSqft;
     
-    @Column(nullable = false)
     @Builder.Default
     private String status = "ACTIVE"; // ACTIVE, FULFILLED, INACTIVE
 }
