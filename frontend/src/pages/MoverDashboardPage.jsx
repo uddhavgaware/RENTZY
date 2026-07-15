@@ -325,6 +325,71 @@ const JobCard = ({ job, onStart, onComplete, onRelease }) => {
   );
 };
 
+/* ─── Completed Ride (compact notification-sized item) ─────── */
+const CompletedRideItem = ({ job }) => {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-100 overflow-hidden hover:border-gray-200 transition-all shadow-sm">
+      {/* Compact row — notification sized */}
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 transition-colors"
+      >
+        <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+          <CheckCircle2 size={16} className="text-green-500" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="text-sm font-bold text-gray-900 truncate">{job.fromLocation}</p>
+            <ArrowRight size={12} className="text-gray-300 flex-shrink-0" />
+            <p className="text-sm font-bold text-gray-900 truncate">{job.toLocation}</p>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-0.5">{job.movingDate} • {job.propertySize}</p>
+        </div>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <span className="text-sm font-black text-green-600">{job.estimatedPrice ? `₹${job.estimatedPrice.toLocaleString('en-IN')}` : '—'}</span>
+          <ChevronDown size={16} className={`text-gray-300 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+        </div>
+      </button>
+
+      {/* Expanded details */}
+      {expanded && (
+        <div className="px-4 pb-4 pt-1 border-t border-gray-100 space-y-3 animate-fade-in">
+          {/* Customer info */}
+          <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg">
+            <div className="w-9 h-9 bg-gradient-to-br from-primary-500 to-indigo-600 text-white rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0">
+              {job.user?.name?.charAt(0)}
+            </div>
+            <div className="min-w-0">
+              <p className="font-bold text-gray-900 text-sm">{job.user?.name}</p>
+              <p className="text-xs text-gray-500">{job.user?.phone || 'No phone'} {job.user?.email ? `• ${job.user.email}` : ''}</p>
+            </div>
+          </div>
+          {/* Contact buttons */}
+          <div className="flex gap-2">
+            {job.user?.phone && (
+              <>
+                <a href={`tel:${job.user.phone}`} className="flex-1 flex items-center justify-center gap-1.5 bg-gray-900 text-white text-xs font-bold py-2 rounded-lg hover:bg-gray-800 transition-all active:scale-95">
+                  <Phone size={12} /> Call
+                </a>
+                <a href={`https://wa.me/${job.user.phone.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center justify-center gap-1.5 bg-[#25D366] text-white text-xs font-bold py-2 rounded-lg hover:bg-[#1ebd5a] transition-all active:scale-95">
+                  WhatsApp
+                </a>
+              </>
+            )}
+            {job.user?.email && (
+              <a href={`mailto:${job.user.email}`} className="flex-1 flex items-center justify-center gap-1.5 bg-blue-100 text-blue-800 text-xs font-bold py-2 rounded-lg hover:bg-blue-200 transition-all active:scale-95">
+                <Mail size={12} /> Email
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 /* ─── Main Page ────────────────────────────────────────────── */
 const MoverDashboardPage = () => {
   const { user, isAuthenticated, loading } = useAuth();
@@ -572,15 +637,41 @@ const MoverDashboardPage = () => {
                     <p className="text-gray-500 mt-2 text-sm">Accept leads from the "Available Leads" tab to get started!</p>
                   </div>
                 ) : (
-                  myJobs.map(job => (
-                    <JobCard
-                      key={job.id}
-                      job={job}
-                      onStart={handleStartJob}
-                      onComplete={handleCompleteJob}
-                      onRelease={handleReleaseJob}
-                    />
-                  ))
+                  <>
+                    {/* ── Active Jobs (full cards) ── */}
+                    {myJobs.filter(j => j.status !== 'COMPLETED').length > 0 && (
+                      <>
+                        <div className="lg:col-span-2 flex items-center gap-2 mb-1">
+                          <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span></span>
+                          <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider">Active Jobs</h3>
+                        </div>
+                        {myJobs.filter(j => j.status !== 'COMPLETED').map(job => (
+                          <JobCard
+                            key={job.id}
+                            job={job}
+                            onStart={handleStartJob}
+                            onComplete={handleCompleteJob}
+                            onRelease={handleReleaseJob}
+                          />
+                        ))}
+                      </>
+                    )}
+
+                    {/* ── Completed Rides (compact notification style) ── */}
+                    {myJobs.filter(j => j.status === 'COMPLETED').length > 0 && (
+                      <div className="lg:col-span-2 mt-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <CheckCircle2 size={14} className="text-green-500" />
+                          <h3 className="text-sm font-black text-gray-500 uppercase tracking-wider">Completed Rides ({myJobs.filter(j => j.status === 'COMPLETED').length})</h3>
+                        </div>
+                        <div className="space-y-2">
+                          {myJobs.filter(j => j.status === 'COMPLETED').map(job => (
+                            <CompletedRideItem key={job.id} job={job} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </>
             )}
