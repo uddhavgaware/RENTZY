@@ -103,13 +103,13 @@ const HowItWorksGuide = () => {
 };
 
 /* ─── Available Lead Card ──────────────────────────────────── */
-const LeadCard = ({ lead, onAccept }) => (
+const LeadCard = ({ lead, onAccept, isBlocked = false }) => (
   <motion.div 
     initial={{ opacity: 0, y: 15 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.4 }}
-    whileHover={{ y: -4 }}
-    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300 overflow-hidden group"
+    whileHover={{ y: isBlocked ? 0 : -4 }}
+    className={`bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300 overflow-hidden group ${isBlocked ? 'opacity-60 grayscale-[30%]' : ''}`}
   >
     {/* Top accent bar */}
     <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
@@ -165,12 +165,18 @@ const LeadCard = ({ lead, onAccept }) => (
           <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Est. Payout</p>
           <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">{lead.estimatedPrice ? `₹${lead.estimatedPrice.toLocaleString('en-IN')}` : 'Negotiate'}</p>
         </div>
-        <button
-          onClick={() => onAccept(lead.id)}
-          className="bg-gray-900 hover:bg-black dark:bg-primary-600 dark:hover:bg-primary-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all active:scale-95 shadow-lg shadow-gray-900/20 dark:shadow-primary-600/20 flex items-center gap-2 text-sm group-hover:scale-105"
-        >
-          Accept <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
-        </button>
+        {isBlocked ? (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-500 font-bold py-3 px-4 rounded-xl text-xs cursor-not-allowed">
+            <AlertCircle size={14} /> Job Locked
+          </div>
+        ) : (
+          <button
+            onClick={() => onAccept(lead.id)}
+            className="bg-gray-900 hover:bg-black dark:bg-primary-600 dark:hover:bg-primary-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all active:scale-95 shadow-lg shadow-gray-900/20 dark:shadow-primary-600/20 flex items-center gap-2 text-sm group-hover:scale-105"
+          >
+            Accept <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </button>
+        )}
       </div>
     </div>
   </motion.div>
@@ -432,7 +438,9 @@ const MoverDashboardPage = () => {
   useEffect(() => {
     if (user?.role !== 'MOVER') return;
     fetchData();
+    // Always load myJobs regardless of active tab so fraud-prevention state is current
     api.get('/users/me').then(res => setProfile(res.data)).catch(() => {});
+    api.get('/moving/vendor/my').then(res => setMyJobs(res.data)).catch(() => {});
   }, [user, activeTab]);
 
   const fetchData = async () => {
@@ -550,6 +558,10 @@ const MoverDashboardPage = () => {
   const totalEarnings = completedJobs.reduce((sum, j) => sum + (j.estimatedPrice || 0), 0);
   const activeJobs = myJobs.filter(j => j.status !== 'COMPLETED').length;
 
+  // 🔒 FRAUD PREVENTION: Block new accepts while already active
+  const isInTransitOrAssigned = myJobs.some(j => j.status === 'IN_TRANSIT' || j.status === 'ASSIGNED');
+  const activeBlockingJob = myJobs.find(j => j.status === 'IN_TRANSIT' || j.status === 'ASSIGNED');
+
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
@@ -627,6 +639,32 @@ const MoverDashboardPage = () => {
             
             {activeTab === 'available' && (
               <>
+                {/* 🔒 FRAUD PREVENTION BANNER */}
+                {isInTransitOrAssigned && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="lg:col-span-2 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+                  >
+                    <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center flex-shrink-0">
+                      <AlertCircle size={24} className="text-red-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-black text-red-800 text-base">🔒 Job Acceptance Locked</p>
+                      <p className="text-red-600 text-sm font-medium mt-0.5">
+                        You currently have an active {activeBlockingJob?.status === 'IN_TRANSIT' ? 'IN TRANSIT' : 'ASSIGNED'} job:
+                        <span className="font-bold"> {activeBlockingJob?.fromLocation} → {activeBlockingJob?.toLocation}</span>.
+                        Complete or release your current job before accepting a new lead.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setActiveTab('my_jobs')}
+                      className="flex-shrink-0 bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-sm transition-all active:scale-95 flex items-center gap-2"
+                    >
+                      <Truck size={16} /> View Active Job
+                    </button>
+                  </motion.div>
+                )}
                 {availableLeads.length === 0 ? (
                   <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-12 text-center">
                     <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
@@ -637,7 +675,7 @@ const MoverDashboardPage = () => {
                   </div>
                 ) : (
                   availableLeads.map(lead => (
-                    <LeadCard key={lead.id} lead={lead} onAccept={handleAcceptJob} />
+                    <LeadCard key={lead.id} lead={lead} onAccept={handleAcceptJob} isBlocked={isInTransitOrAssigned} />
                   ))
                 )}
               </>
