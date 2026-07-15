@@ -269,7 +269,7 @@ const LandingPage = () => {
             <Search size={20} />
             Search
           </button>
-        </div>
+        </motion.div>
 
         {/* Quick pills */}
         <div className="flex flex-wrap justify-center gap-2 mt-6">
@@ -315,7 +315,7 @@ const LandingPage = () => {
               <button onClick={() => { setLocationStatus('idle'); setUserLocation(null); sessionStorage.removeItem('rentzy_city'); setNearbyListings([]); setHeroLocation(''); }} className="ml-1 text-white/40 hover:text-white/70 text-xs transition-colors">(change)</button>
             </div>
           )}
-        </motion.div>
+        </div>
       </PremiumHero>
 
       {/* ═══════════════════════════════════════
