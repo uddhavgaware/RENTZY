@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { MapPin, Star, Heart, BadgeCheck, Wifi, Car, Dumbbell, Tv } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import { motion } from 'framer-motion';
 
 const maskName = (name) => {
   if (!name) return 'Anonymous';
@@ -88,22 +89,30 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
   };
 
   return (
-    <Link
-      to={`/listings/${listing.id}/${slugify(listing.title)}`}
-      className="group bg-white rounded-3xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary-500/10 border border-gray-100 shadow-sm"
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.4 }}
+      whileHover={{ y: -6 }}
+      className="h-full flex flex-col"
     >
+      <Link
+        to={`/listings/${listing.id}/${slugify(listing.title)}`}
+        className="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl overflow-hidden flex flex-col h-full border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl hover:shadow-primary-500/10 transition-shadow duration-300"
+      >
       {/* Image */}
-      <div className="relative h-52 sm:h-56 overflow-hidden bg-gray-100">
+      <div className="relative h-52 sm:h-56 overflow-hidden bg-gray-100 dark:bg-slate-700">
         <img
           src={imageUrl}
           alt={listing.title}
           onError={() => setImgError(true)}
-          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
           loading="lazy"
         />
 
         {/* Dark gradient overlay at bottom */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-gray-900/20 to-transparent transition-opacity group-hover:opacity-90" />
 
         {/* Type badge top-left */}
         <div className="absolute top-3 left-3">
@@ -135,10 +144,10 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
       </div>
 
       {/* Content */}
-      <div className="p-4 sm:p-5 flex-grow flex flex-col">
+      <div className="p-4 sm:p-5 flex-grow flex flex-col relative bg-white dark:bg-slate-800">
         {/* Title row */}
-        <div className="flex items-start justify-between gap-2 mb-1.5">
-          <h3 className="font-bold text-base text-gray-900 line-clamp-1 group-hover:text-primary-700 transition-colors flex-1">
+        <div className="flex items-start justify-between gap-2 mb-2">
+          <h3 className="font-bold text-[17px] leading-tight text-gray-900 dark:text-white line-clamp-1 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-1">
             {listing.title}
           </h3>
           {/* Rating — only shown if real reviews exist */}
@@ -235,7 +244,8 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
           </div>
         </div>
       </div>
-    </Link>
+      </Link>
+    </motion.div>
   );
 };
 

@@ -104,70 +104,76 @@ const HowItWorksGuide = () => {
 
 /* ─── Available Lead Card ──────────────────────────────────── */
 const LeadCard = ({ lead, onAccept }) => (
-  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group">
+  <motion.div 
+    initial={{ opacity: 0, y: 15 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4 }}
+    whileHover={{ y: -4 }}
+    className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-2xl border border-white/40 dark:border-white/5 shadow-sm hover:shadow-xl hover:shadow-primary-500/10 transition-all duration-300 overflow-hidden group"
+  >
     {/* Top accent bar */}
-    <div className="h-1 bg-gradient-to-r from-blue-500 to-indigo-500" />
+    <div className="h-1.5 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500" />
     
-    <div className="p-5">
+    <div className="p-6">
       {/* Header with badge and date */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <span className="relative flex h-2.5 w-2.5">
+          <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500 shadow-sm shadow-blue-500/50"></span>
           </span>
-          <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider border border-blue-100">New Lead</span>
+          <span className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider border border-blue-200/50 dark:border-blue-700/30">New Lead</span>
         </div>
-        <span className="text-gray-400 text-xs font-medium flex items-center gap-1"><Clock size={12} /> {new Date(lead.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
+        <span className="text-gray-400 text-xs font-bold flex items-center gap-1.5"><Clock size={12} /> {new Date(lead.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</span>
       </div>
 
       {/* Route visualization */}
-      <div className="flex items-start gap-3 mb-5">
-        <div className="flex flex-col items-center pt-1">
-          <div className="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-50" />
-          <div className="w-0.5 h-8 bg-gradient-to-b from-indigo-300 to-green-300 my-1" />
-          <div className="w-3 h-3 rounded-full bg-green-500 ring-4 ring-green-50" />
+      <div className="flex items-start gap-4 mb-6 bg-gray-50/50 dark:bg-slate-900/50 rounded-xl p-4 border border-gray-100 dark:border-white/5">
+        <div className="flex flex-col items-center pt-1.5">
+          <div className="w-3.5 h-3.5 rounded-full bg-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-900/30 shadow-sm" />
+          <div className="w-0.5 h-10 bg-gradient-to-b from-indigo-300 to-green-300 dark:from-indigo-600 dark:to-green-600 my-1.5" />
+          <div className="w-3.5 h-3.5 rounded-full bg-green-500 ring-4 ring-green-100 dark:ring-green-900/30 shadow-sm" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="mb-3">
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Pickup</p>
-            <p className="font-bold text-gray-900 text-sm truncate">{lead.fromLocation}</p>
+          <div className="mb-4">
+            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-0.5">Pickup</p>
+            <p className="font-bold text-gray-900 dark:text-white text-sm truncate">{lead.fromLocation}</p>
           </div>
           <div>
-            <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Drop-off</p>
-            <p className="font-bold text-gray-900 text-sm truncate">{lead.toLocation}</p>
+            <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-0.5">Drop-off</p>
+            <p className="font-bold text-gray-900 dark:text-white text-sm truncate">{lead.toLocation}</p>
           </div>
         </div>
       </div>
 
       {/* Info chips */}
-      <div className="flex flex-wrap gap-2 mb-5">
-        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 border border-gray-100">
-          <Calendar size={13} className="text-gray-400" />
+      <div className="flex flex-wrap gap-2.5 mb-6">
+        <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shadow-sm">
+          <Calendar size={14} className="text-indigo-500" />
           {lead.movingDate}
-          {lead.movingTime && <span className="text-primary-600 ml-1">• {lead.movingTime}</span>}
+          {lead.movingTime && <span className="text-primary-600 dark:text-primary-400 ml-1">• {lead.movingTime}</span>}
         </div>
-        <div className="flex items-center gap-1.5 bg-gray-50 px-3 py-1.5 rounded-lg text-xs font-semibold text-gray-700 border border-gray-100">
-          <Package size={13} className="text-gray-400" />
+        <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3.5 py-2 rounded-xl text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-white/10 shadow-sm">
+          <Package size={14} className="text-indigo-500" />
           {lead.propertySize}
         </div>
       </div>
 
       {/* Footer: Price + Accept */}
-      <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+      <div className="flex items-center justify-between pt-5 border-t border-gray-100 dark:border-white/10">
         <div>
-          <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Est. Payout</p>
-          <p className="text-2xl font-black text-green-600">{lead.estimatedPrice ? `₹${lead.estimatedPrice.toLocaleString('en-IN')}` : 'Negotiate'}</p>
+          <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-1">Est. Payout</p>
+          <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-green-600 to-emerald-500">{lead.estimatedPrice ? `₹${lead.estimatedPrice.toLocaleString('en-IN')}` : 'Negotiate'}</p>
         </div>
         <button
           onClick={() => onAccept(lead.id)}
-          className="bg-gray-900 hover:bg-black text-white font-bold py-3 px-6 rounded-xl transition-all active:scale-95 shadow-lg shadow-gray-900/20 flex items-center gap-2 text-sm"
+          className="bg-gray-900 hover:bg-black dark:bg-primary-600 dark:hover:bg-primary-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all active:scale-95 shadow-lg shadow-gray-900/20 dark:shadow-primary-600/20 flex items-center gap-2 text-sm group-hover:scale-105"
         >
-          Accept <ArrowRight size={16} />
+          Accept <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
         </button>
       </div>
     </div>
-  </div>
+  </motion.div>
 );
 
 /* ─── My Job Card ──────────────────────────────────────────── */
@@ -175,62 +181,66 @@ const JobCard = ({ job, onStart, onComplete, onRelease }) => {
   const [expanded, setExpanded] = useState(job.status === 'IN_TRANSIT');
 
   const statusConfig = {
-    ASSIGNED: { color: 'bg-amber-100 text-amber-700 border-amber-200', label: '⏳ Awaiting Pickup' },
-    IN_TRANSIT: { color: 'bg-blue-100 text-blue-700 border-blue-200', label: '🚚 In Transit' },
-    COMPLETED: { color: 'bg-green-100 text-green-700 border-green-200', label: '✅ Completed' },
+    ASSIGNED: { color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-700/50', label: '⏳ Awaiting Pickup' },
+    IN_TRANSIT: { color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-700/50', label: '🚚 In Transit' },
+    COMPLETED: { color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-700/50', label: '✅ Completed' },
   };
   const sc = statusConfig[job.status] || statusConfig.ASSIGNED;
 
   return (
-    <div className={`bg-white rounded-2xl border shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden ${
-      job.status === 'IN_TRANSIT' ? 'border-blue-200 ring-2 ring-blue-100' : 'border-gray-100'
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.98 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4 }}
+      className={`bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl border shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden ${
+      job.status === 'IN_TRANSIT' ? 'border-blue-300 ring-4 ring-blue-50 dark:ring-blue-900/20' : 'border-gray-200 dark:border-white/10'
     }`}>
       {/* Status accent */}
-      <div className={`h-1 ${
+      <div className={`h-2 ${
         job.status === 'IN_TRANSIT' ? 'bg-gradient-to-r from-blue-500 to-cyan-500' :
         job.status === 'COMPLETED' ? 'bg-gradient-to-r from-green-500 to-emerald-500' :
-        'bg-gradient-to-r from-amber-400 to-orange-400'
+        'bg-gradient-to-r from-amber-400 to-orange-500'
       }`} />
 
-      <div className="p-5">
+      <div className="p-6">
         {/* Status + Workflow */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-5">
-          <span className={`px-3 py-1.5 rounded-full text-xs font-bold border ${sc.color}`}>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+          <span className={`px-4 py-1.5 rounded-xl text-xs font-black tracking-wide border shadow-sm ${sc.color}`}>
             {sc.label}
           </span>
           <WorkflowSteps status={job.status} />
         </div>
 
         {/* Route + Price row */}
-        <div className="flex flex-col md:flex-row gap-5">
+        <div className="flex flex-col md:flex-row gap-6 bg-gray-50/50 dark:bg-slate-900/50 p-5 rounded-2xl border border-gray-100 dark:border-white/5">
           {/* Route */}
-          <div className="flex items-start gap-3 flex-1 min-w-0">
-            <div className="flex flex-col items-center pt-1">
-              <div className="w-3 h-3 rounded-full bg-indigo-500 ring-4 ring-indigo-50" />
-              <div className="w-0.5 h-8 bg-gradient-to-b from-indigo-300 to-green-300 my-1" />
-              <div className="w-3 h-3 rounded-full bg-green-500 ring-4 ring-green-50" />
+          <div className="flex items-start gap-4 flex-1 min-w-0">
+            <div className="flex flex-col items-center pt-1.5">
+              <div className="w-3.5 h-3.5 rounded-full bg-indigo-500 ring-4 ring-indigo-100 dark:ring-indigo-900/30" />
+              <div className="w-0.5 h-10 bg-gradient-to-b from-indigo-300 to-green-300 dark:from-indigo-600 dark:to-green-600 my-1.5" />
+              <div className="w-3.5 h-3.5 rounded-full bg-green-500 ring-4 ring-green-100 dark:ring-green-900/30" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="mb-3">
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Pickup</p>
-                <p className="font-bold text-gray-900 text-sm truncate">{job.fromLocation}</p>
+              <div className="mb-4">
+                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-0.5">Pickup</p>
+                <p className="font-bold text-gray-900 dark:text-white text-sm truncate">{job.fromLocation}</p>
               </div>
               <div>
-                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Drop-off</p>
-                <p className="font-bold text-gray-900 text-sm truncate">{job.toLocation}</p>
+                <p className="text-[10px] text-gray-400 font-black uppercase tracking-widest mb-0.5">Drop-off</p>
+                <p className="font-bold text-gray-900 dark:text-white text-sm truncate">{job.toLocation}</p>
               </div>
             </div>
           </div>
 
           {/* Meta info */}
-          <div className="flex flex-row md:flex-col items-center md:items-end gap-3 md:gap-1">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-              <Calendar size={13} /> {job.movingDate}
+          <div className="flex flex-row md:flex-col items-center md:items-end justify-center gap-4 md:gap-2 pl-0 md:pl-6 border-t md:border-t-0 md:border-l border-gray-200 dark:border-white/10 pt-4 md:pt-0">
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 shadow-sm border border-gray-100 dark:border-white/5">
+              <Calendar size={14} className="text-indigo-500" /> {job.movingDate}
             </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500">
-              <Package size={13} /> {job.propertySize}
+            <div className="flex items-center gap-2 bg-white dark:bg-slate-800 px-3 py-1.5 rounded-lg text-xs font-bold text-gray-600 dark:text-gray-300 shadow-sm border border-gray-100 dark:border-white/5">
+              <Package size={14} className="text-indigo-500" /> {job.propertySize}
             </div>
-            <p className="text-xl font-black text-gray-900 mt-1">{job.estimatedPrice ? `₹${job.estimatedPrice.toLocaleString('en-IN')}` : 'TBD'}</p>
+            <p className="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 mt-2">{job.estimatedPrice ? `₹${job.estimatedPrice.toLocaleString('en-IN')}` : 'TBD'}</p>
           </div>
         </div>
 
@@ -328,7 +338,7 @@ const JobCard = ({ job, onStart, onComplete, onRelease }) => {
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };
 

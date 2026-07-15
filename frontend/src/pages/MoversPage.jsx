@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import PremiumHero from '../components/PremiumHero';
+import { motion } from 'framer-motion';
 
 function CustomZoomControl() {
   const map = useMap();
@@ -232,11 +233,16 @@ const MoversPage = () => {
         </div>
       </PremiumHero>
 
-      <div className="min-h-screen bg-gray-50 pb-20 pt-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-950 pb-20 pt-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 relative z-20 -mt-32">
 
-          <div className="w-full bg-white rounded-3xl p-8 shadow-2xl border border-gray-100 text-gray-900">
-            <h2 className="text-3xl font-extrabold mb-6 text-center text-gray-900">Get a Free Quote</h2>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl rounded-3xl p-6 sm:p-10 shadow-2xl shadow-indigo-900/10 dark:shadow-black/40 border border-white/60 dark:border-white/10 text-gray-900 dark:text-white"
+          >
+            <h2 className="text-3xl font-black mb-8 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600 dark:from-primary-400 dark:to-indigo-400">Get a Free Quote</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1">
                 <div className="flex justify-between items-end mb-1">
