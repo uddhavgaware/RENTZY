@@ -16,6 +16,21 @@ public class RentzyApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(RentzyApplication.class, args);
+
+		// Log memory info at startup for debugging OOM issues on Render
+		Runtime rt = Runtime.getRuntime();
+		long maxMB = rt.maxMemory() / (1024 * 1024);
+		long totalMB = rt.totalMemory() / (1024 * 1024);
+		long freeMB = rt.freeMemory() / (1024 * 1024);
+		long usedMB = totalMB - freeMB;
+		System.out.println("═══════════════════════════════════════════════════");
+		System.out.println("  RENTZY STARTUP MEMORY REPORT");
+		System.out.println("  Max Heap:   " + maxMB + " MB");
+		System.out.println("  Total Heap: " + totalMB + " MB");
+		System.out.println("  Used Heap:  " + usedMB + " MB");
+		System.out.println("  Free Heap:  " + freeMB + " MB");
+		System.out.println("  Processors: " + rt.availableProcessors());
+		System.out.println("═══════════════════════════════════════════════════");
 	}
 
 	@Bean
@@ -25,6 +40,8 @@ public class RentzyApplication {
 				jdbcTemplate.execute("ALTER TABLE users DROP CONSTRAINT IF EXISTS users_role_check");
 				jdbcTemplate.execute("UPDATE users SET role = 'TENANT' WHERE role = 'USER'");
 				jdbcTemplate.execute("UPDATE users SET is_email_verified = true WHERE is_email_verified IS NULL OR is_email_verified = false");
+				jdbcTemplate.execute("ALTER TABLE roommate_posts ADD COLUMN IF NOT EXISTS status VARCHAR(255) DEFAULT 'ACTIVE'");
+				jdbcTemplate.execute("UPDATE roommate_posts SET status = 'ACTIVE' WHERE status IS NULL");
 			} catch (Exception e) {
 				System.out.println("Could not drop constraint: " + e.getMessage());
 			}
