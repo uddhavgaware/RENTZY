@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon } from 'lucide-react';
+import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon, IndianRupee, Zap, CheckCircle2, TrendingUp } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import api from '../services/api';
@@ -37,6 +37,22 @@ const slugify = (text) => {
     .replace(/^-+/, '')
     .replace(/-+$/, '');
 };
+
+/* ─── Owner Stat Card ──────────────────────────────────────── */
+const OwnerStatCard = ({ icon: Icon, label, value, sub, accent }) => (
+  <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-all group flex flex-col justify-between">
+    <div className="flex justify-between items-start mb-2">
+      <div className={`p-3 rounded-xl ${accent} group-hover:scale-110 transition-transform`}>
+        <Icon size={20} />
+      </div>
+      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">{label}</span>
+    </div>
+    <div>
+      <h4 className="text-3xl font-black text-gray-900 leading-none mb-1">{value}</h4>
+      <p className="text-xs text-gray-500 font-medium">{sub}</p>
+    </div>
+  </div>
+);
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -542,7 +558,7 @@ const DashboardPage = () => {
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-purple-200/15 rounded-full -translate-x-1/3 translate-y-1/3 blur-[80px] pointer-events-none" />
 
         {/* Premium gradient header */}
-        <div className={`bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 relative overflow-hidden ${activeTab === 'properties' ? 'hidden' : ''}`}>
+        <div className={`bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 relative overflow-hidden`}>
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImEiIHBhdHRlcm5Vbml0cz0idXNlclNwYWNlT25Vc2UiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCI+PHBhdGggZD0iTTMwIDBMMzAgNjBNMCA' + 'zMEw2MCAzMCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IGZpbGw9InVybCgjYSkiIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiLz48L3N2Zz4=')] opacity-30 pointer-events-none" />
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full translate-x-1/3 -translate-y-1/2 pointer-events-none" />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
@@ -562,7 +578,7 @@ const DashboardPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 relative z-10">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar */}
-            <div className={`w-full lg:w-64 flex-shrink-0 ${activeTab === 'properties' ? 'hidden' : ''}`}>
+            <div className={`w-full lg:w-64 flex-shrink-0`}>
               <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-black/30 border border-gray-100/80 dark:border-white/5 p-4 sticky top-24">
                 <div className="flex items-center space-x-4 mb-6 p-3 bg-gradient-to-r from-primary-50 to-indigo-50 rounded-xl border border-primary-100/50">
                   {user?.profilePhoto ? (
@@ -961,6 +977,14 @@ const DashboardPage = () => {
                       <strong>Important Note:</strong> Accepting a booking does <strong>not</strong> automatically hide your property. If your property is fully rented out, please go to the <strong>My Properties</strong> tab and change its status to <strong>Rented</strong> so tenants stop seeing it in search results.
                     </div>
                   )}
+                  {user?.role === 'OWNER' && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <OwnerStatCard icon={BookOpen} label="Total Bookings" value={bookings.length} accent="bg-blue-50 text-blue-600" sub="All time" />
+                      <OwnerStatCard icon={CheckCircle2} label="Confirmed" value={bookings.filter(b => b.status === 'CONFIRMED').length} accent="bg-green-50 text-green-600" sub="Successfully paid" />
+                      <OwnerStatCard icon={Zap} label="Pending" value={bookings.filter(b => b.status === 'PENDING').length} accent="bg-amber-50 text-amber-600" sub="Awaiting confirmation" />
+                      <OwnerStatCard icon={IndianRupee} label="Revenue" value={`₹${bookings.filter(b => b.status === 'CONFIRMED').reduce((sum, b) => sum + (b.amount || 0), 0).toLocaleString('en-IN')}`} accent="bg-purple-50 text-purple-600" sub="Total earned" />
+                    </div>
+                  )}
                   {loadingBookings ? (
                     <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>
                   ) : bookings.length === 0 ? (
@@ -1048,6 +1072,14 @@ const DashboardPage = () => {
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Properties</h2>
                     <Link to="/post-property" className="flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-primary-700 transition-colors"><Plus size={16} />Add Property</Link>
                   </div>
+                  {user?.role === 'OWNER' && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <OwnerStatCard icon={Home} label="Properties" value={myListings.length} accent="bg-blue-50 text-blue-600" sub="Listed" />
+                      <OwnerStatCard icon={CheckCircle2} label="Active" value={myListings.filter(l => l.status === 'ACTIVE').length} accent="bg-green-50 text-green-600" sub="Available" />
+                      <OwnerStatCard icon={BookOpen} label="Rented" value={myListings.filter(l => l.status === 'RENTED').length} accent="bg-indigo-50 text-indigo-600" sub="Occupied" />
+                      <OwnerStatCard icon={TrendingUp} label="Total Views" value={myListings.reduce((sum, l) => sum + (l.views || 0), 0) || '—'} accent="bg-purple-50 text-purple-600" sub="All properties" />
+                    </div>
+                  )}
                   {loadingListings ? (
                     <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>
                   ) : myListings.length === 0 ? (
