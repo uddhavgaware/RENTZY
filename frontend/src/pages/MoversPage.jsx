@@ -358,9 +358,9 @@ const MoversPage = () => {
               <button type="submit" disabled={loading} className="w-full bg-primary-600 hover:bg-primary-700 text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 mt-4 transition-transform active:scale-95 disabled:opacity-70 shadow-lg shadow-primary-600/30">
                 {loading ? 'Submitting...' : <>Get Instant Quote <ArrowRight size={20} /></>}
               </button>
-            </form>
+              </form>
+            </motion.div>
           </div>
-        </div>
 
         {/* Features Section */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
