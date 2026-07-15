@@ -25,6 +25,19 @@ const slugify = (text) => {
     .replace(/-+$/, '');
 };
 
+const timeAgo = (dateStr) => {
+  if (!dateStr) return null;
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - date;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return 'Updated today';
+  if (diffDays === 1) return 'Updated yesterday';
+  if (diffDays < 7) return `Updated ${diffDays}d ago`;
+  if (diffDays < 30) return `Updated ${Math.floor(diffDays / 7)}w ago`;
+  return `Updated ${Math.floor(diffDays / 30)}mo ago`;
+};
+
 // Map common amenity names to emojis for quick visual scan
 const AMENITY_ICONS = {
   'WiFi': '📶', 'AC': '❄️', 'Parking': '🚗', 'Gym': '💪',
@@ -191,7 +204,12 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
         )}
 
         {/* Footer */}
-        <div className="mt-auto pt-3 border-t border-gray-50 flex items-center justify-between">
+        <div className="mt-auto pt-3 border-t border-gray-50 flex flex-col gap-2">
+          {/* Updated timestamp */}
+          {listing.updatedAt && (
+            <p className="text-[10px] text-gray-400 font-medium">{timeAgo(listing.updatedAt)}</p>
+          )}
+          <div className="flex items-center justify-between">
           {listing.owner ? (
             <div 
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); navigate(`/owner/${listing.owner.id}`); }}
@@ -241,6 +259,7 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
             <span className="text-xs font-semibold text-primary-600 group-hover:underline transition-all">
               View Details →
             </span>
+          </div>
           </div>
         </div>
       </div>

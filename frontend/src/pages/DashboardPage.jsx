@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon, IndianRupee, Zap, CheckCircle2, TrendingUp } from 'lucide-react';
+import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon, IndianRupee, Zap, CheckCircle2, TrendingUp, Wrench } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
+import MaintenanceTab from '../components/MaintenanceTab';
+import MoveInChecklist from '../components/MoveInChecklist';
 import api from '../services/api';
 import Modal from '../components/Modal';
 import ImageCropperModal from '../components/ImageCropperModal';
@@ -516,7 +518,8 @@ const DashboardPage = () => {
     if (role === 'OWNER') {
       baseTabs.push(
         { id: 'properties', name: 'My Properties', icon: Home },
-        { id: 'bookings', name: 'Received Bookings', icon: BookOpen }
+        { id: 'bookings', name: 'Received Bookings', icon: BookOpen },
+        { id: 'maintenance', name: 'Maintenance', icon: Wrench }
       );
     } else if (role === 'MOVER') {
       baseTabs.push(
@@ -530,7 +533,8 @@ const DashboardPage = () => {
         { id: 'saved', name: 'Saved', icon: Heart },
         { id: 'split', name: 'Split Expenses', icon: Split },
         { id: 'roommates', name: 'Roommate Requests', icon: Users },
-        { id: 'moving', name: 'Moving Requests', icon: Truck }
+        { id: 'moving', name: 'Moving Requests', icon: Truck },
+        { id: 'maintenance', name: 'Maintenance', icon: Wrench }
       );
     }
 
@@ -1003,9 +1007,10 @@ const DashboardPage = () => {
                   ) : (
                     <div className="space-y-4">
                       {bookings.map(booking => (
-                        <div key={booking.id} className="border border-gray-100 rounded-2xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between hover:shadow-lg transition-all duration-300 bg-white group/card gap-4">
-                          <Link to={`/listings/${booking.listing?.id}/${slugify(booking.listing?.title)}`} className="flex items-center gap-4 group cursor-pointer flex-1">
-                            <div className="w-16 h-16 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors"><Home size={24} className="text-primary-600" /></div>
+                        <div key={booking.id} className="border border-gray-100 rounded-2xl p-5 flex flex-col hover:shadow-lg transition-all duration-300 bg-white group/card gap-4">
+                          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 w-full">
+                            <Link to={`/listings/${booking.listing?.id}/${slugify(booking.listing?.title)}`} className="flex items-center gap-4 group cursor-pointer flex-1">
+                              <div className="w-16 h-16 rounded-xl bg-primary-50 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors"><Home size={24} className="text-primary-600" /></div>
                             <div>
                               <span className="font-bold text-gray-900 group-hover:text-primary-600 transition-colors">{booking.listing?.title || 'Property'}</span>
                               <p className="text-sm text-gray-500">{booking.listing?.location}</p>
@@ -1064,12 +1069,23 @@ const DashboardPage = () => {
                                 <button onClick={() => handleCancelBooking(booking.id, booking.status)} className="text-xs text-red-500 hover:text-red-700 font-medium px-2 py-1 bg-red-50 rounded">Cancel Booking</button>
                               )}
                             </div>
+                            </div>
                           </div>
+                          
+                          {/* INJECT Move-in Checklist for confirmed tenants */}
+                          {booking.status === 'CONFIRMED' && user?.role === 'TENANT' && (
+                            <MoveInChecklist booking={booking} />
+                          )}
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
+              )}
+
+              {/* MAINTENANCE TAB */}
+              {activeTab === 'maintenance' && (
+                <MaintenanceTab user={user} />
               )}
 
               {/* MY PROPERTIES TAB */}

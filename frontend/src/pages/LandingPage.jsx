@@ -118,6 +118,22 @@ const LandingPage = () => {
   const navigate = useNavigate();
   const [heroLocation, setHeroLocation] = useState('');
   const [heroType, setHeroType] = useState('');
+  
+  const placeholders = [
+    "Enter city, locality or landmark...",
+    "Try 'PG near COEP'",
+    "Try 'Flats under ₹15,000'",
+    "Try 'Women PG with Food'",
+    "Try 'Furnished Flats in Hinjewadi'"
+  ];
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPlaceholderIndex(prev => (prev + 1) % placeholders.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
   const [userLocation, setUserLocation] = useState(null);
   const [locationStatus, setLocationStatus] = useState('idle');
   const [nearbyListings, setNearbyListings] = useState([]);
@@ -242,8 +258,8 @@ const LandingPage = () => {
               value={heroLocation}
               onChange={(e) => setHeroLocation(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleHeroSearch()}
-              placeholder="Enter city, locality or landmark…"
-              className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-semibold text-base"
+              placeholder={placeholders[placeholderIndex]}
+              className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-semibold text-base transition-all duration-500"
             />
           </div>
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation, Plus, Minus } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation, Plus, Minus, Bell, BellOff, CheckCircle, Bookmark } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 
@@ -108,6 +108,8 @@ const ListingsPage = () => {
   const [messAvailableOnly, setMessAvailableOnly] = useState(false);
   const [tenantPreference, setTenantPreference] = useState('');
   const [sortBy, setSortBy] = useState('');
+  const [furnishingFilter, setFurnishingFilter] = useState('');
+  const [alertSaved, setAlertSaved] = useState(false);
 
   // Location autocomplete
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -219,6 +221,11 @@ const ListingsPage = () => {
         results = results.filter(listing => listing.messAvailable);
       }
 
+      // Client-side Furnishing filter
+      if (furnishingFilter) {
+        results = results.filter(l => l.furnishing === furnishingFilter);
+      }
+
       // Client-side Tenant Preference filter
       if (tenantPreference) {
         results = results.filter(l => !l.tenantPreference || l.tenantPreference === 'Anyone' || l.tenantPreference === tenantPreference);
@@ -243,7 +250,7 @@ const ListingsPage = () => {
   useEffect(() => {
     setPage(0);
     fetchListings(0, false);
-  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities, messAvailableOnly, tenantPreference]);
+  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities, messAvailableOnly, tenantPreference, furnishingFilter]);
 
   // Load wishlist IDs
   useEffect(() => {
@@ -300,10 +307,23 @@ const ListingsPage = () => {
     setAppliedLocation('');
     setActiveType('all');
     setTenantPreference('');
+    setFurnishingFilter('');
+    setAlertSaved(false);
+  };
+
+  const handleSaveSearch = async () => {
+    if (!isAuthenticated) { showModal({ type: 'alert', title: 'Login Required', message: 'Please log in to save search alerts.', onConfirm: closeModal }); return; }
+    try {
+      await api.post('/search-alerts', { location: appliedLocation || 'Any', propertyType: activeType === 'all' ? 'Any' : activeType });
+      setAlertSaved(true);
+      setTimeout(() => setAlertSaved(false), 3000);
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to save search alert.', onConfirm: closeModal });
+    }
   };
 
   const activeFilterCount = [
-    minPrice, maxPrice, appliedLocation, tenantPreference, ...selectedAmenities, messAvailableOnly ? 'mess' : null
+    minPrice, maxPrice, appliedLocation, tenantPreference, furnishingFilter, ...selectedAmenities, messAvailableOnly ? 'mess' : null
   ].filter(Boolean).length;
 
   return (
@@ -376,6 +396,33 @@ const ListingsPage = () => {
             </button>
           </div>
 
+          {/* Smart Search Hint Chips */}
+          <div className="flex flex-wrap gap-2 mt-3">
+            <p className="text-xs text-gray-400 font-medium flex items-center gap-1 w-full sm:w-auto">✨ Try:</p>
+            {[
+              { label: 'PG under ₹8k with Wi-Fi', loc: '', type: 'pg', maxP: '8000', amenity: 'WiFi' },
+              { label: 'Women PG with Meals', loc: '', type: 'pg', pref: 'Bachelors (Women)', mess: true },
+              { label: 'Furnished Flat in Koregaon Park', loc: 'Koregaon Park', type: 'flat', furnishing: 'Fully Furnished' },
+              { label: 'AC + Parking in Hinjewadi', loc: 'Hinjewadi', type: 'all', amenity: 'AC' },
+            ].map((hint, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  if (hint.loc) { setSearchInput(hint.loc); setAppliedLocation(hint.loc); }
+                  if (hint.type) setActiveType(hint.type);
+                  if (hint.maxP) setMaxPrice(hint.maxP);
+                  if (hint.pref) setTenantPreference(hint.pref);
+                  if (hint.mess) setMessAvailableOnly(true);
+                  if (hint.furnishing) setFurnishingFilter(hint.furnishing);
+                  if (hint.amenity) setSelectedAmenities(prev => prev.includes(hint.amenity) ? prev : [...prev, hint.amenity]);
+                }}
+                className="text-xs font-semibold px-3 py-1.5 bg-primary-50 hover:bg-primary-100 text-primary-700 border border-primary-200 rounded-full transition-colors"
+              >
+                {hint.label}
+              </button>
+            ))}
+          </div>
+
           {/* Expandable Filters Panel */}
           {showFilters && (
             <div className="mt-6 pt-6 border-t border-gray-100 animate-fadeIn">
@@ -418,6 +465,24 @@ const ListingsPage = () => {
                       >
                         ≤ ₹{parseInt(price).toLocaleString('en-IN')}
                       </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Furnishing */}
+                <div>
+                  <h4 className="text-sm font-bold text-gray-700 mb-3">Furnishing</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {['Fully Furnished', 'Semi Furnished', 'Unfurnished'].map(f => (
+                      <button
+                        key={f}
+                        onClick={() => setFurnishingFilter(furnishingFilter === f ? '' : f)}
+                        className={`px-3 py-2 text-xs font-medium rounded-lg border transition-all ${
+                          furnishingFilter === f
+                            ? 'bg-indigo-600 border-indigo-600 text-white shadow-sm'
+                            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                        }`}
+                      >{f}</button>
                     ))}
                   </div>
                 </div>
@@ -513,16 +578,35 @@ const ListingsPage = () => {
                         <button onClick={() => toggleAmenity(a)} className="ml-1"><X size={12} /></button>
                       </span>
                     ))}
-                    {messAvailableOnly && (
+                  {furnishingFilter && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full">
+                      {furnishingFilter}
+                      <button onClick={() => setFurnishingFilter('')} className="ml-1"><X size={12} /></button>
+                    </span>
+                  )}
+                  {messAvailableOnly && (
                       <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-50 text-orange-700 text-xs font-medium rounded-full">
                         Mess Available
                         <button onClick={() => setMessAvailableOnly(false)} className="ml-1"><X size={12} /></button>
                       </span>
                     )}
                   </div>
-                  <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-700 font-medium whitespace-nowrap ml-4">
-                    Clear All
-                  </button>
+                  <div className="flex items-center gap-3 ml-4 flex-shrink-0">
+                    <button
+                      onClick={handleSaveSearch}
+                      className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border transition-all ${
+                        alertSaved
+                          ? 'bg-green-50 border-green-300 text-green-700'
+                          : 'bg-gray-50 border-gray-200 text-gray-600 hover:bg-primary-50 hover:border-primary-300 hover:text-primary-700'
+                      }`}
+                    >
+                      {alertSaved ? <CheckCircle size={13} /> : <Bookmark size={13} />}
+                      {alertSaved ? 'Alert Saved!' : 'Save Search'}
+                    </button>
+                    <button onClick={clearFilters} className="text-xs text-red-500 hover:text-red-700 font-medium whitespace-nowrap">
+                      Clear All
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
