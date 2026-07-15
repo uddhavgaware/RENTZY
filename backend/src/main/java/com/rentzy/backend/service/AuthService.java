@@ -135,36 +135,35 @@ public class AuthService {
             GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAcceptableTimeSkewSeconds(86400); // Allow 24 hours of clock drift for local development
             
-            if (googleClientId != null && !googleClientId.isEmpty()) {
-                verifierBuilder.setAudience(Collections.singletonList(googleClientId));
+            if (googleClientId != null && !googleClientId.trim().isEmpty()) {
+                verifierBuilder.setAudience(Collections.singletonList(googleClientId.trim()));
             } else {
                 throw new RuntimeException("Server is misconfigured: Google Client ID is missing");
             }
 
-            GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
-
             GoogleIdTokenVerifier verifier = verifierBuilder.build();
             
-            if (unverifiedToken == null) {
-                 throw new RuntimeException("Could not parse Google token");
-            }
+            GoogleIdToken idToken = verifier.verify(tokenId);
             
-            boolean isValid = verifier.verify(unverifiedToken);
-            
-            if (!isValid) {
-                // Determine why it failed for debugging
-                String debugMsg = "Unknown";
-                if (!unverifiedToken.verifyTime(verifier.getClock().currentTimeMillis(), verifier.getAcceptableTimeSkewSeconds())) {
-                    debugMsg = "Token expired or issued in future. System time may be out of sync.";
-                } else if (!unverifiedToken.verifyIssuer(verifier.getIssuers())) {
-                    debugMsg = "Invalid issuer: " + unverifiedToken.getPayload().getIssuer();
-                } else if (!unverifiedToken.verifyAudience(verifier.getAudience())) {
-                    debugMsg = "Invalid audience.";
-                } else {
-                    debugMsg = "Invalid signature.";
+            if (idToken == null) {
+                // Token is invalid (signature mismatch, expired, invalid audience, etc.)
+                // Let's do a manual parse to give a helpful error message
+                GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
+                if (unverifiedToken != null) {
+                    String debugMsg = "Invalid signature or malformed token";
+                    if (!unverifiedToken.verifyTime(verifier.getClock().currentTimeMillis(), verifier.getAcceptableTimeSkewSeconds())) {
+                        debugMsg = "Token expired or issued in future. System time may be out of sync.";
+                    } else if (!unverifiedToken.verifyIssuer(verifier.getIssuers())) {
+                        debugMsg = "Invalid issuer: " + unverifiedToken.getPayload().getIssuer();
+                    } else if (!unverifiedToken.verifyAudience(verifier.getAudience())) {
+                        debugMsg = "Invalid audience. Expected: " + verifier.getAudience() + ", Got: " + unverifiedToken.getPayload().getAudience();
+                    }
+                    throw new RuntimeException("Invalid Google token: " + debugMsg);
                 }
-                throw new RuntimeException("Invalid Google token: " + debugMsg);
+                throw new RuntimeException("Invalid Google token");
             }
+
+            GoogleIdToken unverifiedToken = idToken; // For payload extraction below
 
             GoogleIdToken.Payload payload = unverifiedToken.getPayload();
             String email = payload.getEmail();
