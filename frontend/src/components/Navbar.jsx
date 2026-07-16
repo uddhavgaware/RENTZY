@@ -31,14 +31,14 @@ const Navbar = () => {
     if (role === 'OWNER') {
       return [
         { name: 'Home', path: '/' },
-        { name: 'Dashboard', path: '/dashboard' },
+        { name: 'Dashboard', path: '/owner-dashboard' },
         { name: 'Flats', path: '/flats' },
         { name: 'Movers', path: '/movers' },
       ];
     } else if (role === 'MOVER') {
       return [
         { name: 'Home', path: '/' },
-        { name: 'Dashboard', path: '/dashboard' },
+        { name: 'Dashboard', path: '/mover-dashboard' },
       ];
     }
     return [
@@ -266,11 +266,6 @@ const Navbar = () => {
                 {isAdmin && (
                   <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-semibold transition-colors">
                     <ShieldCheck size={14} />Admin
-                  </Link>
-                )}
-                {user?.role === 'MOVER' && (
-                  <Link to="/mover-dashboard" className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-900 hover:bg-black text-white rounded-lg text-xs font-semibold transition-colors shadow-sm">
-                    Mover Dashboard
                   </Link>
                 )}
                 {/* Notifications Bell */}

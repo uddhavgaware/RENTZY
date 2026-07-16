@@ -594,7 +594,7 @@ const MoverDashboardPage = () => {
             )}
           </div>
           
-          <div className="flex gap-6 overflow-x-auto hide-scrollbar pt-2">
+          <div className="flex gap-6 overflow-x-auto hide-scrollbar pt-2 pb-[2px]">
             {[
               { id: 'overview', name: 'Overview', icon: TrendingUp },
               { id: 'available', name: 'Lead Market', icon: CircleDot, count: availableLeads.length },
@@ -623,7 +623,7 @@ const MoverDashboardPage = () => {
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* ── Error ── */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 border border-red-200">

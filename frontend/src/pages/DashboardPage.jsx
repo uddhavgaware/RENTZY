@@ -706,7 +706,7 @@ const DashboardPage = () => {
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                         {editingProfile ? (
-                          <input type="tel" value={profileForm.phone} onChange={e => setProfileForm(p => ({ ...p, phone: e.target.value }))} placeholder="+91 9876543210" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
+                          <input type="tel" maxLength={10} value={profileForm.phone} onChange={e => setProfileForm(p => ({ ...p, phone: e.target.value.replace(/\D/g, '').substring(0, 10) }))} placeholder="+91 9876543210" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none" />
                         ) : (
                           <p className="text-gray-900 bg-gray-50 rounded-xl px-4 py-3">{profile.phone || 'Not set'}</p>
                         )}
@@ -845,8 +845,13 @@ const DashboardPage = () => {
                                 <label className="block text-sm font-medium text-gray-700 mb-1">{kycDocType === 'AADHAAR' ? 'Aadhaar Number (12 digits)' : kycDocType === 'PAN' ? 'PAN Number (10 chars)' : 'Voter ID Number'}</label>
                                 <input
                                   type="text"
+                                  maxLength={kycDocType === 'AADHAAR' ? 12 : kycDocType === 'PAN' ? 10 : 20}
                                   value={kycDocNumber}
-                                  onChange={(e) => setKycDocNumber(e.target.value)}
+                                  onChange={(e) => {
+                                    let val = e.target.value;
+                                    if (kycDocType === 'AADHAAR') val = val.replace(/\D/g, '').substring(0, 12);
+                                    setKycDocNumber(val);
+                                  }}
                                   className="w-full border border-gray-300 rounded-xl px-4 py-2 focus:ring-2 focus:ring-primary-500 outline-none uppercase"
                                   placeholder="Enter document number"
                                 />

@@ -113,7 +113,7 @@ const OwnerDashboardPage = () => {
           </div>
           
           {/* Section Tabs */}
-          <div className="flex gap-6 overflow-x-auto hide-scrollbar pt-2">
+          <div className="flex gap-6 overflow-x-auto hide-scrollbar pt-2 pb-[2px]">
             {[
               { id: 'overview', name: 'Dashboard Overview', icon: TrendingUp },
               { id: 'properties', name: 'My Properties', icon: Home, count: myListings.length },
