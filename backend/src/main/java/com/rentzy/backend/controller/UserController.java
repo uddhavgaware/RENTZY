@@ -53,7 +53,12 @@ public class UserController {
                 Map.entry("kycDocumentType", user.getKycDocumentType() != null ? user.getKycDocumentType() : ""),
                 Map.entry("kycDocumentNumber", user.getKycDocumentNumber() != null ? user.getKycDocumentNumber() : ""),
                 Map.entry("isVerified", user.getIsVerified() != null ? user.getIsVerified() : false),
-                Map.entry("contactShared", user.getContactShared() != null ? user.getContactShared() : false)
+                Map.entry("contactShared", user.getContactShared() != null ? user.getContactShared() : false),
+                Map.entry("dietaryPref", user.getDietaryPref() != null ? user.getDietaryPref() : ""),
+                Map.entry("smokingPref", user.getSmokingPref() != null ? user.getSmokingPref() : ""),
+                Map.entry("drinkingPref", user.getDrinkingPref() != null ? user.getDrinkingPref() : ""),
+                Map.entry("sleepSchedule", user.getSleepSchedule() != null ? user.getSleepSchedule() : ""),
+                Map.entry("cleanlinessLevel", user.getCleanlinessLevel() != null ? user.getCleanlinessLevel() : "")
         ));
     }
 
@@ -122,6 +127,13 @@ public class UserController {
         if (body.containsKey("upiId")) user.setUpiId(body.get("upiId"));
         if (body.containsKey("upiQrUrl")) user.setUpiQrUrl(body.get("upiQrUrl"));
         if (body.containsKey("contactShared")) user.setContactShared(Boolean.parseBoolean(String.valueOf(body.get("contactShared"))));
+
+        // Roommate Preferences
+        if (body.containsKey("dietaryPref")) user.setDietaryPref(body.get("dietaryPref"));
+        if (body.containsKey("smokingPref")) user.setSmokingPref(body.get("smokingPref"));
+        if (body.containsKey("drinkingPref")) user.setDrinkingPref(body.get("drinkingPref"));
+        if (body.containsKey("sleepSchedule")) user.setSleepSchedule(body.get("sleepSchedule"));
+        if (body.containsKey("cleanlinessLevel")) user.setCleanlinessLevel(body.get("cleanlinessLevel"));
 
         if (body.containsKey("role")) {
             try {

@@ -64,7 +64,7 @@ const maskName = (name) => {
 };
 
 const RoommatesPage = () => {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [roommates, setRoommates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,6 +81,37 @@ const RoommatesPage = () => {
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
   const [modalMapSearchQuery, setModalMapSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+
+  const [preferencesForm, setPreferencesForm] = useState({
+    dietaryPref: user?.dietaryPref || 'Any',
+    smokingPref: user?.smokingPref || 'Any',
+    drinkingPref: user?.drinkingPref || 'Any',
+    sleepSchedule: user?.sleepSchedule || 'Any',
+    cleanlinessLevel: user?.cleanlinessLevel || 'Any'
+  });
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  
+  // Re-sync local form state when user object updates
+  useEffect(() => {
+    if (user) {
+      setPreferencesForm({
+        dietaryPref: user.dietaryPref || 'Any',
+        smokingPref: user.smokingPref || 'Any',
+        drinkingPref: user.drinkingPref || 'Any',
+        sleepSchedule: user.sleepSchedule || 'Any',
+        cleanlinessLevel: user.cleanlinessLevel || 'Any'
+      });
+    }
+  }, [user]);
+
+  const hasPreferences = user?.dietaryPref && user?.dietaryPref !== 'Any';
+  const [showPreferencesSetup, setShowPreferencesSetup] = useState(false);
+
+  useEffect(() => {
+    if (activeTab === 'smartMatch' && !hasPreferences) {
+      setShowPreferencesSetup(true);
+    }
+  }, [activeTab, hasPreferences]);
 
   const mapSearchInputRef = useRef(null);
 
@@ -546,6 +577,21 @@ const RoommatesPage = () => {
       setPostFormData(prev => ({ ...prev, gender: user.gender }));
     }
   }, [isModalOpen, user]);
+  const handleSavePreferences = async (e) => {
+    e.preventDefault();
+    setIsSavingPreferences(true);
+    try {
+      await api.put('/users/me', preferencesForm);
+      await refreshUser();
+      setShowPreferencesSetup(false);
+      fetchRoommates(0, false);
+      import('react-hot-toast').then(({ toast }) => toast.success('Preferences saved! finding matches...'));
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to save preferences.', onConfirm: closeModal });
+    } finally {
+      setIsSavingPreferences(false);
+    }
+  };
 
   return (
     <>
@@ -654,28 +700,110 @@ const RoommatesPage = () => {
 
           {/* Tabs */}
           <div className="flex gap-4 mb-8 pb-2 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab('all')}
-              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'all' ? 'bg-primary-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
-            >
-              All Requests
-            </button>
-            <button
-              onClick={() => {
-                if (!isAuthenticated) {
-                  showModal({ type: 'alert', title: 'Login Required', message: 'Please log in to use Smart Match.', onConfirm: closeModal });
-                  return;
-                }
-                setActiveTab('smartMatch');
-              }}
-              className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'smartMatch' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-gray-200'}`}
-            >
-              🔥 Smart Matches
-            </button>
+            <div className="flex gap-4">
+              <button
+                onClick={() => setActiveTab('all')}
+                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap ${activeTab === 'all' ? 'bg-primary-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}
+              >
+                All Requests
+              </button>
+              <button
+                onClick={() => {
+                  if (!isAuthenticated) {
+                    showModal({ type: 'alert', title: 'Login Required', message: 'Please log in to use Smart Match.', onConfirm: closeModal });
+                    return;
+                  }
+                  setActiveTab('smartMatch');
+                }}
+                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'smartMatch' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-gray-200'}`}
+              >
+                🔥 Smart Matches
+              </button>
+            </div>
+            
+            {/* Edit Preferences Button when on Smart Match tab */}
+            {activeTab === 'smartMatch' && hasPreferences && !showPreferencesSetup && (
+              <button 
+                onClick={() => setShowPreferencesSetup(true)}
+                className="px-4 py-2 text-sm font-bold text-pink-600 bg-pink-50 hover:bg-pink-100 rounded-full transition-colors whitespace-nowrap"
+              >
+                Edit Preferences
+              </button>
+            )}
           </div>
 
-          {/* Roommates Grid */}
-          {loading && roommates.length === 0 ? (
+          {/* Roommates Grid / Preferences Setup */}
+          {activeTab === 'smartMatch' && showPreferencesSetup ? (
+            <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 max-w-2xl mx-auto mb-12 animate-scaleIn">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <BadgeCheck size={32} />
+                </div>
+                <h2 className="text-2xl font-black text-gray-900">Set Your Preferences</h2>
+                <p className="text-gray-500 mt-2">Tell us about your lifestyle so we can find your perfect roommate matches.</p>
+              </div>
+
+              <form onSubmit={handleSavePreferences} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Dietary Preference</label>
+                    <select value={preferencesForm.dietaryPref} onChange={e => setPreferencesForm({...preferencesForm, dietaryPref: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                      <option value="Any">Any</option>
+                      <option value="Vegetarian">Vegetarian</option>
+                      <option value="Non-Vegetarian">Non-Vegetarian</option>
+                      <option value="Vegan">Vegan</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Smoking Preference</label>
+                    <select value={preferencesForm.smokingPref} onChange={e => setPreferencesForm({...preferencesForm, smokingPref: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                      <option value="Any">Any</option>
+                      <option value="Non-Smoker">Non-Smoker</option>
+                      <option value="Smoker">Smoker</option>
+                      <option value="Outside Only">Outside Only</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Drinking Preference</label>
+                    <select value={preferencesForm.drinkingPref} onChange={e => setPreferencesForm({...preferencesForm, drinkingPref: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                      <option value="Any">Any</option>
+                      <option value="Non-Drinker">Non-Drinker</option>
+                      <option value="Occasional">Occasional</option>
+                      <option value="Regular">Regular</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Sleep Schedule</label>
+                    <select value={preferencesForm.sleepSchedule} onChange={e => setPreferencesForm({...preferencesForm, sleepSchedule: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                      <option value="Any">Any</option>
+                      <option value="Early Bird">Early Bird (Sleeps Early)</option>
+                      <option value="Night Owl">Night Owl (Sleeps Late)</option>
+                    </select>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Cleanliness Level</label>
+                    <select value={preferencesForm.cleanlinessLevel} onChange={e => setPreferencesForm({...preferencesForm, cleanlinessLevel: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                      <option value="Any">Any</option>
+                      <option value="Very Clean">Very Clean (Cleans daily)</option>
+                      <option value="Average">Average (Cleans weekly)</option>
+                      <option value="Messy">Messy (Doesn't mind clutter)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-4 flex gap-3">
+                  {hasPreferences && (
+                    <button type="button" onClick={() => setShowPreferencesSetup(false)} className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold flex-1 transition-colors">
+                      Cancel
+                    </button>
+                  )}
+                  <button type="submit" disabled={isSavingPreferences} className={`px-6 py-3 bg-pink-600 hover:bg-pink-700 text-white rounded-xl font-bold transition-colors ${hasPreferences ? 'flex-1' : 'w-full'}`}>
+                    {isSavingPreferences ? 'Saving...' : 'Find Matches 🎯'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          ) : loading && roommates.length === 0 ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
             </div>

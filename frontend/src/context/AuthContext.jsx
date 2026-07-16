@@ -23,6 +23,11 @@ export const AuthProvider = ({ children }) => {
             role: res.data.role,
             profileCompleted: res.data.profileCompleted,
             profilePhoto: res.data.profilePhoto,
+            dietaryPref: res.data.dietaryPref,
+            smokingPref: res.data.smokingPref,
+            drinkingPref: res.data.drinkingPref,
+            sleepSchedule: res.data.sleepSchedule,
+            cleanlinessLevel: res.data.cleanlinessLevel,
           });
         })
         .catch(e => {
@@ -56,6 +61,11 @@ export const AuthProvider = ({ children }) => {
       role: res.data.role,
       profileCompleted: res.data.profileCompleted,
       profilePhoto: res.data.profilePhoto,
+      dietaryPref: res.data.dietaryPref,
+      smokingPref: res.data.smokingPref,
+      drinkingPref: res.data.drinkingPref,
+      sleepSchedule: res.data.sleepSchedule,
+      cleanlinessLevel: res.data.cleanlinessLevel,
     });
   };
 
@@ -71,6 +81,11 @@ export const AuthProvider = ({ children }) => {
         role: res.data.role,
         profileCompleted: res.data.profileCompleted,
         profilePhoto: res.data.profilePhoto,
+        dietaryPref: res.data.dietaryPref,
+        smokingPref: res.data.smokingPref,
+        drinkingPref: res.data.drinkingPref,
+        sleepSchedule: res.data.sleepSchedule,
+        cleanlinessLevel: res.data.cleanlinessLevel,
       });
     } catch (e) {
       console.error('Failed to refresh user profile', e);
