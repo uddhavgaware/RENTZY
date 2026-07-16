@@ -319,6 +319,42 @@ const AdminDashboardPage = () => {
     }
   };
 
+  const deleteMovingRequest = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Moving Request',
+      message: 'Are you sure you want to delete this moving request?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/admin/moving/${id}`);
+          setMovingRequests(prev => prev.filter(m => m.id !== id));
+        } catch (err) {
+          setError(err.response?.data?.message || 'Failed to delete moving request.');
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  const deleteRoommateRequest = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Roommate Request',
+      message: 'Are you sure you want to delete this roommate request?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/admin/roommates/${id}`);
+          setRoommateRequests(prev => prev.filter(r => r.id !== id));
+        } catch (err) {
+          setError(err.response?.data?.message || 'Failed to delete roommate request.');
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
   if (loading || !isAdmin) return null;
 
   const tabs = [
@@ -1120,6 +1156,7 @@ const AdminDashboardPage = () => {
                                 {m.status === 'ASSIGNED' && (
                                   <button onClick={() => updateMovingStatus(m.id, 'COMPLETED')} className="text-xs bg-green-50 text-green-600 px-2 py-1 rounded font-medium hover:bg-green-100">Mark Complete</button>
                                 )}
+                                <button onClick={() => deleteMovingRequest(m.id)} className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-medium hover:bg-red-100 flex items-center gap-1"><Trash2 size={12} /> Delete</button>
                               </div>
                             </div>
                           </td>
@@ -1147,7 +1184,7 @@ const AdminDashboardPage = () => {
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Receiver</th>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Post Details</th>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 dark:divide-white/5">
@@ -1179,8 +1216,13 @@ const AdminDashboardPage = () => {
                               {r.status}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {new Date(r.createdAt).toLocaleDateString()}
+                          <td className="px-6 py-4">
+                            <div className="flex flex-col items-start gap-2">
+                              <span className="text-sm text-gray-500">
+                                {new Date(r.createdAt).toLocaleDateString()}
+                              </span>
+                              <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-medium hover:bg-red-100 flex items-center gap-1"><Trash2 size={12} /> Delete</button>
+                            </div>
                           </td>
                         </tr>
                       ))}

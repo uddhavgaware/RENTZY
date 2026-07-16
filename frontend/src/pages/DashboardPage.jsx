@@ -517,8 +517,7 @@ const DashboardPage = () => {
 
     if (role === 'OWNER') {
       baseTabs.push(
-        { id: 'properties', name: 'My Properties', icon: Home },
-        { id: 'bookings', name: 'Received Bookings', icon: BookOpen },
+        { id: 'owner-portal', name: 'Owner Portal', icon: Home },
         { id: 'maintenance', name: 'Maintenance', icon: Wrench }
       );
     } else if (role === 'MOVER') {
@@ -589,9 +588,9 @@ const DashboardPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-4 relative z-10">
           <div className="flex flex-col lg:flex-row gap-6">
             {/* Sidebar */}
-            <div className={`w-full lg:w-64 flex-shrink-0`}>
-              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-black/30 border border-gray-100/80 dark:border-white/5 p-4 sticky top-24">
-                <div className="flex items-center space-x-4 mb-6 p-3 bg-gradient-to-r from-primary-50 to-indigo-50 rounded-xl border border-primary-100/50">
+            <div className={`w-full lg:w-64 flex-shrink-0 z-20`}>
+              <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg shadow-gray-200/50 dark:shadow-black/30 border border-gray-100/80 dark:border-white/5 p-4 lg:sticky top-24">
+                <div className="hidden lg:flex items-center space-x-4 mb-6 p-3 bg-gradient-to-r from-primary-50 to-indigo-50 rounded-xl border border-primary-100/50">
                   {user?.profilePhoto ? (
                     <img src={user.profilePhoto} alt={user.name} className="w-12 h-12 rounded-full object-cover shadow-md shadow-primary-500/25 border-2 border-white" />
                   ) : (
@@ -604,7 +603,7 @@ const DashboardPage = () => {
                     <p className="text-xs text-primary-600 font-semibold uppercase tracking-wide">{user?.role || 'Account'}</p>
                   </div>
                 </div>
-                <nav className="space-y-1">
+                <nav className="flex overflow-x-auto hide-scrollbar lg:flex-col gap-2 lg:gap-1 pb-2 lg:pb-0">
                   {tabs.map((tab) => {
                     const Icon = tab.icon;
                     return (
@@ -614,12 +613,13 @@ const DashboardPage = () => {
                           if (tab.id === 'split') navigate('/split-expenses');
                           else if (tab.id === 'admin') navigate('/admin');
                           else if (tab.id === 'mover-portal') navigate('/mover-dashboard');
+                          else if (tab.id === 'owner-portal') navigate('/owner-dashboard');
                           else if (tab.id === 'logout') showModal({ type: 'confirm', title: 'Sign Out', message: 'Are you sure you want to sign out?', onConfirm: confirmLogout, onCancel: closeModal });
                           else setActiveTab(tab.id);
                         }}
-                        className={`w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} ${tab.id === 'logout' ? 'hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 mt-4' : ''}`}
+                        className={`w-max lg:w-full flex items-center px-4 py-3 text-sm font-semibold rounded-xl transition-all duration-200 whitespace-nowrap flex-shrink-0 ${activeTab === tab.id ? 'bg-gradient-to-r from-primary-50 to-indigo-50 dark:from-primary-900/30 dark:to-indigo-900/30 text-primary-700 dark:text-primary-300 shadow-sm border border-primary-100/50 dark:border-primary-800/50' : 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-white'} ${tab.id === 'logout' ? 'hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 lg:mt-4' : ''}`}
                       >
-                        <Icon size={18} className={`mr-3 ${activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : tab.id === 'logout' ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'}`} />{tab.name}
+                        <Icon size={18} className={`mr-2 lg:mr-3 ${activeTab === tab.id ? 'text-primary-600 dark:text-primary-400' : tab.id === 'logout' ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'}`} />{tab.name}
                       </button>
                     );
                   })}
@@ -1678,21 +1678,19 @@ const DashboardPage = () => {
             <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 text-center">Rate Your Mover</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 text-center mb-6">How was your moving experience with {showReviewModal.mover?.name}?</p>
             
-            <div className="flex gap-4 justify-center mb-6">
-              <button 
-                onClick={() => setReviewForm({ ...reviewForm, rating: 'HAPPY' })}
-                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all ${reviewForm.rating === 'HAPPY' ? 'border-green-500 bg-green-50 text-green-700' : 'border-gray-200 hover:border-green-200 text-gray-600'}`}
-              >
-                <span className="text-4xl">😄</span>
-                <span className="font-bold">Happy</span>
-              </button>
-              <button 
-                onClick={() => setReviewForm({ ...reviewForm, rating: 'UNHAPPY' })}
-                className={`flex-1 py-4 rounded-2xl flex flex-col items-center gap-2 border-2 transition-all ${reviewForm.rating === 'UNHAPPY' ? 'border-red-500 bg-red-50 text-red-700' : 'border-gray-200 hover:border-red-200 text-gray-600'}`}
-              >
-                <span className="text-4xl">😞</span>
-                <span className="font-bold">Not Happy</span>
-              </button>
+            <div className="flex justify-center gap-2 mb-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  onClick={() => setReviewForm({ ...reviewForm, rating: star.toString() })}
+                  className="transition-transform hover:scale-110 focus:outline-none p-1"
+                >
+                  <Star 
+                    size={40} 
+                    className={`${parseInt(reviewForm.rating || 0) >= star ? 'text-amber-400 fill-amber-400' : 'text-gray-200 dark:text-slate-700'} transition-colors`} 
+                  />
+                </button>
+              ))}
             </div>
 
             <textarea 

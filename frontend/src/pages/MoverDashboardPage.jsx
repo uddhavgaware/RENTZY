@@ -417,7 +417,7 @@ const CompletedRideItem = ({ job }) => {
 const MoverDashboardPage = () => {
   const { user, isAuthenticated, loading } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('available');
+  const [activeTab, setActiveTab] = useState('overview');
   const [availableLeads, setAvailableLeads] = useState([]);
   const [myJobs, setMyJobs] = useState([]);
   const [profile, setProfile] = useState(null);
@@ -557,6 +557,12 @@ const MoverDashboardPage = () => {
   const completedJobs = myJobs.filter(j => j.status === 'COMPLETED');
   const totalEarnings = completedJobs.reduce((sum, j) => sum + (j.estimatedPrice || 0), 0);
   const activeJobs = myJobs.filter(j => j.status !== 'COMPLETED').length;
+  
+  // Calculate average rating
+  const ratedJobs = completedJobs.filter(j => j.reviewRating);
+  const avgRating = ratedJobs.length > 0 
+    ? (ratedJobs.reduce((sum, j) => sum + parseInt(j.reviewRating), 0) / ratedJobs.length).toFixed(1)
+    : 0;
 
   // 🔒 FRAUD PREVENTION: Block new accepts while already active
   const isInTransitOrAssigned = myJobs.some(j => j.status === 'IN_TRANSIT' || j.status === 'ASSIGNED');
@@ -564,69 +570,62 @@ const MoverDashboardPage = () => {
 
   return (
     <div className="bg-gray-50 min-h-screen pb-16">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        
-        {/* ── Header ── */}
-        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-gray-900 to-gray-700 rounded-2xl flex items-center justify-center shadow-xl shadow-gray-900/20">
-              <Truck size={28} className="text-white" />
+      {/* ── Sticky Header & Tabs ── */}
+      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-white/5 sticky top-16 z-30 shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-gray-900 to-gray-700 rounded-xl flex items-center justify-center shadow-md">
+                <Truck size={24} className="text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">Mover Dashboard</h1>
+                <p className="text-gray-500 text-xs sm:text-sm">Welcome back, <span className="font-semibold text-gray-700 dark:text-gray-300">{user?.name}</span></p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-black text-gray-900">Mover Dashboard</h1>
-              <p className="text-gray-500 text-sm mt-0.5">Welcome back, <span className="font-semibold text-gray-700">{user?.name}</span></p>
-            </div>
+            {profile?.kycStatus === 'APPROVED' && (
+              <div className="flex items-center gap-2 bg-green-50 text-green-700 px-3 py-1.5 rounded-lg font-bold text-xs border border-green-200 shadow-sm">
+                <ShieldCheck size={16} /> Verified Partner
+              </div>
+            )}
           </div>
-          {profile?.kycStatus === 'APPROVED' && (
-            <div className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-xl font-bold text-sm border border-green-200 shadow-sm">
-              <ShieldCheck size={18} /> Verified Partner
-            </div>
-          )}
+          
+          <div className="flex gap-6 overflow-x-auto hide-scrollbar pt-2">
+            {[
+              { id: 'overview', name: 'Overview', icon: TrendingUp },
+              { id: 'available', name: 'Lead Market', icon: CircleDot, count: availableLeads.length },
+              { id: 'my_jobs', name: 'Active Jobs', icon: Truck, count: activeJobs },
+              { id: 'history', name: 'History & Reviews', icon: Star, count: completedJobs.length }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 py-3 border-b-2 font-bold text-sm transition-colors whitespace-nowrap ${
+                  activeTab === tab.id 
+                    ? 'border-primary-600 text-primary-600 dark:text-primary-400' 
+                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
+                }`}
+              >
+                <tab.icon size={16} />
+                {tab.name}
+                {tab.count !== undefined && tab.count !== null && tab.count > 0 && (
+                  <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.id ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600'}`}>
+                    {tab.count}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* ── Stats Row ── */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={Zap} label="Available" value={activeTab === 'available' && !dataLoading ? availableLeads.length : '—'} accent="bg-blue-50 text-blue-600" sub="Open leads" />
-          <StatCard icon={Truck} label="Active" value={activeJobs} accent="bg-amber-50 text-amber-600" sub="In progress" />
-          <StatCard icon={CheckCircle2} label="Completed" value={completedJobs.length} accent="bg-green-50 text-green-600" sub="All time" />
-          <StatCard icon={IndianRupee} label="Earnings" value={`₹${totalEarnings.toLocaleString('en-IN')}`} accent="bg-purple-50 text-purple-600" sub="Total earned" />
-        </div>
-
-        {/* ── How It Works ── */}
-        <HowItWorksGuide />
-
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {/* ── Error ── */}
         {error && (
           <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl flex items-center gap-2 border border-red-200">
             <AlertCircle size={20} /> <span className="font-semibold">{error}</span>
           </div>
         )}
-
-        {/* ── Tabs ── */}
-        <div className="flex gap-2 mb-6 bg-white rounded-2xl p-1.5 border border-gray-100 shadow-sm">
-          <button
-            onClick={() => setActiveTab('available')}
-            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'available'
-                ? 'bg-gray-900 text-white shadow-md'
-                : 'text-gray-500 hover:bg-gray-50'
-            }`}
-          >
-            <CircleDot size={16} />
-            Available Leads
-          </button>
-          <button
-            onClick={() => setActiveTab('my_jobs')}
-            className={`flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 ${
-              activeTab === 'my_jobs'
-                ? 'bg-gray-900 text-white shadow-md'
-                : 'text-gray-500 hover:bg-gray-50'
-            }`}
-          >
-            <Truck size={16} />
-            My Jobs
-          </button>
-        </div>
 
         {/* ── Content ── */}
         {dataLoading ? (
@@ -637,14 +636,26 @@ const MoverDashboardPage = () => {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             
+            {activeTab === 'overview' && (
+              <div className="lg:col-span-2 space-y-6 animate-fade-in">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <StatCard icon={Zap} label="Available" value={availableLeads.length} accent="bg-blue-50 text-blue-600" sub="Open leads" />
+                  <StatCard icon={Truck} label="Active" value={activeJobs} accent="bg-amber-50 text-amber-600" sub="In progress" />
+                  <StatCard icon={Star} label="Rating" value={avgRating > 0 ? avgRating : 'New'} accent="bg-green-50 text-green-600" sub={avgRating > 0 ? "Average score" : "No reviews yet"} />
+                  <StatCard icon={IndianRupee} label="Earnings" value={`₹${totalEarnings.toLocaleString('en-IN')}`} accent="bg-purple-50 text-purple-600" sub="Total earned" />
+                </div>
+                <HowItWorksGuide />
+              </div>
+            )}
+
             {activeTab === 'available' && (
-              <>
+              <div className="lg:col-span-2 space-y-4 animate-fade-in">
                 {/* 🔒 FRAUD PREVENTION BANNER */}
                 {isInTransitOrAssigned && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="lg:col-span-2 bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
+                    className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4"
                   >
                     <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center flex-shrink-0">
                       <AlertCircle size={24} className="text-red-600" />
@@ -665,70 +676,107 @@ const MoverDashboardPage = () => {
                     </button>
                   </motion.div>
                 )}
-                {availableLeads.length === 0 ? (
-                  <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-12 text-center">
-                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Truck size={32} className="text-gray-300" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  {availableLeads.length === 0 ? (
+                    <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-12 text-center">
+                      <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <CircleDot size={32} className="text-gray-300" />
+                      </div>
+                      <h3 className="text-xl font-bold text-gray-900">No leads right now</h3>
+                      <p className="text-gray-500 mt-2 text-sm">New moving requests will appear here automatically. Check back soon!</p>
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">No leads right now</h3>
-                    <p className="text-gray-500 mt-2 text-sm">New moving requests will appear here automatically. Check back soon!</p>
-                  </div>
-                ) : (
-                  availableLeads.map(lead => (
-                    <LeadCard key={lead.id} lead={lead} onAccept={handleAcceptJob} isBlocked={isInTransitOrAssigned} />
-                  ))
-                )}
-              </>
+                  ) : (
+                    availableLeads.map(lead => (
+                      <LeadCard key={lead.id} lead={lead} onAccept={handleAcceptJob} isBlocked={isInTransitOrAssigned} />
+                    ))
+                  )}
+                </div>
+              </div>
             )}
 
             {activeTab === 'my_jobs' && (
-              <>
-                {myJobs.length === 0 ? (
-                  <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-12 text-center">
+              <div className="lg:col-span-2 animate-fade-in">
+                {myJobs.filter(j => j.status !== 'COMPLETED').length === 0 ? (
+                  <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
                     <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <CheckCircle2 size={32} className="text-gray-300" />
+                      <Truck size={32} className="text-gray-300" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900">No jobs yet</h3>
-                    <p className="text-gray-500 mt-2 text-sm">Accept leads from the "Available Leads" tab to get started!</p>
+                    <h3 className="text-xl font-bold text-gray-900">No active jobs</h3>
+                    <p className="text-gray-500 mt-2 text-sm">Accept leads from the "Lead Market" tab to get started!</p>
+                    <button onClick={() => setActiveTab('available')} className="mt-4 bg-primary-600 hover:bg-primary-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm transition-colors">Find Leads</button>
                   </div>
                 ) : (
-                  <>
-                    {/* ── Active Jobs (full cards) ── */}
-                    {myJobs.filter(j => j.status !== 'COMPLETED').length > 0 && (
-                      <>
-                        <div className="lg:col-span-2 flex items-center gap-2 mb-1">
-                          <span className="relative flex h-2.5 w-2.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span><span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span></span>
-                          <h3 className="text-sm font-black text-gray-900 uppercase tracking-wider">Active Jobs</h3>
-                        </div>
-                        {myJobs.filter(j => j.status !== 'COMPLETED').map(job => (
-                          <JobCard
-                            key={job.id}
-                            job={job}
-                            onStart={handleStartJob}
-                            onComplete={handleCompleteJob}
-                            onRelease={handleReleaseJob}
-                          />
-                        ))}
-                      </>
-                    )}
+                  <div className="space-y-4">
+                    {myJobs.filter(j => j.status !== 'COMPLETED').map(job => (
+                      <JobCard
+                        key={job.id}
+                        job={job}
+                        onStart={handleStartJob}
+                        onComplete={handleCompleteJob}
+                        onRelease={handleReleaseJob}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
-                    {/* ── Completed Rides (compact notification style) ── */}
-                    {myJobs.filter(j => j.status === 'COMPLETED').length > 0 && (
-                      <div className="lg:col-span-2 mt-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <CheckCircle2 size={14} className="text-green-500" />
-                          <h3 className="text-sm font-black text-gray-500 uppercase tracking-wider">Completed Rides ({myJobs.filter(j => j.status === 'COMPLETED').length})</h3>
+            {activeTab === 'history' && (
+              <div className="lg:col-span-2 animate-fade-in">
+                {completedJobs.length === 0 ? (
+                  <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center">
+                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                      <Star size={32} className="text-gray-300" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">No completed jobs</h3>
+                    <p className="text-gray-500 mt-2 text-sm">Complete jobs to build your history and receive ratings from customers.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {completedJobs.map(job => (
+                      <div key={job.id} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-shadow">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <span className="px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md bg-green-50 text-green-700">Completed</span>
+                            <p className="text-xs text-gray-400 font-bold mt-2">{new Date(job.createdAt).toLocaleDateString()}</p>
+                          </div>
+                          <p className="font-black text-lg text-primary-600">₹{job.estimatedPrice?.toLocaleString('en-IN')}</p>
                         </div>
-                        <div className="space-y-2">
-                          {myJobs.filter(j => j.status === 'COMPLETED').map(job => (
-                            <CompletedRideItem key={job.id} job={job} />
-                          ))}
+                        
+                        <div className="flex items-center gap-3 mb-4 bg-gray-50 p-3 rounded-xl border border-gray-100">
+                          <div className="w-8 h-8 bg-gray-200 text-gray-600 rounded-lg flex items-center justify-center font-bold text-sm flex-shrink-0">{job.user?.name?.charAt(0)}</div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-sm text-gray-900 truncate">{job.user?.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{job.user?.phone}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-1 mb-4">
+                          <p className="text-sm font-medium text-gray-900 truncate"><span className="text-gray-400 mr-2">From:</span>{job.fromLocation}</p>
+                          <p className="text-sm font-medium text-gray-900 truncate"><span className="text-gray-400 mr-2">To:</span>{job.toLocation}</p>
+                        </div>
+
+                        {/* Customer Review Section */}
+                        <div className="border-t border-gray-100 pt-4 mt-4">
+                          <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Customer Review</p>
+                          {job.reviewRating ? (
+                            <div className="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                              <div className="flex items-center gap-1 mb-1">
+                                {[1, 2, 3, 4, 5].map(star => (
+                                  <Star key={star} size={14} className={star <= parseInt(job.reviewRating) ? 'text-amber-400 fill-amber-400' : 'text-amber-100'} />
+                                ))}
+                              </div>
+                              {job.reviewComments && <p className="text-xs text-amber-900 italic">"{job.reviewComments}"</p>}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-gray-400 italic">No review provided by customer yet.</p>
+                          )}
                         </div>
                       </div>
-                    )}
-                  </>
+                    ))}
+                  </div>
                 )}
-              </>
+              </div>
             )}
           </div>
         )}

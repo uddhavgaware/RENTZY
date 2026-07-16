@@ -5,6 +5,7 @@ import com.rentzy.backend.domain.User;
 import com.rentzy.backend.repository.ListingRepository;
 import com.rentzy.backend.repository.MovingRequestRepository;
 import com.rentzy.backend.repository.UserRepository;
+import com.rentzy.backend.repository.RoommateRequestRepository;
 import com.rentzy.backend.service.BookingService;
 import com.rentzy.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AdminController {
     private final com.rentzy.backend.service.EmailService emailService;
     private final MovingRequestRepository movingRequestRepository;
     private final NotificationService notificationService;
+    private final RoommateRequestRepository roommateRequestRepository;
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -166,6 +168,18 @@ public class AdminController {
     @DeleteMapping("/listings/{id}")
     public ResponseEntity<Void> deleteListing(@PathVariable Long id) {
         listingRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/moving/{id}")
+    public ResponseEntity<Void> deleteMovingRequest(@PathVariable Long id) {
+        movingRequestRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/roommates/{id}")
+    public ResponseEntity<Void> deleteRoommateRequest(@PathVariable Long id) {
+        roommateRequestRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 
