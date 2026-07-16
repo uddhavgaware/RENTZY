@@ -476,6 +476,8 @@ const MoverDashboardPage = () => {
       title: '🔑 Enter Start OTP',
       message: 'Ask the customer for their 4-digit Start OTP. This will activate live GPS tracking for this move.',
       placeholder: '0000',
+      maxLength: 4,
+      isNumeric: true,
       onConfirm: async (otp) => {
         closeModal();
         try {
@@ -512,6 +514,8 @@ const MoverDashboardPage = () => {
       title: '✅ Enter End OTP',
       message: 'Ask the customer for their 4-digit End OTP to mark this job as COMPLETED and stop live tracking.',
       placeholder: '0000',
+      maxLength: 4,
+      isNumeric: true,
       onConfirm: async (otp) => {
         closeModal();
         try {

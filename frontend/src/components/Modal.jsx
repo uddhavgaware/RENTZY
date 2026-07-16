@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AlertCircle, Info, X } from 'lucide-react';
 
-const Modal = ({ isOpen, type = 'alert', title, message, onConfirm, onCancel, defaultValue = '', placeholder = 'Enter value...' }) => {
+const Modal = ({ isOpen, type = 'alert', title, message, onConfirm, onCancel, defaultValue = '', placeholder = 'Enter value...', maxLength, isNumeric = false }) => {
   const [inputValue, setInputValue] = useState(defaultValue);
 
   useEffect(() => {
@@ -58,7 +58,12 @@ const Modal = ({ isOpen, type = 'alert', title, message, onConfirm, onCancel, de
               <input
                 type="text"
                 value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
+                onChange={(e) => {
+                  let val = e.target.value;
+                  if (isNumeric) val = val.replace(/\D/g, '');
+                  if (maxLength && val.length > maxLength) val = val.slice(0, maxLength);
+                  setInputValue(val);
+                }}
                 placeholder={placeholder}
                 className="w-full p-4 text-center text-3xl font-black tracking-[0.5em] text-gray-900 border-2 border-gray-200 rounded-2xl focus:ring-4 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all shadow-inner bg-gray-50/50"
                 autoFocus
