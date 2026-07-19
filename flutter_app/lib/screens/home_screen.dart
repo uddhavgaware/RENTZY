@@ -81,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
         amenities: ['Wi-Fi', 'Parking', 'AC', 'Gym'],
         configuration: '2 BHK',
         furnishing: 'Fully Furnished',
+        status: 'AVAILABLE',
       ),
       Listing(
         id: 102,
@@ -93,6 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
         amenities: ['Food Included', 'Wi-Fi', 'Laundry', 'Security'],
         configuration: 'Single / Twin',
         furnishing: 'Fully Furnished',
+        status: 'AVAILABLE',
       ),
       Listing(
         id: 103,
@@ -105,6 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
         amenities: ['Garden', 'Security', 'Clubhouse', 'Power Backup'],
         configuration: '3 BHK',
         furnishing: 'Semi-Furnished',
+        status: 'AVAILABLE',
       ),
     ];
   }
