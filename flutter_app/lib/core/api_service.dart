@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -46,13 +45,8 @@ class ApiService {
     const envUrl = String.fromEnvironment('API_BASE_URL', defaultValue: '');
     if (envUrl.isNotEmpty) return envUrl;
 
-    // In release mode, use the production API
-    if (kReleaseMode) {
-      return 'https://rentxybookings.onrender.com/api';
-    }
-
-    // Debug mode: use emulator-accessible localhost
-    return 'http://10.0.2.2:8080/api';
+    // Use live production API for both release and debug
+    return 'https://rentxybookings.onrender.com/api';
   }
 
   Dio get client => _dio;

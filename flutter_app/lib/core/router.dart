@@ -41,10 +41,16 @@ GoRouter createRouter(AuthProvider authProvider) {
       final isAuthRoute = state.matchedLocation.startsWith('/auth') || 
                           state.matchedLocation.startsWith('/forgot-password') || 
                           state.matchedLocation.startsWith('/reset-password');
+      final isPublicRoute = state.matchedLocation == '/' ||
+                            state.matchedLocation.startsWith('/explore') ||
+                            state.matchedLocation.startsWith('/listing/') ||
+                            state.matchedLocation.startsWith('/roommates') ||
+                            state.matchedLocation.startsWith('/movers') ||
+                            state.matchedLocation.startsWith('/info');
 
       if (authProvider.isLoading) return null;
 
-      if (!isAuthenticated && !isAuthRoute) {
+      if (!isAuthenticated && !isAuthRoute && !isPublicRoute) {
         return '/auth';
       }
 
