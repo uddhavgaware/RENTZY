@@ -44,16 +44,69 @@ class _HomeScreenState extends State<HomeScreen> {
           ? (rawData['content'] ?? [])
           : (rawData is List ? rawData : []);
 
+      List<Listing> fetched = content.map((json) => Listing.fromJson(json)).take(6).toList();
+      
+      if (fetched.isEmpty) {
+        fetched = _getFallbackListings();
+      }
+
       setState(() {
-        _featuredListings = content.map((json) => Listing.fromJson(json)).take(6).toList();
+        _featuredListings = fetched;
         _isLoading = false;
       });
     } on DioException catch (e) {
       debugPrint('Failed to fetch listings: ${e.message}');
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() {
+        _featuredListings = _getFallbackListings();
+        _isLoading = false;
+      });
     } catch (e) {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) setState(() {
+        _featuredListings = _getFallbackListings();
+        _isLoading = false;
+      });
     }
+  }
+
+  List<Listing> _getFallbackListings() {
+    return [
+      Listing(
+        id: 101,
+        title: 'Modern 2 BHK Apartment in Koregaon Park',
+        description: 'Spacious furnished flat with balcony, modular kitchen & high-speed Wi-Fi.',
+        price: 24000.0,
+        location: 'Koregaon Park, Pune',
+        type: 'Flat',
+        images: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800'],
+        amenities: ['Wi-Fi', 'Parking', 'AC', 'Gym'],
+        configuration: '2 BHK',
+        furnishing: 'Fully Furnished',
+      ),
+      Listing(
+        id: 102,
+        title: 'Luxury Women PG with Food & Laundry',
+        description: 'Single and double sharing AC rooms with 3-time meals and daily housekeeping.',
+        price: 9500.0,
+        location: 'Viman Nagar, Pune',
+        type: 'PG',
+        images: ['https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&q=80&w=800'],
+        amenities: ['Food Included', 'Wi-Fi', 'Laundry', 'Security'],
+        configuration: 'Single / Twin',
+        furnishing: 'Fully Furnished',
+      ),
+      Listing(
+        id: 103,
+        title: '3 BHK Independent Villa with Garden',
+        description: 'Gated community villa with private garden, covered parking, and 24/7 power backup.',
+        price: 45000.0,
+        location: 'Bandra West, Mumbai',
+        type: 'Flat',
+        images: ['https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800'],
+        amenities: ['Garden', 'Security', 'Clubhouse', 'Power Backup'],
+        configuration: '3 BHK',
+        furnishing: 'Semi-Furnished',
+      ),
+    ];
   }
 
   void _onSearchSubmit() {
@@ -178,94 +231,172 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(height: 24),
                         
-                        // Integrated Search Card (Matching Web Form)
-                        Container(
-                          padding: const EdgeInsets.all(6),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.white.withOpacity(0.2)),
-                          ),
-                          child: Column(
-                            children: [
-                              // Location Input
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.location_on_outlined, color: Color(0xFFA855F7), size: 20),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _locationController,
-                                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
-                                        decoration: const InputDecoration(
-                                          hintText: "Try 'Women PG with Food'...",
-                                          hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
-                                          border: InputBorder.none,
-                                        ),
-                                        onSubmitted: (_) => _onSearchSubmit(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                        // Integrated Search Card (Matching Web Form Responsive Layout)
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final isDesktop = constraints.maxWidth > 580;
+                            return Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.12),
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(color: Colors.white.withOpacity(0.2)),
                               ),
-                              const SizedBox(height: 8),
-                              // Type Selector & Search Button Row
-                              Row(
-                                children: [
-                                  // Dropdown Selector
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                                      decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.15),
-                                        borderRadius: BorderRadius.circular(16),
-                                      ),
-                                      child: DropdownButtonHideUnderline(
-                                        child: DropdownButton<String>(
-                                          value: _selectedType,
-                                          dropdownColor: const Color(0xFF1E293B),
-                                          icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-                                          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
-                                          items: _typeOptions.map((opt) => DropdownMenuItem(
-                                            value: opt,
-                                            child: Text(opt, style: const TextStyle(color: Colors.white)),
-                                          )).toList(),
-                                          onChanged: (val) {
-                                            if (val != null) setState(() => _selectedType = val);
-                                          },
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  // Search Button
-                                  ElevatedButton(
-                                    onPressed: _onSearchSubmit,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: const Color(0xFF4F46E5),
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                      elevation: 4,
-                                    ),
-                                    child: const Row(
+                              child: isDesktop
+                                  ? Row(
                                       children: [
-                                        Icon(Icons.search, size: 18),
-                                        SizedBox(width: 6),
-                                        Text('Search', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                        // Location Input (Expanded)
+                                        Expanded(
+                                          child: Container(
+                                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                                            decoration: BoxDecoration(
+                                              color: Colors.white.withOpacity(0.15),
+                                              borderRadius: BorderRadius.circular(16),
+                                            ),
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.location_on_outlined, color: Color(0xFFA855F7), size: 20),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: TextField(
+                                                    controller: _locationController,
+                                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+                                                    decoration: const InputDecoration(
+                                                      hintText: "Try 'Women PG with Food'...",
+                                                      hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                                                      border: InputBorder.none,
+                                                    ),
+                                                    onSubmitted: (_) => _onSearchSubmit(),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        // Dropdown Selector
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: _selectedType,
+                                              dropdownColor: const Color(0xFF1E293B),
+                                              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                              items: _typeOptions.map((opt) => DropdownMenuItem(
+                                                value: opt,
+                                                child: Text(opt, style: const TextStyle(color: Colors.white)),
+                                              )).toList(),
+                                              onChanged: (val) {
+                                                if (val != null) setState(() => _selectedType = val);
+                                              },
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        // Search Button
+                                        ElevatedButton(
+                                          onPressed: _onSearchSubmit,
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: const Color(0xFF4F46E5),
+                                            foregroundColor: Colors.white,
+                                            padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+                                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                            elevation: 4,
+                                          ),
+                                          child: const Row(
+                                            children: [
+                                              Icon(Icons.search, size: 18),
+                                              SizedBox(width: 6),
+                                              Text('Search', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  : Column(
+                                      children: [
+                                        // Location Input
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(0.15),
+                                            borderRadius: BorderRadius.circular(16),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(Icons.location_on_outlined, color: Color(0xFFA855F7), size: 20),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: TextField(
+                                                  controller: _locationController,
+                                                  style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+                                                  decoration: const InputDecoration(
+                                                    hintText: "Try 'Women PG with Food'...",
+                                                    hintStyle: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+                                                    border: InputBorder.none,
+                                                  ),
+                                                  onSubmitted: (_) => _onSearchSubmit(),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 8),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(horizontal: 12),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white.withOpacity(0.15),
+                                                  borderRadius: BorderRadius.circular(16),
+                                                ),
+                                                child: DropdownButtonHideUnderline(
+                                                  child: DropdownButton<String>(
+                                                    value: _selectedType,
+                                                    dropdownColor: const Color(0xFF1E293B),
+                                                    icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                                                    items: _typeOptions.map((opt) => DropdownMenuItem(
+                                                      value: opt,
+                                                      child: Text(opt, style: const TextStyle(color: Colors.white)),
+                                                    )).toList(),
+                                                    onChanged: (val) {
+                                                      if (val != null) setState(() => _selectedType = val);
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 8),
+                                            ElevatedButton(
+                                              onPressed: _onSearchSubmit,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: const Color(0xFF4F46E5),
+                                                foregroundColor: Colors.white,
+                                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                                elevation: 4,
+                                              ),
+                                              child: const Row(
+                                                children: [
+                                                  Icon(Icons.search, size: 18),
+                                                  SizedBox(width: 6),
+                                                  Text('Search', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ],
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
+                            );
+                          },
                         ),
                         const SizedBox(height: 20),
 
