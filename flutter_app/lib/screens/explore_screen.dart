@@ -21,12 +21,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
   String _activeType = 'all';
 
   final List<Map<String, String>> _types = [
-    {'id': 'all', 'label': 'All'},
-    {'id': 'PG', 'label': 'PGs'},
-    {'id': 'Hostel', 'label': 'Hostels'},
+    {'id': 'all', 'label': 'All Properties'},
+    {'id': 'PG', 'label': 'PGs & Hostels'},
     {'id': 'Flat', 'label': 'Flats'},
     {'id': 'Apartment', 'label': 'Apartments'},
-    {'id': 'Independent House', 'label': 'Houses'},
+    {'id': 'Independent House', 'label': 'Houses & Villas'},
   ];
 
   @override
@@ -57,12 +56,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
         queryParameters: queryParams,
       );
       
-      final List<dynamic> data = response.data;
+      final rawData = response.data;
+      final List<dynamic> content = rawData is Map
+          ? (rawData['content'] ?? [])
+          : (rawData is List ? rawData : []);
+
       setState(() {
-        _listings = data.map((json) => Listing.fromJson(json)).toList();
+        _listings = content.map((json) => Listing.fromJson(json)).toList();
       });
     } on DioException catch (e) {
       debugPrint('Failed to fetch listings: ${e.message}');
+    } catch (e) {
+      debugPrint('Error: $e');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -80,44 +85,50 @@ class _ExploreScreenState extends State<ExploreScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Explore', style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.white,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        title: const Text('Explore Properties', style: TextStyle(fontWeight: FontWeight.w900, color: Color(0xFF0F172A), fontSize: 20)),
         bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(130),
+          preferredSize: const Size.fromHeight(116),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Column(
               children: [
-                // Search Bar
+                // Mobile-first Search Bar
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: 'Search by location (e.g., Pune, Mumbai)',
-                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.tune),
-                      onPressed: () {
-                        // TODO: Implement filters
-                      },
-                    ),
+                    hintText: 'Search city or area (e.g. Pune, Bandra)...',
+                    hintStyle: const TextStyle(fontSize: 14, color: Color(0xFF94A3B8)),
+                    prefixIcon: const Icon(Icons.search, color: Color(0xFF4F46E5)),
+                    suffixIcon: _searchController.text.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear, size: 18, color: Colors.grey),
+                            onPressed: () {
+                              _searchController.clear();
+                              _fetchListings();
+                            },
+                          )
+                        : null,
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: const Color(0xFFF1F5F9),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(16),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                   onSubmitted: _onSearchSubmit,
                   textInputAction: TextInputAction.search,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 12),
                 
-                // Categories/Types row
+                // Categories Horizontal Filter Bar
                 SizedBox(
-                  height: 40,
+                  height: 38,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: _types.length,
@@ -132,10 +143,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
                           onSelected: (_) => _onTypeSelect(type['id']!),
                           selectedColor: const Color(0xFF4F46E5),
                           labelStyle: TextStyle(
-                            color: isActive ? Colors.white : Colors.black87,
-                            fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                            color: isActive ? Colors.white : const Color(0xFF334155),
+                            fontWeight: isActive ? FontWeight.bold : FontWeight.w600,
+                            fontSize: 12,
                           ),
                           backgroundColor: Colors.white,
+                          side: BorderSide(color: isActive ? Colors.transparent : const Color(0xFFE2E8F0)),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -144,35 +157,41 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 8),
               ],
             ),
           ),
         ),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator(color: Color(0xFF4F46E5)))
           : _listings.isEmpty
               ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.search_off, size: 64, color: Colors.grey[400]),
-                      const SizedBox(height: 16),
-                      Text('No properties found', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.all(32.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          decoration: const BoxDecoration(color: Color(0xFFEEF2FF), shape: BoxShape.circle),
+                          child: const Icon(Icons.search_off_rounded, size: 48, color: Color(0xFF4F46E5)),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text('No properties match your search', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: Color(0xFF0F172A))),
+                        const SizedBox(height: 6),
+                        const Text('Try clearing your filters or searching a different area.', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: Color(0xFF64748B))),
+                      ],
+                    ),
                   ),
                 )
               : ListView.builder(
-                  padding: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(16),
                   itemCount: _listings.length,
                   itemBuilder: (context, index) {
                     final listing = _listings[index];
                     return PropertyCard(
                       listing: listing,
-                      onFavoriteTap: () {
-                        // TODO: Toggle wishlist
-                      },
+                      onFavoriteTap: () {},
                     );
                   },
                 ),

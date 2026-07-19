@@ -21,156 +21,218 @@ class PropertyCard extends StatelessWidget {
     return 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
   }
 
+  Color get _typeColor {
+    switch (listing.type.toLowerCase()) {
+      case 'pg':
+      case 'hostel':
+        return const Color(0xFF9333EA); // Purple
+      case 'flat':
+      case 'apartment':
+        return const Color(0xFF4F46E5); // Indigo
+      case 'independent house':
+      case 'villa':
+        return const Color(0xFF059669); // Emerald
+      default:
+        return const Color(0xFF2563EB); // Blue
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => context.go('/listing/${listing.id}'),
       child: Container(
-        margin: const EdgeInsets.only(bottom: 24),
+        margin: const EdgeInsets.only(bottom: 20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: Colors.grey.withOpacity(0.1)),
+          border: Border.all(color: Colors.grey.withOpacity(0.12)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+              color: Colors.black.withOpacity(0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 8),
             ),
           ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Image Area
+            // Image Stack
             Stack(
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
                   child: Image.network(
                     _imageUrl,
-                    height: 200,
+                    height: 190,
                     width: double.infinity,
                     fit: BoxFit.cover,
                     errorBuilder: (ctx, err, stack) => Container(
-                      height: 200,
+                      height: 190,
                       color: Colors.grey[200],
-                      child: const Icon(Icons.broken_image, color: Colors.grey, size: 40),
+                      child: const Icon(Icons.apartment, color: Colors.grey, size: 48),
                     ),
                   ),
                 ),
+                // Gradient overlay
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                      gradient: LinearGradient(
+                        colors: [Colors.black.withOpacity(0.6), Colors.transparent, Colors.transparent],
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                      ),
+                    ),
+                  ),
+                ),
+                // Category Type Pill
                 Positioned(
-                  top: 16,
-                  left: 16,
+                  top: 14,
+                  left: 14,
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF4F46E5), Color(0xFF4338CA)],
-                      ),
+                      color: _typeColor,
                       borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _typeColor.withOpacity(0.4),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Text(
-                      listing.type,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                      listing.type.toUpperCase(),
+                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 11, letterSpacing: 0.5),
                     ),
                   ),
                 ),
+                // Wishlist Heart Button
                 Positioned(
-                  top: 16,
-                  right: 16,
+                  top: 14,
+                  right: 14,
                   child: GestureDetector(
                     onTap: onFavoriteTap,
                     child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
+                      padding: const EdgeInsets.all(9),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
                         shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8),
+                        ],
                       ),
                       child: Icon(
                         isFavorite ? Icons.favorite : Icons.favorite_border,
-                        color: isFavorite ? Colors.red : Colors.grey,
+                        color: isFavorite ? const Color(0xFFEF4444) : const Color(0xFF6B7280),
                         size: 20,
                       ),
+                    ),
+                  ),
+                ),
+                // Price Floating Badge Bottom-Left
+                Positioned(
+                  bottom: 12,
+                  left: 14,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.95),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 6),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '₹${listing.price.toInt()}',
+                          style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900, color: Color(0xFF4F46E5)),
+                        ),
+                        const Text('/mo', style: TextStyle(color: Color(0xFF6B7280), fontSize: 11, fontWeight: FontWeight.w500)),
+                      ],
                     ),
                   ),
                 ),
               ],
             ),
             
-            // Content Area
+            // Content Body
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '₹${listing.price.toInt()}',
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w900,
-                          color: Color(0xFF4F46E5),
-                        ),
-                      ),
-                      Text(
-                        '/ month',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    listing.title,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF111827),
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.location_on_outlined, color: Colors.grey, size: 16),
-                      const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          listing.location,
-                          style: const TextStyle(color: Colors.grey, fontSize: 14),
+                          listing.title,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.25),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                     ],
                   ),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                    child: Divider(height: 1),
-                  ),
+                  const SizedBox(height: 6),
                   Row(
                     children: [
-                      if (listing.configuration != null) ...[
-                        Icon(Icons.king_bed_outlined, color: Colors.grey[600], size: 18),
-                        const SizedBox(width: 4),
-                        Text(listing.configuration!, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
-                        const SizedBox(width: 16),
-                      ],
-                      if (listing.furnishing != null) ...[
-                        Icon(Icons.chair_outlined, color: Colors.grey[600], size: 18),
-                        const SizedBox(width: 4),
-                        Text(listing.furnishing!, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
-                      ],
+                      const Icon(Icons.location_on_rounded, color: Color(0xFF818CF8), size: 15),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          listing.location,
+                          style: TextStyle(color: Colors.grey[600], fontSize: 13, fontWeight: FontWeight.w500),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ],
-                  )
+                  ),
+                  const SizedBox(height: 12),
+                  // Specs & Amenities Badges
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      if (listing.configuration != null && listing.configuration!.isNotEmpty)
+                        _buildFeatureTag(Icons.king_bed_outlined, listing.configuration!),
+                      if (listing.furnishing != null && listing.furnishing!.isNotEmpty)
+                        _buildFeatureTag(Icons.chair_outlined, listing.furnishing!),
+                      ...listing.amenities.take(2).map((a) => _buildFeatureTag(Icons.check_circle_outline, a)),
+                    ],
+                  ),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureTag(IconData icon, String label) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F4F6),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFFE5E7EB)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 13, color: const Color(0xFF4B5563)),
+          const SizedBox(width: 4),
+          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF374151))),
+        ],
       ),
     );
   }

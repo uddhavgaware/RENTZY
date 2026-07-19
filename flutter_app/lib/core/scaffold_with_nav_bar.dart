@@ -12,7 +12,6 @@ class ScaffoldWithNavBar extends StatelessWidget {
   void _onTap(int index) {
     navigationShell.goBranch(
       index,
-      // Support navigating to the initial location when tapping the item that is already active
       initialLocation: index == navigationShell.currentIndex,
     );
   }
@@ -21,36 +20,54 @@ class ScaffoldWithNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _onTap,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search),
-            label: 'Explore',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.favorite_border),
-            selectedIcon: Icon(Icons.favorite),
-            label: 'Saved',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.chat_bubble_outline),
-            selectedIcon: Icon(Icons.chat_bubble),
-            label: 'Inbox',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          border: const Border(top: BorderSide(color: Color(0xFFF1F5F9), width: 1)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.03),
+              blurRadius: 10,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: NavigationBar(
+          height: 65,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          indicatorColor: const Color(0xFFEEF2FF),
+          selectedIndex: navigationShell.currentIndex,
+          onDestinationSelected: _onTap,
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: const [
+            NavigationDestination(
+              icon: Icon(Icons.home_outlined, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.home_rounded, color: Color(0xFF4F46E5)),
+              label: 'Home',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.search_outlined, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.search_rounded, color: Color(0xFF4F46E5)),
+              label: 'Explore',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.favorite_outline_rounded, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.favorite_rounded, color: Color(0xFF4F46E5)),
+              label: 'Saved',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.chat_bubble_outline_rounded, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.chat_bubble_rounded, color: Color(0xFF4F46E5)),
+              label: 'Inbox',
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.person_outline_rounded, color: Color(0xFF64748B)),
+              selectedIcon: Icon(Icons.person_rounded, color: Color(0xFF4F46E5)),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }
