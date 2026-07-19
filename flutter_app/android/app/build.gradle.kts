@@ -1,9 +1,8 @@
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
-    // Firebase / Google Services (uncomment when you add google-services.json)
-    // id("com.google.gms.google-services")
 }
 
 import java.io.FileInputStream
@@ -17,12 +16,18 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.rentzy.app"
-    compileSdk = 36
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 35
+    ndkVersion = "25.1.8937393"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions {
+            jvmTarget = "17"
+        }
     }
 
     signingConfigs {
@@ -59,12 +64,6 @@ android {
             isMinifyEnabled = false   // set to true once ProGuard rules are configured
             isShrinkResources = false
         }
-    }
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
     }
 }
 
