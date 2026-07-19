@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation, Plus, Minus, Bell, BellOff, CheckCircle, Bookmark } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
@@ -84,6 +84,7 @@ const AMENITIES_LIST = ['WiFi', 'AC', 'TV', 'Fridge', 'Washing Machine', 'Parkin
 
 const ListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [activeType, setActiveType] = useState(searchParams.get('type') || 'all');
   const [searchInput, setSearchInput] = useState(searchParams.get('location') || '');
@@ -202,33 +203,33 @@ const ListingsPage = () => {
       let results = response.data.content || [];
       setHasMore(!response.data.last);
 
-      // Client-side category filter
+      // Client-side category filter with safe checks
       if (activeType === 'pg') {
-        results = results.filter(l => ['PG', 'Hostel', 'Co-living Space'].includes(l.type));
+        results = results.filter(l => l && l.type && ['PG', 'Hostel', 'Co-living Space', 'PG/Hostel'].includes(l.type));
       } else if (activeType === 'flat') {
-        results = results.filter(l => ['Flat', 'Apartment', 'Independent House', 'Villa'].includes(l.type));
+        results = results.filter(l => l && l.type && ['Flat', 'Apartment', 'Independent House', 'Villa'].includes(l.type));
       }
 
       // Client-side amenity filter
       if (selectedAmenities.length > 0) {
         results = results.filter(listing =>
-          selectedAmenities.every(a => (listing.amenities || []).includes(a))
+          listing && selectedAmenities.every(a => (listing.amenities || []).includes(a))
         );
       }
 
       // Client-side Mess filter
       if (messAvailableOnly) {
-        results = results.filter(listing => listing.messAvailable);
+        results = results.filter(listing => listing && listing.messAvailable);
       }
 
       // Client-side Furnishing filter
       if (furnishingFilter) {
-        results = results.filter(l => l.furnishing === furnishingFilter);
+        results = results.filter(l => l && l.furnishing === furnishingFilter);
       }
 
       // Client-side Tenant Preference filter
       if (tenantPreference) {
-        results = results.filter(l => !l.tenantPreference || l.tenantPreference === 'Anyone' || l.tenantPreference === tenantPreference);
+        results = results.filter(l => l && (!l.tenantPreference || l.tenantPreference === 'Anyone' || l.tenantPreference === tenantPreference));
       }
 
       if (isAppend) {
@@ -237,7 +238,7 @@ const ListingsPage = () => {
         setListings(results);
       }
       
-      if (pageNum === 0 && results.length > 0 && results[0].latitude && results[0].longitude) {
+      if (pageNum === 0 && results.length > 0 && results[0]?.latitude && results[0]?.longitude) {
         setMapCenter([results[0].latitude, results[0].longitude]);
       }
     } catch (error) {
@@ -246,6 +247,17 @@ const ListingsPage = () => {
       setLoading(false);
     }
   };
+
+  // Keep state synchronized with URL search params (e.g. /listings?type=pg)
+  useEffect(() => {
+    const typeFromUrl = searchParams.get('type') || 'all';
+    setActiveType(typeFromUrl);
+    const locFromUrl = searchParams.get('location') || '';
+    if (locFromUrl !== appliedLocation) {
+      setSearchInput(locFromUrl);
+      setAppliedLocation(locFromUrl);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     setPage(0);

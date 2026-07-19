@@ -75,13 +75,13 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
     return url;
   };
 
-  const imageUrl = !imgError && listing.images && listing.images.length > 0
+  const imageUrl = !imgError && listing && listing.images && listing.images.length > 0
     ? getOptimizedImageUrl(listing.images[0])
     : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=800';
 
-  const typeGradient = TYPE_COLORS[listing.type] || 'from-primary-500 to-primary-700';
-  const rating = listing.averageRating > 0 ? listing.averageRating.toFixed(1) : null;
-  const amenities = listing.amenities || [];
+  const typeGradient = (listing && listing.type && TYPE_COLORS[listing.type]) || 'from-primary-500 to-primary-700';
+  const rating = typeof listing?.averageRating === 'number' && listing.averageRating > 0 ? listing.averageRating.toFixed(1) : null;
+  const amenities = listing?.amenities || [];
 
   const handleWishlistToggle = async (e) => {
     e.preventDefault();
