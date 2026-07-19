@@ -123,8 +123,8 @@ function NetworkStatusHandler() {
 }
 
 function App() {
-  // Google Client ID must be set via VITE_GOOGLE_CLIENT_ID env var (never hardcode here)
-  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
+  // Google Client ID from VITE_GOOGLE_CLIENT_ID or fallback to production Client ID
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '872152634254-62koq8amssj0d0l6gqnta33kv3is670u.apps.googleusercontent.com';
 
   return (
     <HelmetProvider>
