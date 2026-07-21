@@ -32,6 +32,7 @@ public class AdminController {
     private final MovingRequestRepository movingRequestRepository;
     private final NotificationService notificationService;
     private final RoommateRequestRepository roommateRequestRepository;
+    private final com.rentzy.backend.repository.BookingRepository bookingRepository;
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -83,6 +84,14 @@ public class AdminController {
     public ResponseEntity<User> undoDeleteUser(@PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
         user.setIsDeleted(false);
+        user.setDeleteRequested(false);
+        return ResponseEntity.ok(userRepository.save(user));
+    }
+
+    @PostMapping("/users/{id}/cancel-delete-request")
+    public ResponseEntity<User> cancelDeleteRequest(@PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        user.setDeleteRequested(false);
         return ResponseEntity.ok(userRepository.save(user));
     }
 
@@ -180,6 +189,12 @@ public class AdminController {
     @DeleteMapping("/roommates/{id}")
     public ResponseEntity<Void> deleteRoommateRequest(@PathVariable Long id) {
         roommateRequestRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/bookings/{id}")
+    public ResponseEntity<Void> deleteBooking(@PathVariable Long id) {
+        bookingRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 

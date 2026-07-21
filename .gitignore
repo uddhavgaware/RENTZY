@@ -1,4 +1,4 @@
-﻿# Java
+# Java
 backend/target/
 backend/*.jar
 backend/.mvn/wrapper/maven-wrapper.jar
@@ -8,6 +8,8 @@ backend/tmp/
 backend/*.class
 
 # Node
+node_modules/
+pdf_gen/node_modules/
 frontend/node_modules/
 frontend/dist/
 frontend/dist-ssr/

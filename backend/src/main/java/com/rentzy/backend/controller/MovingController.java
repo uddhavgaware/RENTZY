@@ -260,6 +260,49 @@ public class MovingController {
         return ResponseEntity.ok(saved);
     }
 
+    @PutMapping("/vendor/{id}/complete")
+    public ResponseEntity<MovingRequest> completeRequestVendor(@PathVariable Long id, Authentication auth) {
+        MovingRequest request = movingRequestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        request.setStatus("COMPLETED");
+        MovingRequest saved = movingRequestRepository.save(request);
+
+        if (request.getUser() != null) {
+            notificationService.createNotification(
+                    request.getUser().getEmail(),
+                    "✅ Your move from " + request.getFromLocation() + " to " + request.getToLocation() + " is complete!",
+                    "SYSTEM"
+            );
+        }
+        return ResponseEntity.ok(saved);
+    }
+
+    @PutMapping("/{id}/complete")
+    public ResponseEntity<MovingRequest> completeRequestUser(@PathVariable Long id, Authentication auth) {
+        User user = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        MovingRequest request = movingRequestRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        
+        if (!request.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can only complete your own moving requests");
+        }
+        request.setStatus("COMPLETED");
+        MovingRequest saved = movingRequestRepository.save(request);
+
+        notificationService.createNotification(
+                user.getEmail(),
+                "✅ Your move from " + request.getFromLocation() + " to " + request.getToLocation() + " is marked complete!",
+                "SYSTEM"
+        );
+        return ResponseEntity.ok(saved);
+    }
+
+    @GetMapping("/provider/requests")
+    public ResponseEntity<List<MovingRequest>> getProviderRequests(Authentication auth) {
+        return getVendorRequests(auth);
+    }
+
     @PutMapping("/vendor/{id}/location")
     public ResponseEntity<MovingRequest> updateLocation(@PathVariable Long id, @RequestBody Map<String, Double> body, Authentication auth) {
         User mover = userRepository.findByEmail(auth.getName())

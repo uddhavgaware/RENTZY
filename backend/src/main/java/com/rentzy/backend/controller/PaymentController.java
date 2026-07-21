@@ -16,12 +16,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.rentzy.backend.domain.PropertyBill;
+import com.rentzy.backend.repository.PropertyBillRepository;
+import java.time.LocalDateTime;
+
 @RestController
 @RequestMapping("/api/payments")
 public class PaymentController {
 
     private final RazorpayClient razorpayClient;
     private final BookingRepository bookingRepository;
+    private final PropertyBillRepository propertyBillRepository;
 
     @Value("${razorpay.key.id}")
     private String razorpayKeyId;
@@ -29,9 +34,10 @@ public class PaymentController {
     @Value("${razorpay.key.secret}")
     private String razorpayKeySecret;
 
-    public PaymentController(RazorpayClient razorpayClient, BookingRepository bookingRepository) {
+    public PaymentController(RazorpayClient razorpayClient, BookingRepository bookingRepository, PropertyBillRepository propertyBillRepository) {
         this.razorpayClient = razorpayClient;
         this.bookingRepository = bookingRepository;
+        this.propertyBillRepository = propertyBillRepository;
     }
 
     /**
@@ -130,6 +136,84 @@ public class PaymentController {
             error.put("status", "error");
             error.put("message", "Verification error: " + e.getMessage());
             return ResponseEntity.internalServerError().body(error);
+        }
+    }
+
+    /**
+     * Create Razorpay order for Property Rent/Utility Bill.
+     */
+    @PostMapping("/create-bill-order")
+    public ResponseEntity<Map<String, Object>> createBillOrder(@RequestBody Map<String, Object> reqBody) {
+        Long billId = Long.parseLong(reqBody.get("billId").toString());
+        PropertyBill bill = propertyBillRepository.findById(billId)
+                .orElseThrow(() -> new RuntimeException("Bill not found"));
+
+        try {
+            int amountInPaise = (int) (bill.getTotalAmount() * 100);
+            if (amountInPaise < 100) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Amount must be at least 100 paise"));
+            }
+
+            JSONObject orderRequest = new JSONObject();
+            orderRequest.put("amount", amountInPaise);
+            orderRequest.put("currency", "INR");
+            orderRequest.put("receipt", "bill_" + bill.getId());
+            orderRequest.put("notes", new JSONObject().put("billId", bill.getId()));
+
+            Order order = razorpayClient.orders.create(orderRequest);
+
+            bill.setRazorpayOrderId(order.get("id"));
+            propertyBillRepository.save(bill);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("orderId", order.get("id"));
+            response.put("amount", order.get("amount"));
+            response.put("currency", order.get("currency"));
+            response.put("keyId", razorpayKeyId);
+
+            return ResponseEntity.ok(response);
+        } catch (RazorpayException e) {
+            return ResponseEntity.internalServerError().body(Map.of("error", "Failed to create Razorpay order: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Verify Razorpay payment signature for Property Bill and mark as PAID.
+     */
+    @PostMapping("/verify-bill")
+    public ResponseEntity<Map<String, Object>> verifyBillPayment(@RequestBody Map<String, String> reqBody) {
+        Long billId = Long.parseLong(reqBody.get("billId"));
+        PropertyBill bill = propertyBillRepository.findById(billId)
+                .orElseThrow(() -> new RuntimeException("Bill not found"));
+
+        try {
+            String razorpayOrderId = reqBody.get("razorpayOrderId");
+            String razorpayPaymentId = reqBody.get("razorpayPaymentId");
+            String razorpaySignature = reqBody.get("razorpaySignature");
+
+            if (razorpayOrderId == null || razorpayPaymentId == null || razorpaySignature == null) {
+                return ResponseEntity.badRequest().body(Map.of("status", "failure", "message", "Missing payment verification parameters"));
+            }
+
+            JSONObject attributes = new JSONObject();
+            attributes.put("razorpay_order_id", razorpayOrderId);
+            attributes.put("razorpay_payment_id", razorpayPaymentId);
+            attributes.put("razorpay_signature", razorpaySignature);
+
+            boolean isValid = Utils.verifyPaymentSignature(attributes, razorpayKeySecret);
+
+            if (isValid) {
+                bill.setStatus("PAID");
+                bill.setRazorpayPaymentId(razorpayPaymentId);
+                bill.setPaidAt(LocalDateTime.now());
+                propertyBillRepository.save(bill);
+
+                return ResponseEntity.ok(Map.of("status", "success", "message", "Payment verified and bill marked as PAID", "billId", bill.getId()));
+            } else {
+                return ResponseEntity.badRequest().body(Map.of("status", "failure", "message", "Invalid payment signature"));
+            }
+        } catch (RazorpayException e) {
+            return ResponseEntity.internalServerError().body(Map.of("status", "error", "message", e.getMessage()));
         }
     }
 }

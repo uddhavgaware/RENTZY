@@ -1,334 +1,556 @@
 import React, { useState, useEffect } from 'react';
-import { Home, BookOpen, CheckCircle2, TrendingUp, Plus, MapPin, IndianRupee, Settings, Edit, Eye, EyeOff, Calendar, User, ArrowRight, ShieldCheck, Mail, Phone, Clock } from 'lucide-react';
+import { Home, Plus, Users, Zap, FileText, Send, CheckCircle2, AlertCircle, DollarSign, Bed, Phone, Trash2, ChevronRight, Share2, Copy } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-/* ─── Stat Card ────────────────────────────────────────────── */
-const OwnerStatCard = ({ icon: Icon, label, value, accent, sub, delay = 0 }) => (
-  <motion.div 
-    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay }} whileHover={{ y: -5, scale: 1.02 }}
-    className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/5 shadow-sm p-6 hover:shadow-xl transition-all"
-  >
-    <div className="flex items-center gap-4 mb-4">
-      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner ${accent}`}>
-        <Icon size={24} />
-      </div>
-      <p className="text-[10px] font-black text-gray-400 dark:text-gray-500 uppercase tracking-widest">{label}</p>
+const StatCard = ({ icon: Icon, label, value, color, subtitle }) => (
+  <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 flex items-center gap-5 transition-all hover:scale-[1.02]">
+    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${color} shadow-lg shadow-indigo-500/10`}>
+      <Icon size={26} className="text-white drop-shadow-md" />
     </div>
-    <p className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">{value}</p>
-    {sub && <p className="text-xs text-gray-500 font-medium mt-2">{sub}</p>}
-  </motion.div>
+    <div>
+      <p className="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">{label}</p>
+      <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 mt-0.5">{value}</p>
+      {subtitle && <p className="text-[11px] text-gray-400 mt-1 font-medium">{subtitle}</p>}
+    </div>
+  </div>
 );
 
 const OwnerDashboardPage = () => {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [myListings, setMyListings] = useState([]);
-  const [ownerBookings, setOwnerBookings] = useState([]);
-  const [dataLoading, setDataLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState('properties');
+  const [properties, setProperties] = useState([]);
+  const [bills, setBills] = useState([]);
+  const [stats, setStats] = useState({ totalProperties: 0, totalBeds: 0, occupiedBeds: 0, vacantBeds: 0, totalCollected: 0, totalPending: 0 });
+  const [loading, setLoading] = useState(true);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
+
+  // Forms State
+  const [showAddPropertyModal, setShowAddPropertyModal] = useState(false);
+  const [showBillModal, setShowBillModal] = useState(false);
+  const [selectedRoomForBill, setSelectedRoomForBill] = useState(null);
+  const [showTenantModal, setShowTenantModal] = useState(null);
+
+  const [propForm, setPropForm] = useState({ name: '', propertyType: 'PG', address: '', city: '', totalRooms: 2, totalBeds: 4, defaultRent: 8000, electricityRate: 10, fixedMaintenance: 1000 });
+  const [billForm, setBillForm] = useState({ baseRent: 8000, prevElectricityReading: 120, currElectricityReading: 175, electricityRate: 10, maintenanceAmount: 1000, waterCharge: 200, otherCharges: 0, billingMonth: 'July 2026', dueDate: '10th July 2026', tenantName: '', tenantPhone: '', tenantEmail: '' });
+  const [tenantForm, setTenantForm] = useState({ tenantName: '', tenantPhone: '', tenantEmail: '', status: 'OCCUPIED' });
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => setModalConfig({ isOpen: false });
 
-  useEffect(() => {
-    if (!loading) {
-      if (!isAuthenticated) navigate('/auth');
-      else if (user?.role !== 'OWNER' && user?.role !== 'ADMIN') navigate('/');
-    }
-  }, [isAuthenticated, loading, user, navigate]);
-
-  useEffect(() => {
-    if (user?.role !== 'OWNER' && user?.role !== 'ADMIN') return;
-    fetchData();
-  }, [user]);
-
   const fetchData = async () => {
-    setDataLoading(true);
+    setLoading(true);
     try {
-      const [listingsRes, bookingsRes] = await Promise.all([
-        api.get('/listings/my'),
-        api.get('/bookings/owner')
+      const [propsRes, billsRes, statsRes] = await Promise.all([
+        api.get('/owner/properties/my'),
+        api.get('/owner/bills/my'),
+        api.get('/owner/properties/stats')
       ]);
-      setMyListings(listingsRes.data);
-      setOwnerBookings(bookingsRes.data);
+      setProperties(propsRes.data);
+      setBills(billsRes.data);
+      setStats(statsRes.data);
     } catch (err) {
-      setError('Failed to fetch data.');
+      console.error('Owner dashboard fetch error', err);
     } finally {
-      setDataLoading(false);
+      setLoading(false);
     }
   };
 
-  const handleUpdateStatus = async (id, newStatus) => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const handleAddProperty = async (e) => {
+    e.preventDefault();
     try {
-      await api.put(`/listings/${id}`, { status: newStatus });
-      setMyListings(prev => prev.map(l => l.id === id ? { ...l, status: newStatus } : l));
-      import('react-hot-toast').then(({ toast }) => toast.success('Property status updated!'));
+      await api.post('/owner/properties', propForm);
+      setShowAddPropertyModal(false);
+      fetchData();
+      showModal({ type: 'alert', title: 'Success', message: 'Property and initial room/bed units created successfully!', onConfirm: closeModal });
     } catch (err) {
-      showModal({ type: 'alert', title: 'Error', message: 'Failed to update property status.', onConfirm: closeModal });
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to create property.', onConfirm: closeModal });
     }
   };
 
-  const updateBookingStatus = async (id, status) => {
+  const handleUpdateTenant = async (e) => {
+    e.preventDefault();
+    if (!showTenantModal) return;
     try {
-      const res = await api.put(`/bookings/${id}/status`, { status });
-      setOwnerBookings(prev => prev.map(b => b.id === id ? res.data : b));
-      import('react-hot-toast').then(({ toast }) => toast.success(`Booking ${status.toLowerCase()}!`));
+      await api.put(`/owner/properties/rooms/${showTenantModal.id}/tenant`, tenantForm);
+      setShowTenantModal(null);
+      fetchData();
+      showModal({ type: 'alert', title: 'Success', message: 'Tenant allocation updated successfully!', onConfirm: closeModal });
     } catch (err) {
-      showModal({ type: 'alert', title: 'Error', message: 'Failed to update booking.', onConfirm: closeModal });
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to update tenant details.', onConfirm: closeModal });
     }
   };
 
-  if (loading || (user?.role !== 'OWNER' && user?.role !== 'ADMIN')) return null;
+  const handleGenerateBill = async (e) => {
+    e.preventDefault();
+    if (!selectedRoomForBill) return;
+    try {
+      await api.post('/owner/bills/generate', {
+        ...billForm,
+        roomBedId: selectedRoomForBill.id
+      });
+      setShowBillModal(false);
+      fetchData();
+      showModal({ type: 'alert', title: 'Success', message: 'Smart Rent & Electricity Bill generated successfully!', onConfirm: closeModal });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to generate bill.', onConfirm: closeModal });
+    }
+  };
 
-  // Stats
-  const activeProperties = myListings.filter(l => l.status === 'ACTIVE').length;
-  const rentedProperties = myListings.filter(l => l.status === 'RENTED').length;
-  const totalViews = myListings.reduce((sum, l) => sum + (l.views || 0), 0);
-  const pendingBookings = ownerBookings.filter(b => b.status === 'PENDING').length;
-  const totalRevenue = ownerBookings.filter(b => b.status === 'CONFIRMED').reduce((sum, b) => sum + (b.amount || 0), 0);
+  const handleMarkPaid = async (billId) => {
+    try {
+      await api.put(`/owner/bills/${billId}/mark-paid`);
+      fetchData();
+      showModal({ type: 'alert', title: 'Payment Confirmed', message: 'Bill has been marked as PAID.', onConfirm: closeModal });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to update bill payment status.', onConfirm: closeModal });
+    }
+  };
+
+  const handleSendReminder = async (billId) => {
+    try {
+      await api.post(`/owner/bills/${billId}/reminder`);
+      showModal({ type: 'alert', title: 'Reminder Sent', message: 'In-app payment reminder notification sent to tenant.', onConfirm: closeModal });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to send reminder.', onConfirm: closeModal });
+    }
+  };
+
+  const openBillGenerator = (room) => {
+    setSelectedRoomForBill(room);
+    setBillForm({
+      baseRent: room.monthlyRent || 8000,
+      prevElectricityReading: 100,
+      currElectricityReading: 160,
+      electricityRate: room.electricityRatePerUnit || 10,
+      maintenanceAmount: room.fixedMaintenance || 1000,
+      waterCharge: 200,
+      otherCharges: 0,
+      billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+      dueDate: `10th ${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}`,
+      tenantName: room.tenantName || room.tenant?.name || '',
+      tenantPhone: room.tenantPhone || room.tenant?.phone || '',
+      tenantEmail: room.tenant?.email || ''
+    });
+    setShowBillModal(true);
+  };
 
   return (
-    <div className="bg-gray-50 dark:bg-slate-900 min-h-screen pb-16">
-      <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-white/5 sticky top-16 z-30 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between py-4 gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
-                <Home size={24} className="text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">Owner Portal</h1>
-                <p className="text-gray-500 text-xs sm:text-sm">Manage properties, tenants, and earnings.</p>
-              </div>
+    <div className="min-h-screen bg-mesh-gradient dark:bg-slate-900 pb-20 relative overflow-hidden">
+      {/* Background Orbs */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-primary-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
+
+      {/* Header */}
+      <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-indigo-950 pt-10 pb-16 px-4 sm:px-6 lg:px-8 shadow-xl">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-14 h-14 bg-gradient-to-tr from-primary-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg shadow-primary-500/30">
+              <Home size={28} className="text-white" />
             </div>
-            <Link to="/post-property" className="bg-primary-600 hover:bg-primary-700 text-white font-bold py-2.5 px-5 rounded-xl transition-all shadow-md flex items-center gap-2 text-sm">
-              <Plus size={18} /> List New Property
-            </Link>
+            <div>
+              <h1 className="text-3xl font-black text-white tracking-tight">PG & Flat Owner Dashboard</h1>
+              <p className="text-gray-400 text-sm mt-0.5">Manage PGs, Hostels, Beds & Collect Rent via Razorpay</p>
+            </div>
           </div>
-          
-          {/* Section Tabs */}
-          <div className="flex gap-6 overflow-x-auto hide-scrollbar pt-2 pb-[2px]">
-            {[
-              { id: 'overview', name: 'Dashboard Overview', icon: TrendingUp },
-              { id: 'properties', name: 'My Properties', icon: Home, count: myListings.length },
-              { id: 'bookings', name: 'Bookings & Leads', icon: BookOpen, count: pendingBookings > 0 ? pendingBookings : null }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 py-3 border-b-2 font-bold text-sm transition-colors whitespace-nowrap ${
-                  activeTab === tab.id 
-                    ? 'border-primary-600 text-primary-600 dark:text-primary-400' 
-                    : 'border-transparent text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
-                }`}
-              >
-                <tab.icon size={16} />
-                {tab.name}
-                {tab.count !== undefined && tab.count !== null && (
-                  <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] ${activeTab === tab.id ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-600'}`}>
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+          <button
+            onClick={() => setShowAddPropertyModal(true)}
+            className="bg-gradient-to-r from-primary-500 to-indigo-600 hover:from-primary-600 hover:to-indigo-700 text-white font-bold px-5 py-3 rounded-2xl shadow-lg shadow-primary-500/25 transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Plus size={18} /> Add New Property (PG/Flat)
+          </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        {dataLoading ? (
-          <div className="flex flex-col justify-center items-center py-20 gap-3">
-            <div className="animate-spin rounded-full h-10 w-10 border-[3px] border-gray-200 border-t-primary-600"></div>
-            <p className="text-sm text-gray-400 font-medium">Loading Owner Dashboard...</p>
-          </div>
-        ) : (
-          <div className="animate-fadeIn">
-            {/* ── Overview Section ── */}
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <OwnerStatCard icon={Home} label="Total Listed" value={myListings.length} accent="bg-blue-50 text-blue-600" />
-                  <OwnerStatCard icon={CheckCircle2} label="Occupied/Rented" value={rentedProperties} accent="bg-green-50 text-green-600" sub={`${Math.round((rentedProperties/myListings.length)*100 || 0)}% Occupancy`} />
-                  <OwnerStatCard icon={TrendingUp} label="Property Views" value={totalViews} accent="bg-purple-50 text-purple-600" />
-                  <OwnerStatCard icon={IndianRupee} label="Confirmed Revenue" value={`₹${totalRevenue.toLocaleString('en-IN')}`} accent="bg-amber-50 text-amber-600" />
-                </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-10">
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+          <StatCard icon={Home} label="Properties Managed" value={stats.totalProperties} color="from-blue-500 to-blue-600" subtitle={`${stats.totalBeds} Total Rooms/Beds`} />
+          <StatCard icon={Bed} label="Occupied Units" value={stats.occupiedBeds} color="from-emerald-500 to-teal-600" subtitle={`${stats.vacantBeds} Units Currently Vacant`} />
+          <StatCard icon={DollarSign} label="Rent Collected" value={`₹${(stats.totalCollected || 0).toLocaleString('en-IN')}`} color="from-indigo-500 to-purple-600" subtitle="Total Paid Bills" />
+          <StatCard icon={AlertCircle} label="Pending Dues" value={`₹${(stats.totalPending || 0).toLocaleString('en-IN')}`} color="from-amber-500 to-orange-600" subtitle="Awaiting Tenant Payment" />
+        </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Recent Bookings Mini */}
-                  <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-bold text-gray-900 dark:text-white">Recent Inquiries</h3>
-                      <button onClick={() => setActiveTab('bookings')} className="text-primary-600 text-sm font-bold hover:underline">View All</button>
-                    </div>
-                    {ownerBookings.slice(0, 4).map(b => (
-                      <div key={b.id} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center font-bold text-gray-600">
-                            {b.tenant?.name?.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm text-gray-900">{b.tenant?.name}</p>
-                            <p className="text-xs text-gray-500">{b.listing?.title}</p>
-                          </div>
-                        </div>
-                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${b.status === 'CONFIRMED' ? 'bg-green-100 text-green-700' : b.status === 'PENDING' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'}`}>
-                          {b.status}
+        {/* Navigation Tabs */}
+        <div className="flex gap-3 mb-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-2 rounded-2xl border border-white/50 dark:border-white/10 shadow-sm w-fit">
+          <button
+            onClick={() => setActiveTab('properties')}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'properties' ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'}`}
+          >
+            <Home size={16} /> My Properties & Beds ({properties.length})
+          </button>
+          <button
+            onClick={() => setActiveTab('bills')}
+            className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'bills' ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'}`}
+          >
+            <FileText size={16} /> Bills & Collection Ledger ({bills.length})
+          </button>
+        </div>
+
+        {/* TAB 1: PROPERTIES & ROOM/BED MATRIX */}
+        {activeTab === 'properties' && (
+          <div className="space-y-6">
+            {properties.length === 0 ? (
+              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-12 text-center border border-gray-100 dark:border-white/10 shadow-sm">
+                <Home size={48} className="mx-auto text-primary-400 mb-3" />
+                <h3 className="text-xl font-black text-gray-900 dark:text-white">No Properties Added Yet</h3>
+                <p className="text-gray-500 text-sm max-w-md mx-auto mt-1 mb-6">Add your PG, Hostel, or Independent Flat to start allocating beds, calculating electricity bills, and collecting rent.</p>
+                <button onClick={() => setShowAddPropertyModal(true)} className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg transition-all">Add Your First Property</button>
+              </div>
+            ) : (
+              properties.map(({ property, roomsBeds }) => (
+                <div key={property.id} className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg p-6 space-y-6">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-white/10 pb-5">
+                    <div>
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-xl font-black text-gray-900 dark:text-white">{property.name}</h2>
+                        <span className="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider border border-primary-200/50">
+                          {property.propertyType}
                         </span>
                       </div>
-                    ))}
-                    {ownerBookings.length === 0 && <p className="text-gray-400 text-sm py-4 text-center">No inquiries yet.</p>}
-                  </div>
-
-                  {/* Properties Mini */}
-                  <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/5 p-6 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-bold text-gray-900 dark:text-white">Top Performing Properties</h3>
-                      <button onClick={() => setActiveTab('properties')} className="text-primary-600 text-sm font-bold hover:underline">Manage All</button>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">📍 {property.address}, {property.city}</p>
                     </div>
-                    {myListings.sort((a,b) => (b.views||0) - (a.views||0)).slice(0, 4).map(l => (
-                      <div key={l.id} className="flex items-center justify-between py-3 border-b border-gray-50 last:border-0">
-                        <div className="flex items-center gap-3 min-w-0">
-                          <img src={l.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=100'} className="w-10 h-10 rounded-lg object-cover" alt="" />
-                          <div className="min-w-0">
-                            <p className="font-bold text-sm text-gray-900 truncate">{l.title}</p>
-                            <p className="text-xs text-gray-500 flex items-center gap-1"><Eye size={12}/> {l.views || 0} views</p>
-                          </div>
-                        </div>
-                        <span className="font-bold text-primary-600 text-sm">₹{l.price?.toLocaleString('en-IN')}</span>
-                      </div>
-                    ))}
-                    {myListings.length === 0 && <p className="text-gray-400 text-sm py-4 text-center">No properties listed yet.</p>}
+                    <button
+                      onClick={() => {
+                        const roomNum = prompt('Enter Room Number (e.g. Room 205 or Flat 3A):', 'Room 205');
+                        if (roomNum) {
+                          const rent = prompt('Enter Monthly Rent (₹):', '8000');
+                          if (rent) {
+                            api.post(`/owner/properties/${property.id}/rooms`, { roomNumber: roomNum, bedNumber: 'Bed A', monthlyRent: rent })
+                              .then(() => fetchData());
+                          }
+                        }
+                      }}
+                      className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 px-4 py-2.5 rounded-xl border border-indigo-200/50 flex items-center gap-1.5"
+                    >
+                      <Plus size={14} /> Add Room / Bed Unit
+                    </button>
                   </div>
-                </div>
-              </div>
-            )}
 
-            {/* ── My Properties Section ── */}
-            {activeTab === 'properties' && (
-              <div className="space-y-4">
-                {myListings.length === 0 ? (
-                  <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/5">
-                    <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4"><Home className="text-gray-400" size={32} /></div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No properties listed</h3>
-                    <p className="text-gray-500 mb-6 max-w-md mx-auto">Start adding your properties to the platform to receive bookings and inquiries from tenants.</p>
-                    <Link to="/post-property" className="bg-primary-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-primary-700 inline-flex items-center gap-2">
-                      <Plus size={18}/> List Your First Property
-                    </Link>
-                  </div>
-                ) : (
-                  myListings.map(listing => (
-                    <div key={listing.id} className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-white/5 rounded-2xl p-5 flex flex-col md:flex-row gap-6 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="w-full md:w-48 h-32 flex-shrink-0">
-                        <img src={listing.images?.[0] || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&q=80&w=300'} alt="" className="w-full h-full object-cover rounded-xl" />
-                      </div>
-                      <div className="flex-1 flex flex-col justify-between">
-                        <div>
-                          <div className="flex items-start justify-between gap-4">
+                  {/* Rooms & Beds Matrix */}
+                  <div>
+                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                      <Bed size={14} /> Room & Bed Occupancy Matrix ({roomsBeds.length} units)
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {roomsBeds.map(room => (
+                        <div
+                          key={room.id}
+                          className={`p-4 rounded-2xl border transition-all ${
+                            room.status === 'OCCUPIED'
+                              ? 'bg-gradient-to-br from-emerald-50/50 to-teal-50/30 dark:from-teal-950/30 dark:to-slate-800 border-emerald-200 dark:border-emerald-800/50'
+                              : 'bg-gradient-to-br from-gray-50/50 to-white dark:from-slate-800 dark:to-slate-800/50 border-gray-200 dark:border-white/10'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-2">
                             <div>
-                              <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1"><Link to={`/listings/${listing.id}/view`} className="hover:text-primary-600 transition-colors">{listing.title}</Link></h3>
-                              <p className="text-sm text-gray-500 flex items-center gap-1 mb-2"><MapPin size={14}/> {listing.location}</p>
+                              <span className="font-extrabold text-sm text-gray-900 dark:text-white">{room.roomNumber}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400 ml-1.5">({room.bedNumber})</span>
                             </div>
-                            <span className={`px-2.5 py-1 text-xs font-bold rounded-lg border ${listing.status === 'ACTIVE' ? 'bg-green-50 text-green-700 border-green-200' : listing.status === 'RENTED' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-gray-100 text-gray-600 border-gray-200'}`}>
-                              {listing.status || 'ACTIVE'}
+                            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                              room.status === 'OCCUPIED' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-gray-300'
+                            }`}>
+                              {room.status}
                             </span>
                           </div>
-                          <div className="flex gap-4 mb-4">
-                            <span className="text-xs text-gray-500 font-medium bg-gray-50 dark:bg-slate-700/50 px-2.5 py-1 rounded-lg">Type: {listing.type}</span>
-                            <span className="text-xs text-gray-500 font-medium bg-gray-50 dark:bg-slate-700/50 px-2.5 py-1 rounded-lg">Views: {listing.views || 0}</span>
+
+                          <div className="text-xs space-y-1 mb-4 text-gray-600 dark:text-gray-300">
+                            <p><span className="font-semibold text-gray-400">Rent:</span> ₹{room.monthlyRent?.toLocaleString('en-IN')}/mo</p>
+                            <p><span className="font-semibold text-gray-400">Power Rate:</span> ₹{room.electricityRatePerUnit}/unit</p>
+                            {room.status === 'OCCUPIED' ? (
+                              <div className="pt-2 border-t border-gray-200/50 dark:border-white/5">
+                                <p className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                                  👤 {room.tenantName || room.tenant?.name || 'Tenant Assigned'}
+                                </p>
+                                {room.tenantPhone && <p className="text-[11px] text-gray-500">📞 {room.tenantPhone}</p>}
+                              </div>
+                            ) : (
+                              <p className="text-gray-400 text-[11px] pt-1">Vacant — Ready for tenant onboarding</p>
+                            )}
                           </div>
-                        </div>
-                        <div className="flex items-center justify-between border-t border-gray-100 dark:border-white/5 pt-4">
-                          <span className="text-xl font-black text-primary-600">₹{listing.price?.toLocaleString('en-IN')}<span className="text-sm text-gray-400 font-medium">/mo</span></span>
-                          <div className="flex gap-2">
-                            {listing.status === 'ACTIVE' && (
-                              <button onClick={() => handleUpdateStatus(listing.id, 'RENTED')} className="text-xs bg-gray-900 text-white hover:bg-black px-3 py-1.5 rounded-lg font-bold transition-all">Mark as Rented</button>
-                            )}
-                            {listing.status === 'RENTED' && (
-                              <button onClick={() => handleUpdateStatus(listing.id, 'ACTIVE')} className="text-xs bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1.5 rounded-lg font-bold transition-all">Mark as Active</button>
-                            )}
-                            <button onClick={() => handleUpdateStatus(listing.id, listing.status === 'HIDDEN' ? 'ACTIVE' : 'HIDDEN')} className="text-xs bg-gray-100 text-gray-700 hover:bg-gray-200 px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1">
-                              {listing.status === 'HIDDEN' ? <><Eye size={14}/> Unhide</> : <><EyeOff size={14}/> Hide</>}
+
+                          <div className="flex gap-2 pt-2 border-t border-gray-100 dark:border-white/10">
+                            <button
+                              onClick={() => {
+                                setShowTenantModal(room);
+                                setTenantForm({
+                                  tenantName: room.tenantName || room.tenant?.name || '',
+                                  tenantPhone: room.tenantPhone || room.tenant?.phone || '',
+                                  tenantEmail: room.tenant?.email || '',
+                                  status: room.status
+                                });
+                              }}
+                              className="flex-1 text-[11px] font-bold text-gray-700 dark:text-gray-200 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 py-1.5 rounded-lg transition-colors"
+                            >
+                              Assign Tenant
+                            </button>
+                            <button
+                              onClick={() => openBillGenerator(room)}
+                              className="flex-1 text-[11px] font-bold text-white bg-primary-600 hover:bg-primary-700 py-1.5 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-1"
+                            >
+                              <Zap size={12} /> Issue Bill
                             </button>
                           </div>
                         </div>
-                      </div>
+                      ))}
                     </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {/* ── Bookings & Leads Section ── */}
-            {activeTab === 'bookings' && (
-              <div className="space-y-4">
-                {ownerBookings.length === 0 ? (
-                  <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/5">
-                    <div className="w-20 h-20 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mx-auto mb-4"><BookOpen className="text-gray-400" size={32} /></div>
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No inquiries yet</h3>
-                    <p className="text-gray-500 max-w-md mx-auto">When tenants request to book or inquire about your properties, they will appear here.</p>
                   </div>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {ownerBookings.map(b => (
-                      <div key={b.id} className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-white/5 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
-                        {/* Status bar */}
-                        <div className={`absolute top-0 left-0 w-full h-1.5 ${b.status === 'CONFIRMED' ? 'bg-green-500' : b.status === 'PENDING' ? 'bg-yellow-400' : 'bg-red-500'}`} />
-                        
-                        <div className="flex justify-between items-start mb-4 pt-2">
-                          <span className={`px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-md ${b.status === 'CONFIRMED' ? 'bg-green-50 text-green-700' : b.status === 'PENDING' ? 'bg-yellow-50 text-yellow-700' : 'bg-red-50 text-red-700'}`}>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* TAB 2: BILLS & RAZORPAY COLLECTION LEDGER */}
+        {activeTab === 'bills' && (
+          <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-black text-gray-900 dark:text-white">Tenant Bills & Razorpay Rent Ledger</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Track monthly Rent + Electricity + Maintenance bills</p>
+              </div>
+            </div>
+
+            {bills.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <FileText size={40} className="mx-auto mb-2 opacity-50" />
+                <p>No bills issued yet. Go to "My Properties" tab and click "Issue Bill" on any room.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-gray-50 dark:bg-slate-700/50 text-left text-[11px] font-black uppercase text-gray-400">
+                    <tr>
+                      <th className="px-5 py-3">Tenant & Room</th>
+                      <th className="px-5 py-3">Month</th>
+                      <th className="px-5 py-3">Breakdown (Rent + Power + Maint)</th>
+                      <th className="px-5 py-3">Total Amount</th>
+                      <th className="px-5 py-3">Status</th>
+                      <th className="px-5 py-3 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-xs">
+                    {bills.map(b => (
+                      <tr key={b.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors">
+                        <td className="px-5 py-4">
+                          <p className="font-bold text-gray-900 dark:text-white">{b.tenantName || 'Tenant'}</p>
+                          <p className="text-gray-400 text-[11px]">{b.roomBed?.ownerProperty?.name} - {b.roomBed?.roomNumber}</p>
+                        </td>
+                        <td className="px-5 py-4 font-semibold text-gray-700 dark:text-gray-300">{b.billingMonth}</td>
+                        <td className="px-5 py-4">
+                          <div className="space-y-0.5 text-[11px]">
+                            <p><span className="text-gray-400">Rent:</span> ₹{b.baseRent?.toLocaleString('en-IN')}</p>
+                            <p><span className="text-gray-400">Power:</span> ₹{b.electricityAmount?.toLocaleString('en-IN')} ({b.unitsConsumed} units)</p>
+                            <p><span className="text-gray-400">Maint:</span> ₹{b.maintenanceAmount?.toLocaleString('en-IN')}</p>
+                          </div>
+                        </td>
+                        <td className="px-5 py-4 font-black text-base text-primary-600">₹{b.totalAmount?.toLocaleString('en-IN')}</td>
+                        <td className="px-5 py-4">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase ${
+                            b.status === 'PAID' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'
+                          }`}>
                             {b.status}
                           </span>
-                          <span className="text-xs text-gray-400 font-bold">{new Date(b.createdAt).toLocaleDateString()}</span>
-                        </div>
-                        
-                        <div className="mb-4">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Property</p>
-                          <p className="text-sm font-bold text-gray-900 dark:text-white truncate" title={b.listing?.title}>{b.listing?.title}</p>
-                          <p className="text-xs text-primary-600 font-bold mt-1">₹{b.amount?.toLocaleString('en-IN')}</p>
-                        </div>
-                        
-                        <div className="bg-gray-50 dark:bg-slate-700/50 rounded-xl p-3 mb-4 border border-gray-100 dark:border-white/5">
-                          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2">Tenant Details</p>
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gray-200 dark:bg-slate-600 text-gray-600 dark:text-white rounded-lg flex items-center justify-center font-bold text-sm">
-                              {b.tenant?.name?.charAt(0)}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{b.tenant?.name}</p>
-                              <p className="text-xs text-gray-500 truncate">{b.tenant?.email}</p>
-                            </div>
+                        </td>
+                        <td className="px-5 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {b.status !== 'PAID' && (
+                              <>
+                                <button
+                                  onClick={() => handleSendReminder(b.id)}
+                                  className="bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-400 px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1"
+                                >
+                                  <Send size={12} /> Remind
+                                </button>
+                                <button
+                                  onClick={() => handleMarkPaid(b.id)}
+                                  className="bg-emerald-600 text-white hover:bg-emerald-700 px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 shadow-sm"
+                                >
+                                  <CheckCircle2 size={12} /> Mark Paid
+                                </button>
+                              </>
+                            )}
+                            {b.status === 'PAID' && (
+                              <span className="text-[11px] text-emerald-600 font-bold flex items-center gap-1">
+                                <CheckCircle2 size={14} /> Paid via Razorpay/Cash
+                              </span>
+                            )}
                           </div>
-                          {b.tenant?.phone && (
-                            <div className="mt-3 flex gap-2">
-                              <a href={`tel:${b.tenant.phone}`} className="flex-1 flex items-center justify-center gap-1 bg-white text-gray-700 border border-gray-200 text-xs font-bold py-1.5 rounded-lg hover:bg-gray-50 transition-colors">
-                                <Phone size={12}/> Call
-                              </a>
-                            </div>
-                          )}
-                        </div>
-
-                        {b.status === 'PENDING' && (
-                          <div className="flex gap-2 mt-auto">
-                            <button onClick={() => updateBookingStatus(b.id, 'CONFIRMED')} className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2 rounded-xl transition-colors">Accept</button>
-                            <button onClick={() => updateBookingStatus(b.id, 'REJECTED')} className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 text-xs font-bold py-2 rounded-xl transition-colors">Decline</button>
-                          </div>
-                        )}
-                      </div>
+                        </td>
+                      </tr>
                     ))}
-                  </div>
-                )}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
         )}
       </div>
-      <Modal {...modalConfig} onCancel={closeModal} />
+
+      {/* MODAL 1: ADD PROPERTY */}
+      {showAddPropertyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl border border-gray-100 dark:border-white/10">
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4">Add New PG / Hostel / Flat</h3>
+            <form onSubmit={handleAddProperty} className="space-y-4 text-sm">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Property Name</label>
+                <input type="text" required placeholder="e.g. Royal PG for Students" value={propForm.name} onChange={e => setPropForm({ ...propForm, name: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Property Type</label>
+                  <select value={propForm.propertyType} onChange={e => setPropForm({ ...propForm, propertyType: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white">
+                    <option value="PG">PG (Paying Guest)</option>
+                    <option value="HOSTEL">Hostel / Co-Living</option>
+                    <option value="FLAT">Independent Flat</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">City</label>
+                  <input type="text" required placeholder="e.g. Pune" value={propForm.city} onChange={e => setPropForm({ ...propForm, city: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Address</label>
+                <input type="text" required placeholder="Street address, area" value={propForm.address} onChange={e => setPropForm({ ...propForm, address: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rooms</label>
+                  <input type="number" min="1" value={propForm.totalRooms} onChange={e => setPropForm({ ...propForm, totalRooms: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Beds</label>
+                  <input type="number" min="1" value={propForm.totalBeds} onChange={e => setPropForm({ ...propForm, totalBeds: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rent (₹)</label>
+                  <input type="number" value={propForm.defaultRent} onChange={e => setPropForm({ ...propForm, defaultRent: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button type="button" onClick={() => setShowAddPropertyModal(false)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Create Property</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: ASSIGN TENANT */}
+      {showTenantModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-white/10">
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4">Assign Tenant ({showTenantModal.roomNumber})</h3>
+            <form onSubmit={handleUpdateTenant} className="space-y-4 text-sm">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tenant Name</label>
+                <input type="text" required placeholder="Tenant Full Name" value={tenantForm.tenantName} onChange={e => setTenantForm({ ...tenantForm, tenantName: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tenant Phone</label>
+                <input type="text" required placeholder="10-digit Phone Number" value={tenantForm.tenantPhone} onChange={e => setTenantForm({ ...tenantForm, tenantPhone: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Registered Tenant Email (Optional)</label>
+                <input type="email" placeholder="email@domain.com" value={tenantForm.tenantEmail} onChange={e => setTenantForm({ ...tenantForm, tenantEmail: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Unit Status</label>
+                <select value={tenantForm.status} onChange={e => setTenantForm({ ...tenantForm, status: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white">
+                  <option value="OCCUPIED">OCCUPIED</option>
+                  <option value="VACANT">VACANT (Clear Tenant)</option>
+                </select>
+              </div>
+              <div className="flex gap-3 pt-4">
+                <button type="button" onClick={() => setShowTenantModal(null)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Save Allocation</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: SMART RENT + ELECTRICITY BILL GENERATOR */}
+      {showBillModal && selectedRoomForBill && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl border border-gray-100 dark:border-white/10 max-h-[90vh] overflow-y-auto">
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">Smart Bill Calculator</h3>
+            <p className="text-xs text-gray-500 mb-4">{selectedRoomForBill.ownerProperty?.name} - {selectedRoomForBill.roomNumber} ({selectedRoomForBill.tenantName || 'Tenant'})</p>
+
+            <form onSubmit={handleGenerateBill} className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Base Monthly Rent (₹)</label>
+                  <input type="number" required value={billForm.baseRent} onChange={e => setBillForm({ ...billForm, baseRent: Number(e.target.value) })} className="w-full px-4 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Maintenance Fee (₹)</label>
+                  <input type="number" value={billForm.maintenanceAmount} onChange={e => setBillForm({ ...billForm, maintenanceAmount: Number(e.target.value) })} className="w-full px-4 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+              </div>
+
+              {/* Electricity Meter Section */}
+              <div className="bg-amber-50/60 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-200/50 space-y-3">
+                <p className="text-xs font-black uppercase text-amber-800 dark:text-amber-300 flex items-center gap-1">
+                  <Zap size={14} /> Sub-Meter Electricity Calculator
+                </p>
+                <div className="grid grid-cols-3 gap-2">
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Prev Reading</label>
+                    <input type="number" value={billForm.prevElectricityReading} onChange={e => setBillForm({ ...billForm, prevElectricityReading: Number(e.target.value) })} className="w-full px-3 py-1.5 rounded-lg border text-xs dark:bg-slate-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Current Reading</label>
+                    <input type="number" value={billForm.currElectricityReading} onChange={e => setBillForm({ ...billForm, currElectricityReading: Number(e.target.value) })} className="w-full px-3 py-1.5 rounded-lg border text-xs dark:bg-slate-700 dark:text-white" />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Rate (₹/Unit)</label>
+                    <input type="number" value={billForm.electricityRate} onChange={e => setBillForm({ ...billForm, electricityRate: Number(e.target.value) })} className="w-full px-3 py-1.5 rounded-lg border text-xs dark:bg-slate-700 dark:text-white" />
+                  </div>
+                </div>
+                <div className="text-xs font-bold text-amber-900 dark:text-amber-200 flex justify-between pt-1">
+                  <span>Units Consumed: {Math.max(0, billForm.currElectricityReading - billForm.prevElectricityReading)} units</span>
+                  <span>Power Charge: ₹{Math.max(0, billForm.currElectricityReading - billForm.prevElectricityReading) * billForm.electricityRate}</span>
+                </div>
+              </div>
+
+              {/* Total Calculation */}
+              <div className="p-4 bg-primary-50 dark:bg-primary-950/30 rounded-2xl border border-primary-200/50 flex justify-between items-center">
+                <span className="font-bold text-gray-700 dark:text-gray-200">Total Calculated Bill:</span>
+                <span className="text-2xl font-black text-primary-700 dark:text-primary-400">
+                  ₹{(
+                    Number(billForm.baseRent) +
+                    Number(billForm.maintenanceAmount) +
+                    Number(billForm.waterCharge) +
+                    Number(billForm.otherCharges) +
+                    (Math.max(0, billForm.currElectricityReading - billForm.prevElectricityReading) * billForm.electricityRate)
+                  ).toLocaleString('en-IN')}
+                </span>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowBillModal(false)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Generate & Issue Bill</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Global Alert Modal */}
+      <Modal isOpen={modalConfig.isOpen} onClose={closeModal} title={modalConfig.title} type={modalConfig.type} onConfirm={modalConfig.onConfirm}>
+        <p className="text-sm text-gray-600 dark:text-gray-300">{modalConfig.message}</p>
+      </Modal>
     </div>
   );
 };

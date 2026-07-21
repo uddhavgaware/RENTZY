@@ -263,6 +263,11 @@ const Navbar = () => {
             <Link to="/post-property" className={cn("text-sm font-medium transition-colors", linkColorClass)}>Post Property</Link>
             {isAuthenticated ? (
               <div className="flex items-center space-x-4">
+                {(user?.role === 'OWNER' || user?.role === 'ADMIN') && (
+                  <Link to="/owner-dashboard" className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg text-xs font-semibold transition-colors">
+                    <Home size={14} />PG/Flat Owner
+                  </Link>
+                )}
                 {isAdmin && (
                   <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-semibold transition-colors">
                     <ShieldCheck size={14} />Admin

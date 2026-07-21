@@ -355,6 +355,43 @@ const AdminDashboardPage = () => {
     });
   };
 
+  const deleteBooking = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Booking',
+      message: 'Are you sure you want to delete this booking record?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/admin/bookings/${id}`);
+          setBookings(prev => prev.filter(b => b.id !== id));
+        } catch (err) {
+          setError(err.response?.data?.message || 'Failed to delete booking.');
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  const cancelDeleteRequest = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Cancel Deletion Request',
+      message: 'Reject and cancel account deletion request for this user?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.post(`/admin/users/${id}/cancel-delete-request`);
+          setUsers(prev => prev.map(u => u.id === id ? { ...u, deleteRequested: false } : u));
+          showModal({ type: 'alert', title: 'Success', message: 'Account deletion request cancelled.', onConfirm: closeModal });
+        } catch (err) {
+          setError(err.response?.data?.message || 'Failed to cancel deletion request.');
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
   if (loading || !isAdmin) return null;
 
   const tabs = [
@@ -995,12 +1032,20 @@ const AdminDashboardPage = () => {
                             </span>
                           </td>
                           <td className="px-6 py-4">
-                            <button
-                              onClick={() => deleteUser(u.id)}
-                              className="text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors text-xs font-bold flex items-center gap-1 shadow-sm"
-                            >
-                              <Trash2 size={14} /> Process Deletion
-                            </button>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => deleteUser(u.id)}
+                                className="text-white bg-red-600 hover:bg-red-700 px-3 py-1.5 rounded-lg transition-colors text-xs font-bold flex items-center gap-1 shadow-sm"
+                              >
+                                <Trash2 size={14} /> Process Deletion
+                              </button>
+                              <button
+                                onClick={() => cancelDeleteRequest(u.id)}
+                                className="text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:text-gray-200 dark:hover:bg-slate-600 px-3 py-1.5 rounded-lg transition-colors text-xs font-bold shadow-sm"
+                              >
+                                Cancel Request
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1068,12 +1113,13 @@ const AdminDashboardPage = () => {
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Tenant</th>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
                         <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                       {filteredBookings.length === 0 ? (
                         <tr>
-                          <td colSpan={4} className="text-center py-12 text-gray-400">No bookings yet.</td>
+                          <td colSpan={5} className="text-center py-12 text-gray-400">No bookings yet.</td>
                         </tr>
                       ) : filteredBookings.map(b => (
                         <tr key={b.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
@@ -1088,6 +1134,15 @@ const AdminDashboardPage = () => {
                             }`}>
                               {b.status}
                             </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <button
+                              onClick={() => deleteBooking(b.id)}
+                              className="text-red-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-lg transition-colors"
+                              title="Delete booking"
+                            >
+                              <Trash2 size={16} />
+                            </button>
                           </td>
                         </tr>
                       ))}

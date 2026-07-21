@@ -1,0 +1,165 @@
+package com.rentzy.backend.controller;
+
+import com.rentzy.backend.domain.PropertyBill;
+import com.rentzy.backend.domain.RoomBed;
+import com.rentzy.backend.domain.User;
+import com.rentzy.backend.repository.PropertyBillRepository;
+import com.rentzy.backend.repository.RoomBedRepository;
+import com.rentzy.backend.repository.UserRepository;
+import com.rentzy.backend.service.NotificationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/owner/bills")
+@RequiredArgsConstructor
+public class PropertyBillController {
+
+    private final PropertyBillRepository propertyBillRepository;
+    private final RoomBedRepository roomBedRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
+
+    // Generate a new Property Bill (Rent + Electricity Sub-meter + Maintenance)
+    @PostMapping("/generate")
+    public ResponseEntity<PropertyBill> generateBill(@RequestBody Map<String, Object> body, Authentication auth) {
+        User owner = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Long roomBedId = Long.parseLong(body.get("roomBedId").toString());
+        RoomBed roomBed = roomBedRepository.findById(roomBedId)
+                .orElseThrow(() -> new RuntimeException("Room unit not found"));
+
+        if (!roomBed.getOwnerProperty().getOwner().getId().equals(owner.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        double baseRent = body.get("baseRent") != null ? Double.parseDouble(body.get("baseRent").toString()) : roomBed.getMonthlyRent();
+        double prevMeter = body.get("prevElectricityReading") != null ? Double.parseDouble(body.get("prevElectricityReading").toString()) : 0.0;
+        double currMeter = body.get("currElectricityReading") != null ? Double.parseDouble(body.get("currElectricityReading").toString()) : 0.0;
+        double ratePerUnit = body.get("electricityRate") != null ? Double.parseDouble(body.get("electricityRate").toString()) : roomBed.getElectricityRatePerUnit();
+        
+        double unitsConsumed = Math.max(0.0, currMeter - prevMeter);
+        double electricityAmount = unitsConsumed * ratePerUnit;
+
+        double maintenanceAmount = body.get("maintenanceAmount") != null ? Double.parseDouble(body.get("maintenanceAmount").toString()) : roomBed.getFixedMaintenance();
+        double waterCharge = body.get("waterCharge") != null ? Double.parseDouble(body.get("waterCharge").toString()) : 0.0;
+        double otherCharges = body.get("otherCharges") != null ? Double.parseDouble(body.get("otherCharges").toString()) : 0.0;
+
+        double totalAmount = baseRent + electricityAmount + maintenanceAmount + waterCharge + otherCharges;
+
+        String tenantEmail = (String) body.get("tenantEmail");
+        User tenantUser = roomBed.getTenant();
+        if (tenantUser == null && tenantEmail != null && !tenantEmail.trim().isEmpty()) {
+            tenantUser = userRepository.findByEmail(tenantEmail.trim()).orElse(null);
+        }
+
+        PropertyBill bill = PropertyBill.builder()
+                .roomBed(roomBed)
+                .owner(owner)
+                .tenant(tenantUser)
+                .tenantName(body.get("tenantName") != null ? (String) body.get("tenantName") : roomBed.getTenantName())
+                .tenantPhone(body.get("tenantPhone") != null ? (String) body.get("tenantPhone") : roomBed.getTenantPhone())
+                .billingMonth((String) body.getOrDefault("billingMonth", "Current Month"))
+                .dueDate((String) body.getOrDefault("dueDate", "10th of Month"))
+                .baseRent(baseRent)
+                .prevElectricityReading(prevMeter)
+                .currElectricityReading(currMeter)
+                .unitsConsumed(unitsConsumed)
+                .electricityRate(ratePerUnit)
+                .electricityAmount(electricityAmount)
+                .maintenanceAmount(maintenanceAmount)
+                .waterCharge(waterCharge)
+                .otherCharges(otherCharges)
+                .totalAmount(totalAmount)
+                .status("PENDING")
+                .build();
+
+        PropertyBill saved = propertyBillRepository.save(bill);
+
+        // Notify tenant if registered
+        if (tenantUser != null) {
+            notificationService.createNotification(
+                    tenantUser.getEmail(),
+                    "🧾 New Rent & Electricity Bill generated for " + roomBed.getOwnerProperty().getName() + " (" + roomBed.getRoomNumber() + "). Total Amount: ₹" + totalAmount,
+                    "SYSTEM"
+            );
+        }
+
+        return ResponseEntity.ok(saved);
+    }
+
+    // Get bills generated by owner
+    @GetMapping("/my")
+    public ResponseEntity<List<PropertyBill>> getOwnerBills(Authentication auth) {
+        User owner = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(propertyBillRepository.findByOwnerOrderByCreatedAtDesc(owner));
+    }
+
+    // Get bills for logged in tenant
+    @GetMapping("/tenant")
+    public ResponseEntity<List<PropertyBill>> getTenantBills(Authentication auth) {
+        User tenant = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return ResponseEntity.ok(propertyBillRepository.findByTenantOrderByCreatedAtDesc(tenant));
+    }
+
+    // Manually mark bill as paid (e.g. Cash / Offline payment)
+    @PutMapping("/{id}/mark-paid")
+    public ResponseEntity<PropertyBill> markPaid(@PathVariable Long id, Authentication auth) {
+        User owner = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        PropertyBill bill = propertyBillRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bill not found"));
+
+        if (!bill.getOwner().getId().equals(owner.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        bill.setStatus("PAID");
+        bill.setPaidAt(LocalDateTime.now());
+        PropertyBill saved = propertyBillRepository.save(bill);
+
+        if (bill.getTenant() != null) {
+            notificationService.createNotification(
+                    bill.getTenant().getEmail(),
+                    "✅ Payment received for bill #" + bill.getId() + " (" + bill.getBillingMonth() + "). Receipt available in your tenant portal.",
+                    "SYSTEM"
+            );
+        }
+
+        return ResponseEntity.ok(saved);
+    }
+
+    // Send Payment Reminder to Tenant
+    @PostMapping("/{id}/reminder")
+    public ResponseEntity<Map<String, String>> sendReminder(@PathVariable Long id, Authentication auth) {
+        User owner = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        PropertyBill bill = propertyBillRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bill not found"));
+
+        if (!bill.getOwner().getId().equals(owner.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (bill.getTenant() != null) {
+            notificationService.createNotification(
+                    bill.getTenant().getEmail(),
+                    "⏰ REMINDER: Rent & Maintenance bill of ₹" + bill.getTotalAmount() + " for " + bill.getBillingMonth() + " is pending. Please pay via Razorpay or UPI.",
+                    "SYSTEM"
+            );
+        }
+
+        return ResponseEntity.ok(Map.of("message", "Payment reminder sent successfully."));
+    }
+}
