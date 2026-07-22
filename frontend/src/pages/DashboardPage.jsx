@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon, IndianRupee, Zap, CheckCircle2, TrendingUp, Wrench } from 'lucide-react';
+import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon, IndianRupee, Zap, CheckCircle2, TrendingUp, Wrench, FileText } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import MaintenanceTab from '../components/MaintenanceTab';
@@ -528,6 +528,7 @@ const DashboardPage = () => {
     } else {
       // TENANT default
       baseTabs.push(
+        { id: 'tenant-portal', name: 'Tenant Portal (EB/Rent)', icon: FileText },
         { id: 'bookings', name: 'My Bookings', icon: BookOpen },
         { id: 'saved', name: 'Saved', icon: Heart },
         { id: 'split', name: 'Split Expenses', icon: Split },
@@ -614,6 +615,7 @@ const DashboardPage = () => {
                           else if (tab.id === 'admin') navigate('/admin');
                           else if (tab.id === 'mover-portal') navigate('/mover-dashboard');
                           else if (tab.id === 'owner-portal') navigate('/owner-dashboard');
+                          else if (tab.id === 'tenant-portal') navigate('/tenant-dashboard');
                           else if (tab.id === 'logout') showModal({ type: 'confirm', title: 'Sign Out', message: 'Are you sure you want to sign out?', onConfirm: confirmLogout, onCancel: closeModal });
                           else setActiveTab(tab.id);
                         }}
