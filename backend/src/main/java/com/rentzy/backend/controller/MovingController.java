@@ -120,8 +120,8 @@ public class MovingController {
         if (mover != null && mover.getServiceCity() != null && !mover.getServiceCity().trim().isEmpty()) {
             String city = mover.getServiceCity().toLowerCase();
             requests = requests.stream()
-                    .filter(r -> r.getFromLocation().toLowerCase().contains(city) || 
-                                 r.getToLocation().toLowerCase().contains(city))
+                    .filter(r -> (r.getFromLocation() != null && r.getFromLocation().toLowerCase().contains(city)) || 
+                                 (r.getToLocation() != null && r.getToLocation().toLowerCase().contains(city)))
                     .toList();
         }
         return ResponseEntity.ok(requests);
