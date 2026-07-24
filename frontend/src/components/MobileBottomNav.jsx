@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Building2, Users, User, Search, PieChart } from 'lucide-react';
+import { Home, Building2, Users, User, Search, PieChart, MessageSquare } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
@@ -22,6 +22,7 @@ const MobileBottomNav = () => {
     if (role === 'OWNER') {
       return [
         { path: '/', icon: Home, label: 'Home' },
+        { path: '/messages', icon: MessageSquare, label: 'Chat' },
         { path: '/dashboard?tab=properties', icon: Building2, label: 'My Props' },
         { path: '/post-property', icon: Building2, label: 'Post' },
         { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
@@ -29,6 +30,7 @@ const MobileBottomNav = () => {
     } else if (role === 'MOVER') {
       return [
         { path: '/', icon: Home, label: 'Home' },
+        { path: '/messages', icon: MessageSquare, label: 'Chat' },
         { path: '/mover-dashboard', icon: Building2, label: 'Jobs' },
         { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
       ];
@@ -37,6 +39,7 @@ const MobileBottomNav = () => {
     return [
       { path: '/', icon: Home, label: 'Home' },
       { path: '/listings', icon: Search, label: 'Search' },
+      { path: '/messages', icon: MessageSquare, label: 'Chat' },
       { path: '/split-expenses', icon: PieChart, label: 'Split' },
       { path: '/roommates', icon: Users, label: 'Mates' },
       { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
