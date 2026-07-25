@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Plus, Users, Zap, FileText, Send, CheckCircle2, AlertCircle, DollarSign, Bed, Phone, Trash2, ChevronRight, Share2, Copy } from 'lucide-react';
+import { Home, Plus, Users, Zap, FileText, Send, CheckCircle2, AlertCircle, DollarSign, Bed, Phone, Trash2, ChevronRight, Share2, Copy, Pencil, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -42,7 +42,13 @@ const OwnerDashboardPage = () => {
 
   const [propForm, setPropForm] = useState({ name: '', propertyType: 'PG', address: '', city: '', totalRooms: 2, totalBeds: 4, defaultRent: 8000, electricityRate: 10, fixedMaintenance: 1000 });
   const [billForm, setBillForm] = useState({ baseRent: 8000, prevElectricityReading: 120, currElectricityReading: 175, electricityRate: 10, maintenanceAmount: 1000, waterCharge: 200, otherCharges: 0, billingMonth: 'July 2026', dueDate: '10th July 2026', tenantName: '', tenantPhone: '', tenantEmail: '' });
-  const [tenantForm, setTenantForm] = useState({ tenantName: '', tenantPhone: '', tenantEmail: '', status: 'OCCUPIED' });
+  const [tenantForm, setTenantForm] = useState({ tenantName: '', tenantPhone: '', tenantEmail: '' });
+
+  // Edit modals
+  const [showEditPropertyModal, setShowEditPropertyModal] = useState(null);
+  const [showEditBedModal, setShowEditBedModal] = useState(null);
+  const [editPropForm, setEditPropForm] = useState({ name: '', propertyType: 'PG', address: '', city: '' });
+  const [editBedForm, setEditBedForm] = useState({ roomNumber: '', bedNumber: '', monthlyRent: 8000, electricityRatePerUnit: 10, fixedMaintenance: 1000 });
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => setModalConfig({ isOpen: false });
@@ -89,7 +95,7 @@ const OwnerDashboardPage = () => {
     e.preventDefault();
     if (!showTenantModal) return;
     try {
-      await api.put(`/owner/properties/rooms/${showTenantModal.id}/tenant`, tenantForm);
+      await api.put(`/owner/properties/rooms/${showTenantModal.id}/tenant`, { ...tenantForm, status: 'OCCUPIED' });
       setShowTenantModal(null);
       fetchData();
       showModal({ type: 'alert', title: 'Success', message: 'Tenant allocation updated successfully!', onConfirm: closeModal });
@@ -167,6 +173,52 @@ const OwnerDashboardPage = () => {
           showModal({ type: 'alert', title: 'Success', message: 'Tenant removed and bed marked as VACANT.', onConfirm: closeModal });
         } catch (err) {
           showModal({ type: 'alert', title: 'Error', message: 'Failed to remove tenant.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  const handleEditProperty = async (e) => {
+    e.preventDefault();
+    if (!showEditPropertyModal) return;
+    try {
+      await api.put(`/owner/properties/${showEditPropertyModal.id}`, editPropForm);
+      setShowEditPropertyModal(null);
+      fetchData();
+      showModal({ type: 'alert', title: 'Updated', message: 'Property details updated successfully!', onConfirm: closeModal });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to update property.', onConfirm: closeModal });
+    }
+  };
+
+  const handleEditBed = async (e) => {
+    e.preventDefault();
+    if (!showEditBedModal) return;
+    try {
+      await api.put(`/owner/properties/rooms/${showEditBedModal.id}`, editBedForm);
+      setShowEditBedModal(null);
+      fetchData();
+      showModal({ type: 'alert', title: 'Updated', message: 'Bed details updated successfully!', onConfirm: closeModal });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to update bed.', onConfirm: closeModal });
+    }
+  };
+
+  const handleDeleteBed = (bed) => {
+    const label = `${(bed.roomNumber || '').replace(/[^0-9]/g, '')}${(bed.bedNumber || '').replace(/[^A-Za-z]/g, '').toUpperCase()}`;
+    showModal({
+      type: 'confirm',
+      title: 'Delete Bed',
+      message: `Delete bed "${label}"? All bills for this bed will also be deleted.`,
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/owner/properties/rooms/${bed.id}`);
+          fetchData();
+          showModal({ type: 'alert', title: 'Deleted', message: 'Bed deleted successfully.', onConfirm: closeModal });
+        } catch (err) {
+          showModal({ type: 'alert', title: 'Error', message: 'Failed to delete bed.', onConfirm: closeModal });
         }
       },
       onCancel: closeModal
@@ -290,11 +342,21 @@ const OwnerDashboardPage = () => {
                     <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => {
-                          const roomNum = prompt('Enter Room Number (e.g. Room 205 or Flat 3A):', 'Room 205');
+                          setEditPropForm({ name: property.name, propertyType: property.propertyType, address: property.address, city: property.city });
+                          setShowEditPropertyModal(property);
+                        }}
+                        className="text-xs font-bold text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 px-3 py-2 rounded-xl border border-gray-200/50 flex items-center gap-1.5"
+                      >
+                        <Pencil size={13} /> Edit
+                      </button>
+                      <button
+                        onClick={() => {
+                          const roomNum = prompt('Enter Room Number (e.g. 101 or 205):', '101');
                           if (roomNum) {
+                            const bedNum = prompt('Enter Bed Letter (e.g. A or B):', 'A');
                             const rent = prompt('Enter Monthly Rent (₹):', '8000');
                             if (rent) {
-                              api.post(`/owner/properties/${property.id}/rooms`, { roomNumber: roomNum, bedNumber: 'Bed A', monthlyRent: rent })
+                              api.post(`/owner/properties/${property.id}/rooms`, { roomNumber: 'Room ' + roomNum, bedNumber: 'Bed ' + (bedNum || 'A').toUpperCase(), monthlyRent: rent })
                                 .then(() => fetchData());
                             }
                           }
@@ -355,25 +417,46 @@ const OwnerDashboardPage = () => {
                               : 'bg-gradient-to-br from-gray-50/50 to-white dark:from-slate-800 dark:to-slate-800/50 border-gray-200 dark:border-white/10'
                           }`}
                         >
+                          {/* Bed header */}
                           <div className="flex items-center justify-between mb-2">
                             <div>
-                              <span className="font-extrabold text-base text-gray-900 dark:text-white">{(room.roomNumber || '').replace(/[^0-9]/g,'')}{(room.bedNumber || '').replace(/[^A-Za-z]/g,'').toUpperCase()}</span>
+                              <span className="font-extrabold text-lg text-gray-900 dark:text-white">
+                                {(room.roomNumber || '').replace(/[^0-9]/g,'')}{(room.bedNumber || '').replace(/[^A-Za-z]/g,'').toUpperCase()}
+                              </span>
+                              <span className="text-[10px] text-gray-400 ml-1.5">({room.roomNumber} / {room.bedNumber})</span>
                             </div>
-                            <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
-                              room.status === 'OCCUPIED' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-gray-300'
-                            }`}>
-                              {room.status}
-                            </span>
+                            <div className="flex items-center gap-1.5">
+                              <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
+                                room.status === 'OCCUPIED' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-gray-300'
+                              }`}>
+                                {room.status}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  setEditBedForm({ roomNumber: room.roomNumber, bedNumber: room.bedNumber, monthlyRent: room.monthlyRent, electricityRatePerUnit: room.electricityRatePerUnit, fixedMaintenance: room.fixedMaintenance });
+                                  setShowEditBedModal(room);
+                                }}
+                                title="Edit bed"
+                                className="w-6 h-6 rounded-lg flex items-center justify-center bg-gray-100 hover:bg-indigo-100 dark:bg-slate-700 dark:hover:bg-indigo-900/40 text-gray-500 hover:text-indigo-600 transition-colors"
+                              >
+                                <Pencil size={11} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteBed(room)}
+                                title="Delete bed"
+                                className="w-6 h-6 rounded-lg flex items-center justify-center bg-gray-100 hover:bg-red-100 dark:bg-slate-700 dark:hover:bg-red-900/30 text-gray-400 hover:text-red-500 transition-colors"
+                              >
+                                <X size={11} />
+                              </button>
+                            </div>
                           </div>
 
-                          <div className="text-xs space-y-1 mb-4 text-gray-600 dark:text-gray-300">
+                          <div className="text-xs space-y-1 mb-3 text-gray-600 dark:text-gray-300">
                             <p><span className="font-semibold text-gray-400">Rent:</span> ₹{room.monthlyRent?.toLocaleString('en-IN')}/mo</p>
                             <p><span className="font-semibold text-gray-400">Power Rate:</span> ₹{room.electricityRatePerUnit}/unit</p>
                             {room.status === 'OCCUPIED' ? (
                               <div className="pt-2 border-t border-gray-200/50 dark:border-white/5">
-                                <p className="font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                                  👤 {room.tenantName || room.tenant?.name || 'Tenant Assigned'}
-                                </p>
+                                <p className="font-bold text-emerald-700 dark:text-emerald-400">👤 {room.tenantName || room.tenant?.name || 'Tenant Assigned'}</p>
                                 {room.tenantPhone && <p className="text-[11px] text-gray-500">📞 {room.tenantPhone}</p>}
                               </div>
                             ) : (
@@ -388,13 +471,12 @@ const OwnerDashboardPage = () => {
                                 setTenantForm({
                                   tenantName: room.tenantName || room.tenant?.name || '',
                                   tenantPhone: room.tenantPhone || room.tenant?.phone || '',
-                                  tenantEmail: room.tenant?.email || '',
-                                  status: room.status
+                                  tenantEmail: room.tenant?.email || ''
                                 });
                               }}
                               className="flex-1 text-[11px] font-bold text-gray-700 dark:text-gray-200 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 py-1.5 rounded-lg transition-colors"
                             >
-                              Assign Tenant
+                              {room.status === 'OCCUPIED' ? '🔄 Replace Tenant' : '👤 Assign Tenant'}
                             </button>
                             <button
                               onClick={() => openBillGenerator(room)}
@@ -629,13 +711,6 @@ const OwnerDashboardPage = () => {
                 <input type="email" placeholder="email@domain.com" value={tenantForm.tenantEmail} onChange={e => setTenantForm({ ...tenantForm, tenantEmail: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
                 <p className="text-[11px] text-gray-400 mt-1">💡 Enter the email the tenant used to sign up on RentXY to link bills to their account.</p>
               </div>
-              <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Unit Status</label>
-                <select value={tenantForm.status} onChange={e => setTenantForm({ ...tenantForm, status: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white">
-                  <option value="OCCUPIED">OCCUPIED</option>
-                  <option value="VACANT">VACANT (Clear Tenant)</option>
-                </select>
-              </div>
               <div className="flex gap-3 pt-4">
                 <button type="button" onClick={() => setShowTenantModal(null)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">
@@ -708,6 +783,83 @@ const OwnerDashboardPage = () => {
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowBillModal(false)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
                 <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Generate & Issue Bill</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: EDIT PROPERTY */}
+      {showEditPropertyModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-lg shadow-2xl border border-gray-100 dark:border-white/10">
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4">✏️ Edit Property</h3>
+            <form onSubmit={handleEditProperty} className="space-y-4 text-sm">
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Property Name</label>
+                <input type="text" required value={editPropForm.name} onChange={e => setEditPropForm({ ...editPropForm, name: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Property Type</label>
+                  <select value={editPropForm.propertyType} onChange={e => setEditPropForm({ ...editPropForm, propertyType: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white">
+                    <option value="PG">PG (Paying Guest)</option>
+                    <option value="HOSTEL">Hostel / Co-Living</option>
+                    <option value="FLAT">Independent Flat</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">City</label>
+                  <input type="text" required value={editPropForm.city} onChange={e => setEditPropForm({ ...editPropForm, city: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Address</label>
+                <input type="text" required value={editPropForm.address} onChange={e => setEditPropForm({ ...editPropForm, address: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowEditPropertyModal(null)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: EDIT BED */}
+      {showEditBedModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-white/10">
+            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-1">✏️ Edit Bed Details</h3>
+            <p className="text-xs text-gray-400 mb-4">Current: {(showEditBedModal.roomNumber || '').replace(/[^0-9]/g,'')}{(showEditBedModal.bedNumber || '').replace(/[^A-Za-z]/g,'').toUpperCase()}</p>
+            <form onSubmit={handleEditBed} className="space-y-4 text-sm">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Room Number</label>
+                  <input type="text" required placeholder="e.g. Room 101" value={editBedForm.roomNumber} onChange={e => setEditBedForm({ ...editBedForm, roomNumber: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Bed Letter</label>
+                  <input type="text" required placeholder="e.g. Bed A" value={editBedForm.bedNumber} onChange={e => setEditBedForm({ ...editBedForm, bedNumber: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rent (₹/mo)</label>
+                  <input type="number" required value={editBedForm.monthlyRent} onChange={e => setEditBedForm({ ...editBedForm, monthlyRent: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Power (₹/unit)</label>
+                  <input type="number" required value={editBedForm.electricityRatePerUnit} onChange={e => setEditBedForm({ ...editBedForm, electricityRatePerUnit: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Maint. (₹)</label>
+                  <input type="number" value={editBedForm.fixedMaintenance} onChange={e => setEditBedForm({ ...editBedForm, fixedMaintenance: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <button type="button" onClick={() => setShowEditBedModal(null)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Save Changes</button>
               </div>
             </form>
           </div>

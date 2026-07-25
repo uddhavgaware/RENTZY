@@ -180,6 +180,68 @@ public class OwnerPropertyController {
     }
 
 
+    // Edit property details
+    @PutMapping("/{id}")
+    public ResponseEntity<OwnerProperty> updateProperty(@PathVariable Long id, @RequestBody Map<String, Object> body, Authentication auth) {
+        User owner = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        OwnerProperty prop = ownerPropertyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Property not found"));
+
+        if (!prop.getOwner().getId().equals(owner.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (body.containsKey("name")) prop.setName((String) body.get("name"));
+        if (body.containsKey("propertyType")) prop.setPropertyType((String) body.get("propertyType"));
+        if (body.containsKey("address")) prop.setAddress((String) body.get("address"));
+        if (body.containsKey("city")) prop.setCity((String) body.get("city"));
+
+        return ResponseEntity.ok(ownerPropertyRepository.save(prop));
+    }
+
+    // Edit bed/room details (rent, electricity rate, bed number, room number)
+    @PutMapping("/rooms/{roomId}")
+    public ResponseEntity<RoomBed> updateRoomBed(@PathVariable Long roomId, @RequestBody Map<String, Object> body, Authentication auth) {
+        User owner = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        RoomBed roomBed = roomBedRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room unit not found"));
+
+        if (!roomBed.getOwnerProperty().getOwner().getId().equals(owner.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        if (body.containsKey("roomNumber")) roomBed.setRoomNumber((String) body.get("roomNumber"));
+        if (body.containsKey("bedNumber")) roomBed.setBedNumber((String) body.get("bedNumber"));
+        if (body.containsKey("monthlyRent")) roomBed.setMonthlyRent(Double.parseDouble(body.get("monthlyRent").toString()));
+        if (body.containsKey("electricityRatePerUnit")) roomBed.setElectricityRatePerUnit(Double.parseDouble(body.get("electricityRatePerUnit").toString()));
+        if (body.containsKey("fixedMaintenance")) roomBed.setFixedMaintenance(Double.parseDouble(body.get("fixedMaintenance").toString()));
+
+        return ResponseEntity.ok(roomBedRepository.save(roomBed));
+    }
+
+    // Delete a single bed/room unit
+    @DeleteMapping("/rooms/{roomId}")
+    public ResponseEntity<Void> deleteRoomBed(@PathVariable Long roomId, Authentication auth) {
+        User owner = userRepository.findByEmail(auth.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        RoomBed roomBed = roomBedRepository.findById(roomId)
+                .orElseThrow(() -> new RuntimeException("Room unit not found"));
+
+        if (!roomBed.getOwnerProperty().getOwner().getId().equals(owner.getId())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        // Delete linked bills first
+        propertyBillRepository.deleteAll(propertyBillRepository.findByRoomBedOrderByCreatedAtDesc(roomBed));
+        roomBedRepository.delete(roomBed);
+        return ResponseEntity.noContent().build();
+    }
+
     // Owner Dashboard Summary Stats
     @GetMapping("/stats")
     public ResponseEntity<Map<String, Object>> getOwnerStats(Authentication auth) {
