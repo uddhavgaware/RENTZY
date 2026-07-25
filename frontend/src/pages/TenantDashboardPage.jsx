@@ -4,12 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import Modal from '../components/Modal';
+import PaymentModal from '../components/PaymentModal';
 
 const TenantDashboardPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [bills, setBills] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedBill, setSelectedBill] = useState(null);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
@@ -36,12 +38,19 @@ const TenantDashboardPage = () => {
   }, [user, navigate]);
 
   const handlePayBill = (billId) => {
-    // In a real application, this would integrate with Razorpay or Stripe.
-    // For this prototype, we'll just show a pending implementation message.
+    const billToPay = bills.find(b => b.id === billId);
+    if (billToPay) {
+      setSelectedBill(billToPay);
+    }
+  };
+
+  const handleBillPaidSuccess = (paidBillId) => {
+    setBills(prev => prev.map(b => b.id === paidBillId ? { ...b, status: 'PAID' } : b));
+    setSelectedBill(null);
     showModal({
       type: 'alert',
-      title: 'Payment Gateway Integration',
-      message: 'Razorpay integration is pending. Please contact your property owner to mark this bill as paid.',
+      title: 'Payment Confirmed 🎉',
+      message: 'Your bill payment has been successfully verified via Razorpay.',
       onConfirm: closeModal
     });
   };
@@ -165,6 +174,14 @@ const TenantDashboardPage = () => {
       <Modal isOpen={modalConfig.isOpen} onClose={closeModal} title={modalConfig.title} type={modalConfig.type} onConfirm={modalConfig.onConfirm}>
         <p className="text-sm text-gray-600 dark:text-gray-300">{modalConfig.message}</p>
       </Modal>
+
+      {selectedBill && (
+        <PaymentModal
+          bill={selectedBill}
+          onClose={() => setSelectedBill(null)}
+          onSuccess={handleBillPaidSuccess}
+        />
+      )}
     </div>
   );
 };
