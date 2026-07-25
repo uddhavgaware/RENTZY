@@ -33,37 +33,47 @@ public class OwnerPropertyController {
         User owner = userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        int floors      = body.get("floors")        != null ? Integer.parseInt(body.get("floors").toString())       : 1;
+        int roomsPerFloor = body.get("roomsPerFloor") != null ? Integer.parseInt(body.get("roomsPerFloor").toString()) : (body.get("totalRooms") != null ? Integer.parseInt(body.get("totalRooms").toString()) : 1);
+        int bedsPerRoom = body.get("bedsPerRoom")   != null ? Integer.parseInt(body.get("bedsPerRoom").toString())   : (body.get("totalBeds") != null ? Math.max(1, Integer.parseInt(body.get("totalBeds").toString()) / roomsPerFloor) : 1);
+
         OwnerProperty property = OwnerProperty.builder()
                 .name((String) body.get("name"))
                 .propertyType((String) body.getOrDefault("propertyType", "PG"))
                 .address((String) body.get("address"))
                 .city((String) body.get("city"))
-                .totalRooms(body.get("totalRooms") != null ? Integer.parseInt(body.get("totalRooms").toString()) : 1)
-                .totalBeds(body.get("totalBeds") != null ? Integer.parseInt(body.get("totalBeds").toString()) : 1)
+                .totalRooms(floors * roomsPerFloor)
+                .totalBeds(floors * roomsPerFloor * bedsPerRoom)
                 .owner(owner)
                 .build();
 
         OwnerProperty saved = ownerPropertyRepository.save(property);
 
-        // Auto-create initial room/bed units based on total rooms
-        int roomsCount = saved.getTotalRooms() != null ? saved.getTotalRooms() : 1;
-        int bedsPerRoom = Math.max(1, (saved.getTotalBeds() != null ? saved.getTotalBeds() : 1) / roomsCount);
+        double rent        = body.get("defaultRent")      != null ? Double.parseDouble(body.get("defaultRent").toString())      : 8000.0;
+        double elecRate    = body.get("electricityRate")   != null ? Double.parseDouble(body.get("electricityRate").toString())  : 10.0;
+        double maintenance = body.get("fixedMaintenance")  != null ? Double.parseDouble(body.get("fixedMaintenance").toString()) : 1000.0;
 
-        for (int i = 1; i <= roomsCount; i++) {
-            String roomNum = "Room " + (100 + i);
-            for (int b = 1; b <= bedsPerRoom; b++) {
-                String bedNum = roomsCount == 1 && bedsPerRoom == 1 ? "Full Unit" : "Bed " + (char)('A' + b - 1);
-                RoomBed bed = RoomBed.builder()
-                        .ownerProperty(saved)
-                        .roomNumber(roomNum)
-                        .bedNumber(bedNum)
-                        .sharingType(bedsPerRoom == 1 ? "Single" : bedsPerRoom == 2 ? "Double Sharing" : "Triple Sharing")
-                        .monthlyRent(body.get("defaultRent") != null ? Double.parseDouble(body.get("defaultRent").toString()) : 8000.0)
-                        .electricityRatePerUnit(body.get("electricityRate") != null ? Double.parseDouble(body.get("electricityRate").toString()) : 10.0)
-                        .fixedMaintenance(body.get("fixedMaintenance") != null ? Double.parseDouble(body.get("fixedMaintenance").toString()) : 1000.0)
-                        .status("VACANT")
-                        .build();
-                roomBedRepository.save(bed);
+        String sharingType = bedsPerRoom == 1 ? "Single" : bedsPerRoom == 2 ? "Double Sharing" : bedsPerRoom == 3 ? "Triple Sharing" : bedsPerRoom + "-Sharing";
+        boolean isSingleFullUnit = (floors == 1 && roomsPerFloor == 1 && bedsPerRoom == 1);
+
+        // Auto-generate: Floor 1 → rooms 101,102… | Floor 2 → rooms 201,202… | Beds A,B,C…
+        for (int f = 1; f <= floors; f++) {
+            for (int r = 1; r <= roomsPerFloor; r++) {
+                String roomNum = "Room " + (f * 100 + r);   // e.g. "Room 101", "Room 201"
+                for (int b = 1; b <= bedsPerRoom; b++) {
+                    String bedNum = isSingleFullUnit ? "Full Unit" : "Bed " + (char)('A' + b - 1); // A, B, C...
+                    RoomBed bed = RoomBed.builder()
+                            .ownerProperty(saved)
+                            .roomNumber(roomNum)
+                            .bedNumber(bedNum)
+                            .sharingType(sharingType)
+                            .monthlyRent(rent)
+                            .electricityRatePerUnit(elecRate)
+                            .fixedMaintenance(maintenance)
+                            .status("VACANT")
+                            .build();
+                    roomBedRepository.save(bed);
+                }
             }
         }
 

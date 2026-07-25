@@ -40,7 +40,7 @@ const OwnerDashboardPage = () => {
   const [selectedRoomForBill, setSelectedRoomForBill] = useState(null);
   const [showTenantModal, setShowTenantModal] = useState(null);
 
-  const [propForm, setPropForm] = useState({ name: '', propertyType: 'PG', address: '', city: '', totalRooms: 2, totalBeds: 4, defaultRent: 8000, electricityRate: 10, fixedMaintenance: 1000 });
+  const [propForm, setPropForm] = useState({ name: '', propertyType: 'PG', address: '', city: '', floors: 1, roomsPerFloor: 2, bedsPerRoom: 3, defaultRent: 8000, electricityRate: 10, fixedMaintenance: 1000 });
   const [billForm, setBillForm] = useState({ baseRent: 8000, prevElectricityReading: 120, currElectricityReading: 175, electricityRate: 10, maintenanceAmount: 1000, waterCharge: 200, otherCharges: 0, billingMonth: 'July 2026', dueDate: '10th July 2026', tenantName: '', tenantPhone: '', tenantEmail: '' });
   const [tenantForm, setTenantForm] = useState({ tenantName: '', tenantPhone: '', tenantEmail: '' });
 
@@ -645,23 +645,61 @@ const OwnerDashboardPage = () => {
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Full Address</label>
                 <input type="text" required placeholder="Street address, area" value={propForm.address} onChange={e => setPropForm({ ...propForm, address: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
               </div>
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rooms</label>
-                  <input type="number" min="1" value={propForm.totalRooms} onChange={e => setPropForm({ ...propForm, totalRooms: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+             {/* Layout configuration */}
+              <div className="bg-blue-50/60 dark:bg-blue-950/30 rounded-2xl border border-blue-200/50 p-4 space-y-3">
+                <p className="text-xs font-black uppercase text-blue-700 dark:text-blue-400">🏗️ Layout Configuration</p>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Floors</label>
+                    <input type="number" min="1" max="20" value={propForm.floors} onChange={e => setPropForm({ ...propForm, floors: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rooms / Floor</label>
+                    <input type="number" min="1" max="50" value={propForm.roomsPerFloor} onChange={e => setPropForm({ ...propForm, roomsPerFloor: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white text-sm" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Beds / Room</label>
+                    <input type="number" min="1" max="10" value={propForm.bedsPerRoom} onChange={e => setPropForm({ ...propForm, bedsPerRoom: Number(e.target.value) })} className="w-full px-3 py-2 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white text-sm" />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Beds</label>
-                  <input type="number" min="1" value={propForm.totalBeds} onChange={e => setPropForm({ ...propForm, totalBeds: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rent (₹)</label>
-                  <input type="number" value={propForm.defaultRent} onChange={e => setPropForm({ ...propForm, defaultRent: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                {/* Live preview of generated bed IDs */}
+                <div className="text-[11px] text-blue-700 dark:text-blue-300 bg-blue-100/60 dark:bg-blue-900/30 rounded-xl p-2.5">
+                  <p className="font-bold mb-1">👁 Preview — will auto-generate {propForm.floors * propForm.roomsPerFloor * propForm.bedsPerRoom} beds:</p>
+                  <p className="font-mono tracking-wide break-all">
+                    {Array.from({ length: Math.min(propForm.floors, 3) }, (_, fi) =>
+                      Array.from({ length: Math.min(propForm.roomsPerFloor, 3) }, (_, ri) =>
+                        Array.from({ length: Math.min(propForm.bedsPerRoom, 4) }, (_, bi) =>
+                          `${(fi+1)*100+(ri+1)}${'ABCDEFGHIJ'[bi]}`
+                        ).join(', ')
+                      ).join(', ')
+                    ).join(', ')}
+                    {(propForm.floors > 3 || propForm.roomsPerFloor > 3 || propForm.bedsPerRoom > 4) ? ' ...' : ''}
+                  </p>
+                  <p className="mt-1 text-blue-600 dark:text-blue-400">
+                    {propForm.floors > 1
+                      ? `Floor 1: ${(1*100+1)}A–${(1*100+propForm.roomsPerFloor)}${'ABCDEFGHIJ'[propForm.bedsPerRoom-1]}  |  Floor 2: ${(2*100+1)}A–${(2*100+propForm.roomsPerFloor)}${'ABCDEFGHIJ'[propForm.bedsPerRoom-1]}  ...`
+                      : `Rooms: ${101}–${100+propForm.roomsPerFloor}, Beds: A–${'ABCDEFGHIJ'[propForm.bedsPerRoom-1]}`
+                    }
+                  </p>
                 </div>
               </div>
-              <div className="flex gap-3 pt-4">
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Rent / Bed (₹)</label>
+                  <input type="number" value={propForm.defaultRent} onChange={e => setPropForm({ ...propForm, defaultRent: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Power Rate (₹/unit)</label>
+                  <input type="number" value={propForm.electricityRate} onChange={e => setPropForm({ ...propForm, electricityRate: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Maintenance (₹)</label>
+                  <input type="number" value={propForm.fixedMaintenance} onChange={e => setPropForm({ ...propForm, fixedMaintenance: e.target.value })} className="w-full px-3 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                </div>
+              </div>
+              <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowAddPropertyModal(false)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Create Property</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Create Property &amp; Auto-Generate Beds</button>
               </div>
             </form>
           </div>
