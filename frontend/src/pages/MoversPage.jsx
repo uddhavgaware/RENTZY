@@ -202,12 +202,35 @@ const MoversPage = () => {
         }
       });
     } catch (err) {
-      showModal({
-        type: 'alert',
-        title: 'Error',
-        message: `Failed to submit request: ${err.response?.data?.message || err.message || 'Unknown error'}. Please try again.`,
-        onConfirm: closeModal
-      });
+      if (!navigator.onLine || err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+        const payload = {
+          ...formData,
+          fromLocation: fromParts || formData.fromLocation,
+          toLocation: toParts || formData.toLocation,
+          fromLatitude: fromCoords[0],
+          fromLongitude: fromCoords[1],
+          toLatitude: toCoords[0],
+          toLongitude: toCoords[1]
+        };
+        const existing = JSON.parse(localStorage.getItem('rentzy_offline_movers_queue') || '[]');
+        localStorage.setItem('rentzy_offline_movers_queue', JSON.stringify([...existing, payload]));
+        showModal({
+          type: 'alert',
+          title: '📦 Saved to Offline Queue',
+          message: 'You appear to be offline! Your moving quote request has been saved locally. We will automatically send it to the verified movers as soon as your internet connection is restored.',
+          onConfirm: () => {
+            closeModal();
+            navigate('/dashboard?tab=moving');
+          }
+        });
+      } else {
+        showModal({
+          type: 'alert',
+          title: 'Error',
+          message: `Failed to submit request: ${err.response?.data?.message || err.message || 'Unknown error'}. Please try again.`,
+          onConfirm: closeModal
+        });
+      }
     } finally {
       setLoading(false);
     }

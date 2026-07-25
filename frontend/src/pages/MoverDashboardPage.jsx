@@ -643,12 +643,68 @@ const MoverDashboardPage = () => {
             {activeTab === 'overview' && (
               <div className="lg:col-span-2 space-y-6 animate-fade-in">
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <StatCard icon={Zap} label="Available" value={availableLeads.length} accent="bg-blue-50 text-blue-600" sub="Open leads" />
-                  <StatCard icon={Truck} label="Active" value={activeJobs} accent="bg-amber-50 text-amber-600" sub="In progress" />
-                  <StatCard icon={Star} label="Rating" value={avgRating > 0 ? avgRating : 'New'} accent="bg-green-50 text-green-600" sub={avgRating > 0 ? "Average score" : "No reviews yet"} />
-                  <StatCard icon={IndianRupee} label="Earnings" value={`₹${totalEarnings.toLocaleString('en-IN')}`} accent="bg-purple-50 text-purple-600" sub="Total earned" />
+                  <StatCard icon={Zap} label="Available" value={availableLeads.length} accent="bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 border-2 border-blue-200/60" sub="Open leads" />
+                  <StatCard icon={Truck} label="Active" value={activeJobs} accent="bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 border-2 border-amber-200/60" sub="In progress" />
+                  <StatCard icon={Star} label="Rating" value={avgRating > 0 ? avgRating : 'New 5.0★'} accent="bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400 border-2 border-green-200/60" sub={avgRating > 0 ? "Average score" : "Verified Partner"} />
+                  <StatCard icon={IndianRupee} label="Earnings" value={`₹${totalEarnings.toLocaleString('en-IN')}`} accent="bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 border-2 border-purple-200/60" sub="Total earned" />
                 </div>
+
                 <HowItWorksGuide />
+
+                {/* Live Demand Hotspots & Quick Leads Preview */}
+                <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 border border-gray-200 dark:border-white/10 shadow-md">
+                  <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-500 flex items-center justify-center text-white shadow-sm">
+                        <Zap size={18} />
+                      </div>
+                      <div>
+                        <h3 className="font-black text-gray-900 dark:text-white text-base">🔥 Live Relocation Hotspots in Pune</h3>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">High booking demand detected in these areas</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => setActiveTab('available')}
+                      className="bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 hover:bg-primary-100 font-bold text-xs px-3.5 py-2 rounded-xl transition-all flex items-center gap-1"
+                    >
+                      View All Leads ({availableLeads.length}) <ArrowRight size={14} />
+                    </button>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 mb-6">
+                    {['Narhe & Ambegaon', 'Hinjewadi IT', 'Wakad & Baner', 'Kothrud & Karve', 'Viman Nagar', 'Hadapsar'].map((area, idx) => (
+                      <div key={idx} onClick={() => setActiveTab('available')} className="bg-gray-50 dark:bg-slate-700/50 hover:bg-primary-50 dark:hover:bg-primary-900/20 p-3 rounded-2xl border border-gray-100 dark:border-white/5 text-center cursor-pointer transition-all hover:-translate-y-0.5 group">
+                        <span className="text-base block mb-1">📍</span>
+                        <p className="text-xs font-bold text-gray-800 dark:text-gray-200 truncate group-hover:text-primary-600">{area}</p>
+                        <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">Surging Demand</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {availableLeads.length > 0 ? (
+                    <div>
+                      <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 mb-3">Top Open Request Right Now</h4>
+                      <div className="max-w-xl">
+                        <LeadCard lead={availableLeads[0]} onAccept={handleAcceptJob} isBlocked={isInTransitOrAssigned} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/40 dark:to-slate-800 p-5 rounded-2xl border border-blue-100 dark:border-white/5 flex items-center justify-between gap-4 flex-wrap">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center font-bold text-lg shadow">
+                          🚚
+                        </div>
+                        <div>
+                          <p className="font-bold text-gray-900 dark:text-white text-sm">No Unclaimed Leads in Market</p>
+                          <p className="text-xs text-gray-600 dark:text-gray-300">Keep your dashboard open — new customer requests trigger instant notifications!</p>
+                        </div>
+                      </div>
+                      <button onClick={() => fetchData()} className="bg-white dark:bg-slate-700 hover:bg-gray-50 text-gray-800 dark:text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm border border-gray-200 dark:border-white/10 active:scale-95 transition-all">
+                        🔄 Refresh Market
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 

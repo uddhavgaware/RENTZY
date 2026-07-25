@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import geminiService from '../services/geminiService';
+import toast from 'react-hot-toast';
 
 // Individual image upload slot component
 const ImageSlot = ({ label, isMain, file, preview, onFileSelect, onRemove, slotId }) => {
@@ -482,8 +483,11 @@ const PostPropertyPage = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setFormData(prev => ({ ...prev, price: aiSuggestions.suggestedPrice }))}
-                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center flex-shrink-0 shadow cursor-pointer"
+                  onClick={() => {
+                    setFormData(prev => ({ ...prev, price: aiSuggestions.suggestedPrice }));
+                    toast.success(`Applied Rent Price: ₹${parseInt(aiSuggestions.suggestedPrice || 0).toLocaleString('en-IN')}/mo! (See Step 2)`);
+                  }}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center flex-shrink-0 shadow cursor-pointer active:scale-95"
                 >
                   <span>+ Apply Price</span>
                 </button>
@@ -499,8 +503,11 @@ const PostPropertyPage = () => {
                         <span className="text-xs font-medium text-white line-clamp-1">{title}</span>
                         <button
                           type="button"
-                          onClick={() => setFormData(prev => ({ ...prev, title }))}
-                          className="bg-purple-500 hover:bg-purple-400 text-white font-bold px-3 py-1.5 rounded text-xs transition-colors flex-shrink-0 cursor-pointer"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, title }));
+                            toast.success('Applied Title to Form!');
+                          }}
+                          className="bg-purple-500 hover:bg-purple-400 text-white font-bold px-3 py-1.5 rounded text-xs transition-colors flex-shrink-0 cursor-pointer active:scale-95"
                         >
                           + Use Title
                         </button>
@@ -528,8 +535,9 @@ const PostPropertyPage = () => {
                     onClick={() => {
                       const merged = Array.from(new Set([...amenities, ...aiSuggestions.suggestedAmenities]));
                       setAmenities(merged);
+                      toast.success(`Added suggested amenities! (See Step 3)`);
                     }}
-                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-3.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center flex-shrink-0 shadow cursor-pointer"
+                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-3.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center flex-shrink-0 shadow cursor-pointer active:scale-95"
                   >
                     <span>+ Add All Suggested</span>
                   </button>

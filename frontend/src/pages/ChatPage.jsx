@@ -294,7 +294,7 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="bg-gray-50 h-[calc(100dvh-64px)] flex overflow-hidden">
+    <div className="bg-gray-50 h-[calc(100vh-80px)] sm:h-[calc(100dvh-64px)] w-full flex flex-col md:flex-row overflow-hidden relative">
       {/* Sidebar - Contacts List */}
       <div className={`w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex-col flex-shrink-0 ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-100">
@@ -426,28 +426,30 @@ const ChatPage = () => {
             </div>
 
             {/* Chat Messages */}
-            <div className="flex-1 overflow-y-auto p-6 bg-gray-50 flex flex-col">
-              <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 shadow-sm flex flex-wrap items-center justify-center gap-3">
-                <span className="text-sm font-semibold text-gray-700 w-full text-center md:w-auto md:text-left mb-2 md:mb-0 mr-auto">Contact {maskName(conversations.find(c => c.id === activeChat)?.name)} Directly:</span>
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-50 dark:bg-slate-900 flex flex-col w-full">
+              <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl p-3 sm:p-4 mb-4 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
+                <span className="font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[200px] sm:max-w-none">Contact {maskName(conversations.find(c => c.id === activeChat)?.name)}:</span>
                 
+                <div className="flex items-center gap-1.5 flex-wrap">
                 {conversations.find(c => c.id === activeChat)?.phone && (
                   <>
-                    <a href={`tel:${conversations.find(c => c.id === activeChat).phone}`} className="flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors">
-                      <Phone size={16} /> Call
+                    <a href={`tel:${conversations.find(c => c.id === activeChat).phone}`} className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">
+                      <Phone size={14} /> Call
                     </a>
-                    <a href={`https://wa.me/${conversations.find(c => c.id === activeChat).phone.replace(/\\D/g,'')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-4 py-2 bg-emerald-50 text-emerald-600 rounded-lg text-sm font-bold hover:bg-emerald-100 transition-colors">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp
+                    <a href={`https://wa.me/${conversations.find(c => c.id === activeChat).phone.replace(/\\D/g,'')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors">
+                      WhatsApp
                     </a>
                   </>
                 )}
                 
                 {conversations.find(c => c.id === activeChat)?.email && (
-                  <a href={`mailto:${conversations.find(c => c.id === activeChat).email}`} className="flex items-center gap-1.5 px-4 py-2 bg-purple-50 text-purple-600 rounded-lg text-sm font-bold hover:bg-purple-100 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 13V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8"></path><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg> Email
+                  <a href={`mailto:${conversations.find(c => c.id === activeChat).email}`} className="flex items-center gap-1 px-3 py-1.5 bg-purple-50 text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors">
+                    Email
                   </a>
                 )}
+                </div>
               </div>
-              <div className="space-y-6">
+              <div className="space-y-4 sm:space-y-6 flex-1">
                 {messages.length === 0 ? (
                   <div className="text-center text-sm text-gray-500 mt-10">No messages yet. Say hi!</div>
                 ) : (

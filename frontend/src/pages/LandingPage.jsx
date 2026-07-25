@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Search, MapPin, Home, Users, ArrowRight, Building2, Shield,
-  Star, CheckCircle2, Zap, Truck, MessageSquare, BadgeCheck, ChevronRight
+  Star, CheckCircle2, Zap, Truck, MessageSquare, BadgeCheck, ChevronRight,
+  Smartphone, Download, WifiOff, Bell
 } from 'lucide-react';
 import PremiumHero from '../components/PremiumHero';
 import api from '../services/api';
@@ -486,6 +487,70 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════
+          PWA MOBILE APP INSTALL BANNER (SITE-WIDE CTA)
+      ═══════════════════════════════════════ */}
+      <section className="py-16 sm:py-24 bg-gradient-to-br from-indigo-950 via-gray-950 to-gray-900 text-white relative overflow-hidden border-y border-indigo-500/20">
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
+          <div className="bg-gradient-to-r from-indigo-900/40 via-purple-900/30 to-indigo-900/40 border border-indigo-400/30 rounded-3xl p-6 sm:p-12 shadow-2xl backdrop-blur-xl flex flex-col lg:flex-row items-center justify-between gap-8">
+            <div className="flex-1 text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider mb-4">
+                <Smartphone size={14} className="animate-bounce" /> Official Mobile PWA Available
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
+                Experience RENTZY on the Go <br className="hidden sm:block" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">
+                  Install Directly to Your Home Screen!
+                </span>
+              </h2>
+              <p className="mt-3 text-gray-300 text-sm sm:text-base max-w-2xl leading-relaxed">
+                Many users don't know you can install our official app directly from this website! Get instant 0.1s load times, offline relocation quotes, and live notifications without waiting for app store downloads.
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 text-left">
+                <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                  <Zap size={18} className="text-amber-400 shrink-0" />
+                  <span className="text-xs font-bold text-gray-200">0.1s Instant Load</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                  <WifiOff size={18} className="text-indigo-400 shrink-0" />
+                  <span className="text-xs font-bold text-gray-200">Offline Movers Mode</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                  <Bell size={18} className="text-emerald-400 shrink-0" />
+                  <span className="text-xs font-bold text-gray-200">Push Notifications</span>
+                </div>
+                <div className="flex items-center gap-2 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                  <Download size={18} className="text-purple-400 shrink-0" />
+                  <span className="text-xs font-bold text-gray-200">Only 2MB Size</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row lg:flex-col gap-3 w-full sm:w-auto shrink-0">
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('trigger-pwa-install'))}
+                className="w-full sm:w-auto px-8 py-4 bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white font-extrabold text-base rounded-2xl shadow-xl shadow-indigo-500/25 transition-all transform hover:-translate-y-1 active:scale-95 flex items-center justify-center gap-3 border border-white/20"
+              >
+                <Smartphone size={22} />
+                <span>📱 Install Mobile App Now</span>
+              </button>
+              <a
+                href="/rentxy.apk"
+                download
+                className="w-full sm:w-auto px-6 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-sm rounded-2xl border border-white/20 transition-all flex items-center justify-center gap-2 text-center"
+              >
+                <Download size={18} className="text-emerald-400" />
+                <span>Download Android .APK File</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
 
       {/* ═══════════════════════════════════════
           HOW IT WORKS

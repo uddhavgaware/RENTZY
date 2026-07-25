@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon, Split, Download } from 'lucide-react';
+import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon, Split, Download, Smartphone } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../context/AuthContext';
@@ -165,17 +165,8 @@ const Navbar = () => {
     } catch {}
   };
 
-  const enableNotifications = async () => {
-    try {
-      if (!('Notification' in window)) return;
-      const permission = await Notification.requestPermission();
-      setNotificationPermission(permission);
-      if (permission === 'granted') {
-        const { setupPushNotifications } = await import('../utils/pushNotification');
-        await setupPushNotifications();
-        import('react-hot-toast').then(({ toast }) => toast.success('Push notifications enabled!'));
-      }
-    } catch (err) {}
+  const enableNotifications = () => {
+    window.dispatchEvent(new Event('trigger-notif-modal'));
   };
 
   const handleLogout = () => setShowLogoutConfirm(true);
@@ -256,9 +247,14 @@ const Navbar = () => {
               {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
             {!isNativePlatform() && (
-              <a href="/rentxy.apk" download className={cn("text-sm font-bold transition-colors flex items-center gap-1 text-emerald-600 hover:text-emerald-700", isDarkHero && !isScrolled ? "text-emerald-400 hover:text-emerald-300" : "")}>
-                <Download size={16} /> App
-              </a>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('trigger-pwa-install'))}
+                className={cn("text-xs md:text-sm font-extrabold px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white shadow-md transition-all transform active:scale-95 flex items-center gap-1.5")}
+                title="Install Mobile App"
+              >
+                <Smartphone size={15} /> Install App
+              </button>
             )}
             <Link to="/post-property" className={cn("text-sm font-medium transition-colors", linkColorClass)}>Post Property</Link>
             {isAuthenticated ? (
@@ -339,9 +335,14 @@ const Navbar = () => {
               </button>
             )}
             {!isNativePlatform() && (
-              <a href="/rentxy.apk" download className={cn("px-3 py-1.5 text-xs font-bold rounded-full transition-colors flex items-center gap-1 shadow-sm", isDarkHero && !isScrolled ? "bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm" : "bg-primary-600 text-white hover:bg-primary-700")} title="Download App">
-                <Download size={14} /> Get App
-              </a>
+              <button
+                type="button"
+                onClick={() => window.dispatchEvent(new Event('trigger-pwa-install'))}
+                className={cn("px-3 py-1.5 text-xs font-black rounded-full transition-all flex items-center gap-1 shadow-md bg-gradient-to-r from-indigo-500 to-purple-600 text-white active:scale-95")}
+                title="Install App"
+              >
+                <Smartphone size={13} /> Install App
+              </button>
             )}
           </div>
         </div>

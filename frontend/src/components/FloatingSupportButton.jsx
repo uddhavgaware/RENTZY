@@ -72,7 +72,8 @@ const FloatingSupportButton = () => {
     const isGreeting = /^(hi|hello|hey|yo|sup|hola)\b/i.test(lower);
     const wantsRoommate = /roommate|roomie|flatmate|partner|friend|match/i.test(lower);
     const wantsMover = /packer|mover|moving|shift|truck|relocat/i.test(lower);
-    const wantsPost = /owner|list|post|rent out|add property/i.test(lower);
+    const wantsPost = /owner|list|post|rent out|add property|hostel|pg|flat/i.test(lower) && /my|list|post|add|rent out|want/i.test(lower);
+    const wantsHostelOrPG = /hostel|pg|paying guest|co-living/i.test(lower);
     const wantsBrokerage = /brokerage|free|charge|commission|fee/i.test(lower);
 
     // Extract location keywords (Indian cities/areas)
@@ -81,7 +82,7 @@ const FloatingSupportButton = () => {
     let searchLocation = locMatch ? locMatch[1].trim() : '';
 
     // Also try direct city names
-    const knownCities = ['pune', 'mumbai', 'bangalore', 'bengaluru', 'delhi', 'kolhapur', 'satara', 'hyderabad', 'chennai', 'koregaon park', 'viman nagar', 'hinjewadi', 'kothrud', 'wakad', 'baner', 'hadapsar'];
+    const knownCities = ['pune', 'mumbai', 'bangalore', 'bengaluru', 'delhi', 'kolhapur', 'satara', 'hyderabad', 'chennai', 'koregaon park', 'viman nagar', 'hinjewadi', 'kothrud', 'wakad', 'baner', 'hadapsar', 'narhe', 'zeal', 'jspm', 'ambegaon', 'katraj', 'dhayari', 'sinhgad', 'wagholi', 'warje', 'bavdhan'];
     if (!searchLocation) {
       for (const city of knownCities) {
         if (lower.includes(city)) { searchLocation = city; break; }
@@ -103,7 +104,7 @@ const FloatingSupportButton = () => {
       let listingCards = null;
 
       // 1. Search database for real listing matches if location/budget/brokerage mentioned
-      if (searchLocation || maxBudget || !isGreeting) {
+      if (searchLocation || maxBudget || (!isGreeting && !wantsPost)) {
         try {
           const params = {};
           if (searchLocation) params.location = searchLocation;
@@ -131,12 +132,14 @@ const FloatingSupportButton = () => {
       }
 
       // 2. Set action buttons for navigation intents
-      if (wantsRoommate) {
+      if (wantsPost) {
+        actionButton = { label: '📤 Post Property / Hostel Free', onClick: () => { navigate(`/post-property${searchLocation ? `?location=${encodeURIComponent(searchLocation)}` : ''}`); setOpen(false); } };
+      } else if (wantsRoommate) {
         actionButton = { label: '🤝 Find Roommates', onClick: () => { navigate('/roommates'); setOpen(false); } };
       } else if (wantsMover) {
         actionButton = { label: '🚚 Book Movers', onClick: () => { navigate('/movers'); setOpen(false); } };
-      } else if (wantsPost) {
-        actionButton = { label: '📤 Post Property Free', onClick: () => { navigate('/post-property'); setOpen(false); } };
+      } else if (wantsHostelOrPG) {
+        actionButton = { label: `🔍 Browse PGs & Hostels ${searchLocation ? `in ${searchLocation.toUpperCase()}` : ''}`, onClick: () => { navigate(`/listings?type=PG${searchLocation ? `&location=${encodeURIComponent(searchLocation)}` : ''}`); setOpen(false); } };
       }
 
       // 3. Ask Google Gemini API for an intelligent, natural response!
@@ -146,21 +149,27 @@ const FloatingSupportButton = () => {
           searchLocation,
           maxBudget,
           wantsRoommate,
-          wantsMover
+          wantsMover,
+          wantsPost,
+          wantsHostelOrPG
         });
       } catch (geminiErr) {
         console.warn('Gemini API fallback triggered:', geminiErr);
         // Fallback rule-based replies if offline or network error
         if (isGreeting) {
-          replyText = "Hello! 👋 I'm RentXY AI — your smart property assistant. I can search real listings for you! Try asking:\n• \"Flats in Pune under 15k\"\n• \"PG near Koregaon Park\"\n• \"Find me a roommate\"";
+          replyText = "Hello! 👋 I'm RentXY AI — your smart property assistant. I can search real listings or help you post your property! Try asking:\n• \"Flats in Narhe under 10k\"\n• \"List my Hostel near Zeal College\"\n• \"Find me a roommate in Pune\"";
+        } else if (wantsPost) {
+          replyText = `Awesome! You can list your property, hostel, or PG ${searchLocation ? `near ${searchLocation.toUpperCase()}` : ''} completely FREE with zero brokerage on RentXY!\n\n✨ Our AI Smart Assist will automatically recommend the best rent price (e.g. ₹10k for 1BHK / ₹4.5k for PG in Narhe) and generate catchy descriptions for you. Click below to start!`;
         } else if (listingCards && listingCards.length > 0) {
           replyText = `Found ${listingCards.length} verified zero-brokerage properties matching your search! Here are the top picks:`;
         } else if (wantsRoommate) {
           replyText = 'Our AI Roommate Finder matches you with compatible partners using a 10-factor algorithm — analyzing diet, lifestyle, sleep habits, and budget range!';
         } else if (wantsMover) {
           replyText = 'Need to relocate? RentXY Movers provides verified packing & moving services with real-time route tracking on satellite maps!';
+        } else if (wantsHostelOrPG) {
+          replyText = `We have active zero-brokerage student PGs and Hostels listed ${searchLocation ? `around ${searchLocation.toUpperCase()}` : 'across Pune & Maharashtra'}! Click below to browse verified student stays with mess & Wi-Fi amenities.`;
         } else {
-          replyText = `I can help you find PGs, flats, roommates, or movers across Maharashtra! Try asking something like:\n• "2BHK in Pune under 20k"\n• "PG near Hinjewadi"\n• "Find roommates in Kothrud"`;
+          replyText = `I can help you find PGs, flats, roommates, or movers across Maharashtra! Try asking something like:\n• "1BHK in Narhe under 10k"\n• "Hostel near Zeal College"\n• "Find roommates in Kothrud"`;
         }
       }
 

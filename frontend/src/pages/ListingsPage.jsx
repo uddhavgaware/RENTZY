@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation, Plus, Minus, Bell, BellOff, CheckCircle, Bookmark } from 'lucide-react';
+import { Search, SlidersHorizontal, MapPin, X, ChevronDown, Map as MapIcon, List, Navigation, Plus, Minus, Bell, BellOff, CheckCircle, CheckCircle2, Bookmark } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
 

@@ -191,29 +191,84 @@ Guidelines:
    */
   suggestPropertyDetails: async (formData = {}) => {
     const type = formData.type || 'Flat';
-    const bhk = formData.configuration || '2 BHK';
-    const loc = formData.areaName || formData.villageCityTown || formData.location || 'Pune';
-    const furn = formData.furnishing || 'Semi-Furnished';
-    const price = formData.price || '20000';
+    const bhk = formData.configuration || '1BHK';
+    const loc = formData.areaName || formData.villageCityTown || formData.location || 'Narhe, Pune';
+    const furn = formData.furnishing || 'Unfurnished';
+    const price = formData.price || '';
+
+    // Smart Localized Rent Estimation Engine for Pune & Maharashtra
+    const lowerLoc = loc.toLowerCase();
+    const lowerBhk = bhk.toLowerCase();
+    const lowerType = type.toLowerCase();
+
+    let baseRent = 10000;
+    let localityGroup = 'Standard';
+
+    // Budget / Student Localities (Narhe, Ambegaon, Katraj, Dhayari, Sinhgad, JSPM, Zeal, Wagholi, Hadapsar, Warje)
+    if (lowerLoc.includes('narhe') || lowerLoc.includes('ambegaon') || lowerLoc.includes('katraj') || lowerLoc.includes('dhayari') || lowerLoc.includes('sinhgad') || lowerLoc.includes('jspm') || lowerLoc.includes('zeal') || lowerLoc.includes('wagholi') || lowerLoc.includes('warje') || lowerLoc.includes('uttamnagar') || lowerLoc.includes('hadapsar')) {
+      localityGroup = 'Budget / Educational Hub';
+      if (lowerBhk.includes('rk') || lowerBhk.includes('single') || lowerBhk.includes('sharing') || lowerType.includes('pg') || lowerType.includes('hostel')) {
+        baseRent = 4500;
+      } else if (lowerBhk.includes('1') || lowerBhk.includes('studio')) {
+        baseRent = 10000; // Exactly 10k for 1BHK in Narhe!
+      } else if (lowerBhk.includes('2')) {
+        baseRent = 15000;
+      } else if (lowerBhk.includes('3') || lowerBhk.includes('4')) {
+        baseRent = 20000;
+      }
+    } 
+    // IT / Premium Localities (Hinjewadi, Wakad, Baner, Balewadi, Kharadi, Magarpatta, Viman Nagar, Koregaon Park, Kalyani Nagar, Kothrud)
+    else if (lowerLoc.includes('hinjewadi') || lowerLoc.includes('wakad') || lowerLoc.includes('baner') || lowerLoc.includes('balewadi') || lowerLoc.includes('kharadi') || lowerLoc.includes('magarpatta') || lowerLoc.includes('viman') || lowerLoc.includes('koregaon') || lowerLoc.includes('kalyani') || lowerLoc.includes('kothrud')) {
+      localityGroup = 'IT / Premium Hub';
+      if (lowerBhk.includes('rk') || lowerBhk.includes('single') || lowerBhk.includes('sharing') || lowerType.includes('pg') || lowerType.includes('hostel')) {
+        baseRent = 7500;
+      } else if (lowerBhk.includes('1') || lowerBhk.includes('studio')) {
+        baseRent = 16000;
+      } else if (lowerBhk.includes('2')) {
+        baseRent = 24000;
+      } else if (lowerBhk.includes('3') || lowerBhk.includes('4')) {
+        baseRent = 35000;
+      }
+    } 
+    // Standard Pune / City Average
+    else {
+      if (lowerBhk.includes('rk') || lowerBhk.includes('single') || lowerBhk.includes('sharing') || lowerType.includes('pg') || lowerType.includes('hostel')) {
+        baseRent = 5500;
+      } else if (lowerBhk.includes('1') || lowerBhk.includes('studio')) {
+        baseRent = 12000;
+      } else if (lowerBhk.includes('2')) {
+        baseRent = 18000;
+      } else if (lowerBhk.includes('3') || lowerBhk.includes('4')) {
+        baseRent = 26000;
+      }
+    }
+
+    // Furnishing adjustment
+    if (furn.toLowerCase().includes('fully')) baseRent = Math.round(baseRent * 1.25);
+    else if (furn.toLowerCase().includes('semi')) baseRent = Math.round(baseRent * 1.1);
+
+    const minPrice = Math.round(baseRent * 0.9);
+    const maxPrice = Math.round(baseRent * 1.15);
 
     const prompt = `As an AI real estate expert for RentXY in India, provide smart suggestions for a property listing:
 - Property Type: ${type}
 - Configuration: ${bhk}
 - City/Locality: ${loc}
 - Furnishing: ${furn}
+- Local Market Benchmark Rent: ₹${baseRent.toLocaleString('en-IN')}/month (${localityGroup})
 
 Return ONLY a valid JSON object (no markdown, no backticks, no explanatory text outside JSON) with this exact schema:
 {
-  "suggestedPrice": "22000",
-  "priceRange": "₹20,000 - ₹24,000 / mo",
+  "suggestedPrice": "${baseRent}",
+  "priceRange": "₹${minPrice.toLocaleString('en-IN')} - ₹${maxPrice.toLocaleString('en-IN')} / mo",
   "suggestedTitles": [
     "✨ Luxury ${bhk} ${type} with Balcony in ${loc}",
-    "🏡 Spacious Sunlit ${bhk} in Prime Gated Community",
-    "🏢 Premium ${furn} ${type} for Family & Professionals"
+    "🏡 Spacious Sunlit ${bhk} in Prime ${loc}",
+    "🏢 Premium ${furn} ${type} near College & IT Hub"
   ],
   "suggestedAmenities": ["WiFi", "Parking", "Security", "AC", "Washing Machine"],
-  "suggestedDescription": "A beautifully maintained ${bhk} ${type} located in the heart of ${loc}. Features excellent ventilation, 24x7 water supply, and premium ${furn} interiors. Ideal for families and working professionals seeking a comfortable, secure lifestyle.",
-  "reasoning": "In ${loc}, a ${furn} ${bhk} typically rents between ₹20,000 and ₹25,000. Highlighting WiFi, Parking, and Security increases tenant inquiries by up to 40%!"
+  "suggestedDescription": "A beautifully maintained ${bhk} ${type} located in the heart of ${loc}. Features excellent ventilation, 24x7 water supply, and premium ${furn} interiors. Ideal for students, families, and working professionals seeking a comfortable, secure lifestyle in ${loc}.",
+  "reasoning": "In ${loc}, a ${furn} ${bhk} typically rents around ₹${baseRent.toLocaleString('en-IN')}. Highlighting WiFi, Parking, and Security increases inquiries significantly!"
 }`;
 
     try {
@@ -222,18 +277,17 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanatory text 
       return JSON.parse(cleaned);
     } catch (error) {
       console.warn('Gemini Property Suggestion fallback triggered:', error);
-      const numPrice = parseInt(price) || (bhk.includes('3') ? 28000 : bhk.includes('1') ? 14000 : 20000);
       return {
-        suggestedPrice: String(numPrice),
-        priceRange: `₹${(numPrice * 0.9).toFixed(0)} - ₹${(numPrice * 1.15).toFixed(0)} / mo`,
+        suggestedPrice: String(baseRent),
+        priceRange: `₹${minPrice.toLocaleString('en-IN')} - ₹${maxPrice.toLocaleString('en-IN')} / mo`,
         suggestedTitles: [
           `✨ Luxury ${bhk} ${type} with Balcony in ${loc}`,
-          `🏡 Spacious Sunlit ${bhk} in Prime Locality`,
-          `🏢 Premium ${furn} ${type} for Family & Bachelors`
+          `🏡 Spacious Sunlit ${bhk} in Prime ${loc}`,
+          `🏢 Premium ${furn} ${type} for Students & Professionals`
         ],
         suggestedAmenities: ['WiFi', 'Parking', 'Security', 'AC', 'Washing Machine'],
-        suggestedDescription: `A beautifully maintained ${bhk} ${type} located in the heart of ${loc}. Features excellent ventilation, 24x7 water supply, and premium ${furn} interiors. Ideal for families and working professionals seeking a comfortable, secure lifestyle.`,
-        reasoning: `In ${loc}, a ${furn} ${bhk} typically rents around ₹${numPrice.toLocaleString('en-IN')}. Adding key amenities like WiFi and Parking boosts visibility!`
+        suggestedDescription: `A beautifully maintained ${bhk} ${type} located in the heart of ${loc}. Features excellent ventilation, 24x7 water supply, and premium ${furn} interiors. Ideal for students, families, and working professionals seeking a comfortable, secure lifestyle in ${loc}.`,
+        reasoning: `In ${loc}, an ${furn} ${bhk} typically rents around ₹${baseRent.toLocaleString('en-IN')}. Adding key amenities like WiFi and Parking boosts visibility!`
       };
     }
   },
@@ -287,36 +341,44 @@ Return ONLY a valid JSON object (no markdown, no backticks) with this exact sche
     const postSmoke = roommatePost.smokingPref || 'Non-Smoking';
     const postDrink = roommatePost.drinkingPref || 'Non-Drinking';
     const postSleep = roommatePost.sleepSchedule || 'Flexible';
-    const postLoc = roommatePost.areaName || roommatePost.buildingName || 'Pune';
+    const postLoc = roommatePost.areaName || roommatePost.buildingName || roommatePost.location || 'Pune';
 
-    // Calculate baseline match % mathematically for fast reliable fallback
-    let matchCount = 0;
-    if (userDiet === 'Any' || postDiet === 'Any' || userDiet === postDiet) matchCount += 25;
-    if (userSmoke === postSmoke) matchCount += 25;
-    if (userDrink === postDrink) matchCount += 25;
-    if (userSleep === 'Flexible' || postSleep === 'Flexible' || userSleep === postSleep) matchCount += 25;
-    const calcScore = Math.min(98, Math.max(70, matchCount + (Math.floor(Math.random() * 10) - 5)));
+    // Algorithmic multi-factor compatibility evaluation (ensures dynamic, realistic 78%-98% scores)
+    let baseScore = 75;
+    if (userDiet === 'Any' || postDiet === 'Any' || userDiet === postDiet) baseScore += 6;
+    if (userSmoke === postSmoke) baseScore += 7;
+    if (userDrink === postDrink) baseScore += 5;
+    if (userSleep === 'Flexible' || postSleep === 'Flexible' || userSleep === postSleep) baseScore += 5;
 
-    const prompt = `Compare these two roommate profiles in India and return match analysis:
+    // Use deterministic hash of roommate ID or name so each person gets a unique, stable, realistic score
+    const idHash = String(roommatePost.id || roommatePost.user?.name || postLoc).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+    const variation = (idHash % 13) - 5; // varies between -5 and +7
+    const calcScore = Math.min(98, Math.max(78, baseScore + variation));
+
+    const prompt = `Compare these two roommate profiles in India and return a realistic match percentage (between 75% and 98%) and compatibility analysis:
 User: Diet=${userDiet}, Smoke=${userSmoke}, Drink=${userDrink}, Sleep=${userSleep}
 Roommate Post: Locality=${postLoc}, Diet=${postDiet}, Smoke=${postSmoke}, Drink=${postDrink}, Sleep=${postSleep}
 
 Return ONLY a valid JSON object (no markdown, no backticks) with this exact schema:
 {
   "matchScore": "${calcScore}% Match 🎯",
-  "analysis": "Great compatibility! You both align on dietary preferences and non-smoking habits.",
-  "icebreaker": "Hi! I saw your roommate request for ${postLoc}. I share similar lifestyle habits and would love to connect!"
+  "analysis": "Strong lifestyle alignment! You both prefer clean living in ${postLoc} and have compatible smoking and sleeping habits.",
+  "icebreaker": "Hi! I saw your roommate request for ${postLoc}. I share similar lifestyle preferences (${postDiet !== 'Any' ? postDiet : 'Vegetarian/Non-Veg'} & ${postSmoke}) and would love to connect!"
 }`;
 
     try {
       const responseText = await callGeminiAPI(prompt, 'You are a JSON-only roommate compatibility AI.');
       const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
+      const parsed = JSON.parse(cleaned);
+      if (!parsed.matchScore || parsed.matchScore.includes('70%')) {
+        parsed.matchScore = `${calcScore}% Match 🎯`;
+      }
+      return parsed;
     } catch (error) {
       return {
         matchScore: `${calcScore}% Match 🎯`,
-        analysis: `Strong lifestyle alignment! You both have compatible habits (${postDiet !== 'Any' ? postDiet : 'Flexible'} & ${postSmoke}).`,
-        icebreaker: `Hi! I saw your roommate post for ${postLoc}. Our lifestyle preferences match well, would love to connect about the flat!`
+        analysis: `Strong lifestyle compatibility (${calcScore}%)! You align well on living habits in ${postLoc}, especially with ${postSmoke.toLowerCase()} preferences and ${postSleep.toLowerCase()} schedule.`,
+        icebreaker: `Hi! I saw your roommate post for ${postLoc}. Our lifestyle preferences match ${calcScore}%, would love to connect about sharing the flat!`
       };
     }
   },

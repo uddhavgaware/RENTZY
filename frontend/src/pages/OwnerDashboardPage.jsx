@@ -300,11 +300,69 @@ const OwnerDashboardPage = () => {
         {activeTab === 'properties' && (
           <div className="space-y-6">
             {properties.length === 0 ? (
-              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-12 text-center border border-gray-100 dark:border-white/10 shadow-sm">
-                <Home size={48} className="mx-auto text-primary-400 mb-3" />
-                <h3 className="text-xl font-black text-gray-900 dark:text-white">No Properties Added Yet</h3>
-                <p className="text-gray-500 text-sm max-w-md mx-auto mt-1 mb-6">Add your PG, Hostel, or Independent Flat to start allocating beds, calculating electricity bills, and collecting rent.</p>
-                <button onClick={() => setShowAddPropertyModal(true)} className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg transition-all">Add Your First Property</button>
+              <div className="space-y-6">
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl p-12 text-center border border-gray-100 dark:border-white/10 shadow-sm">
+                  <Home size={48} className="mx-auto text-primary-500 mb-3 animate-bounce" />
+                  <h3 className="text-xl font-black text-gray-900 dark:text-white">No Properties Added Yet</h3>
+                  <p className="text-gray-500 text-sm max-w-md mx-auto mt-1 mb-6">Add your PG, Hostel, or Independent Flat to start allocating beds, calculating electricity bills, and collecting rent online via Razorpay.</p>
+                  <button onClick={() => setShowAddPropertyModal(true)} className="bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-primary-500/25 transition-all active:scale-95 cursor-pointer">
+                    + Add Your First Property
+                  </button>
+                </div>
+
+                {/* Landlord Quick Start Guide & Rent Benchmarks */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl flex items-center justify-center font-black text-base mb-3">1</div>
+                    <h4 className="font-bold text-gray-900 dark:text-white text-base mb-1">Add PG / Flat Structure</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Specify total floors, rooms per floor, and beds per room. Our system automatically generates a visual room & bed matrix.</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm">
+                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-400 rounded-xl flex items-center justify-center font-black text-base mb-3">2</div>
+                    <h4 className="font-bold text-gray-900 dark:text-white text-base mb-1">Onboard Tenants & Meters</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Assign tenants to beds, record initial electricity meter readings, and set per-unit power rates for automated billing.</p>
+                  </div>
+                  <div className="bg-white dark:bg-slate-800 p-6 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm">
+                    <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-400 rounded-xl flex items-center justify-center font-black text-base mb-3">3</div>
+                    <h4 className="font-bold text-gray-900 dark:text-white text-base mb-1">Razorpay Online Billing</h4>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">Issue itemized monthly rent + electricity bills with 1 click. Tenants pay directly via UPI, Credit Cards, or NetBanking.</p>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-indigo-900 via-primary-900 to-slate-900 text-white p-6 rounded-3xl shadow-lg border border-indigo-700/50">
+                  <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">📊</span>
+                      <div>
+                        <h4 className="font-bold text-base">Pune Locality Rent Benchmarks (2026 AI Estimate)</h4>
+                        <p className="text-xs text-indigo-200">Recommended starting rent for 1BHK / Single Sharing PG</p>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-semibold bg-white/10 px-3 py-1 rounded-full border border-white/20">Zero Brokerage Guaranteed</span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                    <div className="bg-white/10 p-3 rounded-xl backdrop-blur-md">
+                      <p className="font-extrabold text-amber-300">Narhe & Ambegaon</p>
+                      <p className="text-lg font-black mt-0.5">₹10,000 <span className="text-[10px] font-normal text-gray-300">/ 1BHK</span></p>
+                      <p className="text-[10px] text-gray-300">PG: ₹4,500/bed</p>
+                    </div>
+                    <div className="bg-white/10 p-3 rounded-xl backdrop-blur-md">
+                      <p className="font-extrabold text-blue-300">Hinjewadi & Wakad</p>
+                      <p className="text-lg font-black mt-0.5">₹16,500 <span className="text-[10px] font-normal text-gray-300">/ 1BHK</span></p>
+                      <p className="text-[10px] text-gray-300">PG: ₹7,500/bed</p>
+                    </div>
+                    <div className="bg-white/10 p-3 rounded-xl backdrop-blur-md">
+                      <p className="font-extrabold text-emerald-300">Kothrud & Karve</p>
+                      <p className="text-lg font-black mt-0.5">₹15,000 <span className="text-[10px] font-normal text-gray-300">/ 1BHK</span></p>
+                      <p className="text-[10px] text-gray-300">PG: ₹6,500/bed</p>
+                    </div>
+                    <div className="bg-white/10 p-3 rounded-xl backdrop-blur-md">
+                      <p className="font-extrabold text-purple-300">Viman Nagar</p>
+                      <p className="text-lg font-black mt-0.5">₹18,000 <span className="text-[10px] font-normal text-gray-300">/ 1BHK</span></p>
+                      <p className="text-[10px] text-gray-300">PG: ₹8,000/bed</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               properties.map(({ property, roomsBeds }) => {

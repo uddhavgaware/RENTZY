@@ -116,7 +116,7 @@ const RoommatesPage = () => {
     cleanlinessLevel: user?.cleanlinessLevel || 'Any'
   });
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
-  
+
   // Re-sync local form state when user object updates
   useEffect(() => {
     if (user) {
@@ -148,11 +148,11 @@ const RoommatesPage = () => {
       const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`);
       const data = await res.json();
       if (data && data.length > 0) {
-         setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
+        setMapCenter([parseFloat(data[0].lat), parseFloat(data[0].lon)]);
       } else {
-         showModal({ type: 'alert', title: 'Not Found', message: 'Location not found on map.', onConfirm: closeModal });
+        showModal({ type: 'alert', title: 'Not Found', message: 'Location not found on map.', onConfirm: closeModal });
       }
-    } catch(err) {}
+    } catch (err) { }
   };
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
@@ -171,7 +171,7 @@ const RoommatesPage = () => {
       [id]: (prev[id] || 0) === 0 ? maxIndex : (prev[id] || 0) - 1
     }));
   };
-  
+
   const handleLiveLocation = () => {
     if (!navigator.geolocation) {
       showModal({ type: 'alert', title: 'Location Error', message: "Geolocation is not supported by your browser.", onConfirm: closeModal });
@@ -184,7 +184,7 @@ const RoommatesPage = () => {
         const { latitude, longitude } = position.coords;
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`);
         const data = await res.json();
-        
+
         let neighborhood = data.address.neighbourhood || data.address.suburb || data.address.city_district || data.address.city;
         if (neighborhood) {
           setSearchInput(neighborhood);
@@ -211,7 +211,7 @@ const RoommatesPage = () => {
         const lat = parseFloat(data[0].lat);
         const lon = parseFloat(data[0].lon);
         setMapCenter([lat, lon]);
-        setPostFormData(prev => ({...prev, latitude: lat, longitude: lon}));
+        setPostFormData(prev => ({ ...prev, latitude: lat, longitude: lon }));
       }
     } catch (err) {
       console.error('Geocode failed', err);
@@ -229,7 +229,7 @@ const RoommatesPage = () => {
         const lon = parseFloat(data[0].lon);
         setMapCenter([lat, lon]);
         setPostFormData(prev => ({ ...prev, latitude: lat, longitude: lon }));
-        
+
         const reverseRes = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
         const reverseData = await reverseRes.json();
         const addr = reverseData.address || {};
@@ -257,7 +257,7 @@ const RoommatesPage = () => {
         const lon = e.latlng.lng;
         setMapCenter([lat, lon]);
         setPostFormData(prev => ({ ...prev, latitude: lat, longitude: lon }));
-        
+
         try {
           const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=14&addressdetails=1`);
           const data = await res.json();
@@ -292,10 +292,10 @@ const RoommatesPage = () => {
         const { latitude, longitude } = position.coords;
         const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=14&addressdetails=1`);
         const data = await res.json();
-        
+
         let neighborhood = data.address.neighbourhood || data.address.suburb || data.address.city_district || data.address.city;
         if (neighborhood) {
-          setPostFormData(prev => ({...prev, location: neighborhood, latitude, longitude}));
+          setPostFormData(prev => ({ ...prev, location: neighborhood, latitude, longitude }));
           setMapCenter([latitude, longitude]);
         }
       } catch (err) {
@@ -374,7 +374,7 @@ const RoommatesPage = () => {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const currentImagesCount = postFormData.images ? postFormData.images.length : 0;
-    
+
     if (currentImagesCount + files.length > 3) {
       showModal({ type: 'alert', title: 'Limit Exceeded', message: "You can only upload up to 3 photos for your room/flat.", onConfirm: closeModal });
       return;
@@ -414,7 +414,7 @@ const RoommatesPage = () => {
       });
     })).then(base64Images => {
       const newImages = [...(postFormData.images || []), ...base64Images].slice(0, 3);
-      setPostFormData({...postFormData, images: newImages});
+      setPostFormData({ ...postFormData, images: newImages });
     });
   };
 
@@ -425,14 +425,14 @@ const RoommatesPage = () => {
       if (activeTab === 'smartMatch') {
         response = await api.get('/roommates/matches', { params: { _t: Date.now() } });
       } else {
-        response = await api.get('/roommates', { 
-          params: { location: searchInput, page: pageNum, size: 20, sort: 'id,desc', _t: Date.now() } 
+        response = await api.get('/roommates', {
+          params: { location: searchInput, page: pageNum, size: 20, sort: 'id,desc', _t: Date.now() }
         });
       }
-      
+
       const results = activeTab === 'smartMatch' ? response.data : (response.data.content || []);
       setHasMore(activeTab === 'smartMatch' ? false : !response.data.last);
-      
+
       if (isAppend) {
         setRoommates(prev => [...prev, ...results]);
       } else {
@@ -536,16 +536,16 @@ const RoommatesPage = () => {
       setIsPosting(false);
       setIsModalOpen(false);
       setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Room', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
-      
-      showModal({ 
-        type: 'alert', 
-        title: 'Success', 
-        message: 'Roommate request posted successfully!', 
+
+      showModal({
+        type: 'alert',
+        title: 'Success',
+        message: 'Roommate request posted successfully!',
         onConfirm: () => {
           window.location.reload();
         }
       });
-      
+
     } catch (error) {
       setIsPosting(false);
       console.error('Failed to post roommate request', error);
@@ -562,56 +562,56 @@ const RoommatesPage = () => {
     }
   };
 
-    const handleDeletePost = (id) => {
-      showModal({
-        type: 'confirm',
-        title: 'Delete Post',
-        message: 'Are you sure you want to delete this post permanently?',
-        onConfirm: async () => {
-          closeModal();
-          try {
-            await api.delete(`/roommates/${id}`);
-            setRoommates(prev => prev.filter(r => r.id !== id));
-          } catch {
-            showModal({ type: 'alert', title: 'Error', message: 'Failed to delete post.', onConfirm: closeModal });
-          }
-        },
-        onCancel: closeModal
-      });
-    };
+  const handleDeletePost = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Post',
+      message: 'Are you sure you want to delete this post permanently?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/roommates/${id}`);
+          setRoommates(prev => prev.filter(r => r.id !== id));
+        } catch {
+          showModal({ type: 'alert', title: 'Error', message: 'Failed to delete post.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
+  };
 
-    const handleGotAMate = (id) => {
-      showModal({
-        type: 'confirm',
-        title: 'Got a Mate',
-        message: 'Have you found a roommate? This will mark your post as fulfilled and remove it from search results.',
-        onConfirm: async () => {
-          closeModal();
-          try {
-            await api.put(`/roommates/${id}/status?status=FULFILLED`);
-            setRoommates(prev => prev.filter(r => r.id !== id));
-            showModal({ type: 'alert', title: 'Success', message: 'Congratulations! Your post has been marked as fulfilled.', onConfirm: closeModal });
-          } catch {
-            showModal({ type: 'alert', title: 'Error', message: 'Failed to update post status.', onConfirm: closeModal });
-          }
-        },
-        onCancel: closeModal
-      });
-    };
+  const handleGotAMate = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Got a Mate',
+      message: 'Have you found a roommate? This will mark your post as fulfilled and remove it from search results.',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.put(`/roommates/${id}/status?status=FULFILLED`);
+          setRoommates(prev => prev.filter(r => r.id !== id));
+          showModal({ type: 'alert', title: 'Success', message: 'Congratulations! Your post has been marked as fulfilled.', onConfirm: closeModal });
+        } catch {
+          showModal({ type: 'alert', title: 'Error', message: 'Failed to update post status.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
+  };
 
-    const handleSendRequest = async (id) => {
-      if (!isAuthenticated) {
-        showModal({ type: 'alert', title: 'Login Required', message: 'You must be logged in to send a request.', onConfirm: closeModal });
-        return;
-      }
-      try {
-        await api.post(`/roommates/requests/${id}`);
-        showModal({ type: 'alert', title: 'Success', message: 'Roommate request sent successfully!', onConfirm: closeModal });
-      } catch (error) {
-        const errorMsg = error.response?.data?.message || typeof error.response?.data === 'string' ? error.response.data : 'Failed to send request';
-        showModal({ type: 'alert', title: 'Error', message: errorMsg, onConfirm: closeModal });
-      }
-    };
+  const handleSendRequest = async (id) => {
+    if (!isAuthenticated) {
+      showModal({ type: 'alert', title: 'Login Required', message: 'You must be logged in to send a request.', onConfirm: closeModal });
+      return;
+    }
+    try {
+      await api.post(`/roommates/requests/${id}`);
+      showModal({ type: 'alert', title: 'Success', message: 'Roommate request sent successfully!', onConfirm: closeModal });
+    } catch (error) {
+      const errorMsg = error.response?.data?.message || typeof error.response?.data === 'string' ? error.response.data : 'Failed to send request';
+      showModal({ type: 'alert', title: 'Error', message: errorMsg, onConfirm: closeModal });
+    }
+  };
   const handlePostRequestClick = () => {
     if (!isAuthenticated) {
       showModal({
@@ -688,7 +688,7 @@ const RoommatesPage = () => {
         fallbackImg="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1920&q=80"
       >
         <div className="flex flex-col sm:flex-row justify-center gap-4 mt-8 w-full max-w-lg mx-auto">
-          <button 
+          <button
             onClick={() => {
               window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
             }}
@@ -696,7 +696,7 @@ const RoommatesPage = () => {
           >
             Browse Roommates
           </button>
-          <button 
+          <button
             onClick={handlePostRequestClick}
             className="bg-pink-600 hover:bg-pink-500 text-white rounded-2xl px-8 py-4 font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-lg hover:scale-105 active:scale-95 shadow-pink-500/25"
           >
@@ -708,7 +708,7 @@ const RoommatesPage = () => {
 
       <div className="bg-gray-50 min-h-screen pt-12 pb-12 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
+
           {/* 💡 Split Rent Info Banner */}
           <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-3xl p-6 mb-10 flex items-start gap-5 shadow-sm hover:shadow-md transition-shadow">
             <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -719,7 +719,7 @@ const RoommatesPage = () => {
                 <Info size={16} /> Split Rent Among All Members
               </h3>
               <p className="text-green-700 text-sm leading-relaxed">
-                Each listing shows the <strong>total rent & deposit</strong> for the entire flat. The <strong>per-member split</strong> is automatically calculated based on total capacity. 
+                Each listing shows the <strong>total rent & deposit</strong> for the entire flat. The <strong>per-member split</strong> is automatically calculated based on total capacity.
                 For example, a ₹15,000/mo flat with 3 members = <strong>₹5,000/mo per person</strong>. Connect with the poster to confirm the final arrangement.
               </p>
             </div>
@@ -730,15 +730,15 @@ const RoommatesPage = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <div className="flex-1 relative">
                 <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                  placeholder="Preferred Location (e.g. Hinjewadi)" 
+                  placeholder="Preferred Location (e.g. Hinjewadi)"
                   className="w-full pl-12 pr-12 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 transition-all"
                 />
-                <button 
+                <button
                   onClick={handleLiveLocation}
                   disabled={isLocating}
                   title="Use my current location"
@@ -756,17 +756,17 @@ const RoommatesPage = () => {
                   <option value="15k+">₹15,000+</option>
                 </select>
               </div>
-              
+
               <div className="flex items-center gap-3">
                 <div className="bg-gray-100 p-1 rounded-xl flex items-center shadow-sm h-full">
-                  <button 
+                  <button
                     onClick={() => setIsMapView(false)}
                     className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${!isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                   >
                     <List size={18} className="md:mr-2" />
                     <span className="hidden md:inline">List</span>
                   </button>
-                  <button 
+                  <button
                     onClick={() => setIsMapView(true)}
                     className={`flex items-center px-4 py-2 h-full rounded-lg text-sm font-medium transition-all ${isMapView ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'}`}
                   >
@@ -816,10 +816,10 @@ const RoommatesPage = () => {
                 👨 Boys Section (Men Only)
               </button>
             </div>
-            
+
             {/* Edit Preferences Button when on Smart Match tab */}
             {activeTab === 'smartMatch' && hasPreferences && !showPreferencesSetup && (
-              <button 
+              <button
                 onClick={() => setShowPreferencesSetup(true)}
                 className="px-4 py-2 text-sm font-bold text-pink-600 bg-pink-50 hover:bg-pink-100 rounded-full transition-colors whitespace-nowrap"
               >
@@ -840,7 +840,7 @@ const RoommatesPage = () => {
                   <p className="text-[11px] text-indigo-700/80 font-medium">Find roommates & flatmates near your College or Workplace</p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2 flex-wrap">
                 {user?.collegeName && (
                   <button
@@ -937,7 +937,7 @@ const RoommatesPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Dietary Preference</label>
-                    <select value={preferencesForm.dietaryPref} onChange={e => setPreferencesForm({...preferencesForm, dietaryPref: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                    <select value={preferencesForm.dietaryPref} onChange={e => setPreferencesForm({ ...preferencesForm, dietaryPref: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
                       <option value="Any">Any</option>
                       <option value="Vegetarian">Vegetarian</option>
                       <option value="Non-Vegetarian">Non-Vegetarian</option>
@@ -946,7 +946,7 @@ const RoommatesPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Smoking Preference</label>
-                    <select value={preferencesForm.smokingPref} onChange={e => setPreferencesForm({...preferencesForm, smokingPref: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                    <select value={preferencesForm.smokingPref} onChange={e => setPreferencesForm({ ...preferencesForm, smokingPref: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
                       <option value="Any">Any</option>
                       <option value="Non-Smoker">Non-Smoker</option>
                       <option value="Smoker">Smoker</option>
@@ -955,7 +955,7 @@ const RoommatesPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Drinking Preference</label>
-                    <select value={preferencesForm.drinkingPref} onChange={e => setPreferencesForm({...preferencesForm, drinkingPref: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                    <select value={preferencesForm.drinkingPref} onChange={e => setPreferencesForm({ ...preferencesForm, drinkingPref: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
                       <option value="Any">Any</option>
                       <option value="Non-Drinker">Non-Drinker</option>
                       <option value="Occasional">Occasional</option>
@@ -964,7 +964,7 @@ const RoommatesPage = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-2">Sleep Schedule</label>
-                    <select value={preferencesForm.sleepSchedule} onChange={e => setPreferencesForm({...preferencesForm, sleepSchedule: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                    <select value={preferencesForm.sleepSchedule} onChange={e => setPreferencesForm({ ...preferencesForm, sleepSchedule: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
                       <option value="Any">Any</option>
                       <option value="Early Bird">Early Bird (Sleeps Early)</option>
                       <option value="Night Owl">Night Owl (Sleeps Late)</option>
@@ -972,7 +972,7 @@ const RoommatesPage = () => {
                   </div>
                   <div className="md:col-span-2">
                     <label className="block text-sm font-bold text-gray-700 mb-2">Cleanliness Level</label>
-                    <select value={preferencesForm.cleanlinessLevel} onChange={e => setPreferencesForm({...preferencesForm, cleanlinessLevel: e.target.value})} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
+                    <select value={preferencesForm.cleanlinessLevel} onChange={e => setPreferencesForm({ ...preferencesForm, cleanlinessLevel: e.target.value })} className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 focus:ring-2 focus:ring-pink-500 outline-none">
                       <option value="Any">Any</option>
                       <option value="Very Clean">Very Clean (Cleans daily)</option>
                       <option value="Average">Average (Cleans weekly)</option>
@@ -1035,48 +1035,48 @@ const RoommatesPage = () => {
                   </span>
                 </div>
               )}
-            {isMapView ? (
-              <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
-                {/* Map Search Overlay */}
-                <div className="absolute top-4 right-4 z-[500] glass-premium rounded-xl p-3 flex flex-col gap-2 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-700">
-                   <div className="flex items-center gap-2">
-                     <div className="w-3 h-3 rounded-full bg-blue-50 border border-white shadow-sm"></div> Flat
-                   </div>
-                   <div className="flex items-center gap-2">
-                     <div className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm"></div> Roommate Request
-                   </div>
-                </div>
-                <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[500] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
-                  <div className="pl-3 pr-2 text-gray-400">
-                    <MapPin size={18} className="text-primary-500" />
+              {isMapView ? (
+                <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
+                  {/* Map Search Overlay */}
+                  <div className="absolute top-4 right-4 z-[500] glass-premium rounded-xl p-3 flex flex-col gap-2 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md text-xs font-bold text-gray-700">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-blue-50 border border-white shadow-sm"></div> Flat
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-red-500 border border-white shadow-sm"></div> Roommate Request
+                    </div>
                   </div>
-                  <input 
-                    ref={mapSearchInputRef}
-                    type="text" 
-                    placeholder="Search map location..." 
-                    className="w-full outline-none text-sm bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handleMapSearch();
-                    }}
-                  />
-                  <button 
-                    onClick={handleMapSearch}
-                    className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-4 py-2 text-sm font-bold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
-                  >
-                    Search
-                  </button>
-                </div>
+                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 md:-translate-x-0 md:left-16 z-[500] glass-premium rounded-2xl p-1.5 flex items-center w-[90%] md:w-96 transition-all focus-within:ring-2 focus-within:ring-primary-500 shadow-xl border border-white/50 bg-white/90 backdrop-blur-md">
+                    <div className="pl-3 pr-2 text-gray-400">
+                      <MapPin size={18} className="text-primary-500" />
+                    </div>
+                    <input
+                      ref={mapSearchInputRef}
+                      type="text"
+                      placeholder="Search map location..."
+                      className="w-full outline-none text-sm bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleMapSearch();
+                      }}
+                    />
+                    <button
+                      onClick={handleMapSearch}
+                      className="bg-primary-600 hover:bg-primary-700 text-white rounded-xl px-4 py-2 text-sm font-bold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                    >
+                      Search
+                    </button>
+                  </div>
 
-                <MapContainer center={mapCenter} zoom={12} zoomControl={false} style={{ height: "100%", width: "100%" }}>
-                  <CustomZoomControl />
-                  <MapUpdater center={mapCenter} />
-                  <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
-                  {displayedRoommates.map(roommate => {
-                    if (!roommate.latitude || !roommate.longitude) return null;
-                    return (
-                      <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon('Room')}>
-                        <Popup className="roommate-popup">
-                           <div className="p-2 min-w-[200px]">
+                  <MapContainer center={mapCenter} zoom={12} zoomControl={false} style={{ height: "100%", width: "100%" }}>
+                    <CustomZoomControl />
+                    <MapUpdater center={mapCenter} />
+                    <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
+                    {displayedRoommates.map(roommate => {
+                      if (!roommate.latitude || !roommate.longitude) return null;
+                      return (
+                        <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon('Room')}>
+                          <Popup className="roommate-popup">
+                            <div className="p-2 min-w-[200px]">
                               <div className="flex items-center justify-between mb-2">
                                 <div className="font-bold text-lg text-gray-900">{maskName(roommate.user?.name) || 'User'}</div>
                                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-gray-100 border border-gray-200 text-gray-700">
@@ -1086,11 +1086,10 @@ const RoommatesPage = () => {
                               <div className="text-sm text-gray-600 mb-2 font-medium">{roommate.location}</div>
                               <div className="flex flex-wrap gap-1 mb-2">
                                 {(roommate.gender || roommate.user?.gender) && (
-                                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                                    (roommate.gender || roommate.user?.gender).toLowerCase() === 'male' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
-                                    (roommate.gender || roommate.user?.gender).toLowerCase() === 'female' ? 'bg-pink-50 text-pink-700 border border-pink-200' :
-                                    'bg-purple-50 text-purple-700 border border-purple-200'
-                                  }`}>
+                                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${(roommate.gender || roommate.user?.gender).toLowerCase() === 'male' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                                      (roommate.gender || roommate.user?.gender).toLowerCase() === 'female' ? 'bg-pink-50 text-pink-700 border border-pink-200' :
+                                        'bg-purple-50 text-purple-700 border border-purple-200'
+                                    }`}>
                                     👤 {roommate.gender || roommate.user?.gender}
                                   </span>
                                 )}
@@ -1108,402 +1107,400 @@ const RoommatesPage = () => {
                                 }} className="flex-1 bg-white border border-primary-600 text-primary-600 py-1.5 rounded-xl text-xs font-bold hover:bg-primary-50 transition-colors shadow-sm">Details</button>
                                 <button onClick={() => navigate(`/messages?user=${roommate.user?.id}`)} className="flex-1 bg-primary-600 text-white py-1.5 rounded-xl text-xs font-bold hover:bg-primary-700 transition-colors shadow-sm">Message</button>
                               </div>
-                           </div>
-                        </Popup>
-                      </Marker>
-                    )
-                  })}
-                </MapContainer>
-              </div>
-            ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {displayedRoommates.map(roommate => {
-                const isOwner = user?.email === roommate.user?.email;
-                const myPost = roommates.find(r => r.user?.email === user?.email);
-                
-                let matchScore = roommate.matchPercentage != null ? roommate.matchPercentage : null;
-                if (matchScore === null && !isOwner && myPost) {
-                  let weightedScore = 0;
-                  let totalWeight = 0;
-
-                  // Factor 1: Smoking (weight: 15)
-                  totalWeight += 15;
-                  if (myPost.smokingPref === roommate.smokingPref) weightedScore += 15;
-                  else if (myPost.smokingPref === 'Smoking Okay' || roommate.smokingPref === 'Smoking Okay') weightedScore += 10;
-
-                  // Factor 2: Drinking (weight: 12)
-                  totalWeight += 12;
-                  if (myPost.drinkingPref === roommate.drinkingPref) weightedScore += 12;
-                  else if (myPost.drinkingPref === 'Drinking Okay' || roommate.drinkingPref === 'Drinking Okay') weightedScore += 8;
-
-                  // Factor 3: Pets (weight: 8)
-                  totalWeight += 8;
-                  if (myPost.petsPref === roommate.petsPref) weightedScore += 8;
-                  else if (myPost.petsPref === 'Pets Welcome' || roommate.petsPref === 'Pets Welcome') weightedScore += 5;
-
-                  // Factor 4: Dietary (weight: 15)
-                  totalWeight += 15;
-                  if (myPost.dietaryPref === roommate.dietaryPref) weightedScore += 15;
-                  else if (myPost.dietaryPref === 'Any' || roommate.dietaryPref === 'Any') weightedScore += 10;
-
-                  // Factor 5: Sleep Schedule (weight: 12)
-                  totalWeight += 12;
-                  if (myPost.sleepSchedule === roommate.sleepSchedule) weightedScore += 12;
-                  else if (myPost.sleepSchedule === 'Flexible' || roommate.sleepSchedule === 'Flexible') weightedScore += 8;
-
-                  // Factor 6: Cleanliness (weight: 10)
-                  totalWeight += 10;
-                  if (myPost.cleanlinessLevel === roommate.cleanlinessLevel) weightedScore += 10;
-                  else if (myPost.cleanlinessLevel === 'Moderate' || roommate.cleanlinessLevel === 'Moderate') weightedScore += 6;
-
-                  // Factor 7: Occupation (weight: 8)
-                  totalWeight += 8;
-                  if (myPost.targetOccupation === 'Any' || roommate.targetOccupation === 'Any' || myPost.targetOccupation === roommate.targetOccupation) weightedScore += 8;
-
-                  // Factor 8: Gender Preference (weight: 10)
-                  totalWeight += 10;
-                  if (myPost.targetGender === 'Any' || roommate.targetGender === 'Any' || myPost.targetGender === roommate.targetGender) weightedScore += 10;
-                  else if ((myPost.gender || myPost.user?.gender) && roommate.targetGender === (myPost.gender || myPost.user?.gender)) weightedScore += 10;
-
-                  // Factor 9: Budget Range (weight: 10) — within 30% = full, within 60% = half
-                  totalWeight += 10;
-                  if (myPost.budget && roommate.budget) {
-                    const budgetDiff = Math.abs(myPost.budget - roommate.budget) / Math.max(myPost.budget, roommate.budget);
-                    if (budgetDiff <= 0.15) weightedScore += 10;
-                    else if (budgetDiff <= 0.3) weightedScore += 7;
-                    else if (budgetDiff <= 0.6) weightedScore += 3;
-                  }
-
-                  matchScore = Math.round((weightedScore / totalWeight) * 100);
-                }
-
-                const splitRent = roommate.totalCapacity > 1 && roommate.budget ? Math.round(roommate.budget / roommate.totalCapacity) : null;
-                const splitDeposit = roommate.totalCapacity > 1 && roommate.deposit > 0 ? Math.round(roommate.deposit / roommate.totalCapacity) : null;
-
-                const displayBudget = roommate.budget ? roommate.budget.toLocaleString('en-IN') : 'N/A';
-                const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
-
-                return (
-                  <div id={`roommate-card-${roommate.id}`} key={roommate.id} className="glass-card bg-white/80 rounded-3xl p-6 border border-gray-100 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-100 to-transparent rounded-bl-full -z-10 opacity-50"></div>
-                    
-                    {/* Header */}
-                    <div className="flex items-start justify-between mb-6">
-                      <div className="flex items-center">
-                        <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-2xl flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm shadow-primary-200/50 overflow-hidden">
-                          {roommate.user?.profilePhoto ? (
-                            <img src={roommate.user.profilePhoto} alt={roommate.user.name} className="w-full h-full object-cover" />
-                          ) : (
-                            roommate.user?.name?.charAt(0) || 'U'
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <h3 className="text-xl font-bold text-gray-900">{maskName(roommate.user?.name) || 'User'}</h3>
-                            {roommate.user?.isVerified === true && (
-                              <div className="group relative flex items-center">
-                                <BadgeCheck size={20} className="text-blue-500 fill-blue-50" />
-                                <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-gray-900 text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">ID Verified</span>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex items-center flex-wrap gap-2 mt-0.5">
-                            <span className="text-gray-500 text-xs font-semibold">
-                              {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
-                            </span>
-                            {roommate.preferences?.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)) && (
-                              <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm shadow-blue-100/50 uppercase">
-                                🏢 {roommate.preferences.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p))}
-                              </span>
-                            )}
-                            {(roommate.gender || roommate.user?.gender) && (
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border shadow-sm flex items-center gap-0.5 ${
-                                (roommate.gender || roommate.user?.gender).toLowerCase() === 'male' ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-blue-100/50' :
-                                (roommate.gender || roommate.user?.gender).toLowerCase() === 'female' ? 'bg-pink-50 text-pink-700 border-pink-200 shadow-pink-100/50' :
-                                'bg-purple-50 text-purple-700 border-purple-200 shadow-purple-100/50'
-                              }`}>
-                                👤 {(roommate.gender || roommate.user?.gender)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      {/* Actions for own post */}
-                      {isOwner && (
-                        <div className="flex gap-2">
-                          <button onClick={() => handleGotAMate(roommate.id)} className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors flex items-center justify-center font-bold text-xs" title="Found Roommate (Close Post)">
-                            Got a Mate!
-                          </button>
-                          <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete Post">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* 🟢 Match Score Badge */}
-                    {matchScore !== null && (
-                      <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold shadow-sm border z-10 ${
-                        matchScore >= 75 ? 'bg-green-100 text-green-700 border-green-200' :
-                        matchScore >= 50 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
-                        'bg-red-100 text-red-700 border-red-200'
-                      }`}>
-                        {matchScore}% Match
-                      </div>
-                    )}
-
-                    {/* Image Carousel */}
-                    {roommate.images && roommate.images.length > 0 && (
-                      <div className="relative h-48 w-full mb-4 rounded-xl overflow-hidden group bg-gray-100 border border-gray-200">
-                        <img 
-                          src={roommate.images[activeImageIndexes[roommate.id] || 0]} 
-                          alt="Room" 
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        
-                        {roommate.images.length > 1 && (
-                          <>
-                            <button 
-                              onClick={() => prevImage(roommate.id, roommate.images.length - 1)}
-                              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <ChevronLeft size={18} />
-                            </button>
-                            <button 
-                              onClick={() => nextImage(roommate.id, roommate.images.length - 1)}
-                              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <ChevronRight size={18} />
-                            </button>
-                            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
-                              {(activeImageIndexes[roommate.id] || 0) + 1} / {roommate.images.length}
                             </div>
-                          </>
-                        )}
-                      </div>
-                    )}
+                          </Popup>
+                        </Marker>
+                      )
+                    })}
+                  </MapContainer>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {displayedRoommates.map(roommate => {
+                    const isOwner = user?.email === roommate.user?.email;
+                    const myPost = roommates.find(r => r.user?.email === user?.email);
 
-                    {/* 🟢 Split Rent Badge */}
-                    {splitRent && (
-                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-3 mb-4 flex items-center justify-between">
-                        <div>
-                          <p className="text-xs text-green-600 font-medium">💰 Split Rent Among {roommate.totalCapacity} Members</p>
-                          <p className="text-lg font-extrabold text-green-700">₹{splitRent.toLocaleString('en-IN')}<span className="text-sm font-medium"> / person / mo</span></p>
-                          {splitDeposit && <p className="text-xs text-green-600 mt-0.5">Deposit: ₹{splitDeposit.toLocaleString('en-IN')} / person</p>}
-                        </div>
-                        <Users size={24} className="text-green-400 flex-shrink-0" />
-                      </div>
-                    )}
-                    
-                    <div className="space-y-3 mb-6">
-                      <div className="flex items-start">
-                        <MapPin size={18} className="text-gray-400 mr-2 mt-0.5" />
-                        <div>
-                          <span className="text-xs text-gray-500 block">Looking in</span>
-                          <span className="font-medium text-gray-800">{roommate.location}</span>
-                          {roommate.computedDistance != null && (
-                            <span className="block mt-1 inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-2 py-0.5 rounded-md text-[11px] font-extrabold tracking-wide shadow-sm animate-pulse">
-                              📍 {roommate.computedDistance} km away
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex items-start">
-                        <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
-                        <div>
-                          <span className="text-xs text-gray-500 block">Total Rent {roommate.maintenanceIncluded ? '(Inc. Maintenance)' : '(Plus Maintenance)'}</span>
-                          <span className="font-medium text-gray-800">₹{displayBudget}</span>
-                        </div>
-                      </div>
-                      {roommate.deposit > 0 && (
-                        <div className="flex items-start">
-                          <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
-                          <div>
-                            <span className="text-xs text-gray-500 block">Total Deposit</span>
-                            <span className="font-medium text-gray-800">₹{displayDeposit}</span>
+                    let matchScore = roommate.matchPercentage != null ? roommate.matchPercentage : null;
+                    if (matchScore === null && !isOwner && myPost) {
+                      let weightedScore = 0;
+                      let totalWeight = 0;
+
+                      // Factor 1: Smoking (weight: 15)
+                      totalWeight += 15;
+                      if (myPost.smokingPref === roommate.smokingPref) weightedScore += 15;
+                      else if (myPost.smokingPref === 'Smoking Okay' || roommate.smokingPref === 'Smoking Okay') weightedScore += 10;
+
+                      // Factor 2: Drinking (weight: 12)
+                      totalWeight += 12;
+                      if (myPost.drinkingPref === roommate.drinkingPref) weightedScore += 12;
+                      else if (myPost.drinkingPref === 'Drinking Okay' || roommate.drinkingPref === 'Drinking Okay') weightedScore += 8;
+
+                      // Factor 3: Pets (weight: 8)
+                      totalWeight += 8;
+                      if (myPost.petsPref === roommate.petsPref) weightedScore += 8;
+                      else if (myPost.petsPref === 'Pets Welcome' || roommate.petsPref === 'Pets Welcome') weightedScore += 5;
+
+                      // Factor 4: Dietary (weight: 15)
+                      totalWeight += 15;
+                      if (myPost.dietaryPref === roommate.dietaryPref) weightedScore += 15;
+                      else if (myPost.dietaryPref === 'Any' || roommate.dietaryPref === 'Any') weightedScore += 10;
+
+                      // Factor 5: Sleep Schedule (weight: 12)
+                      totalWeight += 12;
+                      if (myPost.sleepSchedule === roommate.sleepSchedule) weightedScore += 12;
+                      else if (myPost.sleepSchedule === 'Flexible' || roommate.sleepSchedule === 'Flexible') weightedScore += 8;
+
+                      // Factor 6: Cleanliness (weight: 10)
+                      totalWeight += 10;
+                      if (myPost.cleanlinessLevel === roommate.cleanlinessLevel) weightedScore += 10;
+                      else if (myPost.cleanlinessLevel === 'Moderate' || roommate.cleanlinessLevel === 'Moderate') weightedScore += 6;
+
+                      // Factor 7: Occupation (weight: 8)
+                      totalWeight += 8;
+                      if (myPost.targetOccupation === 'Any' || roommate.targetOccupation === 'Any' || myPost.targetOccupation === roommate.targetOccupation) weightedScore += 8;
+
+                      // Factor 8: Gender Preference (weight: 10)
+                      totalWeight += 10;
+                      if (myPost.targetGender === 'Any' || roommate.targetGender === 'Any' || myPost.targetGender === roommate.targetGender) weightedScore += 10;
+                      else if ((myPost.gender || myPost.user?.gender) && roommate.targetGender === (myPost.gender || myPost.user?.gender)) weightedScore += 10;
+
+                      // Factor 9: Budget Range (weight: 10) — within 30% = full, within 60% = half
+                      totalWeight += 10;
+                      if (myPost.budget && roommate.budget) {
+                        const budgetDiff = Math.abs(myPost.budget - roommate.budget) / Math.max(myPost.budget, roommate.budget);
+                        if (budgetDiff <= 0.15) weightedScore += 10;
+                        else if (budgetDiff <= 0.3) weightedScore += 7;
+                        else if (budgetDiff <= 0.6) weightedScore += 3;
+                      }
+
+                      matchScore = Math.round((weightedScore / totalWeight) * 100);
+                    }
+
+                    const splitRent = roommate.totalCapacity > 1 && roommate.budget ? Math.round(roommate.budget / roommate.totalCapacity) : null;
+                    const splitDeposit = roommate.totalCapacity > 1 && roommate.deposit > 0 ? Math.round(roommate.deposit / roommate.totalCapacity) : null;
+
+                    const displayBudget = roommate.budget ? roommate.budget.toLocaleString('en-IN') : 'N/A';
+                    const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
+
+                    return (
+                      <div id={`roommate-card-${roommate.id}`} key={roommate.id} className="glass-card bg-white/80 rounded-3xl p-6 border border-gray-100 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-primary-100 to-transparent rounded-bl-full -z-10 opacity-50"></div>
+
+                        {/* Header */}
+                        <div className="flex items-start justify-between mb-6">
+                          <div className="flex items-center">
+                            <div className="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-2xl flex items-center justify-center font-bold text-xl mr-4 border-2 border-white shadow-sm shadow-primary-200/50 overflow-hidden">
+                              {roommate.user?.profilePhoto ? (
+                                <img src={roommate.user.profilePhoto} alt={roommate.user.name} className="w-full h-full object-cover" />
+                              ) : (
+                                roommate.user?.name?.charAt(0) || 'U'
+                              )}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <h3 className="text-xl font-bold text-gray-900">{maskName(roommate.user?.name) || 'User'}</h3>
+                                {roommate.user?.isVerified === true && (
+                                  <div className="group relative flex items-center">
+                                    <BadgeCheck size={20} className="text-blue-500 fill-blue-50" />
+                                    <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-gray-900 text-white text-[10px] font-bold rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">ID Verified</span>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center flex-wrap gap-2 mt-0.5">
+                                <span className="text-gray-500 text-xs font-semibold">
+                                  {roommate.user?.role === 'OWNER' ? 'Property Owner' : 'Tenant'}
+                                </span>
+                                {roommate.preferences?.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)) && (
+                                  <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200 shadow-sm shadow-blue-100/50 uppercase">
+                                    🏢 {roommate.preferences.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p))}
+                                  </span>
+                                )}
+                                {(roommate.gender || roommate.user?.gender) && (
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border shadow-sm flex items-center gap-0.5 ${(roommate.gender || roommate.user?.gender).toLowerCase() === 'male' ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-blue-100/50' :
+                                      (roommate.gender || roommate.user?.gender).toLowerCase() === 'female' ? 'bg-pink-50 text-pink-700 border-pink-200 shadow-pink-100/50' :
+                                        'bg-purple-50 text-purple-700 border-purple-200 shadow-purple-100/50'
+                                    }`}>
+                                    👤 {(roommate.gender || roommate.user?.gender)}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                      {roommate.vacancies != null && roommate.totalCapacity != null && (
-                        <div className="flex items-start">
-                          <div className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-bold border border-primary-100 flex items-center">
-                            <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                            {roommate.vacancies} Vacanc{roommate.vacancies === 1 ? 'y' : 'ies'} of {roommate.totalCapacity} Total
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="mb-6">
-                      <span className="text-xs text-gray-500 block mb-2">Preferences & Lifestyle</span>
-                      <div className="flex flex-wrap gap-2">
-                        {roommate.availableFrom && <span className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200 flex items-center gap-1 font-medium">⏱ Move-in: {roommate.availableFrom}</span>}
-                        {roommate.targetOccupation && <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">Prefers {roommate.targetOccupation}</span>}
-                        {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="px-3 py-1 bg-pink-50 text-pink-700 text-xs rounded-full border border-pink-200">Prefers {roommate.targetGender}</span>}
-                        {roommate.agePreference && <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-200">Age: {roommate.agePreference}</span>}
-                        {roommate.dietaryPref && roommate.dietaryPref !== 'Any' && <span className="px-3 py-1 bg-orange-50 text-orange-700 text-xs rounded-full border border-orange-200">{roommate.dietaryPref}</span>}
-                        {roommate.smokingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.smokingPref}</span>}
-                        {roommate.drinkingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.drinkingPref}</span>}
-                        {roommate.petsPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.petsPref}</span>}
-                        {roommate.sleepSchedule && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.sleepSchedule}</span>}
-                        {roommate.cleanlinessLevel && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.cleanlinessLevel} Clean</span>}
-                        {roommate.preferences?.filter(p => !['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)).map((pref, idx) => (
-                          <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">
-                            {pref}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Specifications Section */}
-                    {(roommate.facing || roommate.areaSqft) && (
-                      <div className="mb-4 pt-3 border-t border-gray-100">
-                        <span className="text-xs text-gray-500 block mb-2">Property Specifications</span>
-                        <div className="flex gap-2">
-                          {roommate.facing && (
-                            <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-full border border-indigo-200 flex items-center gap-1 font-medium">
-                              🧭 Facing: {roommate.facing}
-                            </span>
-                          )}
-                          {roommate.areaSqft && (
-                            <span className="px-3 py-1 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-200 flex items-center gap-1 font-medium">
-                              📏 Size: {roommate.areaSqft} Sq. Ft.
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Utility & Maintenance Inclusions badges */}
-                    <div className="mb-4 pt-3 border-t border-gray-100">
-                      <span className="text-xs text-gray-500 block mb-2">Utility Inclusions</span>
-                      <div className="grid grid-cols-3 gap-2">
-                        {[
-                          { label: 'Electricity', value: roommate.electricityBill || 'Not Included', icon: '⚡' },
-                          { label: 'Water', value: roommate.waterSupply || 'Not Included', icon: '💧' },
-                          { label: 'Maint.', value: roommate.maintenance || 'Not Included', icon: '🛠️' }
-                        ].map((util, idx) => (
-                          <div key={idx} className="flex flex-col items-center p-1.5 rounded-xl bg-gray-50 border border-gray-100 text-center">
-                            <span className="text-sm mb-0.5">{util.icon}</span>
-                            <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none mb-0.5">{util.label}</span>
-                            <span className={`text-[10px] font-black leading-none ${util.value === 'Included' ? 'text-green-600' : 'text-amber-600'}`}>
-                              {util.value === 'Included' ? 'Included' : 'Not Incl.'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* AI Match Insights Section */}
-                    <div className="mb-4 pt-3 border-t border-gray-100">
-                      {!cardMatches[roommate.id] ? (
-                        <button
-                          type="button"
-                          onClick={() => handleAnalyzeCardMatch(roommate)}
-                          disabled={analyzingCardId === roommate.id}
-                          className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer disabled:opacity-50"
-                        >
-                          {analyzingCardId === roommate.id ? (
-                            <>
-                              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                              <span>Analyzing Compatibility...</span>
-                            </>
-                          ) : (
-                            <>
-                              <span>✨ AI Compatibility Match & Advice</span>
-                            </>
-                          )}
-                        </button>
-                      ) : (
-                        <div className="bg-gradient-to-r from-purple-900/95 to-indigo-900/95 text-white p-3.5 rounded-xl text-xs space-y-2 border border-purple-500/40 shadow-md animate-fadeIn">
-                          <div className="flex items-center justify-between">
-                            <span className="font-bold flex items-center gap-1 text-amber-300">
-                              <span>✨ AI Match Analysis</span>
-                            </span>
-                            <span className="bg-amber-400 text-slate-900 font-black px-2 py-0.5 rounded text-[11px] shadow">
-                              {cardMatches[roommate.id].matchScore}
-                            </span>
-                          </div>
-                          <p className="text-purple-100 text-[11px] leading-relaxed">
-                            {cardMatches[roommate.id].analysis}
-                          </p>
-                          {cardMatches[roommate.id].icebreaker && (
-                            <div className="pt-2 border-t border-white/20 flex items-center justify-between gap-2">
-                              <span className="text-[10px] text-purple-200 italic line-clamp-1">💬 "{cardMatches[roommate.id].icebreaker}"</span>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (!isAuthenticated) {
-                                    showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
-                                    return;
-                                  }
-                                  navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(cardMatches[roommate.id].icebreaker)}`);
-                                }}
-                                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-2.5 py-1 rounded text-[10px] transition-colors flex-shrink-0 cursor-pointer shadow"
-                              >
-                                Send Intro 🚀
+                          {/* Actions for own post */}
+                          {isOwner && (
+                            <div className="flex gap-2">
+                              <button onClick={() => handleGotAMate(roommate.id)} className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors flex items-center justify-center font-bold text-xs" title="Found Roommate (Close Post)">
+                                Got a Mate!
+                              </button>
+                              <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete Post">
+                                <Trash2 size={16} />
                               </button>
                             </div>
                           )}
                         </div>
-                      )}
-                    </div>
 
-                    {!isOwner && (
-                      <div className="flex gap-2 mt-4">
-                        <button 
-                          onClick={() => handleSendRequest(roommate.id)}
-                          className="flex-1 bg-pink-50 text-pink-700 hover:bg-pink-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors"
-                        >
-                          <Users size={18} className="mr-2" />
-                          Send Request
-                        </button>
-                        <button 
-                          onClick={() => {
-                            if (!isAuthenticated) {
-                              showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
-                              return;
-                            }
-                            navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`);
-                          }}
-                          className="flex-1 bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors"
-                        >
-                          <MessageCircle size={18} className="mr-2" />
-                          Message
-                        </button>
+                        {/* 🟢 Match Score Badge */}
+                        {matchScore !== null && (
+                          <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-bold shadow-sm border z-10 ${matchScore >= 75 ? 'bg-green-100 text-green-700 border-green-200' :
+                              matchScore >= 50 ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
+                                'bg-red-100 text-red-700 border-red-200'
+                            }`}>
+                            {matchScore}% Match
+                          </div>
+                        )}
+
+                        {/* Image Carousel */}
+                        {roommate.images && roommate.images.length > 0 && (
+                          <div className="relative h-48 w-full mb-4 rounded-xl overflow-hidden group bg-gray-100 border border-gray-200">
+                            <img
+                              src={roommate.images[activeImageIndexes[roommate.id] || 0]}
+                              alt="Room"
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+
+                            {roommate.images.length > 1 && (
+                              <>
+                                <button
+                                  onClick={() => prevImage(roommate.id, roommate.images.length - 1)}
+                                  className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <ChevronLeft size={18} />
+                                </button>
+                                <button
+                                  onClick={() => nextImage(roommate.id, roommate.images.length - 1)}
+                                  className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white/80 hover:bg-white text-gray-800 p-1 rounded-full shadow-sm opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <ChevronRight size={18} />
+                                </button>
+                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black/50 text-white text-[10px] px-2 py-0.5 rounded-full font-medium">
+                                  {(activeImageIndexes[roommate.id] || 0) + 1} / {roommate.images.length}
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        {/* 🟢 Split Rent Badge */}
+                        {splitRent && (
+                          <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-3 mb-4 flex items-center justify-between">
+                            <div>
+                              <p className="text-xs text-green-600 font-medium">💰 Split Rent Among {roommate.totalCapacity} Members</p>
+                              <p className="text-lg font-extrabold text-green-700">₹{splitRent.toLocaleString('en-IN')}<span className="text-sm font-medium"> / person / mo</span></p>
+                              {splitDeposit && <p className="text-xs text-green-600 mt-0.5">Deposit: ₹{splitDeposit.toLocaleString('en-IN')} / person</p>}
+                            </div>
+                            <Users size={24} className="text-green-400 flex-shrink-0" />
+                          </div>
+                        )}
+
+                        <div className="space-y-3 mb-6">
+                          <div className="flex items-start">
+                            <MapPin size={18} className="text-gray-400 mr-2 mt-0.5" />
+                            <div>
+                              <span className="text-xs text-gray-500 block">Looking in</span>
+                              <span className="font-medium text-gray-800">{roommate.location}</span>
+                              {roommate.computedDistance != null && (
+                                <span className="block mt-1 inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-2 py-0.5 rounded-md text-[11px] font-extrabold tracking-wide shadow-sm animate-pulse">
+                                  📍 {roommate.computedDistance} km away
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-start">
+                            <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
+                            <div>
+                              <span className="text-xs text-gray-500 block">Total Rent {roommate.maintenanceIncluded ? '(Inc. Maintenance)' : '(Plus Maintenance)'}</span>
+                              <span className="font-medium text-gray-800">₹{displayBudget}</span>
+                            </div>
+                          </div>
+                          {roommate.deposit > 0 && (
+                            <div className="flex items-start">
+                              <IndianRupee size={18} className="text-gray-400 mr-2 mt-0.5" />
+                              <div>
+                                <span className="text-xs text-gray-500 block">Total Deposit</span>
+                                <span className="font-medium text-gray-800">₹{displayDeposit}</span>
+                              </div>
+                            </div>
+                          )}
+                          {roommate.vacancies != null && roommate.totalCapacity != null && (
+                            <div className="flex items-start">
+                              <div className="bg-primary-50 text-primary-700 px-3 py-1 rounded-full text-xs font-bold border border-primary-100 flex items-center">
+                                <span className="w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                                {roommate.vacancies} Vacanc{roommate.vacancies === 1 ? 'y' : 'ies'} of {roommate.totalCapacity} Total
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="mb-6">
+                          <span className="text-xs text-gray-500 block mb-2">Preferences & Lifestyle</span>
+                          <div className="flex flex-wrap gap-2">
+                            {roommate.availableFrom && <span className="px-3 py-1 bg-green-50 text-green-700 text-xs rounded-full border border-green-200 flex items-center gap-1 font-medium">⏱ Move-in: {roommate.availableFrom}</span>}
+                            {roommate.targetOccupation && <span className="px-3 py-1 bg-blue-50 text-blue-700 text-xs rounded-full border border-blue-200">Prefers {roommate.targetOccupation}</span>}
+                            {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="px-3 py-1 bg-pink-50 text-pink-700 text-xs rounded-full border border-pink-200">Prefers {roommate.targetGender}</span>}
+                            {roommate.agePreference && <span className="px-3 py-1 bg-purple-50 text-purple-700 text-xs rounded-full border border-purple-200">Age: {roommate.agePreference}</span>}
+                            {roommate.dietaryPref && roommate.dietaryPref !== 'Any' && <span className="px-3 py-1 bg-orange-50 text-orange-700 text-xs rounded-full border border-orange-200">{roommate.dietaryPref}</span>}
+                            {roommate.smokingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.smokingPref}</span>}
+                            {roommate.drinkingPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.drinkingPref}</span>}
+                            {roommate.petsPref && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.petsPref}</span>}
+                            {roommate.sleepSchedule && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.sleepSchedule}</span>}
+                            {roommate.cleanlinessLevel && <span className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">{roommate.cleanlinessLevel} Clean</span>}
+                            {roommate.preferences?.filter(p => !['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)).map((pref, idx) => (
+                              <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 text-xs rounded-full border border-gray-200">
+                                {pref}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Specifications Section */}
+                        {(roommate.facing || roommate.areaSqft) && (
+                          <div className="mb-4 pt-3 border-t border-gray-100">
+                            <span className="text-xs text-gray-500 block mb-2">Property Specifications</span>
+                            <div className="flex gap-2">
+                              {roommate.facing && (
+                                <span className="px-3 py-1 bg-indigo-50 text-indigo-700 text-xs rounded-full border border-indigo-200 flex items-center gap-1 font-medium">
+                                  🧭 Facing: {roommate.facing}
+                                </span>
+                              )}
+                              {roommate.areaSqft && (
+                                <span className="px-3 py-1 bg-teal-50 text-teal-700 text-xs rounded-full border border-teal-200 flex items-center gap-1 font-medium">
+                                  📏 Size: {roommate.areaSqft} Sq. Ft.
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Utility & Maintenance Inclusions badges */}
+                        <div className="mb-4 pt-3 border-t border-gray-100">
+                          <span className="text-xs text-gray-500 block mb-2">Utility Inclusions</span>
+                          <div className="grid grid-cols-3 gap-2">
+                            {[
+                              { label: 'Electricity', value: roommate.electricityBill || 'Not Included', icon: '⚡' },
+                              { label: 'Water', value: roommate.waterSupply || 'Not Included', icon: '💧' },
+                              { label: 'Maint.', value: roommate.maintenance || 'Not Included', icon: '🛠️' }
+                            ].map((util, idx) => (
+                              <div key={idx} className="flex flex-col items-center p-1.5 rounded-xl bg-gray-50 border border-gray-100 text-center">
+                                <span className="text-sm mb-0.5">{util.icon}</span>
+                                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider leading-none mb-0.5">{util.label}</span>
+                                <span className={`text-[10px] font-black leading-none ${util.value === 'Included' ? 'text-green-600' : 'text-amber-600'}`}>
+                                  {util.value === 'Included' ? 'Included' : 'Not Incl.'}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* AI Match Insights Section */}
+                        <div className="mb-4 pt-3 border-t border-gray-100">
+                          {!cardMatches[roommate.id] ? (
+                            <button
+                              type="button"
+                              onClick={() => handleAnalyzeCardMatch(roommate)}
+                              disabled={analyzingCardId === roommate.id}
+                              className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                            >
+                              {analyzingCardId === roommate.id ? (
+                                <>
+                                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                  <span>Analyzing Compatibility...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>✨ AI Compatibility Match & Advice</span>
+                                </>
+                              )}
+                            </button>
+                          ) : (
+                            <div className="bg-gradient-to-r from-purple-900/95 to-indigo-900/95 text-white p-3.5 rounded-xl text-xs space-y-2 border border-purple-500/40 shadow-md animate-fadeIn">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold flex items-center gap-1 text-amber-300">
+                                  <span>✨ AI Match Analysis</span>
+                                </span>
+                                <span className="bg-amber-400 text-slate-900 font-black px-2 py-0.5 rounded text-[11px] shadow">
+                                  {cardMatches[roommate.id].matchScore}
+                                </span>
+                              </div>
+                              <p className="text-purple-100 text-[11px] leading-relaxed">
+                                {cardMatches[roommate.id].analysis}
+                              </p>
+                              {cardMatches[roommate.id].icebreaker && (
+                                <div className="pt-2 border-t border-white/20 flex items-center justify-between gap-2">
+                                  <span className="text-[10px] text-purple-200 italic line-clamp-1">💬 "{cardMatches[roommate.id].icebreaker}"</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (!isAuthenticated) {
+                                        showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
+                                        return;
+                                      }
+                                      navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(cardMatches[roommate.id].icebreaker)}`);
+                                    }}
+                                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-2.5 py-1 rounded text-[10px] transition-colors flex-shrink-0 cursor-pointer shadow"
+                                  >
+                                    Send Intro 🚀
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+
+                        {!isOwner && (
+                          <div className="flex gap-2 mt-4">
+                            <button
+                              onClick={() => handleSendRequest(roommate.id)}
+                              className="flex-1 bg-pink-50 text-pink-700 hover:bg-pink-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors"
+                            >
+                              <Users size={18} className="mr-2" />
+                              Send Request
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (!isAuthenticated) {
+                                  showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
+                                  return;
+                                }
+                                navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(`Hi ${maskName(roommate.user?.name) || ''}, I saw your roommate posting for ${roommate.location} and I'm interested in joining!`)}`);
+                              }}
+                              className="flex-1 bg-primary-50 text-primary-700 hover:bg-primary-100 py-3 rounded-xl font-medium flex items-center justify-center transition-colors"
+                            >
+                              <MessageCircle size={18} className="mr-2" />
+                              Message
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                );
-              })}
-              </div>
-            )}
-            {hasMore && (
-              <div className="mt-10 flex justify-center">
-                <button
-                  onClick={() => {
-                    const nextPage = page + 1;
-                    setPage(nextPage);
-                    fetchRoommates(nextPage, true);
-                  }}
-                  disabled={loading}
-                  className="bg-white border-2 border-primary-100 text-primary-700 px-8 py-3 rounded-xl font-bold hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm disabled:opacity-50"
-                >
-                  {loading ? 'Loading...' : 'Load More Roommates'}
-                </button>
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              )}
+              {hasMore && (
+                <div className="mt-10 flex justify-center">
+                  <button
+                    onClick={() => {
+                      const nextPage = page + 1;
+                      setPage(nextPage);
+                      fetchRoommates(nextPage, true);
+                    }}
+                    disabled={loading}
+                    className="bg-white border-2 border-primary-100 text-primary-700 px-8 py-3 rounded-xl font-bold hover:bg-primary-50 hover:border-primary-200 transition-all shadow-sm disabled:opacity-50"
+                  >
+                    {loading ? 'Loading...' : 'Load More Roommates'}
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
         </div>
       </div>
-      
+
       {/* Post Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden shadow-2xl shadow-gray-900/20" style={{animation: 'slideUp 0.3s ease-out'}}>
-            
+          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden shadow-2xl shadow-gray-900/20" style={{ animation: 'slideUp 0.3s ease-out' }}>
+
             {/* Premium Gradient Header */}
             <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-purple-700 px-6 py-5 flex justify-between items-start flex-shrink-0 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-16 translate-x-16"></div>
@@ -1616,7 +1613,7 @@ const RoommatesPage = () => {
                     <label className="block text-xs font-medium text-gray-500 mb-1">Building / Society Name</label>
                     <input
                       type="text" value={postFormData.buildingName}
-                      onChange={(e) => setPostFormData({...postFormData, buildingName: e.target.value})}
+                      onChange={(e) => setPostFormData({ ...postFormData, buildingName: e.target.value })}
                       placeholder="e.g. Maple Heights, Sai Residency"
                       className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
                     />
@@ -1630,7 +1627,7 @@ const RoommatesPage = () => {
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
                           type="text" value={postFormData.areaName}
-                          onChange={(e) => setPostFormData({...postFormData, areaName: e.target.value})}
+                          onChange={(e) => setPostFormData({ ...postFormData, areaName: e.target.value })}
                           onBlur={(e) => geocodeAndSetPostLocation(`${e.target.value}, ${postFormData.villageCityTown || 'Pune'}`)}
                           placeholder="e.g. Hinjewadi, Kothrud, Wakad"
                           required
@@ -1650,7 +1647,7 @@ const RoommatesPage = () => {
                       <label className="block text-xs font-medium text-gray-500 mb-1">Village / City / Town <span className="text-red-400">*</span></label>
                       <input
                         type="text" value={postFormData.villageCityTown}
-                        onChange={(e) => setPostFormData({...postFormData, villageCityTown: e.target.value})}
+                        onChange={(e) => setPostFormData({ ...postFormData, villageCityTown: e.target.value })}
                         placeholder="e.g. Pune"
                         required
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
@@ -1660,7 +1657,7 @@ const RoommatesPage = () => {
                       <label className="block text-xs font-medium text-gray-500 mb-1">Taluka</label>
                       <input
                         type="text" value={postFormData.taluka}
-                        onChange={(e) => setPostFormData({...postFormData, taluka: e.target.value})}
+                        onChange={(e) => setPostFormData({ ...postFormData, taluka: e.target.value })}
                         placeholder="e.g. Haveli"
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
                       />
@@ -1673,7 +1670,7 @@ const RoommatesPage = () => {
                       <label className="block text-xs font-medium text-gray-500 mb-1">District <span className="text-red-400">*</span></label>
                       <input
                         type="text" value={postFormData.district}
-                        onChange={(e) => setPostFormData({...postFormData, district: e.target.value})}
+                        onChange={(e) => setPostFormData({ ...postFormData, district: e.target.value })}
                         placeholder="e.g. Pune"
                         required
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
@@ -1683,7 +1680,7 @@ const RoommatesPage = () => {
                       <label className="block text-xs font-medium text-gray-500 mb-1">Pincode <span className="text-red-400">*</span></label>
                       <input
                         type="text" value={postFormData.pincode}
-                        onChange={(e) => setPostFormData({...postFormData, pincode: e.target.value.replace(/\D/g, '').slice(0, 6)})}
+                        onChange={(e) => setPostFormData({ ...postFormData, pincode: e.target.value.replace(/\D/g, '').slice(0, 6) })}
                         placeholder="e.g. 411057"
                         maxLength={6}
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm"
@@ -1717,18 +1714,18 @@ const RoommatesPage = () => {
                       Search
                     </button>
                   </div>
-                  
+
                   <MapContainer center={mapCenter} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
                     <CustomZoomControl />
                     <MapUpdater center={mapCenter} />
                     <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
-                    <Marker 
-                       position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter} 
-                       icon={createCustomIcon('Room')}
+                    <Marker
+                      position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter}
+                      icon={createCustomIcon('Room')}
                     />
                     <ModalLocationPicker />
                   </MapContainer>
-                  
+
                   <div className="absolute bottom-2 left-2 z-[500] bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black text-primary-700 shadow-md border border-primary-100 flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
                     Roommate Request
@@ -1747,7 +1744,7 @@ const RoommatesPage = () => {
                     </label>
                     <select
                       value={postFormData.flatSize}
-                      onChange={(e) => setPostFormData({...postFormData, flatSize: e.target.value})}
+                      onChange={(e) => setPostFormData({ ...postFormData, flatSize: e.target.value })}
                       className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none bg-white font-semibold text-gray-700"
                     >
                       <option value="1BHK">1 BHK (1 Bed, Hall, Kitchen)</option>
@@ -1802,7 +1799,7 @@ const RoommatesPage = () => {
                       <div className="relative">
                         <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                         <input type="number" value={postFormData.budget}
-                          onChange={(e) => setPostFormData({...postFormData, budget: e.target.value})}
+                          onChange={(e) => setPostFormData({ ...postFormData, budget: e.target.value })}
                           placeholder="15000"
                           className="w-full pl-8 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm" />
                       </div>
@@ -1812,7 +1809,7 @@ const RoommatesPage = () => {
                       <div className="relative">
                         <IndianRupee className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
                         <input type="number" value={postFormData.deposit}
-                          onChange={(e) => setPostFormData({...postFormData, deposit: e.target.value})}
+                          onChange={(e) => setPostFormData({ ...postFormData, deposit: e.target.value })}
                           placeholder="50000"
                           className="w-full pl-8 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none text-sm" />
                       </div>
@@ -1820,13 +1817,13 @@ const RoommatesPage = () => {
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Vacancies</label>
                       <input type="number" min="1" value={postFormData.vacancies}
-                        onChange={(e) => setPostFormData({...postFormData, vacancies: e.target.value})}
+                        onChange={(e) => setPostFormData({ ...postFormData, vacancies: e.target.value })}
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Total Capacity</label>
                       <input type="number" min="1" value={postFormData.totalCapacity}
-                        onChange={(e) => setPostFormData({...postFormData, totalCapacity: e.target.value})}
+                        onChange={(e) => setPostFormData({ ...postFormData, totalCapacity: e.target.value })}
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                     </div>
                   </div>
@@ -1841,7 +1838,7 @@ const RoommatesPage = () => {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Facing Direction</label>
-                      <select value={postFormData.facing} onChange={(e) => setPostFormData({...postFormData, facing: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none bg-white">
+                      <select value={postFormData.facing} onChange={(e) => setPostFormData({ ...postFormData, facing: e.target.value })} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none bg-white">
                         <option value="">Select Direction</option>
                         {['East', 'North', 'South', 'West', 'North-East', 'North-West', 'South-East', 'South-West'].map(dir => (
                           <option key={dir} value={dir}>{dir}</option>
@@ -1850,7 +1847,7 @@ const RoommatesPage = () => {
                     </div>
                     <div>
                       <label className="block text-xs font-medium text-gray-500 mb-1">Area (Sq. Ft.)</label>
-                      <input type="number" min="1" value={postFormData.areaSqft} onChange={(e) => setPostFormData({...postFormData, areaSqft: e.target.value})} placeholder="e.g. 1000" className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                      <input type="number" min="1" value={postFormData.areaSqft} onChange={(e) => setPostFormData({ ...postFormData, areaSqft: e.target.value })} placeholder="e.g. 1000" className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                     </div>
                   </div>
                 </div>
@@ -1863,9 +1860,9 @@ const RoommatesPage = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-500 mb-1">Your Gender <span className="text-red-400">*</span></label>
-                    <select 
-                      value={postFormData.gender} 
-                      onChange={(e) => setPostFormData({...postFormData, gender: e.target.value})} 
+                    <select
+                      value={postFormData.gender}
+                      onChange={(e) => setPostFormData({ ...postFormData, gender: e.target.value })}
                       className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm bg-white"
                     >
                       <option value="">Select Your Gender</option>
@@ -1883,27 +1880,27 @@ const RoommatesPage = () => {
                     <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Preferences</h3>
                   </div>
                   <div className="grid grid-cols-2 gap-3 mb-3">
-                    <select value={postFormData.targetGender} onChange={(e) => setPostFormData({...postFormData, targetGender: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                    <select value={postFormData.targetGender} onChange={(e) => setPostFormData({ ...postFormData, targetGender: e.target.value })} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
                       <option value="Any">Any Gender</option>
                       <option value="Male">Male</option>
                       <option value="Female">Female</option>
                     </select>
-                    <select value={postFormData.dietaryPref} onChange={(e) => setPostFormData({...postFormData, dietaryPref: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                    <select value={postFormData.dietaryPref} onChange={(e) => setPostFormData({ ...postFormData, dietaryPref: e.target.value })} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
                       <option value="Any">Any Diet</option>
                       <option value="Veg">Vegetarian</option>
                       <option value="Non-Veg">Non-Vegetarian</option>
                     </select>
-                    <select value={postFormData.smokingPref} onChange={(e) => setPostFormData({...postFormData, smokingPref: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                    <select value={postFormData.smokingPref} onChange={(e) => setPostFormData({ ...postFormData, smokingPref: e.target.value })} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
                       <option value="Non-Smoking">Non-Smoking</option>
                       <option value="Smoking Okay">Smoking Okay</option>
                     </select>
-                    <select value={postFormData.drinkingPref} onChange={(e) => setPostFormData({...postFormData, drinkingPref: e.target.value})} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
+                    <select value={postFormData.drinkingPref} onChange={(e) => setPostFormData({ ...postFormData, drinkingPref: e.target.value })} className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none">
                       <option value="Non-Drinking">Non-Drinking</option>
                       <option value="Drinking Okay">Drinking Okay</option>
                     </select>
                   </div>
                   <input type="text" value={postFormData.preferences}
-                    onChange={(e) => setPostFormData({...postFormData, preferences: e.target.value})}
+                    onChange={(e) => setPostFormData({ ...postFormData, preferences: e.target.value })}
                     placeholder="Other Tags (e.g. IT Professional, Night Shift)"
                     className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
                 </div>
@@ -1928,7 +1925,7 @@ const RoommatesPage = () => {
                       {postFormData.images.map((img, idx) => (
                         <div key={idx} className="relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border border-gray-200">
                           <img src={img} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
-                          <button type="button" onClick={() => setPostFormData({...postFormData, images: postFormData.images.filter((_, i) => i !== idx)})} className="absolute top-1 right-1 bg-red-500 text-white p-0.5 rounded-full"><X size={12}/></button>
+                          <button type="button" onClick={() => setPostFormData({ ...postFormData, images: postFormData.images.filter((_, i) => i !== idx) })} className="absolute top-1 right-1 bg-red-500 text-white p-0.5 rounded-full"><X size={12} /></button>
                         </div>
                       ))}
                     </div>
