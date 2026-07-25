@@ -356,6 +356,21 @@ const RoommatesPage = () => {
     }
   };
 
+  const [cardMatches, setCardMatches] = useState({});
+  const [analyzingCardId, setAnalyzingCardId] = useState(null);
+
+  const handleAnalyzeCardMatch = async (roommate) => {
+    setAnalyzingCardId(roommate.id);
+    try {
+      const result = await geminiService.analyzeRoommateMatch(user || {}, roommate);
+      setCardMatches(prev => ({ ...prev, [roommate.id]: result }));
+    } catch (err) {
+      console.error('Match analysis failed', err);
+    } finally {
+      setAnalyzingCardId(null);
+    }
+  };
+
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const currentImagesCount = postFormData.images ? postFormData.images.length : 0;
@@ -1377,6 +1392,61 @@ const RoommatesPage = () => {
                           </div>
                         ))}
                       </div>
+                    </div>
+
+                    {/* AI Match Insights Section */}
+                    <div className="mb-4 pt-3 border-t border-gray-100">
+                      {!cardMatches[roommate.id] ? (
+                        <button
+                          type="button"
+                          onClick={() => handleAnalyzeCardMatch(roommate)}
+                          disabled={analyzingCardId === roommate.id}
+                          className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+                        >
+                          {analyzingCardId === roommate.id ? (
+                            <>
+                              <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              <span>Analyzing Compatibility...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span>✨ AI Compatibility Match & Advice</span>
+                            </>
+                          )}
+                        </button>
+                      ) : (
+                        <div className="bg-gradient-to-r from-purple-900/95 to-indigo-900/95 text-white p-3.5 rounded-xl text-xs space-y-2 border border-purple-500/40 shadow-md animate-fadeIn">
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold flex items-center gap-1 text-amber-300">
+                              <span>✨ AI Match Analysis</span>
+                            </span>
+                            <span className="bg-amber-400 text-slate-900 font-black px-2 py-0.5 rounded text-[11px] shadow">
+                              {cardMatches[roommate.id].matchScore}
+                            </span>
+                          </div>
+                          <p className="text-purple-100 text-[11px] leading-relaxed">
+                            {cardMatches[roommate.id].analysis}
+                          </p>
+                          {cardMatches[roommate.id].icebreaker && (
+                            <div className="pt-2 border-t border-white/20 flex items-center justify-between gap-2">
+                              <span className="text-[10px] text-purple-200 italic line-clamp-1">💬 "{cardMatches[roommate.id].icebreaker}"</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!isAuthenticated) {
+                                    showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message this user.', onConfirm: () => navigate('/auth') });
+                                    return;
+                                  }
+                                  navigate(`/messages?user=${roommate.user?.id}&text=${encodeURIComponent(cardMatches[roommate.id].icebreaker)}`);
+                                }}
+                                className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-2.5 py-1 rounded text-[10px] transition-colors flex-shrink-0 cursor-pointer shadow"
+                              >
+                                Send Intro 🚀
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {!isOwner && (

@@ -4,6 +4,7 @@ import { MapPin, Star, Heart, BadgeCheck, Wifi, Car, Dumbbell, Tv } from 'lucide
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import { motion } from 'framer-motion';
+import geminiService from '../services/geminiService';
 
 const maskName = (name) => {
   if (!name) return 'Anonymous';
@@ -80,6 +81,22 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
   const [animating, setAnimating] = useState(false);
   const [imgError, setImgError] = useState(false);
   const pgTheme = themeOverride || getPgGenderTheme(listing);
+  const [aiDealInsight, setAiDealInsight] = useState(null);
+  const [analyzingDeal, setAnalyzingDeal] = useState(false);
+
+  const handleAnalyzeDeal = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setAnalyzingDeal(true);
+    try {
+      const res = await geminiService.analyzePropertyDeal(listing);
+      setAiDealInsight(res);
+    } catch (err) {
+      console.error('Deal analysis failed', err);
+    } finally {
+      setAnalyzingDeal(false);
+    }
+  };
 
   useEffect(() => {
     setWishlisted(initialWishlisted);
@@ -255,6 +272,46 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
             )}
           </div>
         )}
+
+        {/* AI Deal Analysis Section */}
+        <div className="mb-3">
+          {!aiDealInsight ? (
+            <button
+              type="button"
+              onClick={handleAnalyzeDeal}
+              disabled={analyzingDeal}
+              className="w-full bg-gradient-to-r from-purple-600/90 to-indigo-600/90 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-1.5 px-2.5 rounded-lg text-[11px] flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+            >
+              {analyzingDeal ? (
+                <>
+                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>Evaluating Deal...</span>
+                </>
+              ) : (
+                <>
+                  <span>✨ AI Smart Deal Analysis</span>
+                </>
+              )}
+            </button>
+          ) : (
+            <div 
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
+              className="bg-gradient-to-r from-purple-900/95 to-indigo-900/95 text-white p-3 rounded-xl text-xs space-y-1.5 border border-purple-500/40 shadow animate-fadeIn"
+            >
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-[11px] text-amber-300 flex items-center gap-1">
+                  <span>✨ AI Deal Evaluator</span>
+                </span>
+                <span className="bg-amber-400 text-slate-900 font-black px-1.5 py-0.5 rounded text-[10px] shadow">
+                  {aiDealInsight.dealScore}
+                </span>
+              </div>
+              <p className="text-purple-100 text-[10px] leading-relaxed">
+                {aiDealInsight.insight}
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Footer */}
         <div className="mt-auto pt-3 border-t border-gray-50 flex flex-col gap-2">
