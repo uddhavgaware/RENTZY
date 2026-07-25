@@ -30,6 +30,7 @@ const OwnerDashboardPage = () => {
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const [bedSearchQuery, setBedSearchQuery] = useState({});
   const [expandedProperties, setExpandedProperties] = useState({});
+  const [billSearchQuery, setBillSearchQuery] = useState('');
 
   const toggleProperty = (id) => setExpandedProperties(prev => ({ ...prev, [id]: !prev[id] }));
 
@@ -356,8 +357,7 @@ const OwnerDashboardPage = () => {
                         >
                           <div className="flex items-center justify-between mb-2">
                             <div>
-                              <span className="font-extrabold text-sm text-gray-900 dark:text-white">{room.roomNumber}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400 ml-1.5">({room.bedNumber})</span>
+                              <span className="font-extrabold text-base text-gray-900 dark:text-white">{(room.roomNumber || '').replace(/[^0-9]/g,'')}{(room.bedNumber || '').replace(/[^A-Za-z]/g,'').toUpperCase()}</span>
                             </div>
                             <span className={`text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full ${
                               room.status === 'OCCUPIED' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300' : 'bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-gray-300'
@@ -420,11 +420,20 @@ const OwnerDashboardPage = () => {
         {/* TAB 2: BILLS & RAZORPAY COLLECTION LEDGER */}
         {activeTab === 'bills' && (
           <div className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg p-6">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
               <div>
                 <h2 className="text-xl font-black text-gray-900 dark:text-white">Tenant Bills & Razorpay Rent Ledger</h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Track monthly Rent + Electricity + Maintenance bills</p>
               </div>
+              {bills.length > 0 && (
+                <input
+                  type="text"
+                  placeholder="🔍 Search tenant, room, month..."
+                  value={billSearchQuery}
+                  onChange={e => setBillSearchQuery(e.target.value)}
+                  className="px-4 py-2 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-700 text-sm text-gray-700 dark:text-white focus:ring-2 focus:ring-primary-400 outline-none w-full sm:w-72"
+                />
+              )}
             </div>
 
             {bills.length === 0 ? (
@@ -446,7 +455,17 @@ const OwnerDashboardPage = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-xs">
-                    {bills.map(b => (
+                    {bills.filter(b => {
+                      const q = billSearchQuery.toLowerCase().trim();
+                      if (!q) return true;
+                      return (
+                        (b.tenantName || '').toLowerCase().includes(q) ||
+                        (b.roomBed?.roomNumber || '').toLowerCase().includes(q) ||
+                        (b.roomBed?.ownerProperty?.name || '').toLowerCase().includes(q) ||
+                        (b.billingMonth || '').toLowerCase().includes(q) ||
+                        (b.status || '').toLowerCase().includes(q)
+                      );
+                    }).map(b => (
                       <tr key={b.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors">
                         <td className="px-5 py-4">
                           <p className="font-bold text-gray-900 dark:text-white">{b.tenantName || 'Tenant'}</p>
@@ -497,6 +516,19 @@ const OwnerDashboardPage = () => {
                     ))}
                   </tbody>
                 </table>
+                {bills.filter(b => {
+                  const q = billSearchQuery.toLowerCase().trim();
+                  if (!q) return true;
+                  return (
+                    (b.tenantName || '').toLowerCase().includes(q) ||
+                    (b.roomBed?.roomNumber || '').toLowerCase().includes(q) ||
+                    (b.roomBed?.ownerProperty?.name || '').toLowerCase().includes(q) ||
+                    (b.billingMonth || '').toLowerCase().includes(q) ||
+                    (b.status || '').toLowerCase().includes(q)
+                  );
+                }).length === 0 && billSearchQuery && (
+                  <div className="text-center py-8 text-gray-400 text-sm">No bills match "{billSearchQuery}"</div>
+                )}
               </div>
             )}
           </div>
@@ -554,12 +586,17 @@ const OwnerDashboardPage = () => {
         </div>
       )}
 
-      {/* MODAL 2: ASSIGN TENANT */}
+      {/* MODAL 2: ASSIGN / REPLACE TENANT */}
       {showTenantModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-white/10">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-black text-gray-900 dark:text-white">Assign Tenant ({showTenantModal.roomNumber})</h3>
+              <div>
+                <h3 className="text-xl font-black text-gray-900 dark:text-white">
+                  {showTenantModal.status === 'OCCUPIED' ? 'Replace / Reassign Tenant' : 'Assign Tenant'}
+                </h3>
+                <p className="text-xs text-gray-500 mt-0.5">Bed: <span className="font-bold text-primary-600">{(showTenantModal.roomNumber || '').replace(/[^0-9]/g,'')}{(showTenantModal.bedNumber || '').replace(/[^A-Za-z]/g,'').toUpperCase()}</span></p>
+              </div>
               {showTenantModal.status === 'OCCUPIED' && (
                 <button
                   type="button"
@@ -571,10 +608,11 @@ const OwnerDashboardPage = () => {
               )}
             </div>
             {showTenantModal.status === 'OCCUPIED' && (
-              <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs">
-                <p className="font-bold text-emerald-800 dark:text-emerald-300">Currently Occupied by:</p>
-                <p className="text-emerald-700 dark:text-emerald-400 mt-0.5">👤 {showTenantModal.tenantName || showTenantModal.tenant?.name || 'Tenant'}</p>
-                {showTenantModal.tenantPhone && <p className="text-emerald-600 dark:text-emerald-500">📞 {showTenantModal.tenantPhone}</p>}
+              <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl text-xs">
+                <p className="font-bold text-amber-800 dark:text-amber-300">🔄 Current Tenant (will be replaced):</p>
+                <p className="text-amber-700 dark:text-amber-400 mt-0.5">👤 {showTenantModal.tenantName || showTenantModal.tenant?.name || 'Tenant'}</p>
+                {showTenantModal.tenantPhone && <p className="text-amber-600 dark:text-amber-500">📞 {showTenantModal.tenantPhone}</p>}
+                <p className="text-amber-600 mt-1 font-medium">Fill in the new tenant details below to replace them directly.</p>
               </div>
             )}
             <form onSubmit={handleUpdateTenant} className="space-y-4 text-sm">
@@ -600,7 +638,9 @@ const OwnerDashboardPage = () => {
               </div>
               <div className="flex gap-3 pt-4">
                 <button type="button" onClick={() => setShowTenantModal(null)} className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-gray-300">Cancel</button>
-                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">Save Allocation</button>
+                <button type="submit" className="flex-1 px-4 py-2.5 rounded-xl font-bold bg-primary-600 text-white shadow-md">
+                  {showTenantModal.status === 'OCCUPIED' ? 'Replace Tenant' : 'Assign Tenant'}
+                </button>
               </div>
             </form>
           </div>

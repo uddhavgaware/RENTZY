@@ -152,7 +152,7 @@ public class OwnerPropertyController {
         return ResponseEntity.ok(roomBedRepository.save(roomBed));
     }
 
-    // Delete property
+    // Delete property (cascade: bills → beds → property)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProperty(@PathVariable Long id, Authentication auth) {
         User owner = userRepository.findByEmail(auth.getName())
@@ -165,9 +165,20 @@ public class OwnerPropertyController {
             throw new RuntimeException("Unauthorized");
         }
 
+        // 1. Delete all bills linked to beds of this property
+        List<RoomBed> beds = roomBedRepository.findByOwnerPropertyOrderByIdAsc(prop);
+        for (RoomBed bed : beds) {
+            propertyBillRepository.deleteAll(propertyBillRepository.findByRoomBedOrderByCreatedAtDesc(bed));
+        }
+
+        // 2. Delete all beds
+        roomBedRepository.deleteAll(beds);
+
+        // 3. Delete property
         ownerPropertyRepository.delete(prop);
         return ResponseEntity.noContent().build();
     }
+
 
     // Owner Dashboard Summary Stats
     @GetMapping("/stats")
