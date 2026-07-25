@@ -28,6 +28,10 @@ const OwnerDashboardPage = () => {
   const [stats, setStats] = useState({ totalProperties: 0, totalBeds: 0, occupiedBeds: 0, vacantBeds: 0, totalCollected: 0, totalPending: 0 });
   const [loading, setLoading] = useState(true);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
+  const [bedSearchQuery, setBedSearchQuery] = useState({});
+  const [expandedProperties, setExpandedProperties] = useState({});
+
+  const toggleProperty = (id) => setExpandedProperties(prev => ({ ...prev, [id]: !prev[id] }));
 
   // Forms State
   const [showAddPropertyModal, setShowAddPropertyModal] = useState(false);
@@ -53,6 +57,10 @@ const OwnerDashboardPage = () => {
       setProperties(propsRes.data);
       setBills(billsRes.data);
       setStats(statsRes.data);
+      // Auto-expand the first property only
+      if (propsRes.data.length > 0) {
+        setExpandedProperties({ [propsRes.data[0].property.id]: true });
+      }
     } catch (err) {
       console.error('Owner dashboard fetch error', err);
     } finally {
@@ -122,6 +130,46 @@ const OwnerDashboardPage = () => {
     } catch (err) {
       showModal({ type: 'alert', title: 'Error', message: 'Failed to send reminder.', onConfirm: closeModal });
     }
+  };
+
+  const handleDeleteProperty = async (propertyId, propertyName) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Property',
+      message: `Are you sure you want to permanently delete "${propertyName}" and all its room/bed data? This cannot be undone.`,
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/owner/properties/${propertyId}`);
+          fetchData();
+          showModal({ type: 'alert', title: 'Deleted', message: 'Property deleted successfully.', onConfirm: closeModal });
+        } catch (err) {
+          showModal({ type: 'alert', title: 'Error', message: 'Failed to delete property.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  const handleRemoveTenant = async () => {
+    if (!showTenantModal) return;
+    showModal({
+      type: 'confirm',
+      title: 'Remove Tenant',
+      message: `Remove the current tenant from ${showTenantModal.roomNumber}? The bed will be marked VACANT.`,
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.put(`/owner/properties/rooms/${showTenantModal.id}/tenant`, { status: 'VACANT', tenantName: '', tenantPhone: '', tenantEmail: '' });
+          setShowTenantModal(null);
+          fetchData();
+          showModal({ type: 'alert', title: 'Success', message: 'Tenant removed and bed marked as VACANT.', onConfirm: closeModal });
+        } catch (err) {
+          showModal({ type: 'alert', title: 'Error', message: 'Failed to remove tenant.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
   };
 
   const openBillGenerator = (room) => {
@@ -206,42 +254,98 @@ const OwnerDashboardPage = () => {
                 <button onClick={() => setShowAddPropertyModal(true)} className="bg-primary-600 hover:bg-primary-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg transition-all">Add Your First Property</button>
               </div>
             ) : (
-              properties.map(({ property, roomsBeds }) => (
-                <div key={property.id} className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg p-6 space-y-6">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-white/10 pb-5">
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <h2 className="text-xl font-black text-gray-900 dark:text-white">{property.name}</h2>
-                        <span className="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider border border-primary-200/50">
-                          {property.propertyType}
-                        </span>
+              properties.map(({ property, roomsBeds }) => {
+                const isExpanded = !!expandedProperties[property.id];
+                const occupiedCount = roomsBeds.filter(r => r.status === 'OCCUPIED').length;
+                const vacantCount = roomsBeds.filter(r => r.status === 'VACANT').length;
+                return (
+                <div key={property.id} className="bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl border border-gray-100 dark:border-white/10 shadow-lg overflow-hidden">
+                  {/* Property Header - always visible, click to expand/collapse */}
+                  <div
+                    className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-6 cursor-pointer select-none hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors"
+                    onClick={() => toggleProperty(property.id)}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className={`w-10 h-10 rounded-2xl flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${property.propertyType === 'HOSTEL' ? 'from-purple-500 to-indigo-600' : property.propertyType === 'FLAT' ? 'from-emerald-500 to-teal-600' : 'from-primary-500 to-blue-600'} shadow-md`}>
+                        <Home size={18} className="text-white" />
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">📍 {property.address}, {property.city}</p>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="text-lg font-black text-gray-900 dark:text-white truncate">{property.name}</h2>
+                          <span className="bg-primary-50 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider border border-primary-200/50 flex-shrink-0">
+                            {property.propertyType}
+                          </span>
+                        </div>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">📍 {property.address}, {property.city}</p>
+                        {!isExpanded && (
+                          <div className="flex items-center gap-3 mt-1.5">
+                            <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">✅ {occupiedCount} Occupied</span>
+                            <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">🛏 {vacantCount} Vacant</span>
+                            <span className="text-[11px] text-gray-400">{roomsBeds.length} total units</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <button
-                      onClick={() => {
-                        const roomNum = prompt('Enter Room Number (e.g. Room 205 or Flat 3A):', 'Room 205');
-                        if (roomNum) {
-                          const rent = prompt('Enter Monthly Rent (₹):', '8000');
-                          if (rent) {
-                            api.post(`/owner/properties/${property.id}/rooms`, { roomNumber: roomNum, bedNumber: 'Bed A', monthlyRent: rent })
-                              .then(() => fetchData());
+                    <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                      <button
+                        onClick={() => {
+                          const roomNum = prompt('Enter Room Number (e.g. Room 205 or Flat 3A):', 'Room 205');
+                          if (roomNum) {
+                            const rent = prompt('Enter Monthly Rent (₹):', '8000');
+                            if (rent) {
+                              api.post(`/owner/properties/${property.id}/rooms`, { roomNumber: roomNum, bedNumber: 'Bed A', monthlyRent: rent })
+                                .then(() => fetchData());
+                            }
                           }
-                        }
-                      }}
-                      className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 px-4 py-2.5 rounded-xl border border-indigo-200/50 flex items-center gap-1.5"
-                    >
-                      <Plus size={14} /> Add Room / Bed Unit
-                    </button>
+                        }}
+                        className="text-xs font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-900/30 hover:bg-indigo-100 px-3 py-2 rounded-xl border border-indigo-200/50 flex items-center gap-1.5"
+                      >
+                        <Plus size={13} /> Add Bed
+                      </button>
+                      <button
+                        onClick={() => handleDeleteProperty(property.id, property.name)}
+                        className="text-xs font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 px-3 py-2 rounded-xl border border-red-200/50 flex items-center gap-1.5"
+                      >
+                        <Trash2 size={13} /> Delete
+                      </button>
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center bg-gray-100 dark:bg-slate-700 transition-transform duration-300 ${isExpanded ? 'rotate-90' : ''}`}>
+                        <ChevronRight size={16} className="text-gray-500" />
+                      </div>
+                    </div>
                   </div>
+
+                  {/* Collapsible Body */}
+                  {isExpanded && (
+                  <div className="px-6 pb-6 space-y-4 border-t border-gray-100 dark:border-white/10 pt-4">
+
 
                   {/* Rooms & Beds Matrix */}
                   <div>
-                    <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
-                      <Bed size={14} /> Room & Bed Occupancy Matrix ({roomsBeds.length} units)
-                    </h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                      {roomsBeds.map(room => (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+                      <h3 className="text-xs font-extrabold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                        <Bed size={14} /> Room & Bed Occupancy Matrix ({roomsBeds.length} units)
+                      </h3>
+                      {/* Search Input */}
+                      <input
+                        type="text"
+                        placeholder="🔍 Search room/bed (e.g. 101A, Bed B)"
+                        value={bedSearchQuery[property.id] || ''}
+                        onChange={e => setBedSearchQuery(prev => ({ ...prev, [property.id]: e.target.value }))}
+                        className="px-3 py-1.5 rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-700 text-xs text-gray-700 dark:text-white focus:ring-2 focus:ring-primary-400 outline-none w-full sm:w-64"
+                      />
+                    </div>
+                    <div className="max-h-[520px] overflow-y-auto pr-1">
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {roomsBeds.filter(room => {
+                        const q = (bedSearchQuery[property.id] || '').toLowerCase().trim();
+                        if (!q) return true;
+                        return (
+                          (room.roomNumber || '').toLowerCase().includes(q) ||
+                          (room.bedNumber || '').toLowerCase().includes(q) ||
+                          `${room.roomNumber}${room.bedNumber}`.toLowerCase().replace(/\s+/g, '').includes(q.replace(/\s+/g, '')) ||
+                          (room.tenantName || '').toLowerCase().includes(q)
+                        );
+                      }).map(room => (
                         <div
                           key={room.id}
                           className={`p-4 rounded-2xl border transition-all ${
@@ -302,9 +406,13 @@ const OwnerDashboardPage = () => {
                         </div>
                       ))}
                     </div>
+                    </div>
                   </div>
+                  </div>
+                  )}
                 </div>
-              ))
+                );
+              })
             )}
           </div>
         )}
@@ -450,7 +558,25 @@ const OwnerDashboardPage = () => {
       {showTenantModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className="bg-white dark:bg-slate-800 rounded-3xl p-6 w-full max-w-md shadow-2xl border border-gray-100 dark:border-white/10">
-            <h3 className="text-xl font-black text-gray-900 dark:text-white mb-4">Assign Tenant ({showTenantModal.roomNumber})</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-black text-gray-900 dark:text-white">Assign Tenant ({showTenantModal.roomNumber})</h3>
+              {showTenantModal.status === 'OCCUPIED' && (
+                <button
+                  type="button"
+                  onClick={handleRemoveTenant}
+                  className="flex items-center gap-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 px-3 py-1.5 rounded-xl transition-colors"
+                >
+                  <Trash2 size={13} /> Remove Tenant
+                </button>
+              )}
+            </div>
+            {showTenantModal.status === 'OCCUPIED' && (
+              <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800/50 rounded-xl text-xs">
+                <p className="font-bold text-emerald-800 dark:text-emerald-300">Currently Occupied by:</p>
+                <p className="text-emerald-700 dark:text-emerald-400 mt-0.5">👤 {showTenantModal.tenantName || showTenantModal.tenant?.name || 'Tenant'}</p>
+                {showTenantModal.tenantPhone && <p className="text-emerald-600 dark:text-emerald-500">📞 {showTenantModal.tenantPhone}</p>}
+              </div>
+            )}
             <form onSubmit={handleUpdateTenant} className="space-y-4 text-sm">
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tenant Name</label>
@@ -461,8 +587,9 @@ const OwnerDashboardPage = () => {
                 <input type="text" required placeholder="10-digit Phone Number" value={tenantForm.tenantPhone} onChange={e => setTenantForm({ ...tenantForm, tenantPhone: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Registered Tenant Email (Optional)</label>
+                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Registered Tenant Email (to link bills)</label>
                 <input type="email" placeholder="email@domain.com" value={tenantForm.tenantEmail} onChange={e => setTenantForm({ ...tenantForm, tenantEmail: e.target.value })} className="w-full px-4 py-2.5 rounded-xl border dark:bg-slate-700 dark:border-white/10 dark:text-white" />
+                <p className="text-[11px] text-gray-400 mt-1">💡 Enter the email the tenant used to sign up on RentXY to link bills to their account.</p>
               </div>
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Unit Status</label>

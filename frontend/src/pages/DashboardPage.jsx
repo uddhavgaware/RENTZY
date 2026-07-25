@@ -1283,11 +1283,13 @@ const DashboardPage = () => {
                                 }} className="text-xs text-green-600 hover:text-green-800 font-medium">Mark Completed</button>
                               )}
                               {req.status === 'COMPLETED' && !req.reviewRating && (
-                                <button onClick={() => setShowReviewModal(req)} className="text-xs text-indigo-600 hover:text-indigo-800 font-bold bg-indigo-50 px-3 py-1 rounded-full border border-indigo-200">Rate Mover</button>
+                                <button onClick={() => setShowReviewModal(req)} className="text-xs text-amber-600 hover:text-amber-800 font-bold bg-amber-50 px-3 py-1 rounded-full border border-amber-200 flex items-center gap-1">⭐ Rate Mover</button>
                               )}
                               {req.status === 'COMPLETED' && req.reviewRating && (
-                                <span className="text-xs text-gray-500 font-medium bg-gray-50 px-2 py-1 rounded-full border border-gray-200">
-                                  Review: {req.reviewRating === 'HAPPY' ? '😄 Happy' : '😞 Not Happy'}
+                                <span className="text-xs text-gray-600 font-medium bg-amber-50 px-2 py-1 rounded-full border border-amber-200 flex items-center gap-0.5">
+                                  {[1,2,3,4,5].map(s => (
+                                    <span key={s} className={parseInt(req.reviewRating) >= s ? 'text-amber-400' : 'text-gray-300'}>★</span>
+                                  ))}
                                 </span>
                               )}
                             </div>
