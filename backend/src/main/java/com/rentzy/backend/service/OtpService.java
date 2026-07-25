@@ -64,7 +64,7 @@ public class OtpService {
             Message.creator(
                     new PhoneNumber(phone),
                     messagingServiceSid,
-                    "Your RENTZY login code is: " + otp
+                    "Your RENTXY login code is: " + otp
             ).create();
             System.out.println("Twilio SMS sent successfully. OTP: " + otp);
         } catch (Exception e) {
@@ -77,10 +77,7 @@ public class OtpService {
     public AuthenticationResponse verifyOtp(String phone, String otp) {
         String storedOtp = otpStorage.get(phone);
         
-        // Allow master OTP for testing purposes
-        if ("839174".equals(otp)) {
-             // Bypass
-        } else if (storedOtp == null || !storedOtp.equals(otp)) {
+        if (storedOtp == null || !storedOtp.equals(otp)) {
             throw new RuntimeException("Invalid or expired OTP");
         }
 
@@ -88,7 +85,7 @@ public class OtpService {
         otpStorage.remove(phone);
 
         // Find user by generated email or phone, or create a new one
-        String generatedEmail = phone + "@rentzy.local";
+        String generatedEmail = phone + "@rentxy.local";
         User user = repository.findByEmail(generatedEmail).orElseGet(() -> 
             repository.findByPhone(phone).orElseGet(() -> {
                 User newUser = User.builder()

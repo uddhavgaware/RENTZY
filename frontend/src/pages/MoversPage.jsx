@@ -400,7 +400,7 @@ const MoversPage = () => {
               <span className="px-3 py-1 bg-indigo-500/30 text-indigo-300 rounded-full text-xs font-bold border border-indigo-500/20 tracking-wide uppercase">Partner Program</span>
               <h3 className="text-2xl md:text-3xl font-extrabold mt-3 text-white leading-tight">Are you a Professional Packer & Mover?</h3>
               <p className="text-gray-300 text-sm mt-2 max-w-xl leading-relaxed">
-                Join our network of shifting partners! List your local moving company on Rentzy to get direct customer bookings with zero platform commissions.
+                Join our network of shifting partners! List your local moving company on RentXY to get direct customer bookings with zero platform commissions.
               </p>
             </div>
             <button 
@@ -408,7 +408,7 @@ const MoversPage = () => {
                 showModal({
                   type: 'alert',
                   title: 'Join Shifting Partner Network',
-                  message: 'To list your packer & mover business on Rentzy, please email your business registration document to rentxybookings@gmail.com or WhatsApp us at +91 8767532364 or +91 8208022201.',
+                  message: 'To list your packer & mover business on RentXY, please email your business registration document to rentxybookings@gmail.com or WhatsApp us at +91 8767532364 or +91 8208022201.',
                   onConfirm: closeModal
                 });
               }}

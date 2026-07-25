@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { MessageCircle, X, HelpCircle, ShieldCheck, ChevronRight, Send, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
+import geminiService from '../services/geminiService';
 
 const HIDE_ON = ['/messages', '/admin', '/auth', '/complete-profile'];
 
@@ -15,7 +16,7 @@ const FloatingSupportButton = () => {
   const [messages, setMessages] = useState([
     {
       sender: 'ai',
-      text: 'Hello! I am Rentzy AI, your virtual assistant. How can I help you find your dream home or roommate today? ✨',
+      text: 'Hello! I am RentXY AI (powered by Google Gemini ✨). How can I help you find zero-brokerage properties, flatmates, or movers today?',
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     }
   ]);
@@ -101,70 +102,17 @@ const FloatingSupportButton = () => {
       let actionButton = null;
       let listingCards = null;
 
-      if (isGreeting) {
-        replyText = 'Hello! 👋 I\'m Rentzy AI — your smart property assistant. I can search real listings for you! Try asking:\n• "Flats in Pune under 15k"\n• "PG near Koregaon Park"\n• "Find me a roommate"';
-      } else if (wantsRoommate) {
-        replyText = 'Our AI Roommate Finder matches you with compatible partners using a 10-factor algorithm — analyzing diet, lifestyle, sleep habits, budget range, and more for a real compatibility score!';
-        actionButton = {
-          label: '🤝 Find Roommates',
-          onClick: () => { navigate('/roommates'); setOpen(false); }
-        };
-      } else if (wantsMover) {
-        replyText = 'Need to relocate? Rentzy Movers provides verified packing & moving services with real-time route tracking on satellite maps!';
-        actionButton = {
-          label: '🚚 Book Movers',
-          onClick: () => { navigate('/movers'); setOpen(false); }
-        };
-      } else if (wantsPost) {
-        replyText = 'Listing your property is 100% free! Our AI can even auto-write a professional description for you based on your property details. ✨';
-        actionButton = {
-          label: '📤 Post Property Free',
-          onClick: () => { navigate('/post-property'); setOpen(false); }
-        };
-      } else if (wantsBrokerage) {
-        replyText = 'Rentzy is completely brokerage-free! No hidden commissions, no middlemen. You connect directly with KYC-verified owners.';
-        actionButton = {
-          label: '🏠 Browse Listings',
-          onClick: () => { navigate('/listings'); setOpen(false); }
-        };
-      } else if (searchLocation || maxBudget) {
-        // Actually search the database
-        const params = {};
-        if (searchLocation) params.location = searchLocation;
-        if (maxBudget) params.maxPrice = maxBudget;
-        params.size = 5;
-
-        const res = await api.get('/listings', { params });
-        const results = res.data?.content || res.data || [];
-
-        if (results.length > 0) {
-          const budgetText = maxBudget ? ` under ₹${maxBudget.toLocaleString('en-IN')}` : '';
-          replyText = `Found ${results.length} properties${searchLocation ? ` in ${searchLocation.charAt(0).toUpperCase() + searchLocation.slice(1)}` : ''}${budgetText}! Here are the top picks:`;
-          listingCards = results.slice(0, 3).map(l => ({
-            id: l.id,
-            title: l.title,
-            price: l.price,
-            location: l.location,
-            type: l.type,
-          }));
-          actionButton = {
-            label: `🔍 View All ${results.length} Results`,
-            onClick: () => { navigate(`/listings?location=${encodeURIComponent(searchLocation || '')}`); setOpen(false); }
-          };
-        } else {
-          replyText = `No listings found${searchLocation ? ` in ${searchLocation}` : ''}${maxBudget ? ` under ₹${maxBudget.toLocaleString('en-IN')}` : ''} yet. Try a broader search or browse all available properties!`;
-          actionButton = {
-            label: '🏠 Browse All Listings',
-            onClick: () => { navigate('/listings'); setOpen(false); }
-          };
-        }
-      } else {
-        // Try a general search with the whole query
+      // 1. Search database for real listing matches if location/budget/brokerage mentioned
+      if (searchLocation || maxBudget || !isGreeting) {
         try {
-          const res = await api.get('/listings', { params: { location: query, size: 3 } });
+          const params = {};
+          if (searchLocation) params.location = searchLocation;
+          if (maxBudget) params.maxPrice = maxBudget;
+          params.size = 5;
+
+          const res = await api.get('/listings', { params });
           const results = res.data?.content || res.data || [];
           if (results.length > 0) {
-            replyText = `I found ${results.length} listings matching "${query}":`;
             listingCards = results.slice(0, 3).map(l => ({
               id: l.id,
               title: l.title,
@@ -173,14 +121,46 @@ const FloatingSupportButton = () => {
               type: l.type,
             }));
             actionButton = {
-              label: '🔍 View All Results',
-              onClick: () => { navigate(`/listings?location=${encodeURIComponent(query)}`); setOpen(false); }
+              label: `🔍 View All ${results.length} Matching Results`,
+              onClick: () => { navigate(`/listings?location=${encodeURIComponent(searchLocation || '')}`); setOpen(false); }
             };
-          } else {
-            replyText = 'I can help you find PGs, flats, roommates, or movers! Try asking something like:\n• "2BHK in Pune under 20k"\n• "PG near Hinjewadi"\n• "Find roommates in Kothrud"';
           }
-        } catch {
-          replyText = 'I can help you find PGs, flats, roommates, or movers! Try asking something like:\n• "Flats in Pune under 20k"\n• "PG near Koregaon Park"\n• "Find roommates"';
+        } catch (dbErr) {
+          console.warn('DB search in AI chat failed:', dbErr);
+        }
+      }
+
+      // 2. Set action buttons for navigation intents
+      if (wantsRoommate) {
+        actionButton = { label: '🤝 Find Roommates', onClick: () => { navigate('/roommates'); setOpen(false); } };
+      } else if (wantsMover) {
+        actionButton = { label: '🚚 Book Movers', onClick: () => { navigate('/movers'); setOpen(false); } };
+      } else if (wantsPost) {
+        actionButton = { label: '📤 Post Property Free', onClick: () => { navigate('/post-property'); setOpen(false); } };
+      }
+
+      // 3. Ask Google Gemini API for an intelligent, natural response!
+      try {
+        replyText = await geminiService.askRentXYAI(query, messages, {
+          foundPropertiesCount: listingCards?.length || 0,
+          searchLocation,
+          maxBudget,
+          wantsRoommate,
+          wantsMover
+        });
+      } catch (geminiErr) {
+        console.warn('Gemini API fallback triggered:', geminiErr);
+        // Fallback rule-based replies if offline or network error
+        if (isGreeting) {
+          replyText = "Hello! 👋 I'm RentXY AI — your smart property assistant. I can search real listings for you! Try asking:\n• \"Flats in Pune under 15k\"\n• \"PG near Koregaon Park\"\n• \"Find me a roommate\"";
+        } else if (listingCards && listingCards.length > 0) {
+          replyText = `Found ${listingCards.length} verified zero-brokerage properties matching your search! Here are the top picks:`;
+        } else if (wantsRoommate) {
+          replyText = 'Our AI Roommate Finder matches you with compatible partners using a 10-factor algorithm — analyzing diet, lifestyle, sleep habits, and budget range!';
+        } else if (wantsMover) {
+          replyText = 'Need to relocate? RentXY Movers provides verified packing & moving services with real-time route tracking on satellite maps!';
+        } else {
+          replyText = `I can help you find PGs, flats, roommates, or movers across Maharashtra! Try asking something like:\n• "2BHK in Pune under 20k"\n• "PG near Hinjewadi"\n• "Find roommates in Kothrud"`;
         }
       }
 
@@ -202,7 +182,6 @@ const FloatingSupportButton = () => {
     }
     setIsTyping(false);
   };
-
   const handleQuickOption = (opt) => {
     handleSendMessage(opt);
   };
@@ -220,7 +199,7 @@ const FloatingSupportButton = () => {
                 <Sparkles size={20} className="text-white animate-pulse" />
               </div>
               <div>
-                <p className="font-black text-white text-sm">Rentzy AI Assistant</p>
+                <p className="font-black text-white text-sm">RentXY AI Assistant</p>
                 <p className="text-primary-200 text-xs flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-ping" />
                   Online & Free
@@ -244,7 +223,7 @@ const FloatingSupportButton = () => {
               <div className="space-y-4">
                 <div className="bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 rounded-2xl p-4 text-center">
                   <p className="text-2xl mb-1">🤖</p>
-                  <h4 className="font-extrabold text-gray-900 dark:text-white text-sm">Hi, I'm Rentzy AI!</h4>
+                  <h4 className="font-extrabold text-gray-900 dark:text-white text-sm">Hi, I'm RentXY AI!</h4>
                   <p className="text-gray-500 dark:text-gray-300 text-xs mt-1 leading-relaxed">
                     Locate flatmates, secure packers & movers, or search zero-brokerage stays in Maharashtra (Pune, Kolhapur, Satara) instantly!
                   </p>
@@ -293,7 +272,7 @@ const FloatingSupportButton = () => {
               </div>
 
               <div className="text-center pt-2">
-                <p className="text-[10px] text-gray-400 dark:text-gray-500">Rentzy Support · Available Mon–Sat, 9am–8pm IST</p>
+                <p className="text-[10px] text-gray-400 dark:text-gray-500">RentXY Support · Available Mon–Sat, 9am–8pm IST</p>
               </div>
             </div>
           ) : (

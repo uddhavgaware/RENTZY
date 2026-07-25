@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
-import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon, IndianRupee, Zap, CheckCircle2, TrendingUp, Wrench, FileText } from 'lucide-react';
+import { User, Users, Home, Heart, Settings, Bell, MessageSquare, LogOut, BookOpen, Edit3, Trash2, X, Save, Plus, BadgeCheck, Truck, ShieldCheck, Phone, Mail, Split, Sun, Moon, IndianRupee, Zap, CheckCircle2, TrendingUp, Wrench, FileText, Star } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import ListingCard from '../components/ListingCard';
 import MaintenanceTab from '../components/MaintenanceTab';
@@ -1277,7 +1277,15 @@ const DashboardPage = () => {
                                 <button onClick={() => {
                                   showModal({
                                     type: 'confirm', title: 'Complete Request', message: 'Confirm that the movers have completed this job?',
-                                    onConfirm: async () => { closeModal(); try { await api.put(`/moving/vendor/${req.id}/complete`); setMovingRequests(prev => prev.map(m => m.id === req.id ? { ...m, status: 'COMPLETED' } : m)); } catch { } },
+                                    onConfirm: async () => { 
+                                      closeModal(); 
+                                      try { 
+                                        await api.put(`/moving/${req.id}/complete`); 
+                                        setMovingRequests(prev => prev.map(m => m.id === req.id ? { ...m, status: 'COMPLETED' } : m)); 
+                                      } catch (e) { 
+                                        showModal({ type: 'alert', title: 'Error', message: e.userMessage || 'Failed to complete request.', onConfirm: closeModal });
+                                      } 
+                                    },
                                     onCancel: closeModal
                                   });
                                 }} className="text-xs text-green-600 hover:text-green-800 font-medium">Mark Completed</button>
@@ -1725,7 +1733,8 @@ const DashboardPage = () => {
                     setShowReviewModal(null);
                     setReviewForm({ rating: '', comments: '' });
                   } catch (e) {
-                    console.error("Failed to submit review");
+                    console.error("Failed to submit review", e);
+                    showModal({ type: 'alert', title: 'Error', message: e.userMessage || 'Failed to submit review. Please try again.', onConfirm: closeModal });
                   }
                 }}
                 disabled={!reviewForm.rating}

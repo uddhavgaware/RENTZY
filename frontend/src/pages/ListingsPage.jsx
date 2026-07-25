@@ -58,6 +58,7 @@ import ListingCard from '../components/ListingCard';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import Modal from '../components/Modal';
+import { calculateDistance, geocodeAddress } from '../utils/distanceUtils';
 
 // Popular Indian locations for autocomplete
 const LOCATIONS = [
@@ -85,7 +86,7 @@ const AMENITIES_LIST = ['WiFi', 'AC', 'TV', 'Fridge', 'Washing Machine', 'Parkin
 const ListingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [activeType, setActiveType] = useState(searchParams.get('type') || 'all');
   const [searchInput, setSearchInput] = useState(searchParams.get('location') || '');
   const [appliedLocation, setAppliedLocation] = useState(searchParams.get('location') || '');
@@ -111,6 +112,29 @@ const ListingsPage = () => {
   const [sortBy, setSortBy] = useState('');
   const [furnishingFilter, setFurnishingFilter] = useState('');
   const [alertSaved, setAlertSaved] = useState(false);
+
+  // Smart Commute / Proximity Algo Filter
+  const [commuteRefName, setCommuteRefName] = useState('');
+  const [commuteCoords, setCommuteCoords] = useState(null);
+  const [maxDistance, setMaxDistance] = useState('');
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  const handleSetCommuteRef = async (queryStr) => {
+    const target = queryStr || commuteRefName;
+    if (!target || !target.trim()) {
+      setCommuteCoords(null);
+      return;
+    }
+    setIsGeocoding(true);
+    const result = await geocodeAddress(target);
+    setIsGeocoding(false);
+    if (result) {
+      setCommuteCoords(result);
+      setCommuteRefName(target);
+    } else {
+      showModal({ type: 'alert', title: 'Location Not Found', message: `Could not find geographical coordinates for "${target}". Please try specifying the city or area.`, onConfirm: closeModal });
+    }
+  };
 
   // Location autocomplete
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -232,6 +256,27 @@ const ListingsPage = () => {
         results = results.filter(l => l && (!l.tenantPreference || l.tenantPreference === 'Anyone' || l.tenantPreference === tenantPreference));
       }
 
+      // Smart Proximity / Commute Distance Algo Calculation
+      if (commuteCoords) {
+        results = results.map(l => {
+          if (l && l.latitude && l.longitude) {
+            const dist = calculateDistance(commuteCoords.lat, commuteCoords.lon, l.latitude, l.longitude);
+            return { ...l, computedDistance: dist };
+          }
+          return { ...l, computedDistance: null };
+        });
+
+        if (maxDistance) {
+          const maxKm = parseFloat(maxDistance);
+          results = results.filter(l => l && l.computedDistance != null && l.computedDistance <= maxKm);
+        }
+      }
+
+      // Sort by nearest distance if selected
+      if (sortBy === 'distance' && commuteCoords) {
+        results.sort((a, b) => (a.computedDistance ?? 999999) - (b.computedDistance ?? 999999));
+      }
+
       if (isAppend) {
         setListings(prev => [...prev, ...results]);
       } else {
@@ -266,7 +311,7 @@ const ListingsPage = () => {
   useEffect(() => {
     setPage(0);
     fetchListings(0, false);
-  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities, messAvailableOnly, tenantPreference, furnishingFilter]);
+  }, [activeType, appliedLocation, minPrice, maxPrice, sortBy, selectedAmenities, messAvailableOnly, tenantPreference, furnishingFilter, commuteCoords, maxDistance]);
 
   // Load wishlist IDs
   useEffect(() => {
@@ -324,6 +369,9 @@ const ListingsPage = () => {
     setActiveType('all');
     setTenantPreference('');
     setFurnishingFilter('');
+    setCommuteRefName('');
+    setCommuteCoords(null);
+    setMaxDistance('');
     setAlertSaved(false);
   };
 
@@ -339,7 +387,7 @@ const ListingsPage = () => {
   };
 
   const activeFilterCount = [
-    minPrice, maxPrice, appliedLocation, tenantPreference, furnishingFilter, ...selectedAmenities, messAvailableOnly ? 'mess' : null
+    minPrice, maxPrice, appliedLocation, tenantPreference, furnishingFilter, commuteCoords ? 'commute' : null, maxDistance ? 'dist' : null, ...selectedAmenities, messAvailableOnly ? 'mess' : null
   ].filter(Boolean).length;
 
   return (
@@ -556,6 +604,90 @@ const ListingsPage = () => {
                     </div>
                   )}
                 </div>
+
+                {/* Smart Proximity & Commute Distance Filter */}
+                <div className="md:col-span-3 bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-blue-50/90 border border-indigo-200/80 rounded-2xl p-4 shadow-sm mt-2">
+                  <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+                        <Navigation size={16} className="animate-pulse" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-extrabold text-indigo-950">📍 Smart Commute & Proximity Algorithm</h4>
+                        <p className="text-[11px] text-indigo-700/80 font-medium">Filter & sort rentals by exact distance to your College or Workplace</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {user?.collegeName && (
+                        <button
+                          type="button"
+                          onClick={() => handleSetCommuteRef(user.collegeName)}
+                          className="text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold px-3 py-1.5 rounded-xl transition-all border border-indigo-200 flex items-center gap-1.5 active:scale-95 shadow-sm"
+                        >
+                          🎓 College: {user.collegeName}
+                        </button>
+                      )}
+                      {user?.companyName && (
+                        <button
+                          type="button"
+                          onClick={() => handleSetCommuteRef(user.companyName)}
+                          className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-1.5 rounded-xl transition-all border border-purple-200 flex items-center gap-1.5 active:scale-95 shadow-sm"
+                        >
+                          🏢 Workplace: {user.companyName}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+                    <div className="md:col-span-2 flex gap-2">
+                      <div className="relative flex-1">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={16} />
+                        <input
+                          type="text"
+                          value={commuteRefName}
+                          onChange={(e) => setCommuteRefName(e.target.value)}
+                          placeholder="Type College, Office, Tech Park, or Landmark (e.g. COEP Pune, Infosys Hinjewadi)..."
+                          className="w-full pl-9 pr-3 py-2.5 bg-white border border-indigo-200 rounded-xl text-sm font-medium placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 outline-none shadow-inner text-gray-800"
+                          onKeyDown={(e) => { if (e.key === 'Enter') handleSetCommuteRef(); }}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleSetCommuteRef()}
+                        disabled={isGeocoding}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 transition-all active:scale-95 disabled:opacity-60 flex-shrink-0"
+                      >
+                        {isGeocoding ? 'Locating...' : 'Set Landmark'}
+                      </button>
+                    </div>
+
+                    <div>
+                      <select
+                        value={maxDistance}
+                        onChange={(e) => setMaxDistance(e.target.value)}
+                        disabled={!commuteCoords}
+                        className="w-full py-2.5 px-3 bg-white border border-indigo-200 rounded-xl text-sm font-bold text-indigo-950 focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50 disabled:bg-gray-50 cursor-pointer"
+                      >
+                        <option value="">Any Commute Distance</option>
+                        <option value="1">Within 1 km radius</option>
+                        <option value="2">Within 2 km radius</option>
+                        <option value="5">Within 5 km radius</option>
+                        <option value="10">Within 10 km radius</option>
+                        <option value="15">Within 15 km radius</option>
+                        <option value="25">Within 25 km radius</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {commuteCoords && (
+                    <div className="mt-2.5 flex items-center justify-between text-xs font-semibold text-emerald-700 bg-emerald-50/90 border border-emerald-200 px-3 py-1.5 rounded-xl">
+                      <span className="truncate">✓ Locked: {commuteCoords.displayName?.split(',').slice(0, 2).join(',') || commuteRefName} ({commuteCoords.lat.toFixed(4)}, {commuteCoords.lon.toFixed(4)})</span>
+                      <button onClick={() => { setCommuteCoords(null); setCommuteRefName(''); setMaxDistance(''); }} className="text-red-600 hover:text-red-800 font-bold ml-2 underline flex-shrink-0">Clear</button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Active Filters + Clear */}
@@ -606,6 +738,12 @@ const ListingsPage = () => {
                         <button onClick={() => setMessAvailableOnly(false)} className="ml-1"><X size={12} /></button>
                       </span>
                     )}
+                  {commuteCoords && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold rounded-full shadow-sm">
+                      📍 Near: {commuteRefName || 'Landmark'} {maxDistance ? `(< ${maxDistance} km)` : ''}
+                      <button onClick={() => { setCommuteCoords(null); setCommuteRefName(''); setMaxDistance(''); }} className="ml-1 text-indigo-500 hover:text-red-500"><X size={12} /></button>
+                    </span>
+                  )}
                   </div>
                   <div className="flex items-center gap-3 ml-4 flex-shrink-0">
                     <button
@@ -668,6 +806,7 @@ const ListingsPage = () => {
               className="bg-white border border-gray-200 rounded-lg px-3 py-2 font-medium text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 cursor-pointer text-sm"
             >
               <option value="">Newest First</option>
+              <option value="distance">📍 Proximity (Nearest to Commute Landmark)</option>
               <option value="price_asc">Price: Low → High</option>
               <option value="price_desc">Price: High → Low</option>
             </select>

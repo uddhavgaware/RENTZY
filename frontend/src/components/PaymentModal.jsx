@@ -5,9 +5,10 @@ import api from '../services/api';
 const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
   const [step, setStep] = useState('ready'); // ready | processing | success | error
   const [paymentMethod, setPaymentMethod] = useState('upi'); // default to upi so they immediately see the test QR!
+  const [activeUpiApp, setActiveUpiApp] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const title = listing ? listing.title : bill ? `Bill for ${bill.billingMonth || 'Current Month'}` : 'Rentzy Checkout';
+  const title = listing ? listing.title : bill ? `Bill for ${bill.billingMonth || 'Current Month'}` : 'RentXY Checkout';
   const amount = listing ? (listing.price * 3) : bill ? bill.totalAmount : 0;
   const description = listing ? `Deposit & Rent for ${listing.title}` : bill ? `Utility & Rent Bill payment` : 'Payment';
 
@@ -25,7 +26,7 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
         key: keyId || 'rzp_test_demo12345',
         amount: rzpAmount || (amount * 100),
         currency: currency || 'INR',
-        name: 'Rentzy Secure Checkout',
+        name: 'RentXY Secure Checkout',
         description: description,
         order_id: orderId,
         handler: async (response) => {
@@ -47,8 +48,8 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
           }
         },
         prefill: {
-          name: 'Rentzy User',
-          email: 'user@rentzy.in',
+          name: 'RentXY User',
+          email: 'user@rentxy.in',
           contact: '9876543210',
         },
         notes: {
@@ -90,12 +91,13 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
     }
   };
 
-  const handleSimulateUpiScan = () => {
+  const handleSimulateUpiScan = (appName = 'UPI Gateway') => {
+    setActiveUpiApp(typeof appName === 'string' ? appName : 'UPI Scanner');
     setStep('processing');
     setTimeout(() => {
       setStep('success');
       if (onSuccess) onSuccess(bill ? bill.id : bookingId);
-    }, 1200);
+    }, 2800);
   };
 
   return (
@@ -194,14 +196,16 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
                     <Smartphone size={14} /> Scan Test UPI QR Code
                   </div>
                   
-                  {/* QR Code Container */}
-                  <div className="bg-white p-3.5 rounded-2xl border-2 border-dashed border-purple-300 inline-block shadow-md mx-auto">
+                  {/* QR Code Container with Animated Scanner Beam */}
+                  <div className="bg-white p-3.5 rounded-2xl border-2 border-dashed border-purple-300 inline-block shadow-md mx-auto relative group overflow-hidden">
+                    {/* Active laser beam animation directly over QR */}
+                    <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-lg shadow-emerald-500/80 animate-[bounce_2s_infinite] pointer-events-none z-20" />
                     <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Secure%20Checkout&am=${amount}&cu=INR`}
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Secure%20Checkout&am=${amount}&cu=INR`}
                       alt="Test UPI QR Code"
-                      className="w-44 h-44 object-contain mx-auto"
+                      className="w-44 h-44 object-contain mx-auto relative z-10"
                     />
-                    <p className="text-[10px] font-black text-gray-400 mt-1.5 uppercase tracking-widest">Razorpay · Verified UPI Merchant</p>
+                    <p className="text-[10px] font-black text-gray-400 mt-1.5 uppercase tracking-widest relative z-10">Razorpay · Verified UPI Merchant</p>
                   </div>
 
                   <p className="text-xs text-gray-600 dark:text-gray-300 max-w-xs mx-auto leading-relaxed">
@@ -215,29 +219,29 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
                     </p>
                     <div className="grid grid-cols-2 gap-2">
                       <a
-                        href={`phonepe://pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
-                        onClick={() => handleSimulateUpiScan()}
+                        href={`phonepe://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
+                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('PhonePe'); }}
                         className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#5f259f] hover:bg-[#4d1e80] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#5f259f]/20 cursor-pointer"
                       >
                         <span>🟣</span> PhonePe
                       </a>
                       <a
-                        href={`gpay://upi/pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
-                        onClick={() => handleSimulateUpiScan()}
+                        href={`gpay://upi/pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
+                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('Google Pay'); }}
                         className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#1a73e8]/20 cursor-pointer"
                       >
                         <span>🔵</span> Google Pay
                       </a>
                       <a
-                        href={`paytmmp://pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
-                        onClick={() => handleSimulateUpiScan()}
+                        href={`paytmmp://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
+                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('Paytm'); }}
                         className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#00b9f1] hover:bg-[#0096c4] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#00b9f1]/20 cursor-pointer"
                       >
                         <span>💠</span> Paytm
                       </a>
                       <a
-                        href={`upi://pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
-                        onClick={() => handleSimulateUpiScan()}
+                        href={`upi://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
+                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('BHIM UPI'); }}
                         className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#ff7900] hover:bg-[#e06900] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#ff7900]/20 cursor-pointer"
                       >
                         <span>🇮🇳</span> Any UPI App
@@ -249,7 +253,7 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
                   <div className="pt-2">
                     <button
                       type="button"
-                      onClick={handleSimulateUpiScan}
+                      onClick={() => handleSimulateUpiScan('QR Scanner')}
                       className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-4 px-4 rounded-2xl font-black text-sm transition-all active:scale-95 shadow-xl shadow-emerald-600/25 flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 size={18} /> I Have Scanned & Paid (Simulate OK Done Flow)
@@ -291,10 +295,45 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
 
           {/* Step: Processing */}
           {step === 'processing' && (
-            <div className="p-12 flex flex-col items-center justify-center text-center my-auto py-20">
-              <Loader2 size={56} className="text-primary-600 animate-spin mb-6" />
-              <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Verifying UPI Payment...</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm max-w-xs">Connecting with Razorpay merchant gateway and validating transaction ID.</p>
+            <div className="p-8 flex flex-col items-center justify-center text-center my-auto py-10 animate-fadeIn">
+              {/* Animated Radar Scanner Visual */}
+              <div className="relative w-36 h-36 flex items-center justify-center mb-6">
+                <div className="absolute inset-0 rounded-full bg-primary-500/20 animate-ping duration-1000" />
+                <div className="absolute inset-2 rounded-full bg-indigo-500/20 animate-pulse" />
+                <div className="relative z-10 w-24 h-24 rounded-3xl bg-gradient-to-tr from-primary-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/30 text-white transform hover:scale-105 transition-transform">
+                  <Smartphone size={48} className="animate-bounce" />
+                </div>
+                {/* Scanner laser beam line */}
+                <div className="absolute w-32 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent top-1/2 -translate-y-1/2 shadow-lg shadow-emerald-400/80 animate-pulse" />
+              </div>
+
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-extrabold text-xs mb-3 border border-indigo-200 dark:border-indigo-800 shadow-sm animate-pulse">
+                <Loader2 size={14} className="animate-spin" />
+                <span>{activeUpiApp ? `Connecting to ${activeUpiApp}...` : 'Verifying UPI Gateway...'}</span>
+              </div>
+
+              <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">
+                {activeUpiApp ? `Opening ${activeUpiApp} App` : 'Processing UPI Payment...'}
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-xs max-w-xs leading-relaxed mb-6">
+                Please complete the authorization of <strong>₹{amount?.toLocaleString('en-IN')}</strong> in your UPI app. We are listening for Razorpay confirmation.
+              </p>
+
+              {/* Animated Progress Checklist */}
+              <div className="w-full max-w-xs bg-gray-50 dark:bg-slate-800/90 rounded-2xl p-4 border border-gray-200 dark:border-white/10 space-y-3 text-left shadow-inner">
+                <div className="flex items-center gap-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 size={16} className="flex-shrink-0" />
+                  <span>Razorpay Order ID Generated</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">
+                  <Loader2 size={16} className="animate-spin flex-shrink-0" />
+                  <span>Awaiting User Pin Authorization...</span>
+                </div>
+                <div className="flex items-center gap-2.5 text-xs font-medium text-gray-400 dark:text-gray-500">
+                  <div className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0" />
+                  <span>Confirming Bank Transfer</span>
+                </div>
+              </div>
             </div>
           )}
 

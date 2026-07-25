@@ -19,7 +19,7 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("RENTZY - Password Reset Request");
+            helper.setSubject("RENTXY - Password Reset Request");
             
             String htmlContent = "<h2>Password Reset Request</h2>"
                     + "<p>You have requested to reset your password.</p>"
@@ -41,10 +41,10 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("RENTZY - Email Verification Code");
+            helper.setSubject("RENTXY - Email Verification Code");
             
             String htmlContent = "<h2>Verify your Email Address</h2>"
-                    + "<p>Thank you for registering with RENTZY.</p>"
+                    + "<p>Thank you for registering with RENTXY.</p>"
                     + "<p>Your 6-digit verification code is:</p>"
                     + "<h1 style='color: #4f46e5; letter-spacing: 5px;'>" + otp + "</h1>"
                     + "<br><br><p>This code will expire in 10 minutes. If you did not request this, please ignore this email.</p>";
@@ -63,13 +63,13 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject("RENTZY - Account Notice: " + action);
+            helper.setSubject("RENTXY - Account Notice: " + action);
             
             String actionVerb = action.equals("WARNING") ? "issued a warning" : 
                               action.equals("BLOCKED") ? "blocked" : "deleted";
                               
             String htmlContent = "<h2>Account Notice</h2>"
-                    + "<p>This is an official notice from RENTZY administration.</p>"
+                    + "<p>This is an official notice from RENTXY administration.</p>"
                     + "<p>Your account has been <strong>" + actionVerb + "</strong> for the following reason:</p>"
                     + "<blockquote style='border-left: 4px solid #ef4444; padding-left: 10px; color: #555; font-style: italic;'>" + (reason != null && !reason.trim().isEmpty() ? reason : "Violation of platform policies.") + "</blockquote>"
                     + "<br><br><p>If you believe this is an error, please contact support.</p>";

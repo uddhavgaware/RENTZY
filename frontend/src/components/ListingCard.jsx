@@ -227,10 +227,18 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
         )}
 
         {/* Location */}
-        <p className="text-gray-500 text-sm flex items-center gap-1 mb-3">
+        <p className="text-gray-500 text-sm flex items-center gap-1 mb-2">
           <MapPin size={13} className="text-primary-400 flex-shrink-0" />
           <span className="truncate">{listing.location}</span>
         </p>
+
+        {listing.computedDistance != null && (
+          <div className="mb-2.5">
+            <span className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800 px-2 py-0.5 rounded-md text-[11px] font-extrabold tracking-wide shadow-sm animate-pulse">
+              📍 {listing.computedDistance} km from commute landmark
+            </span>
+          </div>
+        )}
 
         {/* Amenities */}
         {amenities.length > 0 && (

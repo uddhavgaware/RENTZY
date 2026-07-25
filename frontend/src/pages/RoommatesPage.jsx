@@ -55,6 +55,7 @@ import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import PremiumHero from '../components/PremiumHero';
+import { calculateDistance, geocodeAddress } from '../utils/distanceUtils';
 
 const maskName = (name) => {
   if (!name) return 'Anonymous';
@@ -81,6 +82,30 @@ const RoommatesPage = () => {
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
   const [modalMapSearchQuery, setModalMapSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
+
+  // Smart Commute / Proximity Algo Filter
+  const [commuteRefName, setCommuteRefName] = useState('');
+  const [commuteCoords, setCommuteCoords] = useState(null);
+  const [maxDistance, setMaxDistance] = useState('');
+  const [sortByDistance, setSortByDistance] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  const handleSetCommuteRef = async (queryStr) => {
+    const target = queryStr || commuteRefName;
+    if (!target || !target.trim()) {
+      setCommuteCoords(null);
+      return;
+    }
+    setIsGeocoding(true);
+    const result = await geocodeAddress(target);
+    setIsGeocoding(false);
+    if (result) {
+      setCommuteCoords(result);
+      setCommuteRefName(target);
+    } else {
+      showModal({ type: 'alert', title: 'Location Not Found', message: `Could not find geographical coordinates for "${target}". Please try specifying the city or area.`, onConfirm: closeModal });
+    }
+  };
 
   const [preferencesForm, setPreferencesForm] = useState({
     dietaryPref: user?.dietaryPref || 'Any',
@@ -593,19 +618,33 @@ const RoommatesPage = () => {
     }
   };
 
-  const displayedRoommates = roommates.filter(r => {
+  const displayedRoommates = roommates.map(r => {
+    if (commuteCoords && r.latitude && r.longitude) {
+      const dist = calculateDistance(commuteCoords.lat, commuteCoords.lon, r.latitude, r.longitude);
+      return { ...r, computedDistance: dist };
+    }
+    return { ...r, computedDistance: null };
+  }).filter(r => {
     if (activeTab === 'girls') {
       const g = (r.gender || r.user?.gender || '').toLowerCase();
       const tg = (r.targetGender || '').toLowerCase();
-      return g === 'female' || g === 'girl' || g === 'woman' || tg === 'female' || tg === 'girl' || tg === 'woman';
+      if (!(g === 'female' || g === 'girl' || g === 'woman' || tg === 'female' || tg === 'girl' || tg === 'woman')) return false;
     }
     if (activeTab === 'boys') {
       const g = (r.gender || r.user?.gender || '').toLowerCase();
       const tg = (r.targetGender || '').toLowerCase();
-      return g === 'male' || g === 'boy' || g === 'man' || tg === 'male' || tg === 'boy' || tg === 'man';
+      if (!(g === 'male' || g === 'boy' || g === 'man' || tg === 'male' || tg === 'boy' || tg === 'man')) return false;
+    }
+    if (commuteCoords && maxDistance) {
+      const maxKm = parseFloat(maxDistance);
+      if (r.computedDistance == null || r.computedDistance > maxKm) return false;
     }
     return true;
   });
+
+  if (sortByDistance && commuteCoords) {
+    displayedRoommates.sort((a, b) => (a.computedDistance ?? 999999) - (b.computedDistance ?? 999999));
+  }
 
   return (
     <>
@@ -755,6 +794,100 @@ const RoommatesPage = () => {
               >
                 Edit Preferences
               </button>
+            )}
+          </div>
+
+          {/* Smart Proximity & Commute Distance Filter */}
+          <div className="bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-blue-50/90 border border-indigo-200/80 rounded-2xl p-4 shadow-sm mb-8">
+            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20">
+                  <Navigation size={16} className="animate-pulse" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-extrabold text-indigo-950">📍 Smart Commute & Proximity Algorithm</h4>
+                  <p className="text-[11px] text-indigo-700/80 font-medium">Find roommates & flatmates near your College or Workplace</p>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-2 flex-wrap">
+                {user?.collegeName && (
+                  <button
+                    type="button"
+                    onClick={() => handleSetCommuteRef(user.collegeName)}
+                    className="text-xs bg-indigo-100 hover:bg-indigo-200 text-indigo-800 font-bold px-3 py-1.5 rounded-xl transition-all border border-indigo-200 flex items-center gap-1.5 active:scale-95 shadow-sm"
+                  >
+                    🎓 College: {user.collegeName}
+                  </button>
+                )}
+                {user?.companyName && (
+                  <button
+                    type="button"
+                    onClick={() => handleSetCommuteRef(user.companyName)}
+                    className="text-xs bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold px-3 py-1.5 rounded-xl transition-all border border-purple-200 flex items-center gap-1.5 active:scale-95 shadow-sm"
+                  >
+                    🏢 Workplace: {user.companyName}
+                  </button>
+                )}
+                <label className="flex items-center gap-1.5 cursor-pointer bg-white px-3 py-1.5 rounded-xl border border-indigo-200 text-xs font-bold text-indigo-900 shadow-sm ml-1">
+                  <input
+                    type="checkbox"
+                    checked={sortByDistance}
+                    onChange={(e) => setSortByDistance(e.target.checked)}
+                    disabled={!commuteCoords}
+                    className="rounded text-indigo-600 focus:ring-indigo-500 disabled:opacity-40"
+                  />
+                  Sort by Nearest
+                </label>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-center">
+              <div className="md:col-span-2 flex gap-2">
+                <div className="relative flex-1">
+                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 text-indigo-500" size={16} />
+                  <input
+                    type="text"
+                    value={commuteRefName}
+                    onChange={(e) => setCommuteRefName(e.target.value)}
+                    placeholder="Type College, Office, Tech Park, or Landmark (e.g. COEP Pune, MIT WPU, Infosys Hinjewadi)..."
+                    className="w-full pl-9 pr-3 py-2.5 bg-white border border-indigo-200 rounded-xl text-sm font-medium placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 outline-none shadow-inner text-gray-800"
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleSetCommuteRef(); }}
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleSetCommuteRef()}
+                  disabled={isGeocoding}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5 shadow-md shadow-indigo-500/20 transition-all active:scale-95 disabled:opacity-60 flex-shrink-0"
+                >
+                  {isGeocoding ? 'Locating...' : 'Set Landmark'}
+                </button>
+              </div>
+
+              <div>
+                <select
+                  value={maxDistance}
+                  onChange={(e) => setMaxDistance(e.target.value)}
+                  disabled={!commuteCoords}
+                  className="w-full py-2.5 px-3 bg-white border border-indigo-200 rounded-xl text-sm font-bold text-indigo-950 focus:ring-2 focus:ring-indigo-500 outline-none disabled:opacity-50 disabled:bg-gray-50 cursor-pointer"
+                >
+                  <option value="">Any Commute Distance</option>
+                  <option value="1">Within 1 km radius</option>
+                  <option value="2">Within 2 km radius</option>
+                  <option value="5">Within 5 km radius</option>
+                  <option value="10">Within 10 km radius</option>
+                  <option value="15">Within 15 km radius</option>
+                  <option value="25">Within 25 km radius</option>
+                </select>
+              </div>
+            </div>
+
+            {commuteCoords && (
+              <div className="mt-2.5 flex items-center justify-between text-xs font-semibold text-emerald-700 bg-emerald-50/90 border border-emerald-200 px-3 py-1.5 rounded-xl">
+                <span className="truncate">✓ Locked: {commuteCoords.displayName?.split(',').slice(0, 2).join(',') || commuteRefName} ({commuteCoords.lat.toFixed(4)}, {commuteCoords.lon.toFixed(4)})</span>
+                <button onClick={() => { setCommuteCoords(null); setCommuteRefName(''); setMaxDistance(''); setSortByDistance(false); }} className="text-red-600 hover:text-red-800 font-bold ml-2 underline flex-shrink-0">Clear</button>
+              </div>
             )}
           </div>
 
@@ -1137,6 +1270,11 @@ const RoommatesPage = () => {
                         <div>
                           <span className="text-xs text-gray-500 block">Looking in</span>
                           <span className="font-medium text-gray-800">{roommate.location}</span>
+                          {roommate.computedDistance != null && (
+                            <span className="block mt-1 inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 px-2 py-0.5 rounded-md text-[11px] font-extrabold tracking-wide shadow-sm animate-pulse">
+                              📍 {roommate.computedDistance} km away
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex items-start">

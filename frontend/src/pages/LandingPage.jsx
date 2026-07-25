@@ -203,8 +203,8 @@ const LandingPage = () => {
           setUserLocation({ city, state });
           setLocationStatus('granted');
           setHeroLocation(city);
-          sessionStorage.setItem('rentzy_city', city);
-          sessionStorage.setItem('rentzy_state', state);
+          sessionStorage.setItem('rentxy_city', city);
+          sessionStorage.setItem('rentxy_state', state);
           fetchNearbyListings(city);
         } catch { setLocationStatus('denied'); }
       },
@@ -214,8 +214,8 @@ const LandingPage = () => {
   };
 
   useEffect(() => {
-    const city = sessionStorage.getItem('rentzy_city');
-    const state = sessionStorage.getItem('rentzy_state');
+    const city = sessionStorage.getItem('rentxy_city');
+    const state = sessionStorage.getItem('rentxy_state');
     if (city) {
       setUserLocation({ city, state });
       setLocationStatus('granted');
@@ -328,7 +328,7 @@ const LandingPage = () => {
           {locationStatus === 'granted' && userLocation?.city && (
             <div className="flex items-center justify-center gap-1.5 text-emerald-400 text-sm font-semibold animate-fade-in pt-2">
               <span>📍</span> Showing results near <span className="text-white">{userLocation.city}{userLocation.state ? `, ${userLocation.state}` : ''}</span>
-              <button onClick={() => { setLocationStatus('idle'); setUserLocation(null); sessionStorage.removeItem('rentzy_city'); setNearbyListings([]); setHeroLocation(''); }} className="ml-1 text-white/40 hover:text-white/70 text-xs transition-colors">(change)</button>
+              <button onClick={() => { setLocationStatus('idle'); setUserLocation(null); sessionStorage.removeItem('rentxy_city'); setNearbyListings([]); setHeroLocation(''); }} className="ml-1 text-white/40 hover:text-white/70 text-xs transition-colors">(change)</button>
             </div>
           )}
         </div>

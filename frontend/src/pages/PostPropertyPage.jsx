@@ -5,6 +5,7 @@ import { divIcon } from 'leaflet';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
+import geminiService from '../services/geminiService';
 
 // Individual image upload slot component
 const ImageSlot = ({ label, isMain, file, preview, onFileSelect, onRemove, slotId }) => {
@@ -124,9 +125,23 @@ const PostPropertyPage = () => {
     }
   }, [isOwner]);
 
-  const generateAIDescription = () => {
+  const generateAIDescription = async () => {
     setAiGenerating(true);
-    setTimeout(() => {
+    try {
+      const desc = await geminiService.generatePropertyDescription({
+        title: formData.title || `${formData.configuration || '2 BHK'} ${formData.type || 'Flat'}`,
+        type: formData.type || 'Flat',
+        bhk: formData.configuration || '2 BHK',
+        price: formData.price || '15,000',
+        location: formData.areaName || formData.villageCityTown || formData.location || 'Pune',
+        furnishing: formData.furnishing || 'Semi-Furnished',
+        amenities: amenities,
+        sqft: formData.areaSqft || '1000',
+        targetTenants: formData.targetTenants || 'Family / Bachelors'
+      });
+      setFormData(prev => ({ ...prev, description: desc }));
+    } catch (err) {
+      console.warn('Gemini description generation failed, using template:', err);
       const type = formData.type || 'property';
       const config = formData.configuration || '';
       const furnish = formData.furnishing || '';
@@ -157,8 +172,9 @@ const PostPropertyPage = () => {
       desc += ` Schedule a visit today and experience it firsthand!`;
 
       setFormData(prev => ({ ...prev, description: desc }));
+    } finally {
       setAiGenerating(false);
-    }, 1500);
+    }
   };
   const [formData, setFormData] = useState({
     title: '',
