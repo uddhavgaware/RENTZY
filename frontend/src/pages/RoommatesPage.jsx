@@ -593,6 +593,20 @@ const RoommatesPage = () => {
     }
   };
 
+  const displayedRoommates = roommates.filter(r => {
+    if (activeTab === 'girls') {
+      const g = (r.gender || r.user?.gender || '').toLowerCase();
+      const tg = (r.targetGender || '').toLowerCase();
+      return g === 'female' || g === 'girl' || g === 'woman' || tg === 'female' || tg === 'girl' || tg === 'woman';
+    }
+    if (activeTab === 'boys') {
+      const g = (r.gender || r.user?.gender || '').toLowerCase();
+      const tg = (r.targetGender || '').toLowerCase();
+      return g === 'male' || g === 'boy' || g === 'man' || tg === 'male' || tg === 'boy' || tg === 'man';
+    }
+    return true;
+  });
+
   return (
     <>
       <PremiumHero
@@ -719,6 +733,18 @@ const RoommatesPage = () => {
               >
                 🔥 Smart Matches
               </button>
+              <button
+                onClick={() => setActiveTab('girls')}
+                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'girls' ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20' : 'bg-white text-gray-600 hover:bg-pink-50 hover:text-pink-600 border border-gray-200'}`}
+              >
+                👩 Girls Section (Women Only)
+              </button>
+              <button
+                onClick={() => setActiveTab('boys')}
+                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'boys' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
+              >
+                👨 Boys Section (Men Only)
+              </button>
             </div>
             
             {/* Edit Preferences Button when on Smart Match tab */}
@@ -803,16 +829,48 @@ const RoommatesPage = () => {
                 </div>
               </form>
             </div>
-          ) : loading && roommates.length === 0 ? (
+          ) : loading && displayedRoommates.length === 0 ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
             </div>
-          ) : roommates.length === 0 ? (
+          ) : displayedRoommates.length === 0 ? (
             <div className="text-center py-12 text-gray-500">
-              No roommate requests found. Be the first to post!
+              No roommate requests found in this section. {activeTab === 'all' && "Be the first to post!"}
             </div>
           ) : (
             <div className={`relative ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'} transition-opacity duration-300`}>
+              {activeTab === 'girls' && (
+                <div className="mb-8 p-6 rounded-3xl bg-gradient-to-r from-pink-500/10 via-rose-500/5 to-transparent border border-pink-500/20 flex items-center justify-between shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-pink-500 to-rose-400 flex items-center justify-center text-white shadow-lg shadow-pink-500/20 text-2xl flex-shrink-0">
+                      👩
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-gray-900 dark:text-white">Girls & Women Roommate Community</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Verified female profiles & women-only shared housing opportunities. Safe, comfortable, and direct.</p>
+                    </div>
+                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-pink-100 dark:bg-pink-900/40 text-pink-700 dark:text-pink-300 text-xs font-bold whitespace-nowrap border border-pink-200 dark:border-pink-800/50">
+                    🛡️ Verified Women Profiles
+                  </span>
+                </div>
+              )}
+              {activeTab === 'boys' && (
+                <div className="mb-8 p-6 rounded-3xl bg-gradient-to-r from-blue-500/10 via-indigo-500/5 to-transparent border border-blue-500/20 flex items-center justify-between shadow-sm">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/20 text-2xl flex-shrink-0">
+                      👨
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black text-gray-900 dark:text-white">Boys & Men Roommate Community</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Verified male profiles & bachelor shared housing opportunities across India.</p>
+                    </div>
+                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-xs font-bold whitespace-nowrap border border-blue-200 dark:border-blue-800/50">
+                    🛡️ Verified Men Profiles
+                  </span>
+                </div>
+              )}
             {isMapView ? (
               <div className="h-[600px] w-full rounded-3xl overflow-hidden border border-gray-200 shadow-lg relative z-0 mb-10">
                 {/* Map Search Overlay */}
@@ -849,7 +907,7 @@ const RoommatesPage = () => {
                   <CustomZoomControl />
                   <MapUpdater center={mapCenter} />
                   <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
-                  {roommates.map(roommate => {
+                  {displayedRoommates.map(roommate => {
                     if (!roommate.latitude || !roommate.longitude) return null;
                     return (
                       <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon('Room')}>
@@ -895,7 +953,7 @@ const RoommatesPage = () => {
               </div>
             ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {roommates.map(roommate => {
+              {displayedRoommates.map(roommate => {
                 const isOwner = user?.email === roommate.user?.email;
                 const myPost = roommates.find(r => r.user?.email === user?.email);
                 

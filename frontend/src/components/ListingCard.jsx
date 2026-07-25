@@ -55,12 +55,31 @@ const TYPE_COLORS = {
   'Co-living Space': 'from-teal-500 to-cyan-600',
 };
 
-const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlistChange }) => {
+const getPgGenderTheme = (listing) => {
+  if (!listing) return null;
+  const isPgHostel = ['PG', 'Hostel', 'Co-living Space', 'PG/Hostel'].includes(listing.type);
+  if (!isPgHostel) return null;
+
+  const pref = (listing.tenantPreference || '').toLowerCase();
+  const title = (listing.title || '').toLowerCase();
+  const desc = (listing.description || '').toLowerCase();
+
+  if (pref.includes('women') || pref.includes('girl') || pref.includes('female') || title.includes('women') || title.includes('girl') || title.includes('female') || desc.includes('women only') || desc.includes('girls only')) {
+    return 'girls';
+  }
+  if (pref.includes('men') || pref.includes('boy') || pref.includes('male') || title.includes('men') || title.includes('boy') || title.includes('male') || desc.includes('men only') || desc.includes('boys only')) {
+    return 'boys';
+  }
+  return null;
+};
+
+const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlistChange, themeOverride }) => {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [wishlisted, setWishlisted] = useState(initialWishlisted);
   const [animating, setAnimating] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const pgTheme = themeOverride || getPgGenderTheme(listing);
 
   useEffect(() => {
     setWishlisted(initialWishlisted);
@@ -112,7 +131,13 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
     >
       <Link
         to={`/listings/${listing.id}/${slugify(listing.title)}`}
-        className="group bg-white/90 dark:bg-slate-800/90 backdrop-blur-xl rounded-3xl overflow-hidden flex flex-col h-full border border-gray-100 dark:border-white/5 shadow-sm hover:shadow-2xl hover:shadow-primary-500/10 transition-shadow duration-300"
+        className={`group bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl overflow-hidden flex flex-col h-full border transition-all duration-300 shadow-sm hover:shadow-2xl ${
+          pgTheme === 'girls'
+            ? 'border-pink-200/80 dark:border-pink-900/40 hover:border-pink-400 hover:shadow-pink-500/15 bg-gradient-to-b from-pink-50/40 via-white to-white dark:from-pink-950/20 dark:via-slate-800 dark:to-slate-800'
+            : pgTheme === 'boys'
+            ? 'border-blue-200/80 dark:border-blue-900/40 hover:border-blue-400 hover:shadow-blue-500/15 bg-gradient-to-b from-blue-50/40 via-white to-white dark:from-blue-950/20 dark:via-slate-800 dark:to-slate-800'
+            : 'border-gray-100 dark:border-white/5 hover:shadow-primary-500/10'
+        }`}
       >
       {/* Image */}
       <div className="relative h-52 sm:h-56 overflow-hidden bg-gray-100 dark:bg-slate-700">
@@ -129,8 +154,14 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
 
         {/* Type badge top-left */}
         <div className="absolute top-3 left-3">
-          <span className={`inline-block px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white rounded-full bg-gradient-to-r ${typeGradient} shadow-lg`}>
-            {listing.type}
+          <span className={`inline-block px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-white rounded-full shadow-lg ${
+            pgTheme === 'girls'
+              ? 'bg-gradient-to-r from-pink-500 to-rose-600 shadow-pink-500/30'
+              : pgTheme === 'boys'
+              ? 'bg-gradient-to-r from-blue-500 to-indigo-600 shadow-blue-500/30'
+              : `bg-gradient-to-r ${typeGradient}`
+          }`}>
+            {pgTheme === 'girls' ? `👩 Girls ${listing.type}` : pgTheme === 'boys' ? `👨 Boys ${listing.type}` : listing.type}
           </span>
         </div>
 
@@ -149,8 +180,10 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
 
         {/* Price floating at bottom-left */}
         <div className="absolute bottom-3 left-3">
-          <span className="px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-xl text-sm font-bold text-primary-700 shadow-sm">
-            ₹{listing.price?.toLocaleString('en-IN')}
+          <span className="px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-xl text-sm font-bold shadow-sm">
+            <span className={pgTheme === 'girls' ? 'text-pink-600' : pgTheme === 'boys' ? 'text-blue-600' : 'text-primary-700'}>
+              ₹{listing.price?.toLocaleString('en-IN')}
+            </span>
             <span className="text-gray-500 font-normal text-xs">/mo</span>
           </span>
         </div>
@@ -178,6 +211,18 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
         {listing.owner?.kycStatus === 'APPROVED' && (
           <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold mb-1.5">
             <BadgeCheck size={13} className="fill-emerald-100" /> ID Verified Owner
+          </span>
+        )}
+
+        {/* Gender Theme Badge if PG/Hostel */}
+        {pgTheme === 'girls' && (
+          <span className="inline-flex items-center gap-1 bg-pink-100/80 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 border border-pink-200/60 dark:border-pink-800/40 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide w-fit mb-1.5">
+            👩 Women Only / Girls {listing.type}
+          </span>
+        )}
+        {pgTheme === 'boys' && (
+          <span className="inline-flex items-center gap-1 bg-blue-100/80 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/40 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide w-fit mb-1.5">
+            👨 Men Only / Boys {listing.type}
           </span>
         )}
 
@@ -256,7 +301,9 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"></path></svg>
               </button>
             )}
-            <span className="text-xs font-semibold text-primary-600 group-hover:underline transition-all">
+            <span className={`text-xs font-semibold group-hover:underline transition-all ${
+              pgTheme === 'girls' ? 'text-pink-600 dark:text-pink-400' : pgTheme === 'boys' ? 'text-blue-600 dark:text-blue-400' : 'text-primary-600 dark:text-primary-400'
+            }`}>
               View Details →
             </span>
           </div>

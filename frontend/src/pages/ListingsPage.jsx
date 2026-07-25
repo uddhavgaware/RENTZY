@@ -257,6 +257,10 @@ const ListingsPage = () => {
       setSearchInput(locFromUrl);
       setAppliedLocation(locFromUrl);
     }
+    const prefFromUrl = searchParams.get('tenantPreference') || '';
+    if (prefFromUrl !== tenantPreference) {
+      setTenantPreference(prefFromUrl);
+    }
   }, [searchParams]);
 
   useEffect(() => {
