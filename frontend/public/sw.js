@@ -89,8 +89,8 @@ self.addEventListener('push', function(event) {
   const title = data.title || "RentXY Notification";
   const options = {
     body: data.body || "You have a new update.",
-    icon: "/favicon.svg",
-    badge: "/favicon.svg",
+    icon: "/pwa-192x192.png",
+    badge: "/pwa-192x192.png",
     data: {
       link: data.link || "/"
     }
