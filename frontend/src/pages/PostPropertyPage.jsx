@@ -117,6 +117,8 @@ const PostPropertyPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiSuggesting, setAiSuggesting] = useState(false);
+  const [aiSuggestions, setAiSuggestions] = useState(null);
   const [myBuildings, setMyBuildings] = useState([]);
 
   useEffect(() => {
@@ -124,6 +126,18 @@ const PostPropertyPage = () => {
       api.get('/buildings/my').then(res => setMyBuildings(res.data)).catch(console.error);
     }
   }, [isOwner]);
+
+  const handleGetAiSuggestions = async () => {
+    setAiSuggesting(true);
+    try {
+      const suggestions = await geminiService.suggestPropertyDetails(formData);
+      setAiSuggestions(suggestions);
+    } catch (err) {
+      console.error('Failed to get suggestions', err);
+    } finally {
+      setAiSuggesting(false);
+    }
+  };
 
   const generateAIDescription = async () => {
     setAiGenerating(true);
@@ -423,6 +437,106 @@ const PostPropertyPage = () => {
             <span>Location & Price</span>
             <span>Photos & Amenities</span>
           </div>
+        </div>
+
+        {/* AI Smart Assist — Suggest & Add */}
+        <div className="mb-6 bg-gradient-to-r from-purple-900 via-indigo-900 to-primary-900 text-white rounded-2xl p-5 shadow-lg border border-purple-500/30">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">✨</span>
+                <h3 className="text-lg font-bold">AI Smart Assist (Suggest & Add)</h3>
+              </div>
+              <p className="text-xs text-purple-200 mt-1">Let Gemini AI recommend the best Rent Price, Catchy Titles, and Amenities for your listing.</p>
+            </div>
+            <button
+              type="button"
+              onClick={handleGetAiSuggestions}
+              disabled={aiSuggesting}
+              className="bg-white text-purple-900 hover:bg-purple-50 font-bold px-4 py-2.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 flex-shrink-0 disabled:opacity-50 cursor-pointer"
+            >
+              {aiSuggesting ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-purple-900 border-t-transparent rounded-full animate-spin"></div>
+                  <span>Analyzing Market...</span>
+                </>
+              ) : (
+                <>
+                  <span>✨ Get AI Suggestions</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {aiSuggestions && (
+            <div className="mt-5 pt-5 border-t border-white/20 space-y-4 animate-fadeIn">
+              {/* Price Suggestion */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-white/10">
+                <div>
+                  <span className="text-xs text-purple-200 font-medium uppercase tracking-wider block">Recommended Monthly Rent</span>
+                  <div className="flex items-baseline gap-2 mt-0.5">
+                    <span className="text-xl font-black text-amber-300">₹{parseInt(aiSuggestions.suggestedPrice || 0).toLocaleString('en-IN')}/mo</span>
+                    <span className="text-xs text-purple-200">({aiSuggestions.priceRange})</span>
+                  </div>
+                  <p className="text-xs text-purple-200 mt-1 italic">💡 {aiSuggestions.reasoning}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, price: aiSuggestions.suggestedPrice }))}
+                  className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center flex-shrink-0 shadow cursor-pointer"
+                >
+                  <span>+ Apply Price</span>
+                </button>
+              </div>
+
+              {/* Titles Suggestion */}
+              {aiSuggestions.suggestedTitles && aiSuggestions.suggestedTitles.length > 0 && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3.5 border border-white/10">
+                  <span className="text-xs text-purple-200 font-medium uppercase tracking-wider block mb-2">High-Converting Listing Titles</span>
+                  <div className="space-y-2">
+                    {aiSuggestions.suggestedTitles.map((title, idx) => (
+                      <div key={idx} className="flex items-center justify-between gap-2 bg-black/20 p-2.5 rounded-lg">
+                        <span className="text-xs font-medium text-white line-clamp-1">{title}</span>
+                        <button
+                          type="button"
+                          onClick={() => setFormData(prev => ({ ...prev, title }))}
+                          className="bg-purple-500 hover:bg-purple-400 text-white font-bold px-3 py-1.5 rounded text-xs transition-colors flex-shrink-0 cursor-pointer"
+                        >
+                          + Use Title
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Amenities Suggestion */}
+              {aiSuggestions.suggestedAmenities && aiSuggestions.suggestedAmenities.length > 0 && (
+                <div className="bg-white/10 backdrop-blur-md rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-white/10">
+                  <div>
+                    <span className="text-xs text-purple-200 font-medium uppercase tracking-wider block">Recommended Amenities</span>
+                    <div className="flex flex-wrap gap-1.5 mt-1.5">
+                      {aiSuggestions.suggestedAmenities.map((am, i) => (
+                        <span key={i} className="bg-purple-800/80 text-purple-100 px-2 py-0.5 rounded text-[11px] font-semibold border border-purple-500/30">
+                          ✓ {am}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const merged = Array.from(new Set([...amenities, ...aiSuggestions.suggestedAmenities]));
+                      setAmenities(merged);
+                    }}
+                    className="bg-emerald-500 hover:bg-emerald-400 text-white font-bold px-3.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-center gap-1.5 self-start sm:self-center flex-shrink-0 shadow cursor-pointer"
+                  >
+                    <span>+ Add All Suggested</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Form Container */}

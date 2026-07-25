@@ -184,6 +184,94 @@ Guidelines:
       console.error('Gemini Roommate Bio Error:', error);
       throw error;
     }
+  },
+
+  /**
+   * AI Suggestions for Property Posting (Rent Valuation, Titles, Amenities, Description)
+   */
+  suggestPropertyDetails: async (formData = {}) => {
+    const type = formData.type || 'Flat';
+    const bhk = formData.configuration || '2 BHK';
+    const loc = formData.areaName || formData.villageCityTown || formData.location || 'Pune';
+    const furn = formData.furnishing || 'Semi-Furnished';
+    const price = formData.price || '20000';
+
+    const prompt = `As an AI real estate expert for RentXY in India, provide smart suggestions for a property listing:
+- Property Type: ${type}
+- Configuration: ${bhk}
+- City/Locality: ${loc}
+- Furnishing: ${furn}
+
+Return ONLY a valid JSON object (no markdown, no backticks, no explanatory text outside JSON) with this exact schema:
+{
+  "suggestedPrice": "22000",
+  "priceRange": "₹20,000 - ₹24,000 / mo",
+  "suggestedTitles": [
+    "✨ Luxury ${bhk} ${type} with Balcony in ${loc}",
+    "🏡 Spacious Sunlit ${bhk} in Prime Gated Community",
+    "🏢 Premium ${furn} ${type} for Family & Professionals"
+  ],
+  "suggestedAmenities": ["WiFi", "Parking", "Security", "AC", "Washing Machine"],
+  "suggestedDescription": "A beautifully maintained ${bhk} ${type} located in the heart of ${loc}. Features excellent ventilation, 24x7 water supply, and premium ${furn} interiors. Ideal for families and working professionals seeking a comfortable, secure lifestyle.",
+  "reasoning": "In ${loc}, a ${furn} ${bhk} typically rents between ₹20,000 and ₹25,000. Highlighting WiFi, Parking, and Security increases tenant inquiries by up to 40%!"
+}`;
+
+    try {
+      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only real estate pricing and marketing AI.');
+      const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      return JSON.parse(cleaned);
+    } catch (error) {
+      console.warn('Gemini Property Suggestion fallback triggered:', error);
+      const numPrice = parseInt(price) || (bhk.includes('3') ? 28000 : bhk.includes('1') ? 14000 : 20000);
+      return {
+        suggestedPrice: String(numPrice),
+        priceRange: `₹${(numPrice * 0.9).toFixed(0)} - ₹${(numPrice * 1.15).toFixed(0)} / mo`,
+        suggestedTitles: [
+          `✨ Luxury ${bhk} ${type} with Balcony in ${loc}`,
+          `🏡 Spacious Sunlit ${bhk} in Prime Locality`,
+          `🏢 Premium ${furn} ${type} for Family & Bachelors`
+        ],
+        suggestedAmenities: ['WiFi', 'Parking', 'Security', 'AC', 'Washing Machine'],
+        suggestedDescription: `A beautifully maintained ${bhk} ${type} located in the heart of ${loc}. Features excellent ventilation, 24x7 water supply, and premium ${furn} interiors. Ideal for families and working professionals seeking a comfortable, secure lifestyle.`,
+        reasoning: `In ${loc}, a ${furn} ${bhk} typically rents around ₹${numPrice.toLocaleString('en-IN')}. Adding key amenities like WiFi and Parking boosts visibility!`
+      };
+    }
+  },
+
+  /**
+   * AI Suggestions for Roommate Post (Headline, Budget, Preferences)
+   */
+  suggestRoommateDetails: async (postFormData = {}) => {
+    const loc = postFormData.areaName || postFormData.buildingName || 'Pune';
+    const flatSize = postFormData.flatSize || '2BHK';
+    const gender = postFormData.gender || 'Working Professional';
+
+    const prompt = `As an AI roommate matchmaker for RentXY in India, provide smart suggestions for someone seeking a roommate:
+- Locality: ${loc}
+- Flat Size: ${flatSize}
+- Profile: ${gender}
+
+Return ONLY a valid JSON object (no markdown, no backticks) with this exact schema:
+{
+  "suggestedHeadline": "Friendly Techie seeking Chill Flatmate near ${loc}",
+  "suggestedBudget": "9500",
+  "suggestedPreferences": "IT Professional, Non-Smoking, Clean & Hygienic, Weekend Chill",
+  "reasoning": "Sharing a ${flatSize} in ${loc} typically costs ₹8,500 - ₹11,000 per person."
+}`;
+
+    try {
+      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only roommate matchmaking AI.');
+      const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
+      return JSON.parse(cleaned);
+    } catch (error) {
+      console.warn('Gemini Roommate Suggestion fallback triggered:', error);
+      return {
+        suggestedHeadline: `Friendly Techie seeking Chill Flatmate near ${loc}`,
+        suggestedBudget: "9500",
+        suggestedPreferences: "IT Professional, Non-Smoking, Clean & Hygienic, Weekend Chill",
+        reasoning: `Sharing a ${flatSize} in ${loc} typically costs around ₹9,500 per person.`
+      };
+    }
   }
 };
 

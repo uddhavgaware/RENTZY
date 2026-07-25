@@ -56,6 +56,7 @@ import { useAuth } from '../context/AuthContext';
 import Modal from '../components/Modal';
 import PremiumHero from '../components/PremiumHero';
 import { calculateDistance, geocodeAddress } from '../utils/distanceUtils';
+import geminiService from '../services/geminiService';
 
 const maskName = (name) => {
   if (!name) return 'Anonymous';
@@ -339,6 +340,21 @@ const RoommatesPage = () => {
     gender: '',
     flatSize: '1BHK',
   });
+
+  const [aiSuggestingRoommate, setAiSuggestingRoommate] = useState(false);
+  const [aiRoommateSuggestions, setAiRoommateSuggestions] = useState(null);
+
+  const handleGetRoommateSuggestions = async () => {
+    setAiSuggestingRoommate(true);
+    try {
+      const suggestions = await geminiService.suggestRoommateDetails(postFormData);
+      setAiRoommateSuggestions(suggestions);
+    } catch (err) {
+      console.error('Failed roommate suggestions', err);
+    } finally {
+      setAiSuggestingRoommate(false);
+    }
+  };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -1439,6 +1455,71 @@ const RoommatesPage = () => {
 
             <form onSubmit={handlePostSubmit} className="flex-1 overflow-y-auto">
               <div className="p-6 space-y-6">
+
+                {/* AI Roommate Assist — Suggest & Add */}
+                <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-primary-900 text-white rounded-2xl p-4 shadow-md border border-purple-500/30">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-lg">✨</span>
+                        <h4 className="text-sm font-bold">AI Roommate Assist (Suggest & Add)</h4>
+                      </div>
+                      <p className="text-[11px] text-purple-200 mt-0.5">Auto-suggest fair budget share and lifestyle tags.</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleGetRoommateSuggestions}
+                      disabled={aiSuggestingRoommate}
+                      className="bg-white text-purple-900 hover:bg-purple-50 font-bold px-3 py-2 rounded-xl text-xs transition-all shadow flex items-center justify-center gap-1.5 flex-shrink-0 disabled:opacity-50 cursor-pointer"
+                    >
+                      {aiSuggestingRoommate ? (
+                        <>
+                          <div className="w-3.5 h-3.5 border-2 border-purple-900 border-t-transparent rounded-full animate-spin"></div>
+                          <span>Thinking...</span>
+                        </>
+                      ) : (
+                        <span>✨ Get Suggestions</span>
+                      )}
+                    </button>
+                  </div>
+
+                  {aiRoommateSuggestions && (
+                    <div className="mt-3.5 pt-3.5 border-t border-white/20 space-y-3 animate-fadeIn text-xs">
+                      {/* Budget Suggestion */}
+                      <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center justify-between gap-2 border border-white/10">
+                        <div>
+                          <span className="text-[10px] text-purple-200 uppercase tracking-wider block">Suggested Budget / Person</span>
+                          <span className="text-base font-black text-amber-300">₹{parseInt(aiRoommateSuggestions.suggestedBudget || 0).toLocaleString('en-IN')}/mo</span>
+                          <p className="text-[10px] text-purple-200 italic mt-0.5">💡 {aiRoommateSuggestions.reasoning}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setPostFormData(prev => ({ ...prev, budget: aiRoommateSuggestions.suggestedBudget }))}
+                          className="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex-shrink-0 shadow cursor-pointer"
+                        >
+                          + Apply Budget
+                        </button>
+                      </div>
+
+                      {/* Preferences Suggestion */}
+                      {aiRoommateSuggestions.suggestedPreferences && (
+                        <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 flex items-center justify-between gap-2 border border-white/10">
+                          <div>
+                            <span className="text-[10px] text-purple-200 uppercase tracking-wider block">Recommended Tags</span>
+                            <span className="text-xs font-semibold text-white block mt-0.5">{aiRoommateSuggestions.suggestedPreferences}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setPostFormData(prev => ({ ...prev, preferences: aiRoommateSuggestions.suggestedPreferences }))}
+                            className="bg-purple-500 hover:bg-purple-400 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-colors flex-shrink-0 shadow cursor-pointer"
+                          >
+                            + Use Tags
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
 
                 {/* Live Split Rent Preview */}
                 {postFormData.budget && postFormData.totalCapacity > 1 && (
