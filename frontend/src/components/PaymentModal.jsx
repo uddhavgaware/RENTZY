@@ -208,8 +208,45 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
                     Scan with <strong>Google Pay, PhonePe, Paytm, or BHIM</strong> to transfer <strong>₹{amount?.toLocaleString('en-IN')}</strong>.
                   </p>
 
+                  {/* 1-Click Mobile UPI App Intent Launchers */}
+                  <div className="pt-3 border-t border-purple-100 dark:border-purple-800/30">
+                    <p className="text-[11px] font-extrabold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-2.5">
+                      ⚡ Or Click to Launch UPI App Directly (Mobile Intent)
+                    </p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <a
+                        href={`phonepe://pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
+                        onClick={() => handleSimulateUpiScan()}
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#5f259f] hover:bg-[#4d1e80] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#5f259f]/20 cursor-pointer"
+                      >
+                        <span>🟣</span> PhonePe
+                      </a>
+                      <a
+                        href={`gpay://upi/pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
+                        onClick={() => handleSimulateUpiScan()}
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#1a73e8]/20 cursor-pointer"
+                      >
+                        <span>🔵</span> Google Pay
+                      </a>
+                      <a
+                        href={`paytmmp://pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
+                        onClick={() => handleSimulateUpiScan()}
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#00b9f1] hover:bg-[#0096c4] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#00b9f1]/20 cursor-pointer"
+                      >
+                        <span>💠</span> Paytm
+                      </a>
+                      <a
+                        href={`upi://pay?pa=rentzy.razorpay@icici&pn=Rentzy%20Payments&am=${amount}&cu=INR`}
+                        onClick={() => handleSimulateUpiScan()}
+                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#ff7900] hover:bg-[#e06900] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#ff7900]/20 cursor-pointer"
+                      >
+                        <span>🇮🇳</span> Any UPI App
+                      </a>
+                    </div>
+                  </div>
+
                   {/* Simulate Scan OK Done Flow Button */}
-                  <div className="pt-1">
+                  <div className="pt-2">
                     <button
                       type="button"
                       onClick={handleSimulateUpiScan}
