@@ -21,6 +21,7 @@ class GlobalErrorBoundary extends React.Component {
   };
 
   render() {
+    const isDev = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) || (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development');
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex flex-col items-center justify-center p-6 text-center">
@@ -41,7 +42,7 @@ class GlobalErrorBoundary extends React.Component {
               <RefreshCw size={18} />
               Reload App
             </button>
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {isDev && this.state.error && (
               <div className="mt-8 text-left w-full overflow-hidden">
                 <p className="text-xs text-red-500 font-mono break-words bg-red-50 dark:bg-red-950 p-4 rounded-lg">
                   {this.state.error.toString()}

@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import "leaflet/dist/leaflet.css";
 @import "tailwindcss";
 
@@ -78,7 +77,8 @@ html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300;
+  @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100;
+  /* Note: transition-colors removed from body — it caused a 300ms white flash on every page load */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100dvh;
