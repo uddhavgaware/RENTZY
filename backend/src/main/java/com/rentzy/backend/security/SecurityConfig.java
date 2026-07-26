@@ -37,8 +37,9 @@ public class SecurityConfig {
                 .requestMatchers("/uploads/**").permitAll()
                 // ── Public: WebSocket ──
                 .requestMatchers("/ws/**").permitAll()
-                // ── Public: Listing reads ──
+                // ── Public: Listing & Building reads ──
                 .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/buildings", "/api/buildings/**").permitAll()
                 // ── Public: Review reads ──
                 .requestMatchers(HttpMethod.GET, "/api/reviews", "/api/reviews/**").permitAll()
                 // ── Public: User Review reads ──

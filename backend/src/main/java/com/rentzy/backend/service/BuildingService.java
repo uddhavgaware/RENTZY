@@ -37,6 +37,20 @@ public class BuildingService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public BuildingDTO getBuildingById(Long id) {
+        Building building = buildingRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Building not found"));
+        return BuildingDTO.fromEntity(building);
+    }
+
+    @Transactional(readOnly = true)
+    public List<BuildingDTO> getBuildingsByOwnerId(Long ownerId) {
+        return buildingRepository.findByOwnerId(ownerId).stream()
+                .map(BuildingDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public BuildingDTO createBuilding(BuildingDTO dto, String ownerEmail) {
         User owner = userRepository.findByEmail(ownerEmail)

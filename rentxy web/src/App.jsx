@@ -1,0 +1,244 @@
+import React, { useEffect, useState, useCallback, Suspense, lazy } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import Layout from './components/Layout';
+import GlobalErrorBoundary from './components/GlobalErrorBoundary';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
+import { HelmetProvider } from 'react-helmet-async';
+import { Loader2, WifiOff, Wifi } from 'lucide-react';
+import { Toaster } from 'react-hot-toast';
+import api from './services/api';
+import toast from 'react-hot-toast';
+import PwaInstallBanner from './components/PwaInstallBanner';
+import NotificationPermissionModal from './components/NotificationPermissionModal';
+
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const ListingsPage = lazy(() => import('./pages/ListingsPage'));
+const ListingDetailsPage = lazy(() => import('./pages/ListingDetailsPage'));
+const AuthPage = lazy(() => import('./pages/AuthPage'));
+const RoommatesPage = lazy(() => import('./pages/RoommatesPage'));
+const PostPropertyPage = lazy(() => import('./pages/PostPropertyPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/ResetPasswordPage'));
+const CompleteProfilePage = lazy(() => import('./pages/CompleteProfilePage'));
+const MoversPage = lazy(() => import('./pages/MoversPage'));
+const MoverDashboardPage = lazy(() => import('./pages/MoverDashboardPage'));
+const OwnerProfilePage = lazy(() => import('./pages/OwnerProfilePage'));
+const OwnerDashboardPage = lazy(() => import('./pages/OwnerDashboardPage'));
+const TenantDashboardPage = lazy(() => import('./pages/TenantDashboardPage'));
+const BuildingProfilePage = lazy(() => import('./pages/BuildingProfilePage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const FaqPage = lazy(() => import('./pages/FaqPage'));
+const TermsPage = lazy(() => import('./pages/TermsPage'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage'));
+const FlatRentalPortal = lazy(() => import('./pages/FlatRentalPortal'));
+const PgHostelPortal = lazy(() => import('./pages/PgHostelPortal'));
+const OfficeSpacePortal = lazy(() => import('./pages/OfficeSpacePortal'));
+const WarehousePortal = lazy(() => import('./pages/WarehousePortal'));
+const SplitExpensesPage = lazy(() => import('./pages/SplitExpensesPage'));
+const JoinSplitGroupPage = lazy(() => import('./pages/JoinSplitGroupPage'));
+
+// ✅ Scroll to top on EVERY page navigation — fixes "page stays scrolled down" bug
+// Works globally: covers ALL links site-wide (Navbar, Footer, CTA buttons, cards, etc.)
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [pathname]);
+  return null;
+}
+
+// Redirect unauthenticated users to /auth, and incomplete profiles to /complete-profile
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, user, loading } = useAuth();
+  if (loading) return null;
+  if (!isAuthenticated) return <Navigate to="/auth" replace />;
+  if (isAuthenticated && user && user.profileCompleted === false) return <Navigate to="/complete-profile" replace />;
+  return children;
+};
+
+// Only ADMIN role can access admin pages
+const AdminRoute = ({ children }) => {
+  const { isAuthenticated, isAdmin, loading } = useAuth();
+  if (loading) return null;
+  if (!isAuthenticated) return <Navigate to="/auth" replace />;
+  if (!isAdmin) return <Navigate to="/" replace />;
+  return children;
+};
+
+// Global fallback loader for Suspense
+const SuspenseFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950">
+    <Loader2 size={40} className="text-primary-500 animate-spin" />
+  </div>
+);
+
+// 🌐 Network Status Handler — shows offline/online toasts, syncs offline queues, and refreshes auth
+function NetworkStatusHandler() {
+  const { refreshUser, isAuthenticated } = useAuth();
+  const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const [showOnlineToast, setShowOnlineToast] = useState(false);
+  const [syncingQueue, setSyncingQueue] = useState(false);
+
+  const syncOfflineQueue = useCallback(async () => {
+    try {
+      const moversQueueRaw = localStorage.getItem('rentzy_offline_movers_queue');
+      if (moversQueueRaw) {
+        const moversQueue = JSON.parse(moversQueueRaw);
+        if (Array.isArray(moversQueue) && moversQueue.length > 0) {
+          setSyncingQueue(true);
+          let successCount = 0;
+          const remainingQueue = [];
+
+          for (const item of moversQueue) {
+            try {
+              await api.post('/moving/request', item);
+              successCount++;
+            } catch (err) {
+              console.error('Failed to sync offline item:', err);
+              remainingQueue.push(item);
+            }
+          }
+
+          if (remainingQueue.length > 0) {
+            localStorage.setItem('rentzy_offline_movers_queue', JSON.stringify(remainingQueue));
+          } else {
+            localStorage.removeItem('rentzy_offline_movers_queue');
+          }
+
+          if (successCount > 0) {
+            toast.success(`🎉 Successfully synced ${successCount} offline relocation request${successCount > 1 ? 's' : ''}!`);
+          }
+          setSyncingQueue(false);
+        }
+      }
+    } catch (error) {
+      console.error('Error syncing offline queue:', error);
+      setSyncingQueue(false);
+    }
+  }, []);
+
+  const handleOnline = useCallback(() => {
+    setIsOffline(false);
+    setShowOnlineToast(true);
+    // Refresh user session when coming back online to prevent stale token issues
+    if (isAuthenticated) {
+      refreshUser().catch(() => {});
+    }
+    // Automatically sync queued offline requests
+    syncOfflineQueue();
+    setTimeout(() => setShowOnlineToast(false), 4000);
+  }, [isAuthenticated, refreshUser, syncOfflineQueue]);
+
+  const handleOffline = useCallback(() => {
+    setIsOffline(true);
+    setShowOnlineToast(false);
+    toast.error('⚠️ You are now offline. Switching to cached read mode.', { icon: '📴', duration: 4000 });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    // Try syncing on initial load if online
+    if (navigator.onLine) {
+      syncOfflineQueue();
+    }
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [handleOnline, handleOffline, syncOfflineQueue]);
+
+  return (
+    <>
+      {/* Offline Banner */}
+      {isOffline && (
+        <div className="fixed top-0 left-0 right-0 z-[9999] bg-amber-600 text-white text-center py-2 px-4 text-xs md:text-sm font-semibold flex items-center justify-center gap-2 shadow-lg animate-slideDown">
+          <WifiOff size={16} className="animate-bounce shrink-0" />
+          <span>Offline Mode: You are currently disconnected from internet. Cached read mode & offline request queue active.</span>
+        </div>
+      )}
+      {/* Back Online Toast */}
+      {showOnlineToast && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[9999] bg-emerald-600 text-white py-2 px-6 rounded-full text-xs md:text-sm font-semibold flex items-center gap-2 shadow-xl animate-fadeIn">
+          <Wifi size={16} className="shrink-0" />
+          <span>{syncingQueue ? 'Back online! Syncing offline queues...' : '🟢 Back online! All systems synchronized.'}</span>
+        </div>
+      )}
+    </>
+  );
+}
+
+function App() {
+  // Google Client ID from VITE_GOOGLE_CLIENT_ID or fallback to production Client ID
+  const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '872152634254-62koq8amssj0d0l6gqnta33kv3is670u.apps.googleusercontent.com';
+
+  return (
+    <HelmetProvider>
+    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
+      <ThemeProvider>
+        <AuthProvider>
+        <Router>
+          {/* ScrollToTop must be INSIDE <Router> so it can use useLocation() */}
+          <ScrollToTop />
+          <NetworkStatusHandler />
+          <PwaInstallBanner />
+          <NotificationPermissionModal />
+          <Layout>
+            <GlobalErrorBoundary>
+              <Suspense fallback={<SuspenseFallback />}>
+                <Routes>
+                  {/* Public routes */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/listings" element={<ListingsPage />} />
+                <Route path="/listings/:id/:slug?" element={<ListingDetailsPage />} />
+                <Route path="/auth" element={<AuthPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/roommates" element={<RoommatesPage />} />
+                <Route path="/movers" element={<MoversPage />} />
+                <Route path="/complete-profile" element={<CompleteProfilePage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/faq" element={<FaqPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="/privacy" element={<PrivacyPage />} />
+                <Route path="/owner/:id" element={<OwnerProfilePage />} />
+                <Route path="/buildings/:id" element={<BuildingProfilePage />} />
+                <Route path="/flats" element={<FlatRentalPortal />} />
+                <Route path="/pgs" element={<PgHostelPortal />} />
+                <Route path="/offices" element={<OfficeSpacePortal />} />
+                <Route path="/warehouses" element={<WarehousePortal />} />
+                <Route path="/join/:inviteCode" element={<JoinSplitGroupPage />} />
+
+                {/* Protected routes — must be logged in */}
+                <Route path="/post-property" element={<ProtectedRoute><PostPropertyPage /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
+                <Route path="/messages" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+                <Route path="/mover-dashboard" element={<ProtectedRoute><MoverDashboardPage /></ProtectedRoute>} />
+                <Route path="/owner-dashboard" element={<ProtectedRoute><OwnerDashboardPage /></ProtectedRoute>} />
+                <Route path="/tenant-dashboard" element={<ProtectedRoute><TenantDashboardPage /></ProtectedRoute>} />
+                <Route path="/split-expenses" element={<ProtectedRoute><SplitExpensesPage /></ProtectedRoute>} />
+
+                {/* Admin only */}
+                <Route path="/admin" element={<AdminRoute><AdminDashboardPage /></AdminRoute>} />
+
+                  {/* Fallback route */}
+                  <Route path="*" element={<Navigate to="/" replace />} />
+                </Routes>
+              </Suspense>
+            </GlobalErrorBoundary>
+          </Layout>
+        </Router>
+        </AuthProvider>
+      </ThemeProvider>
+    </GoogleOAuthProvider>
+    <Toaster position="top-right" />
+    </HelmetProvider>
+  );
+}
+
+export default App;

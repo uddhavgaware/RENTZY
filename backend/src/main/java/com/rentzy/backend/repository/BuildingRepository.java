@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface BuildingRepository extends JpaRepository<Building, Long> {
     List<Building> findByOwnerEmail(String email);
+    List<Building> findByOwnerId(Long ownerId);
     List<Building> findByNameContainingIgnoreCase(String name);
     List<Building> findByCityIgnoreCaseAndLocationContainingIgnoreCase(String city, String location);
 }

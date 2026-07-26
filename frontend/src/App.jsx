@@ -55,7 +55,7 @@ function ScrollToTop() {
 // Redirect unauthenticated users to /auth, and incomplete profiles to /complete-profile
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <SuspenseFallback />;
   if (!isAuthenticated) return <Navigate to="/auth" replace />;
   if (isAuthenticated && user && user.profileCompleted === false) return <Navigate to="/complete-profile" replace />;
   return children;
@@ -64,7 +64,7 @@ const ProtectedRoute = ({ children }) => {
 // Only ADMIN role can access admin pages
 const AdminRoute = ({ children }) => {
   const { isAuthenticated, isAdmin, loading } = useAuth();
-  if (loading) return null;
+  if (loading) return <SuspenseFallback />;
   if (!isAuthenticated) return <Navigate to="/auth" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
   return children;

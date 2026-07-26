@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en" class="">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#4f46e5" />
+  <meta name="description" content="RentXY — India's premium marketplace for PGs, flats, hostels and roommates. Find verified, affordable stays near you." />
+  <meta name="keywords" content="PG, flat, hostel, roommate, rent, India, Pune, Mumbai, Bangalore" />
+  <meta property="og:title" content="Home - RentXY" />
+  <meta property="og:description" content="- Empowering Tomorrow..." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://rentxy.in/" />
+  <meta property="og:image" content="https://rentxy.in/whatsapp-logo.png" />
+  <meta property="og:image:width" content="192" />
+  <meta property="og:image:height" content="192" />
+  <meta property="og:image:type" content="image/png" />
+  
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Home - RentXY" />
+  <meta name="twitter:description" content="- Empowering Tomorrow..." />
+  <meta name="twitter:image" content="https://rentxy.in/whatsapp-logo.png" />
+
+  <!-- Google Search Console Verification -->
+  <meta name="google-site-verification" content="juBbyhMc8mR6Lk1qmLPIkKx4BMIehl7vE8p2vkhz5hg" />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <title>Home - RentXY</title>
+  
+  <!-- SEO Canonical Link to prevent duplicate content penalty between .in and .online -->
+  <link rel="canonical" href="https://rentxy.in/" />
+
+  <!-- DNS Prefetch for fast API connections -->
+  <link rel="dns-prefetch" href="https://rentxybookings.onrender.com" />
+  <link rel="preconnect" href="https://rentxybookings.onrender.com" />
+
+  <!-- Inter font — preconnect for speed, only loaded once here, removed from index.css @import -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet" />
+
+
+  <!-- Razorpay — async to prevent render blocking -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
+
+  <!-- Inline script: apply saved theme before React loads to prevent flash of wrong colors -->
+  <script>
+    (function() {
+      try {
+        var theme = localStorage.getItem('theme') || 'light';
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+      } catch(e) {}
+    })();
+  </script>
+
+</head>
+
+<body>
+  <div id="root">
+    <!-- Skeleton shown while React JavaScript bundle is loading -->
+    <div id="app-loading-skeleton" style="
+      display:flex; align-items:center; justify-content:center;
+      min-height:100dvh; background:#f9fafb;
+      flex-direction:column; gap:12px;
+    ">
+      <div style="
+        width:48px; height:48px; border-radius:50%;
+        border:4px solid #e0e7ff; border-top-color:#4f46e5;
+        animation:spin 0.8s linear infinite;
+      "></div>
+      <p style="color:#6366f1; font-family:system-ui,sans-serif; font-size:14px; font-weight:600; margin:0">Loading RentXY...</p>
+    </div>
+    <style>#app-loading-skeleton{transition:opacity .2s}@keyframes spin{to{transform:rotate(360deg)}}</style>
+  </div>
+  <script type="module" src="/src/main.jsx"></script>
+</body>
+
+</html>

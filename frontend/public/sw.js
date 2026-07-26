@@ -1,12 +1,10 @@
-const CACHE_NAME = 'rentzy-pwa-cache-v1';
+const CACHE_NAME = 'rentzy-pwa-cache-v2';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
   '/favicon.svg',
   '/manifest.json'
 ];
 
-// Install Event — cache static root assets
+// Install Event — cache static assets (NOT index.html — that uses network-first)
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
@@ -16,7 +14,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate Event — clean up old caches
+// Activate Event — clean up ALL old caches (including v1 that caused stale white screens)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -29,45 +27,48 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch Event — Network-First for API calls, Cache-First for static UI assets
+// Fetch Event
+// - Navigation requests (HTML pages): NETWORK-FIRST → prevents white screen from stale cache
+// - Static assets (JS/CSS/images): Stale-while-revalidate → fast loads + background updates
+// - API calls / cross-origin: pass-through (no caching)
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip cross-origin requests, API calls, and WebSockets from cache-first strategy
+  // Skip cross-origin requests, API calls, and non-GET requests
   if (url.origin !== self.location.origin || url.pathname.startsWith('/api') || event.request.method !== 'GET') {
     return;
   }
 
+  // Navigation requests (HTML) → Network-first to always get fresh index.html
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, responseToCache));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // Offline fallback — serve cached index.html
+          return caches.match('/index.html') || caches.match('/');
+        })
+    );
+    return;
+  }
+
+  // Static assets → Stale-while-revalidate (instant load + background update)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) {
-        // Return cached UI immediately (instant 0.1s load time on slow/2G networks)
-        // Fetch new version in background to update cache
-        fetch(event.request).then((networkResponse) => {
-          if (networkResponse && networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse));
-          }
-        }).catch(() => {});
-        return cachedResponse;
-      }
-
-      // If not in cache, fetch from network and cache it for next time
-      return fetch(event.request).then((networkResponse) => {
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-          return networkResponse;
+      const fetchPromise = fetch(event.request).then((networkResponse) => {
+        if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, networkResponse.clone()));
         }
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
-        });
         return networkResponse;
-      }).catch((error) => {
-        // If offline and requesting navigation (HTML page), return root index.html from cache
-        if (event.request.mode === 'navigate') {
-          return caches.match('/index.html');
-        }
-        throw error;
-      });
+      }).catch(() => cachedResponse);
+
+      return cachedResponse || fetchPromise;
     })
   );
 });

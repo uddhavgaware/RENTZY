@@ -22,6 +22,16 @@ public class BuildingController {
         return ResponseEntity.ok(buildingService.searchBuildings(query));
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<BuildingDTO> getBuildingById(@PathVariable Long id) {
+        return ResponseEntity.ok(buildingService.getBuildingById(id));
+    }
+
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<List<BuildingDTO>> getBuildingsByOwnerId(@PathVariable Long ownerId) {
+        return ResponseEntity.ok(buildingService.getBuildingsByOwnerId(ownerId));
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<BuildingDTO>> getMyBuildings(Authentication authentication) {
         return ResponseEntity.ok(buildingService.getBuildingsByOwner(authentication.getName()));
