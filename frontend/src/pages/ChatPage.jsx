@@ -25,8 +25,16 @@ const ChatPage = () => {
     }
   });
 
+  // ── All core state declarations ──
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
+  const [editingMessage, setEditingMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const messagesEndRef = useRef(null);
+  const activeChatRef = useRef(null);
 
-
+  // ── Contact approval derived state ──
   const isContactApproved = activeChat && (
     contactPermissions[activeChat] ||
     messages.some(m => m.content === '[CONTACT_REQUEST:APPROVED]' || m.content?.includes('Approved contact sharing'))
@@ -45,13 +53,9 @@ const ChatPage = () => {
   const handleApproveContact = async (targetUserId) => {
     const chatIdToApprove = targetUserId || activeChat;
     if (!chatIdToApprove) return;
-
     const updated = { ...contactPermissions, [chatIdToApprove]: true };
     setContactPermissions(updated);
-    try {
-      localStorage.setItem('rentzy_contact_permissions', JSON.stringify(updated));
-    } catch {}
-
+    try { localStorage.setItem('rentzy_contact_permissions', JSON.stringify(updated)); } catch {}
     try {
       const msg = await chatService.sendMessage(chatIdToApprove, '[CONTACT_REQUEST:APPROVED]');
       setMessages(prev => [...prev, msg]);
@@ -60,12 +64,15 @@ const ChatPage = () => {
     }
   };
 
-  // Auto-fill message from URL
+  // Keep activeChatRef in sync
+  useEffect(() => {
+    activeChatRef.current = activeChat;
+  }, [activeChat]);
+
+  // Auto-fill message from URL param
   useEffect(() => {
     const text = searchParams.get('text');
-    if (text) {
-      setNewMessage(text);
-    }
+    if (text) setNewMessage(text);
   }, [searchParams]);
 
   // Scroll to bottom when messages update
@@ -73,7 +80,7 @@ const ChatPage = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Fetch conversations + Polling
+  // Fetch conversations + polling
   useEffect(() => {
     let isMounted = true;
     const fetchConvos = async () => {
@@ -81,13 +88,10 @@ const ChatPage = () => {
         const convos = await chatService.getConversations();
         if (!isMounted) return;
         setConversations(prevConvos => {
-          // Merge: keep any dummy entries that aren't in the server response
           const serverIds = new Set(convos.map(c => c.id));
           const dummyEntries = prevConvos.filter(c => !serverIds.has(c.id));
           return [...convos, ...dummyEntries];
         });
-        
-        // If coming from a direct message link (e.g. ?user=3)
         const userId = searchParams.get('user');
         if (userId) {
           const uId = parseInt(userId);
@@ -95,10 +99,8 @@ const ChatPage = () => {
             setActiveChat(uId);
             setShowMobileChat(true);
           }
-          // Add dummy conversation if not in list yet so UI shows them
           if (!convos.find(c => c.id === uId)) {
             try {
-              // Fetch real user details
               const res = await api.get(`/users/${uId}`);
               const fetchedUser = res.data;
               if (isMounted) {
@@ -109,12 +111,10 @@ const ChatPage = () => {
                   return prev;
                 });
               }
-            } catch (userErr) {
+            } catch {
               if (isMounted) {
                 setConversations(prev => {
-                  if (!prev.find(c => c.id === uId)) {
-                    return [{ id: uId, name: 'User', role: 'USER' }, ...prev];
-                  }
+                  if (!prev.find(c => c.id === uId)) return [{ id: uId, name: 'User', role: 'USER' }, ...prev];
                   return prev;
                 });
               }
@@ -129,22 +129,10 @@ const ChatPage = () => {
         if (isMounted) setLoading(false);
       }
     };
-    
     fetchConvos();
-
-    // Poll conversations every 10 seconds
     const convosIntervalId = setInterval(fetchConvos, 10000);
-    return () => {
-      isMounted = false;
-      clearInterval(convosIntervalId);
-    };
+    return () => { isMounted = false; clearInterval(convosIntervalId); };
   }, [searchParams]);
-
-  const activeChatRef = useRef(activeChat);
-
-  useEffect(() => {
-    activeChatRef.current = activeChat;
-  }, [activeChat]);
 
   // Connect to WebSocket on load
   useEffect(() => {
