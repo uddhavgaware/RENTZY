@@ -1212,7 +1212,7 @@ const RoommatesPage = () => {
                     const myPost = roommates.find(r => r.user?.email && user?.email && r.user.email.toLowerCase() === user.email.toLowerCase());
 
                     let matchScore = roommate.matchPercentage != null ? roommate.matchPercentage : null;
-                    if (matchScore === null && !isOwner && myPost) {
+                    if (matchScore === null && !isPostCreator && myPost) {
                       let weightedScore = 0;
                       let totalWeight = 0;
 
