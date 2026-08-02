@@ -280,33 +280,37 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
               type="button"
               onClick={handleAnalyzeDeal}
               disabled={analyzingDeal}
-              className="w-full bg-gradient-to-r from-purple-600/90 to-indigo-600/90 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-1.5 px-2.5 rounded-lg text-[11px] flex items-center justify-center gap-1.5 transition-all shadow-sm cursor-pointer disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2 px-3 rounded-xl text-[11px] flex items-center justify-center gap-1.5 transition-all shadow-md shadow-purple-500/20 cursor-pointer disabled:opacity-50 active:scale-95 group relative overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-[sweep_2s_infinite]"></div>
               {analyzingDeal ? (
                 <>
-                  <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  <span>Evaluating Deal...</span>
+                  <Sparkles size={14} className="animate-pulse" />
+                  <span className="animate-pulse">Gemini Evaluating...</span>
                 </>
               ) : (
                 <>
-                  <span>✨ AI Smart Deal Analysis</span>
+                  <Sparkles size={14} />
+                  <span>Gemini Deal Analysis</span>
                 </>
               )}
             </button>
           ) : (
             <div 
               onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} 
-              className="bg-gradient-to-r from-purple-900/95 to-indigo-900/95 text-white p-3 rounded-xl text-xs space-y-1.5 border border-purple-500/40 shadow animate-fadeIn"
+              className="relative bg-gradient-to-br from-indigo-50/80 to-purple-50/80 dark:from-indigo-950/40 dark:to-purple-950/40 text-gray-800 dark:text-gray-100 p-3 rounded-xl text-xs space-y-1.5 border border-purple-200 dark:border-purple-800/50 shadow-sm animate-fadeIn overflow-hidden group"
             >
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[11px] text-amber-300 flex items-center gap-1">
-                  <span>✨ AI Deal Evaluator</span>
+              <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-purple-400/20 to-transparent rounded-full translate-x-4 -translate-y-4 pointer-events-none"></div>
+              <div className="flex items-center justify-between relative z-10">
+                <span className="font-bold text-[11px] text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                  <Sparkles size={13} className="text-purple-500 animate-pulse" />
+                  <span>Gemini Verified Deal</span>
                 </span>
-                <span className="bg-amber-400 text-slate-900 font-black px-1.5 py-0.5 rounded text-[10px] shadow">
+                <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black px-2 py-0.5 rounded-md text-[10px] shadow-sm">
                   {aiDealInsight.dealScore}
                 </span>
               </div>
-              <p className="text-purple-100 text-[10px] leading-relaxed">
+              <p className="text-gray-600 dark:text-purple-100/80 text-[10px] leading-relaxed relative z-10">
                 {aiDealInsight.insight}
               </p>
             </div>

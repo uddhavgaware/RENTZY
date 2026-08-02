@@ -186,6 +186,17 @@ const RoommatesPage = () => {
     }));
   };
 
+  useEffect(() => {
+    if (!lightboxState.isOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowRight') nextLightboxImage();
+      if (e.key === 'ArrowLeft') prevLightboxImage();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxState.isOpen]);
+
   const nextImage = (id, maxIndex) => {
     setActiveImageIndexes(prev => ({
       ...prev,
@@ -1196,7 +1207,8 @@ const RoommatesPage = () => {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {displayedRoommates.map(roommate => {
-                    const isOwner = (user?.email && roommate.user?.email && user.email.toLowerCase() === roommate.user.email.toLowerCase()) || user?.role === 'ADMIN';
+                    const isPostCreator = user?.email && roommate.user?.email && user.email.toLowerCase() === roommate.user.email.toLowerCase();
+                    const isAdminOrCreator = isPostCreator || user?.role === 'ADMIN';
                     const myPost = roommates.find(r => r.user?.email && user?.email && r.user.email.toLowerCase() === user.email.toLowerCase());
 
                     let matchScore = roommate.matchPercentage != null ? roommate.matchPercentage : null;
@@ -1268,7 +1280,7 @@ const RoommatesPage = () => {
                         id={`roommate-card-${roommate.id}`}
                         key={roommate.id}
                         className={`glass-card bg-white/95 dark:bg-slate-800/95 rounded-2xl p-4 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative group ${
-                          isExpanded ? 'ring-2 ring-primary-500/50 shadow-2xl col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-slate-900' : ''
+                          isExpanded ? 'ring-2 ring-primary-500/50 shadow-2xl col-span-1 md:col-span-2 bg-white dark:bg-slate-900' : ''
                         }`}
                       >
                         {/* Top: Header & User Info */}
@@ -1458,58 +1470,74 @@ const RoommatesPage = () => {
                                     type="button"
                                     onClick={() => handleAnalyzeCardMatch(roommate)}
                                     disabled={analyzingCardId === roommate.id}
-                                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
+                                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-md shadow-purple-500/25 disabled:opacity-50 active:scale-95 group relative overflow-hidden"
                                   >
+                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-[sweep_2s_infinite]"></div>
                                     {analyzingCardId === roommate.id ? (
                                       <>
-                                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                        <span>AI Analyzing Compatibility...</span>
+                                        <Sparkles size={16} className="animate-pulse" />
+                                        <span className="animate-pulse tracking-wide">Gemini is analyzing...</span>
                                       </>
                                     ) : (
                                       <>
-                                        <span>✨ AI Compatibility Match & Conversation Advice</span>
+                                        <Sparkles size={16} className="group-hover:animate-pulse" />
+                                        <span className="tracking-wide">AI Compatibility Match & Advice</span>
                                       </>
                                     )}
                                   </button>
                                 ) : (
-                                  <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-3.5 rounded-xl text-xs space-y-1.5 border border-purple-500/40 shadow-lg animate-fadeIn">
-                                    <div className="flex items-center justify-between">
-                                      <span className="font-bold text-amber-300 flex items-center gap-1 text-xs">
-                                        <span>✨ AI Compatibility Match</span>
+                                  <div className="relative bg-gradient-to-br from-indigo-50/90 to-purple-50/90 dark:from-indigo-950/40 dark:to-purple-950/40 text-gray-800 dark:text-gray-100 p-4 rounded-xl text-xs space-y-2 border border-purple-200 dark:border-purple-800/50 shadow-sm animate-fadeIn overflow-hidden group">
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-purple-400/20 to-transparent rounded-full translate-x-8 -translate-y-8 pointer-events-none"></div>
+                                    <div className="flex items-center justify-between relative z-10 border-b border-purple-100 dark:border-purple-900/30 pb-2">
+                                      <span className="font-bold text-sm text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
+                                        <Sparkles size={16} className="text-purple-500 animate-pulse" />
+                                        <span>Gemini Match Analysis</span>
                                       </span>
-                                      <span className="bg-amber-400 text-slate-900 font-black px-2 py-0.5 rounded text-[10px] shadow">
+                                      <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black px-2.5 py-1 rounded-lg text-[11px] shadow-md shadow-purple-500/20 border border-purple-500/30">
                                         {cardMatches[roommate.id].matchScore}
                                       </span>
                                     </div>
-                                    <p className="text-purple-100 leading-relaxed text-[11px]">
-                                      {cardMatches[roommate.id].analysis}
-                                    </p>
+                                    <div className="relative z-10 pt-1">
+                                      <p className="text-gray-700 dark:text-purple-50 text-[11.5px] leading-relaxed mb-2 font-medium">
+                                        {cardMatches[roommate.id].analysis}
+                                      </p>
+                                      {cardMatches[roommate.id].icebreaker && (
+                                        <div className="mt-2.5 bg-white/60 dark:bg-black/20 rounded-lg p-2.5 border border-purple-100 dark:border-purple-900/20">
+                                          <p className="text-[10px] font-bold text-purple-600 dark:text-purple-400 mb-1 uppercase tracking-wider flex items-center gap-1"><MessageCircle size={10} /> Suggested Icebreaker</p>
+                                          <p className="text-gray-600 dark:text-gray-300 text-[11px] italic">"{cardMatches[roommate.id].icebreaker}"</p>
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
                                 )}
                               </div>
 
                               {/* Action Buttons */}
-                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 border-t border-gray-100 dark:border-white/10">
-                                {isOwner ? (
+                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 border-t border-gray-100 dark:border-white/10 max-w-2xl mx-auto w-full">
+                                {isAdminOrCreator ? (
                                   <>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleEditPost(roommate)}
-                                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
-                                    >
-                                      <Edit3 size={15} /> Edit Post
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleGotAMate(roommate.id)}
-                                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
-                                    >
-                                      <Check size={15} /> Mark Fulfilled
-                                    </button>
+                                    {isPostCreator && (
+                                      <>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleEditPost(roommate)}
+                                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
+                                        >
+                                          <Edit3 size={15} /> Edit Post
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleGotAMate(roommate.id)}
+                                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
+                                        >
+                                          <Check size={15} /> Mark Fulfilled
+                                        </button>
+                                      </>
+                                    )}
                                     <button
                                       type="button"
                                       onClick={() => handleDeletePost(roommate.id)}
-                                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+                                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
                                     >
                                       <Trash2 size={15} /> Delete Post
                                     </button>
@@ -1519,7 +1547,7 @@ const RoommatesPage = () => {
                                     <button
                                       type="button"
                                       onClick={() => handleSendRequest(roommate.id)}
-                                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-pink-500/20 hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+                                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-pink-500/20 hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
                                     >
                                       <Users size={15} /> Send Roommate Request
                                     </button>
@@ -1533,7 +1561,7 @@ const RoommatesPage = () => {
                                         }
                                         navigate(`/messages?user=${recipientId}`);
                                       }}
-                                      className="flex-1 bg-slate-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
+                                      className="flex-1 bg-slate-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
                                     >
                                       <MessageCircle size={15} /> Direct Message
                                     </button>
@@ -1545,7 +1573,7 @@ const RoommatesPage = () => {
                         </div>
 
                         {/* Bottom Action: Toggle Expand / Collapse */}
-                        <div className="pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between gap-2">
+                        <div className={`pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between gap-2 ${isExpanded ? 'max-w-2xl mx-auto w-full' : ''}`}>
                           <button
                             type="button"
                             onClick={() => toggleExpandCard(roommate.id)}
@@ -1559,19 +1587,7 @@ const RoommatesPage = () => {
                               </>
                             )}
                           </button>
-                          {!isExpanded && isOwner && (
-                            <div className="flex gap-1.5 flex-shrink-0">
-                              <button onClick={() => handleEditPost(roommate)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors" title="Edit Post">
-                                <Edit3 size={15} />
-                              </button>
-                              <button onClick={() => handleGotAMate(roommate.id)} className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-xl transition-colors" title="Found Roommate">
-                                <Check size={15} />
-                              </button>
-                              <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-colors" title="Delete Post">
-                                <Trash2 size={15} />
-                              </button>
-                            </div>
-                          )}
+                          {/* Quick action buttons removed to declutter desktop view, use expanded view instead */}
                         </div>
                       </div>
                     );
@@ -2086,39 +2102,46 @@ const RoommatesPage = () => {
 
       {/* Image Lightbox / Zoom Modal */}
       {lightboxState.isOpen && (
-        <div className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+        <div 
+          className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
+          onClick={closeLightbox}
+        >
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 z-20 w-11 h-11 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center font-bold text-2xl transition-all shadow-lg"
+            className="absolute top-4 right-4 z-20 w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center font-bold text-3xl transition-all shadow-lg active:scale-95"
+            title="Close"
           >
             ×
           </button>
 
-          <div className="absolute top-4 left-4 z-20 bg-black/60 text-white px-3 py-1.5 rounded-full text-xs font-bold border border-white/20">
+          <div className="absolute top-4 left-4 z-20 bg-black/60 text-white px-4 py-2 rounded-full text-sm font-bold border border-white/20">
             {lightboxState.index + 1} / {lightboxState.images.length}
           </div>
 
           {lightboxState.images.length > 1 && (
             <button
-              onClick={prevLightboxImage}
-              className="absolute left-4 z-20 w-12 h-12 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center text-3xl transition-all border border-white/20"
+              onClick={(e) => { e.stopPropagation(); prevLightboxImage(); }}
+              className="absolute left-4 z-20 w-14 h-14 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-4xl transition-all border border-white/20 active:scale-95 backdrop-blur-sm"
             >
               ‹
             </button>
           )}
 
-          <div className="max-w-4xl max-h-[85vh] overflow-auto flex items-center justify-center p-2">
+          <div 
+            className="max-w-5xl max-h-[90vh] overflow-auto flex items-center justify-center p-2"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
               src={lightboxState.images[lightboxState.index]}
               alt={`Zoomed photo ${lightboxState.index + 1}`}
-              className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl transition-all duration-300 scale-100 hover:scale-105 cursor-zoom-in"
+              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl transition-all duration-300"
             />
           </div>
 
           {lightboxState.images.length > 1 && (
             <button
-              onClick={nextLightboxImage}
-              className="absolute right-4 z-20 w-12 h-12 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center text-3xl transition-all border border-white/20"
+              onClick={(e) => { e.stopPropagation(); nextLightboxImage(); }}
+              className="absolute right-4 z-20 w-14 h-14 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center text-4xl transition-all border border-white/20 active:scale-95 backdrop-blur-sm"
             >
               ›
             </button>

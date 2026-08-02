@@ -13,22 +13,51 @@ const MODELS = [
 /**
  * Call Gemini REST API with fallback models
  */
-const callGeminiAPI = async (prompt, systemInstruction = '', apiKey = DEFAULT_API_KEY) => {
+const callGeminiAPI = async (prompt, systemInstruction = '', history = [], jsonMode = false, apiKey = DEFAULT_API_KEY) => {
   if (!apiKey || apiKey === 'placeholder') {
     throw new Error('Valid Gemini API Key is required');
   }
 
   const contents = [];
-  if (systemInstruction) {
-    contents.push({
-      role: 'user',
-      parts: [{ text: `[SYSTEM INSTRUCTION]: ${systemInstruction}\n\n[USER REQUEST]: ${prompt}` }]
-    });
+  let systemInjected = false;
+
+  // 1. Process History
+  if (history && history.length > 0) {
+    for (const msg of history) {
+      // Skip empty or system messages
+      if (!msg.text) continue;
+      
+      let text = msg.text;
+      
+      // Inject system prompt into the very first user message
+      if (msg.sender === 'user' && !systemInjected && systemInstruction) {
+        text = `[SYSTEM INSTRUCTION]: ${systemInstruction}\n\n[USER REQUEST]: ${text}`;
+        systemInjected = true;
+      }
+
+      // Gemini roles must strictly be 'user' or 'model'
+      const role = msg.sender === 'ai' ? 'model' : 'user';
+      
+      // Prevent consecutive messages from the same role (Gemini API requirement)
+      if (contents.length > 0 && contents[contents.length - 1].role === role) {
+         contents[contents.length - 1].parts[0].text += `\n\n${text}`;
+      } else {
+         contents.push({ role, parts: [{ text }] });
+      }
+    }
+  }
+
+  // 2. Process Current Prompt
+  let currentPromptText = prompt;
+  if (!systemInjected && systemInstruction) {
+    currentPromptText = `[SYSTEM INSTRUCTION]: ${systemInstruction}\n\n[USER REQUEST]: ${prompt}`;
+  }
+
+  // Ensure current prompt role alternates correctly
+  if (contents.length > 0 && contents[contents.length - 1].role === 'user') {
+    contents[contents.length - 1].parts[0].text += `\n\n${currentPromptText}`;
   } else {
-    contents.push({
-      role: 'user',
-      parts: [{ text: prompt }]
-    });
+    contents.push({ role: 'user', parts: [{ text: currentPromptText }] });
   }
 
   let lastError = null;
@@ -36,17 +65,25 @@ const callGeminiAPI = async (prompt, systemInstruction = '', apiKey = DEFAULT_AP
   for (const model of MODELS) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      
+      const generationConfig = {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: jsonMode ? 2048 : 1024,
+      };
+
+      // Force native JSON output if requested
+      if (jsonMode) {
+        generationConfig.responseMimeType = "application/json";
+      }
+
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: contents,
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 1024,
-          }
+          generationConfig: generationConfig
         }),
       });
 
@@ -93,7 +130,7 @@ When answering:
 - If relevant data is provided in context (${JSON.stringify(contextData)}), reference it!`;
 
     try {
-      const reply = await callGeminiAPI(userMessage, systemPrompt);
+      const reply = await callGeminiAPI(userMessage, systemPrompt, history, false);
       return reply;
     } catch (error) {
       console.error('RentXY AI Chat Error:', error);
@@ -272,9 +309,8 @@ Return ONLY a valid JSON object (no markdown, no backticks, no explanatory text 
 }`;
 
     try {
-      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only real estate pricing and marketing AI.');
-      const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
+      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only real estate pricing and marketing AI.', [], true);
+      return JSON.parse(responseText);
     } catch (error) {
       console.warn('Gemini Property Suggestion fallback triggered:', error);
       return {
@@ -314,9 +350,8 @@ Return ONLY a valid JSON object (no markdown, no backticks) with this exact sche
 }`;
 
     try {
-      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only roommate matchmaking AI.');
-      const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
+      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only roommate matchmaking AI.', [], true);
+      return JSON.parse(responseText);
     } catch (error) {
       console.warn('Gemini Roommate Suggestion fallback triggered:', error);
       return {
@@ -332,10 +367,10 @@ Return ONLY a valid JSON object (no markdown, no backticks) with this exact sche
    * AI Smart Suggestion / Compatibility Analysis for Browsing Roommate Cards
    */
   analyzeRoommateMatch: async (currentUser = {}, roommatePost = {}) => {
-    const userDiet = currentUser.dietaryPref || 'Any';
-    const userSmoke = currentUser.smokingPref || 'Non-Smoking';
-    const userDrink = currentUser.drinkingPref || 'Non-Drinking';
-    const userSleep = currentUser.sleepSchedule || 'Flexible';
+    const userDiet = currentUser.dietaryPref || 'Not specified';
+    const userSmoke = currentUser.smokingPref || 'Not specified';
+    const userDrink = currentUser.drinkingPref || 'Not specified';
+    const userSleep = currentUser.sleepSchedule || 'Not specified';
 
     const postDiet = roommatePost.dietaryPref || 'Any';
     const postSmoke = roommatePost.smokingPref || 'Non-Smoking';
@@ -346,8 +381,8 @@ Return ONLY a valid JSON object (no markdown, no backticks) with this exact sche
     // Algorithmic multi-factor compatibility evaluation (ensures dynamic, realistic 78%-98% scores)
     let baseScore = 75;
     if (userDiet === 'Any' || postDiet === 'Any' || userDiet === postDiet) baseScore += 6;
-    if (userSmoke === postSmoke) baseScore += 7;
-    if (userDrink === postDrink) baseScore += 5;
+    if (userSmoke === postSmoke || userSmoke === 'Not specified') baseScore += 5;
+    if (userDrink === postDrink || userDrink === 'Not specified') baseScore += 5;
     if (userSleep === 'Flexible' || postSleep === 'Flexible' || userSleep === postSleep) baseScore += 5;
 
     // Use deterministic hash of roommate ID or name so each person gets a unique, stable, realistic score
@@ -362,23 +397,25 @@ Roommate Post: Locality=${postLoc}, Diet=${postDiet}, Smoke=${postSmoke}, Drink=
 Return ONLY a valid JSON object (no markdown, no backticks) with this exact schema:
 {
   "matchScore": "${calcScore}% Match 🎯",
-  "analysis": "Strong lifestyle alignment! You both prefer clean living in ${postLoc} and have compatible smoking and sleeping habits.",
-  "icebreaker": "Hi! I saw your roommate request for ${postLoc}. I share similar lifestyle preferences (${postDiet !== 'Any' ? postDiet : 'Vegetarian/Non-Veg'} & ${postSmoke}) and would love to connect!"
+  "analysis": "Strong lifestyle alignment! You both prefer clean living in ${postLoc} and have compatible habits.",
+  "icebreaker": "Hi! I saw your roommate request for ${postLoc}. I share similar lifestyle preferences and would love to connect!"
 }`;
 
     try {
-      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only roommate compatibility AI.');
-      const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      const parsed = JSON.parse(cleaned);
+      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only roommate compatibility AI.', [], true);
+      const parsed = JSON.parse(responseText);
       if (!parsed.matchScore || parsed.matchScore.includes('70%')) {
         parsed.matchScore = `${calcScore}% Match 🎯`;
       }
       return parsed;
     } catch (error) {
+      const hasPrefs = userSmoke !== 'Not specified' && userSleep !== 'Not specified';
       return {
         matchScore: `${calcScore}% Match 🎯`,
-        analysis: `Strong lifestyle compatibility (${calcScore}%)! You align well on living habits in ${postLoc}, especially with ${postSmoke.toLowerCase()} preferences and ${postSleep.toLowerCase()} schedule.`,
-        icebreaker: `Hi! I saw your roommate post for ${postLoc}. Our lifestyle preferences match ${calcScore}%, would love to connect about sharing the flat!`
+        analysis: hasPrefs 
+          ? `Strong lifestyle compatibility (${calcScore}%)! You align well on living habits in ${postLoc}, especially with your shared preferences.`
+          : `We estimate a ${calcScore}% compatibility based on this flat's requirements in ${postLoc}. Update your lifestyle preferences in your profile to get a personalized AI match!`,
+        icebreaker: `Hi! I saw your roommate post for ${postLoc}. Our profile matches ${calcScore}%, would love to connect about sharing the flat!`
       };
     }
   },
@@ -403,13 +440,59 @@ Return ONLY a valid JSON object (no markdown, no backticks) with this exact sche
 }`;
 
     try {
-      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only real estate value analysis AI.');
-      const cleaned = responseText.replace(/```json/gi, '').replace(/```/g, '').trim();
-      return JSON.parse(cleaned);
+      const responseText = await callGeminiAPI(prompt, 'You are a JSON-only real estate value analysis AI.', [], true);
+      return JSON.parse(responseText);
     } catch (error) {
       return {
         dealScore: "9/10 Great Value 🔥",
         insight: `This ${bhk} in ${loc} at ${price}/mo offers competitive market value with great amenities (${ams}). Recommended to visit soon!`
+      };
+    }
+  },
+
+  /**
+   * AI Dynamic Witty Notification Generator (Zomato / Swiggy / Zepto Style)
+   */
+  generateWittyNotification: async (topic = 'GENERAL', context = '') => {
+    const topics = [
+      'Roommate Match & Garlic Bread',
+      'Zero Brokerage Landlord Approval',
+      'Zepto Speed Packers & Movers',
+      'Group Bill Split & Secret Ice Cream',
+      'Trending Flats in Pune & College PGs'
+    ];
+    const chosenTopic = topic !== 'GENERAL' ? topic : topics[Math.floor(Math.random() * topics.length)];
+
+    const prompt = `Write an insanely funny, creative, viral Zomato / Swiggy / Zepto style push notification for a rental & roommate app in India called RentXY.
+Focus Topic: ${chosenTopic}
+Context: ${context || 'General engagement'}
+
+Guidelines:
+1. Title must be hilarious with an emoji (max 6-8 words).
+2. Message must be witty, relatable, punchy (under 120 characters).
+3. Tag: Choose one from ['ZOMATO STYLE', 'ZEPTO SPEED', 'SWIGGY VIBES', 'BILL SPLIT', 'FLAT MATCH'].
+4. Link: Choose one appropriate link from ['/roommates', '/listings', '/movers', '/split-expenses', '/dashboard'].
+
+Return ONLY a JSON object with this exact schema:
+{
+  "tag": "ZOMATO STYLE",
+  "title": "Match made in pizza heaven! 🍕",
+  "message": "Someone sent a roommate request! Time to split rent & garlic bread.",
+  "link": "/roommates",
+  "actionText": "View Match"
+}`;
+
+    try {
+      const responseText = await callGeminiAPI(prompt, 'You are a hilarious Zomato copywriter who writes viral push notifications for real estate.', [], true);
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.warn('Gemini Witty Notification fallback:', error);
+      return {
+        tag: "ZOMATO STYLE",
+        title: "Match made in pizza heaven! 🍕",
+        message: "Someone sent a roommate request! Time to split rent & garlic bread.",
+        link: "/roommates",
+        actionText: "View Match"
       };
     }
   }

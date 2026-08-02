@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon, Split, Download, Smartphone } from 'lucide-react';
+import { Building2, Menu, X, User, LogOut, Home, MessageSquare, Heart, ShieldCheck, Bell, Users, Truck, Briefcase, Warehouse, Sun, Moon, Split, Download, Smartphone, Flame, Sparkles, Bot } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { useAuth } from '../context/AuthContext';
 import api, { isNativePlatform } from '../services/api';
 import { useTheme } from '../context/ThemeContext';
+import { geminiService } from '../services/geminiService';
 
 function cn(...inputs) { return twMerge(clsx(inputs)); }
 
@@ -17,11 +18,35 @@ const Navbar = () => {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [notificationPermission, setNotificationPermission] = useState('Notification' in window ? Notification.permission : 'denied');
+  const [aiBroadcasting, setAiBroadcasting] = useState(false);
   const notifRef = useRef(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { isAuthenticated, isAdmin, user, logout } = useAuth();
   const { isDarkMode, toggleDarkMode } = useTheme();
+
+  const handleAiPushAll = async () => {
+    setAiBroadcasting(true);
+    try {
+      // 1. Generate fresh witty notification via Gemini AI
+      const aiNotif = await geminiService.generateWittyNotification('GENERAL', 'Viral Zomato style user re-engagement');
+
+      // 2. Dispatch local toast for current user
+      window.dispatchEvent(new CustomEvent('trigger-witty-toast', { detail: aiNotif }));
+
+      // 3. Broadcast to all users via backend Web Push
+      await api.post('/notifications/broadcast', {
+        title: aiNotif.title,
+        message: aiNotif.message,
+        type: 'SYSTEM',
+        link: aiNotif.link || '/dashboard'
+      });
+    } catch (err) {
+      console.error('AI Push All failed:', err);
+    } finally {
+      setAiBroadcasting(false);
+    }
+  };
 
   const isCinematicPage = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
   const isDarkHero = ['/', '/flats', '/pgs', '/offices', '/warehouses', '/roommates', '/movers'].includes(location.pathname);
@@ -283,7 +308,30 @@ const Navbar = () => {
                     <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden z-50 animate-fade-in">
                       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gray-50">
                         <h3 className="font-bold text-gray-900 text-sm">Notifications</h3>
-                        {unreadCount > 0 && <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline font-medium">Mark all read</button>}
+                        <div className="flex items-center gap-1.5">
+                          <button 
+                            onClick={handleAiPushAll}
+                            disabled={aiBroadcasting}
+                            className="text-[11px] font-extrabold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-2.5 py-1 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                            title="Generate AI witty notification and push to ALL users"
+                          >
+                            <Sparkles size={12} className={aiBroadcasting ? 'animate-spin' : 'animate-pulse'} />
+                            {aiBroadcasting ? 'Broadcasting...' : 'AI Push All'}
+                          </button>
+                          <button 
+                            onClick={async () => {
+                              window.dispatchEvent(new Event('trigger-witty-toast'));
+                              try {
+                                await api.post('/notifications/test-witty');
+                              } catch {}
+                            }}
+                            className="text-[11px] font-extrabold bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white px-2.5 py-1 rounded-lg shadow-sm transition-transform active:scale-95 flex items-center gap-1 cursor-pointer"
+                            title="Trigger Zomato-style witty notification"
+                          >
+                            <Flame size={12} className="animate-pulse" /> Test Alert
+                          </button>
+                          {unreadCount > 0 && <button onClick={markAllRead} className="text-xs text-primary-600 hover:underline font-medium ml-1">Mark all read</button>}
+                        </div>
                       </div>
                       {notificationPermission === 'default' && (
                         <div className="bg-blue-50 px-4 py-3 flex items-center justify-between border-b border-blue-100">

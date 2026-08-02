@@ -42,3 +42,4 @@ backend/data_backup_error_db/
 .ses
 *.argfile
 *OProcSessId.dat
+*.timestamp-*.mjs

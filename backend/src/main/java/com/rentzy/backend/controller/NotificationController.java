@@ -53,4 +53,28 @@ public class NotificationController {
         notificationService.markAllAsRead(authentication.getName());
         return ResponseEntity.ok(Map.of("success", true));
     }
+
+    @PostMapping("/test-witty")
+    public ResponseEntity<?> sendTestWittyNotification(Authentication authentication) {
+        String[] types = {"ROOMMATE", "BOOKING", "BILL", "MOVERS", "LISTING"};
+        String randomType = types[(int) (Math.random() * types.length)];
+        notificationService.createNotification(
+            authentication.getName(),
+            "Click to explore your dashboard & new features!",
+            randomType,
+            "/dashboard"
+        );
+        return ResponseEntity.ok(Map.of("success", true, "type", randomType));
+    }
+
+    @PostMapping("/broadcast")
+    public ResponseEntity<?> broadcastToAll(@RequestBody Map<String, String> body) {
+        String title = body.getOrDefault("title", "RentXY Alert ⚡");
+        String message = body.getOrDefault("message", "Check out the latest roommate matches and zero brokerage flats on RentXY!");
+        String type = body.getOrDefault("type", "SYSTEM");
+        String link = body.getOrDefault("link", "/dashboard");
+
+        notificationService.broadcastNotificationToAll(title, message, type, link);
+        return ResponseEntity.ok(Map.of("success", true, "message", "Broadcast sent to all users successfully!"));
+    }
 }

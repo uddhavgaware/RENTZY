@@ -12,6 +12,7 @@ import api from './services/api';
 import toast from 'react-hot-toast';
 import PwaInstallBanner from './components/PwaInstallBanner';
 import NotificationPermissionModal from './components/NotificationPermissionModal';
+import ZomatoNotificationToast from './components/ZomatoNotificationToast';
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ListingsPage = lazy(() => import('./pages/ListingsPage'));
@@ -237,6 +238,7 @@ function App() {
       </ThemeProvider>
     </GoogleOAuthProvider>
     <Toaster position="top-right" />
+    <ZomatoNotificationToast />
     </HelmetProvider>
   );
 }

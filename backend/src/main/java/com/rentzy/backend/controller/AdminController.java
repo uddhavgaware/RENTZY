@@ -6,6 +6,7 @@ import com.rentzy.backend.repository.ListingRepository;
 import com.rentzy.backend.repository.MovingRequestRepository;
 import com.rentzy.backend.repository.UserRepository;
 import com.rentzy.backend.repository.RoommateRequestRepository;
+import com.rentzy.backend.repository.RoommatePostRepository;
 import com.rentzy.backend.service.BookingService;
 import com.rentzy.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +34,7 @@ public class AdminController {
     private final MovingRequestRepository movingRequestRepository;
     private final NotificationService notificationService;
     private final RoommateRequestRepository roommateRequestRepository;
+    private final RoommatePostRepository roommatePostRepository;
     private final com.rentzy.backend.repository.BookingRepository bookingRepository;
 
     @GetMapping("/users")
@@ -191,6 +193,13 @@ public class AdminController {
     public ResponseEntity<Void> deleteRoommateRequest(@PathVariable Long id) {
         roommateRequestRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/roommate-posts/all")
+    public ResponseEntity<Map<String, String>> deleteAllRoommatePosts() {
+        roommateRequestRepository.deleteAll(); // Delete requests first due to FK constraints
+        roommatePostRepository.deleteAll();
+        return ResponseEntity.ok(Map.of("message", "All roommate posts and requests deleted successfully"));
     }
 
     @DeleteMapping("/bookings/{id}")

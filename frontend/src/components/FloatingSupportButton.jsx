@@ -200,27 +200,28 @@ const FloatingSupportButton = () => {
 
       {/* Interactive AI Chat Window */}
       {open && (
-        <div className="animate-slide-up bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden w-80 sm:w-96 flex flex-col h-[480px]">
+        <div className="animate-slide-up bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-3xl shadow-[0_10px_40px_-10px_rgba(99,102,241,0.3)] border border-indigo-100/50 dark:border-indigo-900/30 overflow-hidden w-80 sm:w-96 flex flex-col h-[480px]">
           {/* Header */}
-          <div className="bg-gradient-to-r from-indigo-600 via-primary-600 to-indigo-700 px-5 py-4 flex items-center justify-between flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/10">
-                <Sparkles size={20} className="text-white animate-pulse" />
+          <div className="bg-gradient-to-r from-purple-700 via-indigo-600 to-blue-700 px-5 py-4 flex items-center justify-between flex-shrink-0 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="w-10 h-10 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                <Sparkles size={20} className="text-white animate-pulse drop-shadow-md" />
               </div>
               <div>
-                <p className="font-black text-white text-sm">RentXY AI Assistant</p>
-                <p className="text-primary-200 text-xs flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block animate-ping" />
-                  Online & Free
+                <p className="font-black text-white text-sm tracking-wide drop-shadow-md">RentXY AI <span className="text-purple-200 font-medium text-[10px] ml-1 bg-white/20 px-1.5 py-0.5 rounded-full border border-white/20">Beta</span></p>
+                <p className="text-indigo-100 text-[10px] flex items-center gap-1.5 font-medium mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+                  Powered by Google Gemini ✨
                 </p>
               </div>
             </div>
             {chatMode && (
               <button
                 onClick={() => setChatMode(false)}
-                className="text-white/60 hover:text-white text-xs font-bold border border-white/20 rounded-xl px-2 py-1 transition-all"
+                className="text-white/80 hover:text-white hover:bg-white/10 text-xs font-bold border border-white/30 rounded-xl px-2.5 py-1.5 transition-all backdrop-blur-sm relative z-10"
               >
-                Back to Menu
+                Back
               </button>
             )}
           </div>
@@ -230,17 +231,20 @@ const FloatingSupportButton = () => {
             /* Main Menu */
             <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col justify-between bg-white dark:bg-gray-900">
               <div className="space-y-4">
-                <div className="bg-indigo-50/70 dark:bg-indigo-950/20 border border-indigo-100/50 dark:border-indigo-900/30 rounded-2xl p-4 text-center">
-                  <p className="text-2xl mb-1">🤖</p>
+                <div className="bg-gradient-to-br from-indigo-50/70 to-purple-50/70 dark:from-indigo-950/20 dark:to-purple-950/20 border border-indigo-100/50 dark:border-purple-900/30 rounded-2xl p-4 text-center shadow-sm relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-purple-400/10 dark:bg-purple-500/10 blur-xl rounded-full translate-x-8 -translate-y-8"></div>
+                  <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex items-center justify-center text-2xl mx-auto mb-3 text-purple-600">
+                    <Sparkles size={24} className="text-purple-600 dark:text-purple-400 animate-pulse" />
+                  </div>
                   <h4 className="font-extrabold text-gray-900 dark:text-white text-sm">Hi, I'm RentXY AI!</h4>
-                  <p className="text-gray-500 dark:text-gray-300 text-xs mt-1 leading-relaxed">
-                    Locate flatmates, secure packers & movers, or search zero-brokerage stays in Maharashtra (Pune, Kolhapur, Satara) instantly!
+                  <p className="text-gray-500 dark:text-gray-300 text-xs mt-1.5 leading-relaxed relative z-10">
+                    Locate flatmates, secure packers & movers, or search zero-brokerage stays instantly using AI.
                   </p>
                   <button
                     onClick={() => setChatMode(true)}
-                    className="mt-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs py-2 rounded-xl transition-all shadow-sm"
+                    className="mt-4 w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs py-2.5 rounded-xl transition-all shadow-md shadow-purple-500/20 active:scale-95 flex items-center justify-center gap-2 relative z-10"
                   >
-                    Start AI Assistant Chat ✨
+                    Start AI Chat <Sparkles size={14} />
                   </button>
                 </div>
 
@@ -286,19 +290,26 @@ const FloatingSupportButton = () => {
             </div>
           ) : (
             /* Interactive Chat Mode */
-            <div className="flex-1 flex flex-col min-h-0 bg-gray-50/50 dark:bg-gray-950/20">
+            <div className="flex-1 flex flex-col min-h-0 bg-gray-50/50 dark:bg-gray-950/20 relative">
+              <div className="absolute inset-0 bg-gradient-to-b from-purple-50/30 to-transparent dark:from-purple-900/10 pointer-events-none z-0"></div>
               {/* Message Streams */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 relative z-10">
                 {messages.map((msg, index) => (
                   <div
                     key={index}
-                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
+                    className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start gap-2'} animate-fade-in`}
                   >
-                    <div className={`max-w-[85%] rounded-2xl p-3 shadow-sm ${msg.sender === 'user'
-                        ? 'bg-indigo-600 text-white rounded-tr-none'
-                        : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-100 dark:border-gray-700 rounded-tl-none'
+                    {msg.sender === 'ai' && (
+                      <div className="w-7 h-7 mt-0.5 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40 border border-purple-200 dark:border-purple-800/50 flex flex-shrink-0 items-center justify-center shadow-sm relative overflow-hidden">
+                        <Sparkles size={12} className="text-purple-600 dark:text-purple-400 relative z-10" />
+                        <div className="absolute inset-0 bg-gradient-to-tr from-purple-400/20 to-indigo-400/20 animate-spin" style={{ animationDuration: '3s' }}></div>
+                      </div>
+                    )}
+                    <div className={`max-w-[82%] rounded-2xl p-3 shadow-sm ${msg.sender === 'user'
+                        ? 'bg-gradient-to-br from-purple-600 to-indigo-600 text-white rounded-tr-none shadow-purple-500/20 border border-purple-500/30'
+                        : 'bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm text-gray-800 dark:text-gray-100 border border-indigo-100/60 dark:border-gray-700 rounded-tl-none shadow-sm'
                       }`}>
-                      <p className="text-xs leading-relaxed font-semibold whitespace-pre-line">{msg.text}</p>
+                      <p className="text-[11.5px] leading-relaxed font-medium whitespace-pre-line">{msg.text}</p>
 
                       {/* Real Listing Cards from Database */}
                       {msg.listings && msg.listings.length > 0 && (
@@ -341,11 +352,15 @@ const FloatingSupportButton = () => {
                   </div>
                 ))}
                 {isTyping && (
-                  <div className="flex justify-start">
-                    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-2xl rounded-tl-none p-3 shadow-sm flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-1.5 h-1.5 bg-indigo-600 dark:bg-indigo-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="flex justify-start gap-2 animate-fade-in">
+                    <div className="w-7 h-7 mt-0.5 rounded-full bg-gradient-to-br from-purple-100 to-indigo-100 dark:from-purple-900/40 dark:to-indigo-900/40 border border-purple-200 dark:border-purple-800/50 flex flex-shrink-0 items-center justify-center shadow-sm">
+                      <Sparkles size={12} className="text-purple-600 dark:text-purple-400 animate-pulse" />
+                    </div>
+                    <div className="bg-gradient-to-r from-white to-purple-50/50 dark:from-gray-800 dark:to-gray-800/80 border border-indigo-100/50 dark:border-indigo-500/20 rounded-2xl rounded-tl-none p-3 shadow-sm flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 bg-gradient-to-tr from-purple-500 to-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-1.5 h-1.5 bg-gradient-to-tr from-purple-500 to-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-1.5 h-1.5 bg-gradient-to-tr from-purple-500 to-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="text-[10px] font-bold ml-1 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-600 opacity-80 animate-pulse">Gemini is thinking...</span>
                     </div>
                   </div>
                 )}
@@ -371,20 +386,21 @@ const FloatingSupportButton = () => {
               </div>
 
               {/* Input field */}
-              <div className="p-3 bg-white dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 flex gap-2 items-center flex-shrink-0">
+              <div className="p-3 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-indigo-50 dark:border-gray-800 flex gap-2 items-center flex-shrink-0 relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-indigo-50/50 dark:to-indigo-900/10 pointer-events-none"></div>
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-                  placeholder="Ask about Pune, Satara, roommates..."
-                  className="flex-grow bg-gray-50 dark:bg-gray-850 border border-gray-100 dark:border-gray-800 rounded-xl px-4 py-2 text-xs font-semibold text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 placeholder-gray-400"
+                  placeholder="Ask Gemini AI..."
+                  className="flex-grow bg-gray-50/80 dark:bg-gray-800/80 backdrop-blur-sm border border-indigo-100/50 dark:border-gray-700 rounded-xl px-4 py-2.5 text-xs font-semibold text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 placeholder-gray-400 relative z-10 transition-all"
                 />
                 <button
                   onClick={() => handleSendMessage()}
-                  className="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-xl transition-all shadow-md active:scale-95 flex items-center justify-center flex-shrink-0"
+                  className="bg-gradient-to-br from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white p-2.5 rounded-xl transition-all shadow-md hover:shadow-lg hover:shadow-purple-500/30 active:scale-95 flex items-center justify-center flex-shrink-0 relative z-10"
                 >
-                  <Send size={14} />
+                  <Send size={15} />
                 </button>
               </div>
             </div>
@@ -395,24 +411,28 @@ const FloatingSupportButton = () => {
       {/* Main Floating Action Button (FAB) */}
       <button
         onClick={() => setOpen(!open)}
-        className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 active:scale-90 relative ${open
+        className={`w-14 h-14 rounded-full shadow-[0_0_20px_rgba(139,92,246,0.3)] flex items-center justify-center transition-all duration-500 active:scale-90 relative group ${open
             ? 'bg-gray-800 hover:bg-gray-900 rotate-90'
-            : 'bg-gradient-to-br from-indigo-500 to-primary-600 hover:from-indigo-600 hover:to-primary-700'
+            : 'bg-gradient-to-br from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:via-indigo-500 hover:to-blue-500'
           }`}
         aria-label="Support AI Bot"
       >
-        {open ? (
-          <X size={22} className="text-white" />
-        ) : (
-          <MessageCircle size={22} className="text-white" />
-        )}
+        <div className={`absolute inset-0 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500 ${!open ? 'animate-pulse' : 'hidden'}`}></div>
+        
+        <div className="relative z-10 flex items-center justify-center w-full h-full">
+          {open ? (
+            <X size={24} className="text-white drop-shadow-md" />
+          ) : (
+            <Sparkles size={24} className="text-white drop-shadow-lg" />
+          )}
+        </div>
 
         {!open && (
           <>
-            <span className="absolute w-14 h-14 rounded-full bg-indigo-500 opacity-30 animate-ping" />
-            <span className="absolute -top-1.5 -right-1 flex h-4 w-4">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-4 w-4 bg-pink-500 text-[8px] text-white font-black items-center justify-center">AI</span>
+            <span className="absolute w-[68px] h-[68px] rounded-full border border-purple-400/30 animate-ping" style={{ animationDuration: '3s' }} />
+            <span className="absolute -top-1 -right-1 flex h-4 w-4">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-4 w-4 bg-purple-500 text-[8px] text-white font-black items-center justify-center shadow-lg border border-purple-300/50">AI</span>
             </span>
           </>
         )}

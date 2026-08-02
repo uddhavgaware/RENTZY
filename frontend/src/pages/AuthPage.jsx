@@ -297,7 +297,7 @@ const AuthPage = () => {
                     {!isLogin && (
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">I am a...</label>
-                        <div className="grid grid-cols-2 gap-2.5 sm:flex sm:gap-2">
+                        <div className="grid grid-cols-3 gap-2.5 sm:flex sm:gap-2">
                           <label className="flex-1 cursor-pointer">
                             <input type="radio" name="role" value="tenant" className="peer sr-only" defaultChecked />
                             <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-primary-500 peer-checked:bg-primary-50 peer-checked:text-primary-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Tenant</span></div>
@@ -309,10 +309,6 @@ const AuthPage = () => {
                           <label className="flex-1 cursor-pointer">
                             <input type="radio" name="role" value="mover" className="peer sr-only" />
                             <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-gray-900 peer-checked:bg-gray-100 peer-checked:text-gray-900 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Mover</span></div>
-                          </label>
-                          <label className="flex-1 cursor-pointer">
-                            <input type="radio" name="role" value="admin" className="peer sr-only" />
-                            <div className="rounded-xl border-2 border-gray-200 px-2 py-2.5 text-center peer-checked:border-purple-500 peer-checked:bg-purple-50 peer-checked:text-purple-700 transition-all hover:border-gray-300"><span className="font-semibold text-sm">Admin</span></div>
                           </label>
                         </div>
                       </div>

@@ -454,16 +454,18 @@ const PostPropertyPage = () => {
               type="button"
               onClick={handleGetAiSuggestions}
               disabled={aiSuggesting}
-              className="bg-white text-purple-900 hover:bg-purple-50 font-bold px-4 py-2.5 rounded-xl text-sm transition-all shadow-md flex items-center justify-center gap-2 flex-shrink-0 disabled:opacity-50 cursor-pointer"
+              className="relative bg-white text-purple-900 hover:bg-purple-50 font-bold px-5 py-2.5 rounded-xl text-sm transition-all shadow-lg shadow-purple-900/30 flex items-center justify-center gap-2.5 flex-shrink-0 disabled:opacity-80 disabled:cursor-wait cursor-pointer active:scale-95 group overflow-hidden border border-purple-200"
             >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/10 to-transparent translate-x-[-100%] group-hover:animate-[sweep_2s_infinite]"></div>
               {aiSuggesting ? (
                 <>
-                  <div className="w-4 h-4 border-2 border-purple-900 border-t-transparent rounded-full animate-spin"></div>
-                  <span>Analyzing Market...</span>
+                  <Sparkles size={16} className="text-purple-600 animate-pulse" />
+                  <span className="text-purple-700 animate-pulse font-bold tracking-wide">Analyzing Market...</span>
                 </>
               ) : (
                 <>
-                  <span>✨ Get AI Suggestions</span>
+                  <Sparkles size={16} className="text-purple-600 group-hover:animate-pulse" />
+                  <span className="tracking-wide">Get AI Suggestions</span>
                 </>
               )}
             </button>
@@ -725,17 +727,41 @@ const PostPropertyPage = () => {
                       type="button"
                       onClick={generateAIDescription}
                       disabled={aiGenerating}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm active:scale-95 ${
+                      className={`relative overflow-hidden flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all active:scale-95 group ${
                         aiGenerating
-                          ? 'bg-indigo-100 text-indigo-400 cursor-wait animate-pulse'
-                          : 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:from-indigo-600 hover:to-purple-700 shadow-indigo-500/20'
+                          ? 'bg-gradient-to-r from-indigo-200 to-purple-200 text-purple-700 cursor-wait shadow-inner'
+                          : 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-md shadow-purple-500/20 cursor-pointer'
                       }`}
                     >
-                      <Sparkles size={14} className={aiGenerating ? 'animate-spin' : ''} />
-                      {aiGenerating ? 'Writing...' : '✨ Generate with AI'}
+                      {!aiGenerating && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-[sweep_2s_infinite]"></div>}
+                      <Sparkles size={14} className={aiGenerating ? 'animate-pulse' : 'group-hover:animate-pulse'} />
+                      <span className="relative z-10">{aiGenerating ? 'Gemini is writing...' : 'Gemini Auto-Write'}</span>
                     </button>
                   </div>
-                  <textarea name="description" value={formData.description} onChange={handleChange} rows="5" className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="Describe your property or click 'Generate with AI' to auto-write a professional description..." required></textarea>
+                  <div className="relative">
+                    <textarea 
+                      name="description" 
+                      value={formData.description} 
+                      onChange={handleChange} 
+                      rows="5" 
+                      className={`w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none transition-all ${
+                        aiGenerating ? 'border-purple-300 bg-purple-50/30' : 'border-gray-300'
+                      }`} 
+                      placeholder="Describe your property or click 'Gemini Auto-Write' to auto-write a professional description..." 
+                      required
+                      disabled={aiGenerating}
+                    ></textarea>
+                    
+                    {aiGenerating && (
+                      <div className="absolute inset-0 bg-white/60 dark:bg-black/40 backdrop-blur-[2px] rounded-xl flex items-center justify-center border-2 border-purple-400 z-10 overflow-hidden">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500/10 to-transparent animate-[sweep_2s_infinite]"></div>
+                        <div className="flex flex-col items-center gap-2 relative z-20">
+                          <Sparkles size={24} className="text-purple-600 dark:text-purple-400 animate-pulse" />
+                          <p className="font-bold text-sm text-purple-700 dark:text-purple-300 animate-pulse tracking-wide">Crafting the perfect pitch...</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-400 mt-1">💡 Tip: Fill in the property details above first, then click "Generate with AI" for a better description.</p>
                 </div>
               </div>
