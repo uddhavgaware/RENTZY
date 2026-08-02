@@ -158,6 +158,31 @@ const RoommatesPage = () => {
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => setModalConfig({ isOpen: false });
 
+  const [lightboxState, setLightboxState] = useState({ isOpen: false, images: [], index: 0 });
+
+  const openLightbox = (images, index = 0) => {
+    if (!images || images.length === 0) return;
+    setLightboxState({ isOpen: true, images, index });
+  };
+
+  const closeLightbox = () => {
+    setLightboxState({ isOpen: false, images: [], index: 0 });
+  };
+
+  const nextLightboxImage = () => {
+    setLightboxState(prev => ({
+      ...prev,
+      index: (prev.index + 1) % prev.images.length
+    }));
+  };
+
+  const prevLightboxImage = () => {
+    setLightboxState(prev => ({
+      ...prev,
+      index: (prev.index - 1 + prev.images.length) % prev.images.length
+    }));
+  };
+
   const nextImage = (id, maxIndex) => {
     setActiveImageIndexes(prev => ({
       ...prev,
@@ -1168,8 +1193,8 @@ const RoommatesPage = () => {
               ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
                   {displayedRoommates.map(roommate => {
-                    const isOwner = user?.email === roommate.user?.email;
-                    const myPost = roommates.find(r => r.user?.email === user?.email);
+                    const isOwner = (user?.email && roommate.user?.email && user.email.toLowerCase() === roommate.user.email.toLowerCase()) || user?.role === 'ADMIN';
+                    const myPost = roommates.find(r => r.user?.email && user?.email && r.user.email.toLowerCase() === user.email.toLowerCase());
 
                     let matchScore = roommate.matchPercentage != null ? roommate.matchPercentage : null;
                     if (matchScore === null && !isOwner && myPost) {
@@ -1864,13 +1889,17 @@ const RoommatesPage = () => {
               {/* Full Image Gallery / Carousel */}
               {selectedDetailRoommate.images && selectedDetailRoommate.images.length > 0 && (
                 <div>
-                  <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Room / Flat Photos</h4>
+                  <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Room / Flat Photos (Tap to Zoom 🔍)</h4>
                   <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
                     {selectedDetailRoommate.images.map((img, idx) => (
-                      <div key={idx} className="relative w-56 h-36 flex-shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm group">
+                      <div
+                        key={idx}
+                        onClick={() => openLightbox(selectedDetailRoommate.images, idx)}
+                        className="relative w-56 h-36 flex-shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm group cursor-pointer"
+                      >
                         <img src={img} alt={`Room photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-bold backdrop-blur-sm">
-                          {idx + 1} / {selectedDetailRoommate.images.length}
+                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-bold backdrop-blur-sm flex items-center gap-1">
+                          <Eye size={12} /> {idx + 1} / {selectedDetailRoommate.images.length}
                         </span>
                       </div>
                     ))}
@@ -2028,34 +2057,118 @@ const RoommatesPage = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-4 border-t border-gray-100 dark:border-white/10">
-                <button
-                  onClick={() => {
-                    const reqId = selectedDetailRoommate.id;
-                    setSelectedDetailRoommate(null);
-                    handleSendRequest(reqId);
-                  }}
-                  className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-pink-500/25 transition-all active:scale-95 text-sm flex items-center justify-center gap-2"
-                >
-                  <Users size={18} /> Send Roommate Request
-                </button>
-                <button
-                  onClick={() => {
-                    const recipientId = selectedDetailRoommate.user?.id;
-                    setSelectedDetailRoommate(null);
-                    if (!isAuthenticated) {
-                      showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') });
-                      return;
-                    }
-                    navigate(`/messages?user=${recipientId}`);
-                  }}
-                  className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-2xl shadow-lg transition-all active:scale-95 text-sm flex items-center justify-center gap-2"
-                >
-                  <MessageCircle size={18} /> Direct Message
-                </button>
-              </div>
+              {(() => {
+                const isOwnerOrAdmin = (user?.email && selectedDetailRoommate.user?.email && user.email.toLowerCase() === selectedDetailRoommate.user.email.toLowerCase()) || user?.role === 'ADMIN';
+                return (
+                  <div className="flex flex-col sm:flex-row gap-2.5 pt-4 border-t border-gray-100 dark:border-white/10">
+                    {isOwnerOrAdmin ? (
+                      <>
+                        <button
+                          onClick={() => {
+                            const post = selectedDetailRoommate;
+                            setSelectedDetailRoommate(null);
+                            handleEditPost(post);
+                          }}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
+                        >
+                          <Edit3 size={16} /> Edit Post
+                        </button>
+                        <button
+                          onClick={() => {
+                            const id = selectedDetailRoommate.id;
+                            setSelectedDetailRoommate(null);
+                            handleGotAMate(id);
+                          }}
+                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
+                        >
+                          <Check size={16} /> Mark Fulfilled
+                        </button>
+                        <button
+                          onClick={() => {
+                            const id = selectedDetailRoommate.id;
+                            setSelectedDetailRoommate(null);
+                            handleDeletePost(id);
+                          }}
+                          className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
+                        >
+                          <Trash2 size={16} /> Delete Post
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => {
+                            const reqId = selectedDetailRoommate.id;
+                            setSelectedDetailRoommate(null);
+                            handleSendRequest(reqId);
+                          }}
+                          className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-pink-500/25 transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
+                        >
+                          <Users size={16} /> Send Roommate Request
+                        </button>
+                        <button
+                          onClick={() => {
+                            const recipientId = selectedDetailRoommate.user?.id;
+                            setSelectedDetailRoommate(null);
+                            if (!isAuthenticated) {
+                              showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') });
+                              return;
+                            }
+                            navigate(`/messages?user=${recipientId}`);
+                          }}
+                          className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
+                        >
+                          <MessageCircle size={16} /> Direct Message
+                        </button>
+                      </>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Image Lightbox / Zoom Modal */}
+      {lightboxState.isOpen && (
+        <div className="fixed inset-0 z-[150] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn">
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 z-20 w-11 h-11 bg-white/20 hover:bg-white/40 text-white rounded-full flex items-center justify-center font-bold text-2xl transition-all shadow-lg"
+          >
+            ×
+          </button>
+
+          <div className="absolute top-4 left-4 z-20 bg-black/60 text-white px-3 py-1.5 rounded-full text-xs font-bold border border-white/20">
+            {lightboxState.index + 1} / {lightboxState.images.length}
+          </div>
+
+          {lightboxState.images.length > 1 && (
+            <button
+              onClick={prevLightboxImage}
+              className="absolute left-4 z-20 w-12 h-12 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center text-3xl transition-all border border-white/20"
+            >
+              ‹
+            </button>
+          )}
+
+          <div className="max-w-4xl max-h-[85vh] overflow-auto flex items-center justify-center p-2">
+            <img
+              src={lightboxState.images[lightboxState.index]}
+              alt={`Zoomed photo ${lightboxState.index + 1}`}
+              className="max-w-full max-h-[80vh] object-contain rounded-2xl shadow-2xl transition-all duration-300 scale-100 hover:scale-105 cursor-zoom-in"
+            />
+          </div>
+
+          {lightboxState.images.length > 1 && (
+            <button
+              onClick={nextLightboxImage}
+              className="absolute right-4 z-20 w-12 h-12 bg-black/60 hover:bg-black/80 text-white rounded-full flex items-center justify-center text-3xl transition-all border border-white/20"
+            >
+              ›
+            </button>
+          )}
         </div>
       )}
 
