@@ -244,6 +244,11 @@ public class RoommateService {
         requestRepository.deleteByPost(post);
         
         repository.deleteImagesByPostId(id);
+        try {
+            repository.deleteLegacyImagesByPostId(id);
+        } catch (Exception e) {
+            // Ignore if the legacy table doesn't exist
+        }
         repository.deletePreferencesByPostId(id);
         repository.delete(post);
     }
@@ -440,6 +445,11 @@ public class RoommateService {
 
         requestRepository.deleteByPost(post);
         repository.deleteImagesByPostId(id);
+        try {
+            repository.deleteLegacyImagesByPostId(id);
+        } catch (Exception e) {
+            // Ignore if the legacy table doesn't exist
+        }
         repository.deletePreferencesByPostId(id);
         repository.deleteById(id);
     }

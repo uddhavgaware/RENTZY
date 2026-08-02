@@ -27,4 +27,8 @@ public interface RoommatePostRepository extends JpaRepository<RoommatePost, Long
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.data.jpa.repository.Query(value = "DELETE FROM roommate_post_preferences WHERE roommate_post_id = ?1", nativeQuery = true)
     void deletePreferencesByPostId(Long id);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query(value = "DELETE FROM roommate_post_images WHERE roommate_post_id = ?1", nativeQuery = true)
+    void deleteLegacyImagesByPostId(Long id);
 }
