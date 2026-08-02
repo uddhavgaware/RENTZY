@@ -917,9 +917,13 @@ const PostPropertyPage = () => {
 
                 {/* Amenities */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-3">Amenities Provided</label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {['WiFi', 'AC', 'TV', 'Fridge', 'Washing Machine', 'Parking', 'Gym', 'Security'].map((amenity) => (
+                    {[
+                      'WiFi', 'Water Heater', '24h Water', 'Housekeeping', 
+                      '24/7 Security', 'Washing Machine', 'Study Table', 'Parking', 
+                      'Electricity Bill Included', 'CCTV', 'Pantry Service', 'Locker Facility',
+                      'AC', 'TV', 'Fridge', 'Gym'
+                    ].map((amenity) => (
                       <label key={amenity} className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
                         <input
                           type="checkbox"

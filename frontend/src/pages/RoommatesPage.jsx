@@ -1489,37 +1489,42 @@ const RoommatesPage = () => {
                               </div>
 
                               {/* Action Buttons */}
-                              <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-100 dark:border-white/10">
+                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 border-t border-gray-100 dark:border-white/10">
                                 {isOwner ? (
                                   <>
                                     <button
+                                      type="button"
                                       onClick={() => handleEditPost(roommate)}
-                                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                      <Edit3 size={14} /> Edit Post
+                                      <Edit3 size={15} /> Edit Post
                                     </button>
                                     <button
+                                      type="button"
                                       onClick={() => handleGotAMate(roommate.id)}
-                                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                      <Check size={14} /> Mark Fulfilled
+                                      <Check size={15} /> Mark Fulfilled
                                     </button>
                                     <button
+                                      type="button"
                                       onClick={() => handleDeletePost(roommate.id)}
-                                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                      <Trash2 size={14} /> Delete Post
+                                      <Trash2 size={15} /> Delete Post
                                     </button>
                                   </>
                                 ) : (
                                   <>
                                     <button
+                                      type="button"
                                       onClick={() => handleSendRequest(roommate.id)}
-                                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2.5 rounded-xl shadow-md shadow-pink-500/20 transition-all text-xs flex items-center justify-center gap-1.5"
+                                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-pink-500/20 hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                      <Users size={14} /> Send Roommate Request
+                                      <Users size={15} /> Send Roommate Request
                                     </button>
                                     <button
+                                      type="button"
                                       onClick={() => {
                                         const recipientId = roommate.user?.id;
                                         if (!isAuthenticated) {
@@ -1528,9 +1533,9 @@ const RoommatesPage = () => {
                                         }
                                         navigate(`/messages?user=${recipientId}`);
                                       }}
-                                      className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                      className="flex-1 bg-slate-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer"
                                     >
-                                      <MessageCircle size={14} /> Direct Message
+                                      <MessageCircle size={15} /> Direct Message
                                     </button>
                                   </>
                                 )}
@@ -1544,26 +1549,26 @@ const RoommatesPage = () => {
                           <button
                             type="button"
                             onClick={() => toggleExpandCard(roommate.id)}
-                            className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
+                            className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all cursor-pointer"
                           >
                             {isExpanded ? (
                               <>Show Less ▲</>
                             ) : (
                               <>
-                                <Eye size={14} /> Show All Details ▼
+                                <Eye size={15} /> Show All Details ▼
                               </>
                             )}
                           </button>
                           {!isExpanded && isOwner && (
-                            <div className="flex gap-1">
-                              <button onClick={() => handleEditPost(roommate)} className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg" title="Edit Post">
-                                <Edit3 size={14} />
+                            <div className="flex gap-1.5 flex-shrink-0">
+                              <button onClick={() => handleEditPost(roommate)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors" title="Edit Post">
+                                <Edit3 size={15} />
                               </button>
-                              <button onClick={() => handleGotAMate(roommate.id)} className="p-1.5 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg" title="Found Roommate">
-                                <Check size={14} />
+                              <button onClick={() => handleGotAMate(roommate.id)} className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-xl transition-colors" title="Found Roommate">
+                                <Check size={15} />
                               </button>
-                              <button onClick={() => handleDeletePost(roommate.id)} className="p-1.5 text-red-500 bg-red-50 hover:bg-red-100 rounded-lg" title="Delete Post">
-                                <Trash2 size={14} />
+                              <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-red-500 bg-red-50 hover:bg-red-100 rounded-xl transition-colors" title="Delete Post">
+                                <Trash2 size={15} />
                               </button>
                             </div>
                           )}
@@ -2000,7 +2005,41 @@ const RoommatesPage = () => {
                   <input type="text" value={postFormData.preferences}
                     onChange={(e) => setPostFormData({ ...postFormData, preferences: e.target.value })}
                     placeholder="Other Tags (e.g. IT Professional, Night Shift)"
-                    className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                    className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm mb-2" />
+                  
+                  {/* Quick Amenities */}
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {[
+                      'WiFi 📶', 'Water Heater 🚿', '24h Water 💧', 'Housekeeping 🧹',
+                      '24/7 Security 👮‍♂️', 'Washing Machine 🧺', 'Study Table 🪑', 'Parking 🅿️',
+                      'No Light Bill ⚡', 'CCTV 📹', 'Pantry 🍽️', 'Locker 🔐'
+                    ].map((tag) => {
+                      const cleanTag = tag.split(' ')[0];
+                      const isSelected = postFormData.preferences?.includes(cleanTag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => {
+                            let curr = postFormData.preferences ? postFormData.preferences.split(',').map(s => s.trim()).filter(Boolean) : [];
+                            if (curr.includes(cleanTag)) {
+                              curr = curr.filter(c => c !== cleanTag);
+                            } else {
+                              curr.push(cleanTag);
+                            }
+                            setPostFormData({ ...postFormData, preferences: curr.join(', ') });
+                          }}
+                          className={`text-xs px-2.5 py-1 rounded-lg border font-medium transition-colors ${
+                            isSelected
+                              ? 'bg-primary-600 text-white border-primary-600'
+                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* Section: Photos */}

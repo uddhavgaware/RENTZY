@@ -1570,8 +1570,8 @@ const DashboardPage = () => {
                                             try {
                                               await api.delete(`/roommates/requests/${req.id}`);
                                               setRoommateRequests(prev => ({ ...prev, received: prev.received.filter(r => r.id !== req.id) }));
-                                            } catch {
-                                              showModal({ type: 'alert', title: 'Error', message: 'Failed to delete request.', onConfirm: closeModal });
+                                            } catch (err) {
+                                              showModal({ type: 'alert', title: 'Error', message: err.response?.data?.message || err.userMessage || 'Failed to delete request.', onConfirm: closeModal });
                                             }
                                           },
                                           onCancel: closeModal
@@ -1667,8 +1667,8 @@ const DashboardPage = () => {
                                             try {
                                               await api.delete(`/roommates/requests/${req.id}`);
                                               setRoommateRequests(prev => ({ ...prev, sent: prev.sent.filter(r => r.id !== req.id) }));
-                                            } catch {
-                                              showModal({ type: 'alert', title: 'Error', message: 'Failed to delete request.', onConfirm: closeModal });
+                                            } catch (err) {
+                                              showModal({ type: 'alert', title: 'Error', message: err.response?.data?.message || err.userMessage || 'Failed to delete request.', onConfirm: closeModal });
                                             }
                                           },
                                           onCancel: closeModal
