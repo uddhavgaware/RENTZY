@@ -251,11 +251,15 @@ public class RoommateService {
                 .orElseThrow(() -> new RuntimeException("Request not found"));
         User currentUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        if (!request.getSender().getId().equals(currentUser.getId()) && 
-            !request.getReceiver().getId().equals(currentUser.getId())) {
+
+        boolean isSender = request.getSender().getId().equals(currentUser.getId()) || request.getSender().getEmail().equalsIgnoreCase(userEmail);
+        boolean isReceiver = request.getReceiver().getId().equals(currentUser.getId()) || request.getReceiver().getEmail().equalsIgnoreCase(userEmail);
+        boolean isAdmin = currentUser.getRole() != null && "ADMIN".equalsIgnoreCase(currentUser.getRole().name());
+
+        if (!isSender && !isReceiver && !isAdmin) {
             throw new RuntimeException("Not authorized to delete this request");
         }
-        requestRepository.deleteById(requestId);
+        requestRepository.delete(request);
     }
 
     @Transactional
@@ -310,23 +314,23 @@ public class RoommateService {
                 .orElseThrow(() -> new RuntimeException("Request not found"));
         User currentUser = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-                
-        boolean isReceiver = request.getReceiver().getId().equals(currentUser.getId());
-        boolean isSender = request.getSender().getId().equals(currentUser.getId());
-        
+
+        boolean isReceiver = request.getReceiver().getId().equals(currentUser.getId()) || request.getReceiver().getEmail().equalsIgnoreCase(userEmail);
+        boolean isSender = request.getSender().getId().equals(currentUser.getId()) || request.getSender().getEmail().equalsIgnoreCase(userEmail);
+
         if (!isReceiver && !isSender) {
             throw new RuntimeException("Not authorized to update this request");
         }
-        
+
         // Receiver can accept or reject
-        if (isReceiver && ("ACCEPTED".equals(status) || "REJECTED".equals(status))) {
-            request.setStatus(status);
-            if ("ACCEPTED".equals(status)) {
+        if (isReceiver && ("ACCEPTED".equalsIgnoreCase(status) || "REJECTED".equalsIgnoreCase(status))) {
+            request.setStatus(status.toUpperCase());
+            if ("ACCEPTED".equalsIgnoreCase(status)) {
                 notificationService.createNotification(
                     request.getSender().getEmail(),
                     currentUser.getName() + " accepted your roommate request!",
                     "REQUEST_ACCEPTED",
-                    "/chat?user=" + currentUser.getId()
+                    "/messages?user=" + currentUser.getId()
                 );
             } else {
                 notificationService.createNotification(
@@ -338,12 +342,12 @@ public class RoommateService {
             }
         } 
         // Sender can cancel
-        else if (isSender && "CANCELLED".equals(status)) {
-            request.setStatus(status);
+        else if (isSender && "CANCELLED".equalsIgnoreCase(status)) {
+            request.setStatus("CANCELLED");
         } else {
             throw new RuntimeException("Invalid status update operation");
         }
-        
+
         RoommateRequest saved = requestRepository.save(request);
         return toRequestDTO(saved);
     }

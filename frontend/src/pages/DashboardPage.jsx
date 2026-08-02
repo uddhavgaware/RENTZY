@@ -1550,14 +1550,39 @@ const DashboardPage = () => {
                                       <p className="text-xs text-gray-500">{req.sender?.email}</p>
                                     </div>
                                   </div>
-                                  <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                                    req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
-                                    req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                                    req.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
-                                    'bg-yellow-100 text-yellow-700'
-                                  }`}>
-                                    {req.status}
-                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                      req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                      req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                      req.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
+                                      'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                      {req.status}
+                                    </span>
+                                    <button 
+                                      onClick={() => {
+                                        showModal({
+                                          type: 'confirm',
+                                          title: 'Delete Request',
+                                          message: 'Permanently delete this request?',
+                                          onConfirm: async () => {
+                                            closeModal();
+                                            try {
+                                              await api.delete(`/roommates/requests/${req.id}`);
+                                              setRoommateRequests(prev => ({ ...prev, received: prev.received.filter(r => r.id !== req.id) }));
+                                            } catch {
+                                              showModal({ type: 'alert', title: 'Error', message: 'Failed to delete request.', onConfirm: closeModal });
+                                            }
+                                          },
+                                          onCancel: closeModal
+                                        });
+                                      }}
+                                      className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                      title="Delete Request"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </div>
                                 </div>
                                 <div className="mb-4">
                                   <p className="text-xs text-gray-500 mb-1">Post Details:</p>
@@ -1622,14 +1647,39 @@ const DashboardPage = () => {
                                       <p className="text-xs text-gray-500">{req.receiver?.email}</p>
                                     </div>
                                   </div>
-                                  <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                                    req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
-                                    req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                                    req.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
-                                    'bg-yellow-100 text-yellow-700'
-                                  }`}>
-                                    {req.status}
-                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                      req.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                      req.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                      req.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
+                                      'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                      {req.status}
+                                    </span>
+                                    <button 
+                                      onClick={() => {
+                                        showModal({
+                                          type: 'confirm',
+                                          title: 'Delete Request',
+                                          message: 'Permanently delete this sent request?',
+                                          onConfirm: async () => {
+                                            closeModal();
+                                            try {
+                                              await api.delete(`/roommates/requests/${req.id}`);
+                                              setRoommateRequests(prev => ({ ...prev, sent: prev.sent.filter(r => r.id !== req.id) }));
+                                            } catch {
+                                              showModal({ type: 'alert', title: 'Error', message: 'Failed to delete request.', onConfirm: closeModal });
+                                            }
+                                          },
+                                          onCancel: closeModal
+                                        });
+                                      }}
+                                      className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                                      title="Delete Request"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  </div>
                                 </div>
                                 <div className="mb-4">
                                   <p className="text-xs text-gray-500 mb-1">Post Details:</p>
