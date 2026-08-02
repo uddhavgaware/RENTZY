@@ -267,10 +267,56 @@ public class AdminController {
             propertyTypes.add(Map.<String, Object>of("name", "No Listings Yet", "value", 1L));
         }
 
+        // Live Real-Time & Active Users Metrics
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime fifteenMinsAgo = now.minusMinutes(15);
+        LocalDateTime oneDayAgo = now.minusHours(24);
+        LocalDateTime sevenDaysAgo = now.minusDays(7);
+        LocalDateTime thirtyDaysAgo = now.minusDays(30);
+
+        long liveUsersCount = allUsers.stream()
+            .filter(u -> u.getLastActiveAt() != null && u.getLastActiveAt().isAfter(fifteenMinsAgo))
+            .count();
+
+        long dauCount = allUsers.stream()
+            .filter(u -> (u.getLastActiveAt() != null && u.getLastActiveAt().isAfter(oneDayAgo)) ||
+                         (u.getCreatedAt() != null && u.getCreatedAt().isAfter(oneDayAgo)))
+            .count();
+
+        long wauCount = allUsers.stream()
+            .filter(u -> (u.getLastActiveAt() != null && u.getLastActiveAt().isAfter(sevenDaysAgo)) ||
+                         (u.getCreatedAt() != null && u.getCreatedAt().isAfter(sevenDaysAgo)))
+            .count();
+
+        long mauCount = allUsers.stream()
+            .filter(u -> (u.getLastActiveAt() != null && u.getLastActiveAt().isAfter(thirtyDaysAgo)) ||
+                         (u.getCreatedAt() != null && u.getCreatedAt().isAfter(thirtyDaysAgo)))
+            .count();
+
+        // Daily active users trend (last 7 days)
+        List<Map<String, Object>> dailyTrend = new ArrayList<>();
+        for (int i = 6; i >= 0; i--) {
+            LocalDateTime dayStart = now.minusDays(i).toLocalDate().atStartOfDay();
+            LocalDateTime dayEnd = dayStart.plusDays(1);
+            String dayLabel = dayStart.getDayOfWeek().getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.ENGLISH);
+
+            long activeOnDay = allUsers.stream()
+                .filter(u -> (u.getLastActiveAt() != null && u.getLastActiveAt().isAfter(dayStart) && u.getLastActiveAt().isBefore(dayEnd)) ||
+                             (u.getCreatedAt() != null && u.getCreatedAt().isAfter(dayStart) && u.getCreatedAt().isBefore(dayEnd)))
+                .count();
+
+            dailyTrend.add(Map.of("day", dayLabel, "activeUsers", activeOnDay));
+        }
+
         return ResponseEntity.ok(Map.of(
             "growth", growthData,
             "propertyTypes", propertyTypes,
-            "totalRevenue", totalRevenue
+            "totalRevenue", totalRevenue,
+            "liveUsers", liveUsersCount,
+            "dau", dauCount,
+            "wau", wauCount,
+            "mau", mauCount,
+            "dailyTrend", dailyTrend
         ));
     }
 }

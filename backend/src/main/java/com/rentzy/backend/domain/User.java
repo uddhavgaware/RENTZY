@@ -230,6 +230,9 @@ public class User implements UserDetails {
     @Column
     private LocalDateTime createdAt;
 
+    @Column
+    private LocalDateTime lastActiveAt;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) createdAt = LocalDateTime.now();

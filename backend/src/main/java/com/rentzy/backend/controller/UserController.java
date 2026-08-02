@@ -19,11 +19,25 @@ public class UserController {
     private final com.rentzy.backend.security.JwtService jwtService;
     private final NotificationService notificationService;
 
+    // Ping heartbeat to update live active status
+    @PostMapping("/ping")
+    public ResponseEntity<?> pingActiveStatus(Authentication authentication) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            userRepository.findByEmail(authentication.getName()).ifPresent(user -> {
+                user.setLastActiveAt(java.time.LocalDateTime.now());
+                userRepository.save(user);
+            });
+        }
+        return ResponseEntity.ok(Map.of("status", "pong"));
+    }
+
     // Get current user profile
     @GetMapping("/me")
     public ResponseEntity<?> getProfile(Authentication authentication) {
         User user = userRepository.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
+        user.setLastActiveAt(java.time.LocalDateTime.now());
+        userRepository.save(user);
         return ResponseEntity.ok(Map.ofEntries(
                 Map.entry("id", user.getId()),
                 Map.entry("userCode", user.getUserCode() != null ? user.getUserCode() : ""),

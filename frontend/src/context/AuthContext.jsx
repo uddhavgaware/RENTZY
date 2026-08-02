@@ -59,6 +59,16 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+    const sendPing = () => {
+      api.post('/users/ping').catch(() => {});
+    };
+    sendPing();
+    const interval = setInterval(sendPing, 60000);
+    return () => clearInterval(interval);
+  }, [user]);
+
   const fetchProfileAfterLogin = async (token) => {
     localStorage.setItem('token', token);
     const res = await api.get('/users/me');

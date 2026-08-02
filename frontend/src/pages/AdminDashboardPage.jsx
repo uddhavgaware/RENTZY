@@ -703,10 +703,47 @@ const AdminDashboardPage = () => {
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-6">
+                {/* Real-time Live & Active Users Analytics (DAU / WAU / MAU) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <StatCard
+                    icon={() => (
+                      <div className="relative flex items-center justify-center">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <Users size={24} className="relative text-white" />
+                      </div>
+                    )}
+                    label="🟢 Live Online Now"
+                    value={analytics?.liveUsers != null ? analytics.liveUsers : 1}
+                    color="from-emerald-500 to-green-600"
+                    delay={0.05}
+                  />
+                  <StatCard
+                    icon={Users}
+                    label="⚡ Daily Active (DAU)"
+                    value={analytics?.dau != null ? analytics.dau : filteredUsers.length}
+                    color="from-blue-500 to-indigo-600"
+                    delay={0.1}
+                  />
+                  <StatCard
+                    icon={Users}
+                    label="📅 Weekly Active (WAU)"
+                    value={analytics?.wau != null ? analytics.wau : filteredUsers.length}
+                    color="from-purple-500 to-indigo-600"
+                    delay={0.15}
+                  />
+                  <StatCard
+                    icon={Users}
+                    label="📈 Monthly Active (MAU)"
+                    value={analytics?.mau != null ? analytics.mau : filteredUsers.length}
+                    color="from-amber-500 to-orange-600"
+                    delay={0.2}
+                  />
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <StatCard icon={Users} label="Total Users" value={filteredUsers.length} color="from-blue-400 to-blue-600" delay={0.1} />
-                  <StatCard icon={Home} label="Total Listings" value={filteredListings.length} color="from-primary-500 to-indigo-600" delay={0.2} />
-                  <StatCard icon={DollarSign} label="Total Bookings" value={filteredBookings.length} color="from-emerald-400 to-emerald-600" delay={0.3} />
+                  <StatCard icon={Users} label="Total Registered Users" value={filteredUsers.length} color="from-blue-400 to-blue-600" delay={0.25} />
+                  <StatCard icon={Home} label="Total Listings" value={filteredListings.length} color="from-primary-500 to-indigo-600" delay={0.3} />
+                  <StatCard icon={DollarSign} label="Total Bookings" value={filteredBookings.length} color="from-emerald-400 to-emerald-600" delay={0.35} />
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -890,10 +927,37 @@ const AdminDashboardPage = () => {
                             </td>
                             <td className="px-6 py-4">
                               <div className="flex items-center gap-3">
-                                <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
-                                  {u.name?.charAt(0)}
+                                <div className="relative flex-shrink-0">
+                                  <div className="w-9 h-9 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm">
+                                    {u.name?.charAt(0)}
+                                  </div>
+                                  <span
+                                    className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white dark:border-slate-800 ${
+                                      u.lastActiveAt && new Date(u.lastActiveAt) > new Date(Date.now() - 15 * 60 * 1000)
+                                        ? 'bg-green-500 animate-pulse'
+                                        : u.lastActiveAt && new Date(u.lastActiveAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+                                        ? 'bg-yellow-500'
+                                        : 'bg-gray-300'
+                                    }`}
+                                    title={
+                                      u.lastActiveAt && new Date(u.lastActiveAt) > new Date(Date.now() - 15 * 60 * 1000)
+                                        ? 'Online Now'
+                                        : u.lastActiveAt && new Date(u.lastActiveAt) > new Date(Date.now() - 24 * 60 * 60 * 1000)
+                                        ? 'Active Today'
+                                        : 'Offline'
+                                    }
+                                  />
                                 </div>
-                                <span className={`font-medium ${u.isBlocked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>{u.name}</span>
+                                <div className="min-w-0">
+                                  <span className={`font-medium block truncate ${u.isBlocked ? 'text-gray-400 line-through' : 'text-gray-900 dark:text-white'}`}>{u.name}</span>
+                                  <span className="block text-[10px] text-gray-400 font-normal">
+                                    {u.lastActiveAt && new Date(u.lastActiveAt) > new Date(Date.now() - 15 * 60 * 1000)
+                                      ? '🟢 Online Now'
+                                      : u.lastActiveAt
+                                      ? `Last active: ${new Date(u.lastActiveAt).toLocaleDateString()} ${new Date(u.lastActiveAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                                      : 'Joined: ' + (u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A')}
+                                  </span>
+                                </div>
                               </div>
                             </td>
                             <td className="px-6 py-4">
