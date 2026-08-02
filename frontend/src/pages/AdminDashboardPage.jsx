@@ -746,6 +746,82 @@ const AdminDashboardPage = () => {
                   <StatCard icon={DollarSign} label="Total Bookings" value={filteredBookings.length} color="from-emerald-400 to-emerald-600" delay={0.35} />
                 </div>
 
+                {/* Referral & Specific Link Campaign Tracking Card */}
+                <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl border border-white/40 dark:border-white/10 shadow-sm p-6 space-y-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-gray-100 dark:border-white/10 pb-4">
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span className="text-xl">🔗</span> Referral & Campaign Link Student Tracker
+                      </h2>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        Track student registrations and logins via custom promo links (e.g. ?ref=CAMPUS2026).
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const code = prompt('Enter a new Campaign / Referral Code (e.g. HOSTEL_BOYS_2026):');
+                        if (code && code.trim()) {
+                          const cleanCode = code.trim().replace(/\s+/g, '_').toUpperCase();
+                          const fullUrl = `${window.location.origin}/auth?mode=signup&ref=${cleanCode}`;
+                          navigator.clipboard.writeText(fullUrl);
+                          showModal({
+                            type: 'alert',
+                            title: 'Link Created & Copied! 📋',
+                            message: `Shareable Referral Link:\n\n${fullUrl}\n\nCopied to your clipboard! Share with students or hostel admins.`,
+                            onConfirm: closeModal
+                          });
+                        }
+                      }}
+                      className="bg-gradient-to-r from-primary-600 to-indigo-600 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-1.5 cursor-pointer"
+                    >
+                      ➕ Create New Trackable Link
+                    </button>
+                  </div>
+
+                  {analytics?.referralCampaigns && analytics.referralCampaigns.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {analytics.referralCampaigns.map((camp, idx) => (
+                        <div key={idx} className="p-4 rounded-2xl bg-gray-50 dark:bg-slate-700/50 border border-gray-100 dark:border-white/10 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="font-extrabold text-xs text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/60 px-2.5 py-1 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                              🏷️ {camp.code}
+                            </span>
+                            <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+                              {camp.totalSignups} Signup{camp.totalSignups === 1 ? '' : 's'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between text-xs font-medium text-gray-600 dark:text-gray-300 pt-1">
+                            <span>🎓 Students: <strong>{camp.studentsCount}</strong></span>
+                            <span>🏠 Property Owners: <strong>{camp.ownersCount}</strong></span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const shareUrl = `${window.location.origin}/auth?mode=signup&ref=${camp.code}`;
+                              navigator.clipboard.writeText(shareUrl);
+                              showModal({
+                                type: 'alert',
+                                title: 'Link Copied 📋',
+                                message: `Copied link to clipboard:\n\n${shareUrl}`,
+                                onConfirm: closeModal
+                              });
+                            }}
+                            className="w-full mt-2 bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 hover:bg-gray-100 text-gray-700 dark:text-gray-200 py-1.5 px-3 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1 transition-colors"
+                          >
+                            Copy Share Link 🔗
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-6 bg-gray-50 dark:bg-slate-700/30 rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+                      <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">No active referral link signups recorded yet.</p>
+                      <p className="text-[11px] text-gray-400">Click "Create New Trackable Link" above to generate a shareable student invite link!</p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* Growth Chart */}
                   <motion.div 

@@ -11,4 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class GoogleLoginRequest {
     private String tokenId;
+    private String referralCode;
+    private String signupSource;
 }

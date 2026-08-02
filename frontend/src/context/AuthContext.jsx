@@ -111,12 +111,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const getReferralData = () => {
+    const referralCode = localStorage.getItem('rentzy_referral_code') || null;
+    const signupSource = localStorage.getItem('rentzy_signup_source') || (referralCode ? `Link: ${referralCode}` : null);
+    return { referralCode, signupSource };
+  };
+
   const loginWithGoogle = async (tokenId) => {
+    const { referralCode, signupSource } = getReferralData();
     const maxRetries = 3;
     let attempt = 0;
     while (attempt < maxRetries) {
       try {
-        const response = await api.post('/auth/google', { tokenId });
+        const response = await api.post('/auth/google', { tokenId, referralCode, signupSource });
         await fetchProfileAfterLogin(response.data.token);
         return;
       } catch (error) {
@@ -146,7 +153,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (name, email, password, role) => {
-    await api.post('/auth/register', { name, email, password, role });
+    const { referralCode, signupSource } = getReferralData();
+    await api.post('/auth/register', { name, email, password, role, referralCode, signupSource });
     // User is not logged in yet, needs email OTP verification
   };
 

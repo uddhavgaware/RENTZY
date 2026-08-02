@@ -233,6 +233,12 @@ public class User implements UserDetails {
     @Column
     private LocalDateTime lastActiveAt;
 
+    @Column
+    private String referralCode;
+
+    @Column(length = 1000)
+    private String signupSource;
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) createdAt = LocalDateTime.now();

@@ -3,21 +3,28 @@ import axios from 'axios';
 // Detect if running inside a Capacitor native shell (Android/iOS)
 export const isNativePlatform = () => {
   try {
-    return window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform();
+    if (window.Capacitor) {
+      if (typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform()) return true;
+      if (typeof window.Capacitor.getPlatform === 'function' && (window.Capacitor.getPlatform() === 'android' || window.Capacitor.getPlatform() === 'ios')) return true;
+      if (window.Capacitor.platform === 'android' || window.Capacitor.platform === 'ios') return true;
+    }
+    if (typeof window !== 'undefined' && window.location && window.location.protocol === 'capacitor:') return true;
+    if (typeof navigator !== 'undefined' && navigator.userAgent && (navigator.userAgent.includes('Capacitor') || navigator.userAgent.includes('Android'))) {
+      // Check if running inside WebView shell
+      if (window.location.hostname === 'localhost' && !window.location.port) return true;
+    }
+    return false;
   } catch {
     return false;
   }
 };
 
-// On Android native, localhost points to the device itself, not the dev machine.
-// Use the env variable if set; otherwise fall back to 10.0.2.2 (Android emulator)
-// or localhost (web browser).
+// On Android native, use production server or env override
 const getBaseUrl = () => {
   const envUrl = import.meta.env.VITE_API_URL;
   if (envUrl) return envUrl;
   
   if (import.meta.env.PROD || isNativePlatform()) {
-    // Android APK and Production Web will use this URL
     return 'https://rentxybookings.onrender.com/api';
   }
   
@@ -31,7 +38,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 60000, // 60s timeout — prevents hanging requests on poor networks and slow concurrent image uploads
+  timeout: 60000,
 });
 
 // Add a request interceptor to attach the JWT token
@@ -53,7 +60,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response ? error.response.status : null;
-    const message = error.response?.data?.message || error.message || 'An unexpected error occurred';
+    let message = error.response?.data?.message || error.message || 'An unexpected error occurred';
+
+    if (!error.response && error.code === 'ERR_NETWORK') {
+      message = 'Connecting to server... Please check internet or wait 5s for server to wake up.';
+    }
+
+    error.userMessage = message;
 
     if (status === 401) {
       // Token expired or invalid — clear it and redirect to login

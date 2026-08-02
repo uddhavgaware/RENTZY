@@ -47,7 +47,7 @@ public class AuthController {
     @PostMapping("/google")
     public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
         try {
-            return ResponseEntity.ok(service.googleLogin(request.getTokenId()));
+            return ResponseEntity.ok(service.googleLogin(request.getTokenId(), request.getReferralCode(), request.getSignupSource()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(com.rentzy.backend.dto.ErrorResponse.builder()
                     .timestamp(java.time.LocalDateTime.now())

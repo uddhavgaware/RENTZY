@@ -22,8 +22,12 @@ const AuthPage = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Truecaller setup not needed for deep-linking
-  }, [activeTab]);
+    const ref = searchParams.get('ref') || searchParams.get('campaign') || searchParams.get('utm_source');
+    if (ref) {
+      localStorage.setItem('rentzy_referral_code', ref);
+      localStorage.setItem('rentzy_signup_source', `Link: ${ref}`);
+    }
+  }, [searchParams]);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();

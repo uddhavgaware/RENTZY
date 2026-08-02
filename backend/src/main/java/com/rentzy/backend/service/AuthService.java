@@ -65,6 +65,8 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(User.Role.valueOf(request.getRole().toUpperCase()))
                 .isEmailVerified(false)
+                .referralCode(request.getReferralCode())
+                .signupSource(request.getSignupSource())
                 .build();
                 
         repository.save(user);
@@ -130,21 +132,16 @@ public class AuthService {
                 .build();
     }
 
-    public AuthenticationResponse googleLogin(String tokenId) {
+    public AuthenticationResponse googleLogin(String tokenId, String referralCode, String signupSource) {
         try {
             GoogleIdTokenVerifier.Builder verifierBuilder = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
                 .setAcceptableTimeSkewSeconds(86400); // Allow 24 hours of clock drift for local development
-            
-            // We do NOT setAudience() here to allow tokens generated from different platforms (Web, Android, iOS) 
-            // to pass signature verification as long as they are valid Google tokens.
 
             GoogleIdTokenVerifier verifier = verifierBuilder.build();
             
             GoogleIdToken idToken = verifier.verify(tokenId);
             
             if (idToken == null) {
-                // Token is invalid (signature mismatch, expired, invalid audience, etc.)
-                // Let's do a manual parse to give a helpful error message
                 GoogleIdToken unverifiedToken = GoogleIdToken.parse(new GsonFactory(), tokenId);
                 if (unverifiedToken != null) {
                     String debugMsg = "Invalid signature or malformed token";
@@ -160,7 +157,7 @@ public class AuthService {
                 throw new RuntimeException("Invalid Google token");
             }
 
-            GoogleIdToken unverifiedToken = idToken; // For payload extraction below
+            GoogleIdToken unverifiedToken = idToken;
 
             GoogleIdToken.Payload payload = unverifiedToken.getPayload();
             String email = payload.getEmail();
@@ -173,16 +170,17 @@ public class AuthService {
                 name = "Google User";
             }
 
-            String finalName = name; // for use in lambda
+            String finalName = name;
             User user = repository.findByEmail(email).orElseGet(() -> {
-                // Auto-register new Google users
                 User newUser = User.builder()
                         .name(finalName)
                         .email(email)
-                        .password(passwordEncoder.encode(UUID.randomUUID().toString())) // Random secure password
-                        .role(User.Role.TENANT) // Default role
+                        .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                        .role(User.Role.TENANT)
                         .profileCompleted(false)
-                        .isEmailVerified(true) // Google handles email verification
+                        .isEmailVerified(true)
+                        .referralCode(referralCode)
+                        .signupSource(signupSource)
                         .build();
                 return repository.save(newUser);
             });

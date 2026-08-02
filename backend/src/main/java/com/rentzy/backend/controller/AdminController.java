@@ -308,6 +308,30 @@ public class AdminController {
             dailyTrend.add(Map.of("day", dayLabel, "activeUsers", activeOnDay));
         }
 
+        // Referral & Campaign Link tracking statistics
+        Map<String, Map<String, Object>> referralCampaigns = new HashMap<>();
+
+        for (User u : allUsers) {
+            String ref = u.getReferralCode();
+            if (ref != null && !ref.trim().isEmpty()) {
+                referralCampaigns.putIfAbsent(ref, new HashMap<>(Map.of(
+                    "code", ref,
+                    "totalSignups", 0L,
+                    "studentsCount", 0L,
+                    "ownersCount", 0L
+                )));
+
+                Map<String, Object> camp = referralCampaigns.get(ref);
+                camp.put("totalSignups", (Long) camp.get("totalSignups") + 1);
+                if ((u.getCollegeName() != null && !u.getCollegeName().isEmpty()) || "TENANT".equalsIgnoreCase(u.getRole().name())) {
+                    camp.put("studentsCount", (Long) camp.get("studentsCount") + 1);
+                }
+                if ("OWNER".equalsIgnoreCase(u.getRole().name())) {
+                    camp.put("ownersCount", (Long) camp.get("ownersCount") + 1);
+                }
+            }
+        }
+
         return ResponseEntity.ok(Map.of(
             "growth", growthData,
             "propertyTypes", propertyTypes,
@@ -316,7 +340,8 @@ public class AdminController {
             "dau", dauCount,
             "wau", wauCount,
             "mau", mauCount,
-            "dailyTrend", dailyTrend
+            "dailyTrend", dailyTrend,
+            "referralCampaigns", new ArrayList<>(referralCampaigns.values())
         ));
     }
 }
