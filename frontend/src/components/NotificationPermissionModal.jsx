@@ -123,7 +123,7 @@ const NotificationPermissionModal = () => {
           </span>
         </h3>
         <p className="text-gray-600 dark:text-gray-300 text-xs sm:text-sm mt-2 leading-relaxed">
-          To protect your tenancy and keep you in the loop, RENTZY requires real-time push notifications on your device.
+          To protect your tenancy and keep you in the loop, RentXY requires real-time push notifications on your device.
         </p>
 
         {/* Feature List */}

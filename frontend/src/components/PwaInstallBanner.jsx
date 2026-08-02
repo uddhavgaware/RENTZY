@@ -54,7 +54,7 @@ const PwaInstallBanner = () => {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then(({ outcome }) => {
           if (outcome === 'accepted') {
-            toast.success('Installing RENTZY...');
+            toast.success('Installing RentXY...');
             setShowBanner(false);
           }
         });
@@ -71,7 +71,7 @@ const PwaInstallBanner = () => {
       setIsInstalled(true);
       setShowBanner(false);
       setDeferredPrompt(null);
-      toast.success('🎉 RENTZY successfully installed to your Home Screen!');
+      toast.success('🎉 RentXY successfully installed to your Home Screen!');
     };
 
     window.addEventListener('appinstalled', handleAppInstalled);
@@ -98,7 +98,7 @@ const PwaInstallBanner = () => {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
-      toast.success('Installing RENTZY...');
+      toast.success('Installing RentXY...');
       setShowBanner(false);
     } else {
       toast('Installation cancelled.', { icon: 'ℹ️' });
@@ -127,7 +127,7 @@ const PwaInstallBanner = () => {
           </div>
           <div>
             <h4 className="font-extrabold text-sm md:text-base leading-tight tracking-tight text-white flex items-center gap-1.5">
-              Install RENTZY App <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded-full font-bold uppercase">Free</span>
+              Install RentXY App <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded-full font-bold uppercase">Free</span>
             </h4>
             <p className="text-xs text-gray-300 mt-0.5 leading-relaxed">
               {isIOS ? (

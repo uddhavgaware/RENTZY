@@ -501,7 +501,7 @@ const LandingPage = () => {
                 <Smartphone size={14} className="animate-bounce" /> Official Mobile PWA Available
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
-                Experience RENTZY on the Go <br className="hidden sm:block" />
+                Experience RentXY on the Go <br className="hidden sm:block" />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300">
                   Install Directly to Your Home Screen!
                 </span>
