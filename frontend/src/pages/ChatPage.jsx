@@ -17,12 +17,48 @@ const ChatPage = () => {
   const [searchParams] = useSearchParams();
   const [activeChat, setActiveChat] = useState(null);
   const [showMobileChat, setShowMobileChat] = useState(false);
-  const [conversations, setConversations] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [newMessage, setNewMessage] = useState('');
-  const [editingMessage, setEditingMessage] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const messagesEndRef = useRef(null);
+  const [contactPermissions, setContactPermissions] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('rentzy_contact_permissions') || '{}');
+    } catch {
+      return {};
+    }
+  });
+
+
+
+  const isContactApproved = activeChat && (
+    contactPermissions[activeChat] ||
+    messages.some(m => m.content === '[CONTACT_REQUEST:APPROVED]' || m.content?.includes('Approved contact sharing'))
+  );
+
+  const handleRequestContact = async () => {
+    if (!activeChat) return;
+    try {
+      const msg = await chatService.sendMessage(activeChat, '[CONTACT_REQUEST:PENDING]');
+      setMessages(prev => [...prev, msg]);
+    } catch (err) {
+      console.error('Failed to send contact request', err);
+    }
+  };
+
+  const handleApproveContact = async (targetUserId) => {
+    const chatIdToApprove = targetUserId || activeChat;
+    if (!chatIdToApprove) return;
+
+    const updated = { ...contactPermissions, [chatIdToApprove]: true };
+    setContactPermissions(updated);
+    try {
+      localStorage.setItem('rentzy_contact_permissions', JSON.stringify(updated));
+    } catch {}
+
+    try {
+      const msg = await chatService.sendMessage(chatIdToApprove, '[CONTACT_REQUEST:APPROVED]');
+      setMessages(prev => [...prev, msg]);
+    } catch (err) {
+      console.error('Failed to approve contact request', err);
+    }
+  };
 
   // Auto-fill message from URL
   useEffect(() => {
@@ -428,25 +464,34 @@ const ChatPage = () => {
             {/* Chat Messages */}
             <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-50 dark:bg-slate-900 flex flex-col w-full">
               <div className="bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/10 rounded-xl p-3 sm:p-4 mb-4 shadow-sm flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm">
-                <span className="font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[200px] sm:max-w-none">Contact {maskName(conversations.find(c => c.id === activeChat)?.name)}:</span>
+                <span className="font-semibold text-gray-700 dark:text-gray-200 truncate max-w-[200px] sm:max-w-none">
+                  Contact {maskName(conversations.find(c => c.id === activeChat)?.name)}:
+                </span>
                 
                 <div className="flex items-center gap-1.5 flex-wrap">
-                {conversations.find(c => c.id === activeChat)?.phone && (
-                  <>
-                    <a href={`tel:${conversations.find(c => c.id === activeChat).phone}`} className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">
-                      <Phone size={14} /> Call
+                  {isContactApproved && conversations.find(c => c.id === activeChat)?.phone ? (
+                    <>
+                      <a href={`tel:${conversations.find(c => c.id === activeChat).phone}`} className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs font-bold hover:bg-blue-100 transition-colors">
+                        <Phone size={14} /> Call
+                      </a>
+                      <a href={`https://wa.me/${conversations.find(c => c.id === activeChat).phone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors">
+                        WhatsApp
+                      </a>
+                    </>
+                  ) : (
+                    <button
+                      onClick={handleRequestContact}
+                      className="flex items-center gap-1 px-3 py-1.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+                    >
+                      <Phone size={14} /> Request Phone & WhatsApp Access 📱
+                    </button>
+                  )}
+                  
+                  {conversations.find(c => c.id === activeChat)?.email && (
+                    <a href={`mailto:${conversations.find(c => c.id === activeChat).email}`} className="flex items-center gap-1 px-3 py-1.5 bg-purple-50 text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors">
+                      Email
                     </a>
-                    <a href={`https://wa.me/${conversations.find(c => c.id === activeChat).phone.replace(/\\D/g,'')}`} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-lg text-xs font-bold hover:bg-emerald-100 transition-colors">
-                      WhatsApp
-                    </a>
-                  </>
-                )}
-                
-                {conversations.find(c => c.id === activeChat)?.email && (
-                  <a href={`mailto:${conversations.find(c => c.id === activeChat).email}`} className="flex items-center gap-1 px-3 py-1.5 bg-purple-50 text-purple-600 rounded-lg text-xs font-bold hover:bg-purple-100 transition-colors">
-                    Email
-                  </a>
-                )}
+                  )}
                 </div>
               </div>
               <div className="space-y-4 sm:space-y-6 flex-1">
@@ -457,6 +502,52 @@ const ChatPage = () => {
                     const isMe = msg.sender.email === user?.email;
                     const timeString = new Date(msg.timestamp).toLocaleTimeString('en-US', {hour: 'numeric', minute:'2-digit', hour12: true});
                     
+                    if (msg.content === '[CONTACT_REQUEST:PENDING]') {
+                      if (isMe) {
+                        return (
+                          <div key={msg.id || idx} className="flex justify-center mb-4">
+                            <div className="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-xs font-medium border border-gray-200">
+                              📱 You sent a Phone & WhatsApp contact sharing request. Waiting for approval.
+                            </div>
+                          </div>
+                        );
+                      } else {
+                        return (
+                          <div key={msg.id || idx} className="flex items-end mb-4 group">
+                            <div className="w-8 h-8 rounded-full bg-white text-gray-700 flex items-center justify-center font-bold text-xs mr-3 mb-1 shadow-sm border border-gray-200 flex-shrink-0">
+                              {msg.sender?.profilePhoto ? <img src={msg.sender.profilePhoto} alt="" className="w-full h-full object-cover rounded-full" /> : (msg.sender?.name?.charAt(0)?.toUpperCase() || 'U')}
+                            </div>
+                            <div className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl space-y-2 max-w-[85%] shadow-sm">
+                              <p className="font-bold text-xs text-emerald-900 flex items-center gap-1.5">
+                                <Phone size={14} /> Contact Sharing Request
+                              </p>
+                              <p className="text-xs text-emerald-700">
+                                {maskName(msg.sender?.name)} would like to access your Mobile Phone Number and WhatsApp contact.
+                              </p>
+                              <div className="flex gap-2 pt-1">
+                                <button
+                                  onClick={() => handleApproveContact(msg.sender?.id)}
+                                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow-sm transition-all"
+                                >
+                                  <Check size={14} /> Allow & Share Contact
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      }
+                    }
+
+                    if (msg.content === '[CONTACT_REQUEST:APPROVED]') {
+                      return (
+                        <div key={msg.id || idx} className="flex justify-center mb-4">
+                          <div className="px-4 py-2 bg-emerald-100 text-emerald-800 border border-emerald-300 rounded-full text-xs font-bold">
+                            ✅ Contact Sharing Approved! You can now call or message on WhatsApp.
+                          </div>
+                        </div>
+                      );
+                    }
+
                     if (isMe) {
                       return (
                         <div key={msg.id || idx} className="flex items-end justify-end mb-2 group">
