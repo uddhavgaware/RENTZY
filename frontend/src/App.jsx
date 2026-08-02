@@ -189,6 +189,7 @@ function App() {
           <NetworkStatusHandler />
           <PwaInstallBanner />
           <NotificationPermissionModal />
+          <ZomatoNotificationToast />
           <Layout>
             <GlobalErrorBoundary>
               <Suspense fallback={<SuspenseFallback />}>
@@ -238,7 +239,6 @@ function App() {
       </ThemeProvider>
     </GoogleOAuthProvider>
     <Toaster position="top-right" />
-    <ZomatoNotificationToast />
     </HelmetProvider>
   );
 }
