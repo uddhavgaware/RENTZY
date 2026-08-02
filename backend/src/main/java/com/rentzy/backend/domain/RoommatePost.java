@@ -59,7 +59,7 @@ public class RoommatePost {
     private String sleepSchedule;
     private String cleanlinessLevel;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "roommate_post_photos", joinColumns = @JoinColumn(name = "roommate_post_id"))
     @Column(name = "image_url", columnDefinition = "TEXT")
     private List<String> images; // Optional photos
