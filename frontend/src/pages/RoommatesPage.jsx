@@ -158,6 +158,9 @@ const RoommatesPage = () => {
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => setModalConfig({ isOpen: false });
 
+  const [expandedCardId, setExpandedCardId] = useState(null);
+  const toggleExpandCard = (id) => setExpandedCardId(prev => prev === id ? null : id);
+
   const [lightboxState, setLightboxState] = useState({ isOpen: false, images: [], index: 0 });
 
   const openLightbox = (images, index = 0) => {
@@ -1258,18 +1261,27 @@ const RoommatesPage = () => {
                     const displayBudget = roommate.budget ? roommate.budget.toLocaleString('en-IN') : 'N/A';
                     const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
 
+                    const isExpanded = expandedCardId === roommate.id;
+
                     return (
                       <div
                         id={`roommate-card-${roommate.id}`}
                         key={roommate.id}
-                        onClick={() => setSelectedDetailRoommate(roommate)}
-                        className="glass-card bg-white/95 dark:bg-slate-800/95 rounded-2xl p-4 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl transition-all flex flex-col justify-between cursor-pointer relative group"
+                        className={`glass-card bg-white/95 dark:bg-slate-800/95 rounded-2xl p-4 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between relative group ${
+                          isExpanded ? 'ring-2 ring-primary-500/50 shadow-2xl col-span-1 md:col-span-2 lg:col-span-3 bg-white dark:bg-slate-900' : ''
+                        }`}
                       >
-                        {/* Top: Match Badge & User Info */}
+                        {/* Top: Header & User Info */}
                         <div>
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2.5">
-                              <div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-xl flex items-center justify-center font-bold text-base border border-white shadow-sm overflow-hidden flex-shrink-0">
+                              <div
+                                onClick={() => {
+                                  if (roommate.images?.length) openLightbox(roommate.images, 0);
+                                  else if (roommate.user?.profilePhoto) openLightbox([roommate.user.profilePhoto], 0);
+                                }}
+                                className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-xl flex items-center justify-center font-bold text-base border border-white shadow-sm overflow-hidden flex-shrink-0 cursor-pointer"
+                              >
                                 {roommate.images && roommate.images.length > 0 ? (
                                   <img src={roommate.images[0]} alt="" className="w-full h-full object-cover" />
                                 ) : roommate.user?.profilePhoto ? (
@@ -1304,7 +1316,7 @@ const RoommatesPage = () => {
                           </div>
 
                           {/* Rent / Split Badge */}
-                          <div className="bg-primary-50/70 dark:bg-slate-700/50 p-2 rounded-xl mb-3 border border-primary-100/50 dark:border-white/5 flex items-center justify-between">
+                          <div className="bg-primary-50/70 dark:bg-slate-700/50 p-2.5 rounded-xl mb-3 border border-primary-100/50 dark:border-white/5 flex items-center justify-between">
                             <div>
                               <span className="text-[9px] font-bold uppercase text-primary-600 dark:text-primary-300 block">Total Rent</span>
                               <span className="text-sm font-black text-gray-900 dark:text-white">₹{displayBudget}<span className="text-[10px] font-normal text-gray-500">/mo</span></span>
@@ -1317,40 +1329,233 @@ const RoommatesPage = () => {
                             )}
                           </div>
 
-                          {/* Quick Badges */}
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {roommate.vacancies && (
-                              <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-100">
-                                {roommate.vacancies} vacancy
-                              </span>
-                            )}
-                            {roommate.availableFrom && (
-                              <span className="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded-md border border-green-100">
-                                Move-in: {roommate.availableFrom}
-                              </span>
-                            )}
-                            {roommate.targetGender && roommate.targetGender !== 'Any' && (
-                              <span className="text-[10px] font-bold bg-pink-50 text-pink-700 px-2 py-0.5 rounded-md border border-pink-100">
-                                For: {roommate.targetGender}
-                              </span>
-                            )}
-                          </div>
+                          {/* Quick Badges (When Collapsed) */}
+                          {!isExpanded && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {roommate.vacancies && (
+                                <span className="text-[10px] font-bold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-md border border-blue-100">
+                                  {roommate.vacancies} vacancy
+                                </span>
+                              )}
+                              {roommate.availableFrom && (
+                                <span className="text-[10px] font-bold bg-green-50 text-green-700 px-2 py-0.5 rounded-md border border-green-100">
+                                  Move-in: {roommate.availableFrom}
+                                </span>
+                              )}
+                              {roommate.targetGender && roommate.targetGender !== 'Any' && (
+                                <span className="text-[10px] font-bold bg-pink-50 text-pink-700 px-2 py-0.5 rounded-md border border-pink-100">
+                                  For: {roommate.targetGender}
+                                </span>
+                              )}
+                            </div>
+                          )}
+
+                          {/* IN-PLACE EXPANDED DETAILS */}
+                          {isExpanded && (
+                            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-white/10 space-y-5 animate-fadeIn">
+                              {/* Full Image Gallery */}
+                              {roommate.images && roommate.images.length > 0 && (
+                                <div>
+                                  <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Room / Flat Photos (Tap to Zoom 🔍)</h4>
+                                  <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
+                                    {roommate.images.map((img, idx) => (
+                                      <div
+                                        key={idx}
+                                        onClick={() => openLightbox(roommate.images, idx)}
+                                        className="relative w-48 sm:w-56 h-32 sm:h-36 flex-shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm group cursor-pointer"
+                                      >
+                                        <img src={img} alt={`Room photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-bold backdrop-blur-sm flex items-center gap-1">
+                                          <Eye size={12} /> {idx + 1} / {roommate.images.length}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Vacancies & Move-In availability */}
+                              <div className="flex flex-wrap gap-2">
+                                {roommate.vacancies != null && (
+                                  <div className="bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 px-3 py-1 rounded-xl text-xs font-extrabold border border-blue-200 dark:border-blue-800 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                    {roommate.vacancies} Vacanc{roommate.vacancies === 1 ? 'y' : 'ies'} of {roommate.totalCapacity || 2} Total
+                                  </div>
+                                )}
+                                {roommate.availableFrom && (
+                                  <div className="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 px-3 py-1 rounded-xl text-xs font-extrabold border border-green-200 dark:border-green-800">
+                                    ⏱ Move-in Available: {roommate.availableFrom}
+                                  </div>
+                                )}
+                                {roommate.deposit > 0 && (
+                                  <div className="bg-purple-50 text-purple-700 dark:bg-purple-950/60 dark:text-purple-300 px-3 py-1 rounded-xl text-xs font-extrabold border border-purple-200 dark:border-purple-800">
+                                    Deposit: ₹{displayDeposit}
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Utility & Bill Inclusions */}
+                              <div>
+                                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Utility & Bill Inclusions</h4>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {[
+                                    { label: 'Electricity', value: roommate.electricityBill || 'Not Included', icon: '⚡' },
+                                    { label: 'Water', value: roommate.waterSupply || 'Not Included', icon: '💧' },
+                                    { label: 'Maintenance', value: roommate.maintenance || 'Not Included', icon: '🛠️' }
+                                  ].map((util, idx) => (
+                                    <div key={idx} className="p-2.5 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-white/10 text-center">
+                                      <span className="text-base block mb-0.5">{util.icon}</span>
+                                      <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block leading-none mb-1">{util.label}</span>
+                                      <span className={`text-[11px] font-black ${util.value === 'Included' ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                        {util.value === 'Included' ? 'Included' : 'Not Incl.'}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Specifications */}
+                              {(roommate.facing || roommate.areaSqft) && (
+                                <div>
+                                  <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Property Specs</h4>
+                                  <div className="flex gap-2">
+                                    {roommate.facing && (
+                                      <span className="px-3 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 text-xs rounded-xl border border-indigo-200 dark:border-indigo-800 font-bold">
+                                        🧭 Facing: {roommate.facing}
+                                      </span>
+                                    )}
+                                    {roommate.areaSqft && (
+                                      <span className="px-3 py-1 bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 text-xs rounded-xl border border-teal-200 dark:border-teal-800 font-bold">
+                                        📏 Size: {roommate.areaSqft} Sq. Ft.
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+
+                              {/* Full Preferences & Lifestyle Tags */}
+                              <div>
+                                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Preferences & Lifestyle</h4>
+                                <div className="flex flex-wrap gap-1.5 text-xs font-semibold">
+                                  {roommate.targetOccupation && <span className="bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">Prefers {roommate.targetOccupation}</span>}
+                                  {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300 px-2.5 py-0.5 rounded-full border border-pink-200 dark:border-pink-800">Prefers {roommate.targetGender}</span>}
+                                  {roommate.dietaryPref && <span className="bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 px-2.5 py-0.5 rounded-full border border-orange-200 dark:border-orange-800">Diet: {roommate.dietaryPref}</span>}
+                                  {roommate.smokingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{roommate.smokingPref}</span>}
+                                  {roommate.drinkingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{roommate.drinkingPref}</span>}
+                                  {roommate.petsPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{roommate.petsPref}</span>}
+                                  {roommate.sleepSchedule && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">Sleep: {roommate.sleepSchedule}</span>}
+                                  {roommate.cleanlinessLevel && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">Cleanliness: {roommate.cleanlinessLevel}</span>}
+                                  {roommate.preferences?.filter(p => !['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)).map((pref, idx) => (
+                                    <span key={idx} className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{pref}</span>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* ✨ AI Compatibility Match Section */}
+                              <div className="pt-1">
+                                {!cardMatches[roommate.id] ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAnalyzeCardMatch(roommate)}
+                                    disabled={analyzingCardId === roommate.id}
+                                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
+                                  >
+                                    {analyzingCardId === roommate.id ? (
+                                      <>
+                                        <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                        <span>AI Analyzing Compatibility...</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <span>✨ AI Compatibility Match & Conversation Advice</span>
+                                      </>
+                                    )}
+                                  </button>
+                                ) : (
+                                  <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-3.5 rounded-xl text-xs space-y-1.5 border border-purple-500/40 shadow-lg animate-fadeIn">
+                                    <div className="flex items-center justify-between">
+                                      <span className="font-bold text-amber-300 flex items-center gap-1 text-xs">
+                                        <span>✨ AI Compatibility Match</span>
+                                      </span>
+                                      <span className="bg-amber-400 text-slate-900 font-black px-2 py-0.5 rounded text-[10px] shadow">
+                                        {cardMatches[roommate.id].matchScore}
+                                      </span>
+                                    </div>
+                                    <p className="text-purple-100 leading-relaxed text-[11px]">
+                                      {cardMatches[roommate.id].analysis}
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+
+                              {/* Action Buttons */}
+                              <div className="flex flex-col sm:flex-row gap-2 pt-3 border-t border-gray-100 dark:border-white/10">
+                                {isOwner ? (
+                                  <>
+                                    <button
+                                      onClick={() => handleEditPost(roommate)}
+                                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                    >
+                                      <Edit3 size={14} /> Edit Post
+                                    </button>
+                                    <button
+                                      onClick={() => handleGotAMate(roommate.id)}
+                                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                    >
+                                      <Check size={14} /> Mark Fulfilled
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeletePost(roommate.id)}
+                                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                    >
+                                      <Trash2 size={14} /> Delete Post
+                                    </button>
+                                  </>
+                                ) : (
+                                  <>
+                                    <button
+                                      onClick={() => handleSendRequest(roommate.id)}
+                                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2.5 rounded-xl shadow-md shadow-pink-500/20 transition-all text-xs flex items-center justify-center gap-1.5"
+                                    >
+                                      <Users size={14} /> Send Roommate Request
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const recipientId = roommate.user?.id;
+                                        if (!isAuthenticated) {
+                                          showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') });
+                                          return;
+                                        }
+                                        navigate(`/messages?user=${recipientId}`);
+                                      }}
+                                      className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-2.5 rounded-xl shadow transition-all text-xs flex items-center justify-center gap-1.5"
+                                    >
+                                      <MessageCircle size={14} /> Direct Message
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
 
-                        {/* Bottom Action: View Details */}
-                        <div className="pt-2 border-t border-gray-100 dark:border-white/5 flex items-center justify-between gap-2">
+                        {/* Bottom Action: Toggle Expand / Collapse */}
+                        <div className="pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between gap-2">
                           <button
                             type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedDetailRoommate(roommate);
-                            }}
-                            className="flex-1 bg-gradient-to-r from-primary-600 to-indigo-600 text-white font-bold py-2 rounded-xl text-xs flex items-center justify-center gap-1 shadow-sm hover:opacity-95 transition-opacity"
+                            onClick={() => toggleExpandCard(roommate.id)}
+                            className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all"
                           >
-                            <Eye size={14} /> Show All Details
+                            {isExpanded ? (
+                              <>Show Less ▲</>
+                            ) : (
+                              <>
+                                <Eye size={14} /> Show All Details ▼
+                              </>
+                            )}
                           </button>
-                          {isOwner && (
-                            <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                          {!isExpanded && isOwner && (
+                            <div className="flex gap-1">
                               <button onClick={() => handleEditPost(roommate)} className="p-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg" title="Edit Post">
                                 <Edit3 size={14} />
                               </button>
@@ -1838,297 +2043,7 @@ const RoommatesPage = () => {
         </div>
       )}
 
-      {/* Full Detail Roommate Modal (Expanded View) */}
-      {selectedDetailRoommate && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-md animate-fadeIn">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-2xl max-h-[92vh] overflow-y-auto shadow-2xl border border-gray-100 dark:border-white/10 relative animate-scaleIn">
-            <button
-              onClick={() => setSelectedDetailRoommate(null)}
-              className="absolute top-4 right-4 z-20 w-10 h-10 bg-black/40 hover:bg-black/60 text-white rounded-full flex items-center justify-center font-bold text-xl transition-all shadow-md"
-            >
-              ×
-            </button>
 
-            {/* Header / Cover */}
-            <div className="p-6 bg-gradient-to-r from-primary-600 via-indigo-600 to-purple-600 text-white rounded-t-3xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
-              <div className="flex items-center gap-4 relative z-10">
-                <div className="w-16 h-16 bg-white text-primary-700 rounded-2xl flex items-center justify-center font-bold text-2xl border-2 border-white shadow-lg overflow-hidden flex-shrink-0">
-                  {selectedDetailRoommate.user?.profilePhoto ? (
-                    <img src={selectedDetailRoommate.user.profilePhoto} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    selectedDetailRoommate.user?.name?.charAt(0) || 'U'
-                  )}
-                </div>
-                <div>
-                  <h2 className="text-2xl font-black flex items-center gap-2">
-                    {maskName(selectedDetailRoommate.user?.name) || 'User'}
-                    {selectedDetailRoommate.user?.isVerified && <BadgeCheck size={22} className="text-blue-300 fill-blue-500/30" />}
-                  </h2>
-                  <p className="text-xs text-primary-100 mt-0.5 flex items-center gap-1 font-medium">
-                    <MapPin size={14} /> {selectedDetailRoommate.location}
-                  </p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/20 text-white border border-white/20">
-                      👤 {selectedDetailRoommate.gender || selectedDetailRoommate.user?.gender || 'Roommate'}
-                    </span>
-                    <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white/20 text-white border border-white/20">
-                      🏠 {selectedDetailRoommate.propertyType || 'Room'}
-                    </span>
-                    {selectedDetailRoommate.user?.role === 'OWNER' && (
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-400 text-gray-900 shadow-sm">
-                        Property Owner
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="p-6 space-y-6">
-              {/* Full Image Gallery / Carousel */}
-              {selectedDetailRoommate.images && selectedDetailRoommate.images.length > 0 && (
-                <div>
-                  <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Room / Flat Photos (Tap to Zoom 🔍)</h4>
-                  <div className="flex gap-3 overflow-x-auto pb-2 hide-scrollbar">
-                    {selectedDetailRoommate.images.map((img, idx) => (
-                      <div
-                        key={idx}
-                        onClick={() => openLightbox(selectedDetailRoommate.images, idx)}
-                        className="relative w-56 h-36 flex-shrink-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-sm group cursor-pointer"
-                      >
-                        <img src={img} alt={`Room photo ${idx + 1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-md font-bold backdrop-blur-sm flex items-center gap-1">
-                          <Eye size={12} /> {idx + 1} / {selectedDetailRoommate.images.length}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Financials & Per Head Rent Split */}
-              <div className="bg-gradient-to-br from-primary-50/70 to-indigo-50/70 dark:from-slate-800 dark:to-slate-800/80 p-5 rounded-2xl border border-primary-100 dark:border-white/10 space-y-3">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <span className="text-[11px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Total Room Rent</span>
-                    <span className="text-xl font-black text-gray-900 dark:text-white">
-                      ₹{selectedDetailRoommate.budget?.toLocaleString('en-IN') || 'N/A'}
-                      <span className="text-xs font-normal text-gray-500"> / mo</span>
-                    </span>
-                    <span className="text-[10px] text-gray-400 block mt-0.5">
-                      {selectedDetailRoommate.maintenanceIncluded ? '(Maintenance Included)' : '(Plus Maintenance)'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[11px] font-bold text-gray-400 dark:text-gray-400 uppercase tracking-wider block">Total Deposit</span>
-                    <span className="text-xl font-black text-gray-900 dark:text-white">
-                      ₹{selectedDetailRoommate.deposit?.toLocaleString('en-IN') || '0'}
-                    </span>
-                  </div>
-                </div>
-
-                {selectedDetailRoommate.totalCapacity > 1 && selectedDetailRoommate.budget && (
-                  <div className="pt-3 border-t border-primary-200/60 dark:border-white/10 flex items-center justify-between">
-                    <div>
-                      <span className="text-xs font-bold text-emerald-700 dark:text-emerald-400 block">
-                        💰 Per Head Rent Split ({selectedDetailRoommate.totalCapacity} Members)
-                      </span>
-                      {selectedDetailRoommate.deposit > 0 && (
-                        <span className="text-[11px] text-emerald-600 dark:text-emerald-400/80 font-medium">
-                          Deposit per head: ₹{Math.round(selectedDetailRoommate.deposit / selectedDetailRoommate.totalCapacity).toLocaleString('en-IN')}
-                        </span>
-                      )}
-                    </div>
-                    <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
-                      ₹{Math.round(selectedDetailRoommate.budget / selectedDetailRoommate.totalCapacity).toLocaleString('en-IN')} <span className="text-xs font-normal text-gray-500">/ mo</span>
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Vacancies & Move-In info */}
-              <div className="flex flex-wrap gap-2">
-                {selectedDetailRoommate.vacancies != null && (
-                  <div className="bg-blue-50 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 px-3.5 py-1.5 rounded-xl text-xs font-extrabold border border-blue-200 dark:border-blue-800 flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
-                    {selectedDetailRoommate.vacancies} Vacanc{selectedDetailRoommate.vacancies === 1 ? 'y' : 'ies'} of {selectedDetailRoommate.totalCapacity || 2} Total
-                  </div>
-                )}
-                {selectedDetailRoommate.availableFrom && (
-                  <div className="bg-green-50 text-green-700 dark:bg-green-950/60 dark:text-green-300 px-3.5 py-1.5 rounded-xl text-xs font-extrabold border border-green-200 dark:border-green-800">
-                    ⏱ Move-in Available: {selectedDetailRoommate.availableFrom}
-                  </div>
-                )}
-              </div>
-
-              {/* Utility & Maintenance Inclusions */}
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Utility & Bill Inclusions</h4>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    { label: 'Electricity Bill', value: selectedDetailRoommate.electricityBill || 'Not Included', icon: '⚡' },
-                    { label: 'Water Supply', value: selectedDetailRoommate.waterSupply || 'Not Included', icon: '💧' },
-                    { label: 'Maintenance', value: selectedDetailRoommate.maintenance || 'Not Included', icon: '🛠️' }
-                  ].map((util, idx) => (
-                    <div key={idx} className="p-3 rounded-2xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-white/10 text-center">
-                      <span className="text-lg block mb-1">{util.icon}</span>
-                      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block leading-none mb-1">{util.label}</span>
-                      <span className={`text-xs font-black ${util.value === 'Included' ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                        {util.value === 'Included' ? 'Included' : 'Not Incl.'}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Specifications */}
-              {(selectedDetailRoommate.facing || selectedDetailRoommate.areaSqft) && (
-                <div>
-                  <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Property Specs</h4>
-                  <div className="flex gap-3">
-                    {selectedDetailRoommate.facing && (
-                      <span className="px-3.5 py-1.5 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 text-xs rounded-xl border border-indigo-200 dark:border-indigo-800 font-bold">
-                        🧭 Facing: {selectedDetailRoommate.facing}
-                      </span>
-                    )}
-                    {selectedDetailRoommate.areaSqft && (
-                      <span className="px-3.5 py-1.5 bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-300 text-xs rounded-xl border border-teal-200 dark:border-teal-800 font-bold">
-                        📏 Size: {selectedDetailRoommate.areaSqft} Sq. Ft.
-                      </span>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Full Preferences & Lifestyle Tags */}
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Preferences & Lifestyle</h4>
-                <div className="flex flex-wrap gap-2 text-xs font-semibold">
-                  {selectedDetailRoommate.targetOccupation && <span className="bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 px-3 py-1 rounded-full border border-blue-200 dark:border-blue-800">Prefers {selectedDetailRoommate.targetOccupation}</span>}
-                  {selectedDetailRoommate.targetGender && selectedDetailRoommate.targetGender !== 'Any' && <span className="bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300 px-3 py-1 rounded-full border border-pink-200 dark:border-pink-800">Prefers {selectedDetailRoommate.targetGender}</span>}
-                  {selectedDetailRoommate.dietaryPref && <span className="bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 px-3 py-1 rounded-full border border-orange-200 dark:border-orange-800">Diet: {selectedDetailRoommate.dietaryPref}</span>}
-                  {selectedDetailRoommate.smokingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-200 dark:border-white/10">{selectedDetailRoommate.smokingPref}</span>}
-                  {selectedDetailRoommate.drinkingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-200 dark:border-white/10">{selectedDetailRoommate.drinkingPref}</span>}
-                  {selectedDetailRoommate.petsPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-200 dark:border-white/10">{selectedDetailRoommate.petsPref}</span>}
-                  {selectedDetailRoommate.sleepSchedule && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-200 dark:border-white/10">Sleep: {selectedDetailRoommate.sleepSchedule}</span>}
-                  {selectedDetailRoommate.cleanlinessLevel && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-200 dark:border-white/10">Cleanliness: {selectedDetailRoommate.cleanlinessLevel}</span>}
-                  {selectedDetailRoommate.preferences?.filter(p => !['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)).map((pref, idx) => (
-                    <span key={idx} className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-3 py-1 rounded-full border border-gray-200 dark:border-white/10">{pref}</span>
-                  ))}
-                </div>
-              </div>
-
-              {/* ✨ AI Compatibility Match Section */}
-              <div className="pt-2">
-                {!cardMatches[selectedDetailRoommate.id] ? (
-                  <button
-                    type="button"
-                    onClick={() => handleAnalyzeCardMatch(selectedDetailRoommate)}
-                    disabled={analyzingCardId === selectedDetailRoommate.id}
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-2xl text-xs flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50"
-                  >
-                    {analyzingCardId === selectedDetailRoommate.id ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span>AI Analyzing Compatibility...</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>✨ AI Compatibility Match & Conversation Advice</span>
-                      </>
-                    )}
-                  </button>
-                ) : (
-                  <div className="bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-4 rounded-2xl text-xs space-y-2 border border-purple-500/40 shadow-lg animate-fadeIn">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-amber-300 flex items-center gap-1 text-sm">
-                        <span>✨ AI Compatibility Match</span>
-                      </span>
-                      <span className="bg-amber-400 text-slate-900 font-black px-2.5 py-0.5 rounded text-xs shadow">
-                        {cardMatches[selectedDetailRoommate.id].matchScore}
-                      </span>
-                    </div>
-                    <p className="text-purple-100 leading-relaxed text-xs">
-                      {cardMatches[selectedDetailRoommate.id].analysis}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              {(() => {
-                const isOwnerOrAdmin = (user?.email && selectedDetailRoommate.user?.email && user.email.toLowerCase() === selectedDetailRoommate.user.email.toLowerCase()) || user?.role === 'ADMIN';
-                return (
-                  <div className="flex flex-col sm:flex-row gap-2.5 pt-4 border-t border-gray-100 dark:border-white/10">
-                    {isOwnerOrAdmin ? (
-                      <>
-                        <button
-                          onClick={() => {
-                            const post = selectedDetailRoommate;
-                            setSelectedDetailRoommate(null);
-                            handleEditPost(post);
-                          }}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
-                        >
-                          <Edit3 size={16} /> Edit Post
-                        </button>
-                        <button
-                          onClick={() => {
-                            const id = selectedDetailRoommate.id;
-                            setSelectedDetailRoommate(null);
-                            handleGotAMate(id);
-                          }}
-                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
-                        >
-                          <Check size={16} /> Mark Fulfilled
-                        </button>
-                        <button
-                          onClick={() => {
-                            const id = selectedDetailRoommate.id;
-                            setSelectedDetailRoommate(null);
-                            handleDeletePost(id);
-                          }}
-                          className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
-                        >
-                          <Trash2 size={16} /> Delete Post
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          onClick={() => {
-                            const reqId = selectedDetailRoommate.id;
-                            setSelectedDetailRoommate(null);
-                            handleSendRequest(reqId);
-                          }}
-                          className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3.5 rounded-2xl shadow-lg shadow-pink-500/25 transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
-                        >
-                          <Users size={16} /> Send Roommate Request
-                        </button>
-                        <button
-                          onClick={() => {
-                            const recipientId = selectedDetailRoommate.user?.id;
-                            setSelectedDetailRoommate(null);
-                            if (!isAuthenticated) {
-                              showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') });
-                              return;
-                            }
-                            navigate(`/messages?user=${recipientId}`);
-                          }}
-                          className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3.5 rounded-2xl shadow-lg transition-all active:scale-95 text-xs sm:text-sm flex items-center justify-center gap-2"
-                        >
-                          <MessageCircle size={16} /> Direct Message
-                        </button>
-                      </>
-                    )}
-                  </div>
-                );
-              })()}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Image Lightbox / Zoom Modal */}
       {lightboxState.isOpen && (
