@@ -4,6 +4,7 @@ import { chatService } from '../services/chatService';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useSearchParams } from 'react-router-dom';
+import Modal from '../components/Modal';
 
 const maskName = (name) => {
   if (!name) return 'Anonymous';
@@ -33,6 +34,9 @@ const ChatPage = () => {
   const [loading, setLoading] = useState(true);
   const messagesEndRef = useRef(null);
   const activeChatRef = useRef(null);
+  const [modalConfig, setModalConfig] = useState({ isOpen: false });
+  const showModal = (config) => setModalConfig({ ...config, isOpen: true });
+  const closeModal = () => setModalConfig({ isOpen: false });
 
   // ── Contact approval derived state ──
   const isContactApproved = activeChat && (
@@ -191,7 +195,7 @@ const ChatPage = () => {
         setMessages(history);
         
         // Mark all unread messages from the other user as read
-        const unreadMessages = history.filter(m => m.receiver.id === user.id && !m.isRead);
+        const unreadMessages = history.filter(m => m.receiver?.id === user?.id && !m.isRead);
         unreadMessages.forEach(m => {
           chatService.markAsRead(m.id).catch(console.error);
         });
@@ -268,14 +272,22 @@ const ChatPage = () => {
     }
   };
 
-  const handleDeleteMessage = async (msgId) => {
-    if (!window.confirm('Are you sure you want to delete this message?')) return;
-    try {
-      const savedMsg = await chatService.deleteMessage(msgId);
-      setMessages(prev => prev.map(m => m.id === msgId ? savedMsg : m));
-    } catch (err) {
-      console.error('Failed to delete message', err);
-    }
+  const handleDeleteMessage = (msgId) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Message',
+      message: 'Are you sure you want to delete this message?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          const savedMsg = await chatService.deleteMessage(msgId);
+          setMessages(prev => prev.map(m => m.id === msgId ? savedMsg : m));
+        } catch (err) {
+          console.error('Failed to delete message', err);
+        }
+      },
+      onCancel: closeModal
+    });
   };
 
   const cancelEdit = () => {
@@ -318,6 +330,7 @@ const ChatPage = () => {
   );
 
   return (
+    <>
     <div className="bg-gray-50 h-[calc(100vh-80px)] sm:h-[calc(100dvh-64px)] w-full flex flex-col md:flex-row overflow-hidden relative">
       {/* Sidebar - Contacts List */}
       <div className={`w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex-col flex-shrink-0 ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
@@ -625,6 +638,8 @@ const ChatPage = () => {
         )}
       </div>
     </div>
+    <Modal {...modalConfig} onCancel={closeModal} />
+    </>
   );
 };
 

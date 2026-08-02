@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+import javafx.geometry.Insets?>
+import javafx.scene.control.Button?>
+import javafx.scene.control.Label?>
+import javafx.scene.control.ScrollPane?>
+import javafx.scene.control.TextField?>
+import javafx.scene.layout.FlowPane?>
+import javafx.scene.layout.HBox?>
+import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.rentzy.javafx.controller.MarketplaceController"
+      spacing="20" fillWidth="true">
+
+    <!-- HEADER & SEARCH TOOLBAR -->
+    <HBox spacing="16" alignment="CENTER_LEFT">
+        <VBox spacing="4" HBox.hgrow="ALWAYS">
+            <Label text="Rental Marketplace Explorer 🏠" styleClass="page-title"/>
+            <Label text="Browse high-demand flats, PG hostels, and premium office spaces from live server." styleClass="page-subtitle"/>
+        </VBox>
+        <TextField fx:id="txtSearch" promptText="🔍 Search location, city or title..." prefWidth="280"
+                   style="-fx-background-color: #1e293b; -fx-text-fill: white; -fx-border-color: #475569; -fx-border-radius: 10px; -fx-background-radius: 10px; -fx-padding: 10px;"/>
+        <Button text="Refresh Live Data" styleClass="btn-primary" onAction="#refreshData"/>
+    </HBox>
+
+    <!-- DYNAMIC LISTINGS GRID -->
+    <ScrollPane styleClass="scroll-pane" fitToWidth="true" VBox.vgrow="ALWAYS" hbarPolicy="NEVER">
+        <content>
+            <FlowPane fx:id="listingsGrid" hgap="20" vgap="20" prefWrapLength="900" style="-fx-padding: 4px;">
+                <!-- Cards injected dynamically by MarketplaceController -->
+            </FlowPane>
+        </content>
+    </ScrollPane>
+
+</VBox>

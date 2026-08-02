@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+import javafx.geometry.Insets?>
+import javafx.scene.chart.BarChart?>
+import javafx.scene.chart.CategoryAxis?>
+import javafx.scene.chart.NumberAxis?>
+import javafx.scene.chart.PieChart?>
+import javafx.scene.control.Label?>
+import javafx.scene.layout.GridPane?>
+import javafx.scene.layout.HBox?>
+import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.rentzy.javafx.controller.DashboardController"
+      spacing="24" fillWidth="true">
+
+    <!-- HEADER -->
+    <VBox spacing="4">
+        <Label text="Executive Analytics Dashboard 📊" styleClass="page-title"/>
+        <Label text="Real-time property valuation metrics, occupancy breakdown, and revenue KPI overview." styleClass="page-subtitle"/>
+    </VBox>
+
+    <!-- TOP KPI STAT CARDS -->
+    <HBox spacing="20" fillHeight="true">
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="TOTAL LISTINGS ACTIVE" styleClass="stat-label"/>
+            <Label fx:id="lblTotalListings" text="0" styleClass="stat-value"/>
+        </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="AVG MONTHLY RENT (₹)" styleClass="stat-label"/>
+            <Label fx:id="lblAvgRent" text="₹0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #38bdf8;"/>
+        </VBox>
+        <VBox styleClass="stat-card" HBox.hgrow="ALWAYS">
+            <Label text="MANAGED BUILDINGS" styleClass="stat-label"/>
+            <Label fx:id="lblTotalBuildings" text="0" style="-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #34d399;"/>
+        </VBox>
+    </HBox>
+
+    <!-- CHARTS SECTION -->
+    <HBox spacing="20" VBox.vgrow="ALWAYS">
+        <VBox styleClass="chart" HBox.hgrow="ALWAYS" prefWidth="500">
+            <Label text="Rental Pricing by City (₹)" styleClass="chart-title" style="-fx-padding: 0 0 10 10;"/>
+            <BarChart fx:id="barChartPricing" legendVisible="false" VBox.vgrow="ALWAYS">
+                <xAxis>
+                    <CategoryAxis label="City / Region" styleClass="axis-label"/>
+                </xAxis>
+                <yAxis>
+                    <NumberAxis label="Avg Rent (₹)" styleClass="axis-label"/>
+                </yAxis>
+            </BarChart>
+        </VBox>
+
+        <VBox styleClass="chart" HBox.hgrow="ALWAYS" prefWidth="400">
+            <Label text="Property Type Distribution" styleClass="chart-title" style="-fx-padding: 0 0 10 10;"/>
+            <PieChart fx:id="pieChartTypes" VBox.vgrow="ALWAYS" labelsVisible="true"/>
+        </VBox>
+    </HBox>
+
+</VBox>
