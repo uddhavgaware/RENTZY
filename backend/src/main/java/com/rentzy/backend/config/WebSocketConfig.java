@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:3000}")
+    @Value("${cors.allowed-origins:http://localhost:5173,http://localhost:3000,https://rentxy.in,https://www.rentxy.in}")
     private String[] allowedOrigins;
 
     @Override

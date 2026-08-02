@@ -241,7 +241,7 @@ const LandingPage = () => {
         highlightText="Perfect Stay"
         highlightColorClass="text-indigo-400"
         subtitle="PGs · Flats · Hostels · Roommates — No brokers, no hidden fees. Just verified listings and direct connections."
-        videoSrc="https://videos.pexels.com/video-files/3773486/3773486-uhd_2560_1440_30fps.mp4"
+        
         fallbackImg="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1920&q=80"
       >
         {/* Search box */}
@@ -845,3 +845,4 @@ const LandingPage = () => {
 };
 
 export default LandingPage;
+
