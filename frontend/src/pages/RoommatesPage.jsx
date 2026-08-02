@@ -1559,7 +1559,11 @@ const RoommatesPage = () => {
                                           showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') });
                                           return;
                                         }
-                                        navigate(`/messages?user=${recipientId}`);
+                                        let url = `/messages?user=${recipientId}`;
+                                        if (cardMatches[roommate.id]?.icebreaker) {
+                                          url += `&text=${encodeURIComponent(cardMatches[roommate.id].icebreaker)}`;
+                                        }
+                                        navigate(url);
                                       }}
                                       className="flex-1 bg-slate-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
                                     >
