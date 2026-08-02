@@ -430,6 +430,14 @@ public class RoommateService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<RoommatePostDTO> getMyPosts(String userEmail) {
+        return repository.findByUserEmailOrderByIdDesc(userEmail)
+                .stream()
+                .map(RoommatePostDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     private RoommateRequestDTO toRequestDTO(RoommateRequest req) {
         RoommateUserDTO senderDto = RoommateUserDTO.builder()
             .id(req.getSender().getId())

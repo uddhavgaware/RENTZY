@@ -86,6 +86,7 @@ const DashboardPage = () => {
   const [movingRequests, setMovingRequests] = useState([]);
   const [loadingMoving, setLoadingMoving] = useState(false);
   const [roommateRequests, setRoommateRequests] = useState({ sent: [], received: [] });
+  const [myRoommatePosts, setMyRoommatePosts] = useState([]);
   const [loadingRoommates, setLoadingRoommates] = useState(false);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const [showReviewModal, setShowReviewModal] = useState(null);
@@ -168,10 +169,12 @@ const DashboardPage = () => {
     if (activeTab === 'roommates') {
       setLoadingRoommates(true);
       Promise.all([
-        api.get('/roommates/requests/my').catch(() => ({ data: [] })),
-        api.get('/roommates/requests/received').catch(() => ({ data: [] }))
-      ]).then(([sentRes, receivedRes]) => {
-        setRoommateRequests({ sent: sentRes.data, received: receivedRes.data });
+        api.get('/roommates/requests/sent').catch(() => ({ data: [] })),
+        api.get('/roommates/requests/received').catch(() => ({ data: [] })),
+        api.get('/roommates/my').catch(() => ({ data: [] }))
+      ]).then(([sentRes, receivedRes, myPostsRes]) => {
+        setRoommateRequests({ sent: sentRes.data || [], received: receivedRes.data || [] });
+        setMyRoommatePosts(myPostsRes.data || []);
       }).finally(() => setLoadingRoommates(false));
     }
   }, [activeTab]);
@@ -1439,6 +1442,92 @@ const DashboardPage = () => {
                     <div className="flex justify-center py-12"><div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-600"></div></div>
                   ) : (
                     <div className="space-y-8">
+                      {/* My Roommate Postings */}
+                      <div>
+                        <div className="flex justify-between items-center mb-4 border-b pb-2">
+                          <h3 className="text-lg font-bold text-gray-900 dark:text-white">My Posted Roommate Listings ({myRoommatePosts.length})</h3>
+                          <Link to="/roommates" className="text-xs font-bold text-pink-600 hover:text-pink-700 bg-pink-50 px-3 py-1.5 rounded-xl border border-pink-200 flex items-center gap-1">
+                            + Post New / Browse
+                          </Link>
+                        </div>
+                        {myRoommatePosts.length === 0 ? (
+                          <div className="text-center py-8 bg-gray-50 dark:bg-slate-800 rounded-xl border border-gray-100 dark:border-white/5">
+                            <Home size={32} className="mx-auto text-gray-400 mb-2" />
+                            <p className="text-gray-500 text-sm">You haven't posted any roommate request yet.</p>
+                            <Link to="/roommates" className="inline-block mt-3 bg-pink-600 text-white font-bold text-xs px-4 py-2 rounded-xl">Post Roommate Request</Link>
+                          </div>
+                        ) : (
+                          <div className="space-y-4">
+                            {myRoommatePosts.map(post => (
+                              <div key={post.id} className="border border-gray-100 dark:border-white/10 rounded-2xl p-5 hover:shadow-lg transition-all duration-300 bg-white dark:bg-slate-800">
+                                <div className="flex justify-between items-start mb-3">
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <h4 className="font-bold text-gray-900 dark:text-white text-base">{post.location}</h4>
+                                      <span className="text-xs font-extrabold bg-blue-50 text-blue-700 px-2 py-0.5 rounded-full">{post.propertyType || 'Room'}</span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 mt-0.5">Total Rent: ₹{post.budget?.toLocaleString('en-IN')}/mo • Vacancies: {post.vacancies || 1}/{post.totalCapacity || 2}</p>
+                                  </div>
+                                  <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                                    post.status === 'ACTIVE' ? 'bg-green-100 text-green-700' :
+                                    post.status === 'FULFILLED' ? 'bg-amber-100 text-amber-700' :
+                                    'bg-gray-100 text-gray-700'
+                                  }`}>
+                                    {post.status}
+                                  </span>
+                                </div>
+                                <div className="flex gap-2 pt-3 border-t border-gray-100 dark:border-white/5">
+                                  <button
+                                    onClick={() => navigate('/roommates')}
+                                    className="flex-1 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-800 dark:text-gray-200 py-2 rounded-xl text-xs font-bold transition-colors"
+                                  >
+                                    View / Edit on Roommates Page
+                                  </button>
+                                  {post.status === 'ACTIVE' && (
+                                    <button
+                                      onClick={async () => {
+                                        try {
+                                          await api.put(`/roommates/${post.id}/status?status=FULFILLED`);
+                                          setMyRoommatePosts(prev => prev.map(p => p.id === post.id ? { ...p, status: 'FULFILLED' } : p));
+                                          showModal({ type: 'alert', title: 'Marked Fulfilled', message: 'Your post is now marked as fulfilled!', onConfirm: closeModal });
+                                        } catch {
+                                          showModal({ type: 'alert', title: 'Error', message: 'Failed to update status.', onConfirm: closeModal });
+                                        }
+                                      }}
+                                      className="bg-green-50 hover:bg-green-100 text-green-700 px-4 py-2 rounded-xl text-xs font-bold transition-colors border border-green-200"
+                                    >
+                                      Got a Mate!
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => {
+                                      showModal({
+                                        type: 'confirm',
+                                        title: 'Delete Post',
+                                        message: 'Permanently delete your roommate post?',
+                                        onConfirm: async () => {
+                                          closeModal();
+                                          try {
+                                            await api.delete(`/roommates/${post.id}`);
+                                            setMyRoommatePosts(prev => prev.filter(p => p.id !== post.id));
+                                          } catch {
+                                            showModal({ type: 'alert', title: 'Error', message: 'Failed to delete post.', onConfirm: closeModal });
+                                          }
+                                        },
+                                        onCancel: closeModal
+                                      });
+                                    }}
+                                    className="bg-red-50 hover:bg-red-100 text-red-600 px-3 py-2 rounded-xl text-xs font-bold transition-colors border border-red-200"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
                       {/* Received Requests */}
                       <div>
                         <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-4 border-b pb-2">Received Requests</h3>

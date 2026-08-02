@@ -95,7 +95,6 @@ public class RoommateController {
 
     @GetMapping("/requests/all")
     public ResponseEntity<List<RoommateRequestDTO>> getAllRequests() {
-        // Assume security configuration ensures only admins can hit this endpoint or handle here
         List<RoommateRequestDTO> requests = service.getAllRequests();
         return ResponseEntity.ok(requests);
     }
@@ -134,5 +133,12 @@ public class RoommateController {
             @RequestParam String status) {
         RoommatePostDTO updated = service.adminUpdatePostStatus(id, status);
         return ResponseEntity.ok(updated);
+    }
+
+    // ── Tenant: Get my posted roommate requests ─────────────────
+    @GetMapping("/my")
+    public ResponseEntity<List<RoommatePostDTO>> getMyPosts(Authentication authentication) {
+        List<RoommatePostDTO> posts = service.getMyPosts(authentication.getName());
+        return ResponseEntity.ok(posts);
     }
 }

@@ -16,4 +16,7 @@ public interface RoommatePostRepository extends JpaRepository<RoommatePost, Long
 
     @EntityGraph(attributePaths = {"user", "images"})
     Page<RoommatePost> findAll(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"user", "images"})
+    java.util.List<RoommatePost> findByUserEmailOrderByIdDesc(String email);
 }
