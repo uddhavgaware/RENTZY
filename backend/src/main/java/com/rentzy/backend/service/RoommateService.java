@@ -230,13 +230,19 @@ public class RoommateService {
     public void deletePost(Long id, String userEmail) {
         RoommatePost post = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        // Only allow the creator to delete their own post
-        if (!post.getUser().getEmail().equals(userEmail)) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean isCreator = post.getUser().getId().equals(user.getId()) || post.getUser().getEmail().equalsIgnoreCase(userEmail);
+        boolean isAdmin = user.getRole() != null && "ADMIN".equalsIgnoreCase(user.getRole().name());
+
+        if (!isCreator && !isAdmin) {
             throw new RuntimeException("Not authorized to delete this post");
         }
+
         // Delete all requests referencing this post to avoid foreign key violation
         requestRepository.deleteByPost(post);
-        repository.deleteById(id);
+        repository.delete(post);
     }
 
     @Transactional
