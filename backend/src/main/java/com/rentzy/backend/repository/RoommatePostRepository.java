@@ -19,4 +19,12 @@ public interface RoommatePostRepository extends JpaRepository<RoommatePost, Long
 
     @EntityGraph(attributePaths = {"user", "images"})
     java.util.List<RoommatePost> findByUserEmailOrderByIdDesc(String email);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query(value = "DELETE FROM roommate_post_photos WHERE roommate_post_id = ?1", nativeQuery = true)
+    void deleteImagesByPostId(Long id);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query(value = "DELETE FROM roommate_post_preferences WHERE roommate_post_id = ?1", nativeQuery = true)
+    void deletePreferencesByPostId(Long id);
 }

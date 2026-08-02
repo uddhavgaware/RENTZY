@@ -240,14 +240,11 @@ public class RoommateService {
             throw new RuntimeException("Not authorized to delete this post");
         }
 
-        // Clear all ElementCollection child rows first (roommate_post_photos/images/preferences)
-        // to prevent FK constraint violations on delete
-        if (post.getImages() != null) post.getImages().clear();
-        if (post.getPreferences() != null) post.getPreferences().clear();
-        repository.saveAndFlush(post);
-
         // Delete all requests referencing this post to avoid foreign key violation
         requestRepository.deleteByPost(post);
+        
+        repository.deleteImagesByPostId(id);
+        repository.deletePreferencesByPostId(id);
         repository.delete(post);
     }
 
@@ -441,12 +438,9 @@ public class RoommateService {
         // Delete associated requests first
         RoommatePost post = repository.findById(id).orElseThrow();
 
-        // Clear ElementCollection child rows to prevent FK violations
-        if (post.getImages() != null) post.getImages().clear();
-        if (post.getPreferences() != null) post.getPreferences().clear();
-        repository.saveAndFlush(post);
-
         requestRepository.deleteByPost(post);
+        repository.deleteImagesByPostId(id);
+        repository.deletePreferencesByPostId(id);
         repository.deleteById(id);
     }
 
