@@ -234,7 +234,22 @@ public class RoommateService {
         if (!post.getUser().getEmail().equals(userEmail)) {
             throw new RuntimeException("Not authorized to delete this post");
         }
+        // Delete all requests referencing this post to avoid foreign key violation
+        requestRepository.deleteByPost(post);
         repository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteRequest(Long requestId, String userEmail) {
+        RoommateRequest request = requestRepository.findById(requestId)
+                .orElseThrow(() -> new RuntimeException("Request not found"));
+        User currentUser = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if (!request.getSender().getId().equals(currentUser.getId()) && 
+            !request.getReceiver().getId().equals(currentUser.getId())) {
+            throw new RuntimeException("Not authorized to delete this request");
+        }
+        requestRepository.deleteById(requestId);
     }
 
     @Transactional

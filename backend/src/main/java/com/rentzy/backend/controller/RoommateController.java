@@ -93,6 +93,12 @@ public class RoommateController {
         return ResponseEntity.ok(requests);
     }
 
+    @DeleteMapping("/requests/{requestId}")
+    public ResponseEntity<Void> deleteRequest(@PathVariable Long requestId, Authentication authentication) {
+        service.deleteRequest(requestId, authentication.getName());
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping("/requests/all")
     public ResponseEntity<List<RoommateRequestDTO>> getAllRequests() {
         List<RoommateRequestDTO> requests = service.getAllRequests();
