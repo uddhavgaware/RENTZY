@@ -15,4 +15,5 @@ public interface RoommateRequestRepository extends JpaRepository<RoommateRequest
     List<RoommateRequest> findAllByOrderByCreatedAtDesc();
     boolean existsBySenderAndPostAndStatus(User sender, com.rentzy.backend.domain.RoommatePost post, String status);
     Optional<RoommateRequest> findBySenderAndPost(User sender, com.rentzy.backend.domain.RoommatePost post);
+    void deleteByPost(com.rentzy.backend.domain.RoommatePost post);
 }

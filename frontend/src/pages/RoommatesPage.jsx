@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, Minus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon, Map as MapIcon, List, Home, Building2 } from 'lucide-react';
+import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, Minus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon, Map as MapIcon, List, Home, Building2, Edit3, Eye, Check } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { divIcon } from 'leaflet';
@@ -358,6 +358,49 @@ const RoommatesPage = () => {
 
   const [cardMatches, setCardMatches] = useState({});
   const [analyzingCardId, setAnalyzingCardId] = useState(null);
+  const [editingPostId, setEditingPostId] = useState(null);
+  const [selectedDetailRoommate, setSelectedDetailRoommate] = useState(null);
+
+  const handleEditPost = (roommate) => {
+    setEditingPostId(roommate.id);
+    setPostFormData({
+      location: roommate.location || '',
+      buildingName: '',
+      areaName: roommate.location || '',
+      villageCityTown: '',
+      taluka: '',
+      district: '',
+      pincode: '',
+      budget: roommate.budget || '',
+      deposit: roommate.deposit || '',
+      preferences: roommate.preferences ? roommate.preferences.join(', ') : '',
+      vacancies: roommate.vacancies || 1,
+      totalCapacity: roommate.totalCapacity || 2,
+      targetOccupation: roommate.targetOccupation || 'Any',
+      targetGender: roommate.targetGender || 'Any',
+      maintenanceIncluded: roommate.maintenanceIncluded || false,
+      availableFrom: roommate.availableFrom || 'Immediately',
+      agePreference: roommate.agePreference || '',
+      dietaryPref: roommate.dietaryPref || 'Any',
+      smokingPref: roommate.smokingPref || 'Non-Smoking',
+      drinkingPref: roommate.drinkingPref || 'Non-Drinking',
+      petsPref: roommate.petsPref || 'No Pets',
+      sleepSchedule: roommate.sleepSchedule || 'Flexible',
+      cleanlinessLevel: roommate.cleanlinessLevel || 'Moderate',
+      images: roommate.images || [],
+      latitude: roommate.latitude || null,
+      longitude: roommate.longitude || null,
+      propertyType: roommate.propertyType || 'Room',
+      electricityBill: roommate.electricityBill || 'Not Included',
+      waterSupply: roommate.waterSupply || 'Not Included',
+      maintenance: roommate.maintenance || 'Not Included',
+      facing: roommate.facing || '',
+      areaSqft: roommate.areaSqft || '',
+      gender: roommate.gender || roommate.user?.gender || '',
+      flatSize: roommate.preferences?.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)) || '1BHK',
+    });
+    setIsModalOpen(true);
+  };
 
   const handleAnalyzeCardMatch = async (roommate) => {
     setAnalyzingCardId(roommate.id);
@@ -532,17 +575,24 @@ const RoommatesPage = () => {
       };
 
       setIsPosting(true);
-      await api.post('/roommates', payload);
+      if (editingPostId) {
+        await api.put(`/roommates/${editingPostId}`, payload);
+      } else {
+        await api.post('/roommates', payload);
+      }
       setIsPosting(false);
       setIsModalOpen(false);
+      const wasEditing = !!editingPostId;
+      setEditingPostId(null);
       setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Room', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
 
       showModal({
         type: 'alert',
         title: 'Success',
-        message: 'Roommate request posted successfully!',
+        message: wasEditing ? 'Roommate request updated successfully!' : 'Roommate request posted successfully!',
         onConfirm: () => {
-          window.location.reload();
+          fetchRoommates(0, false);
+          closeModal();
         }
       });
 
@@ -625,6 +675,7 @@ const RoommatesPage = () => {
       });
       return;
     }
+    setEditingPostId(null);
     setIsModalOpen(true);
   };
 
@@ -1228,11 +1279,14 @@ const RoommatesPage = () => {
                           </div>
                           {/* Actions for own post */}
                           {isOwner && (
-                            <div className="flex gap-2">
-                              <button onClick={() => handleGotAMate(roommate.id)} className="p-2 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors flex items-center justify-center font-bold text-xs" title="Found Roommate (Close Post)">
+                            <div className="flex gap-1.5 flex-wrap justify-end">
+                              <button onClick={() => handleEditPost(roommate)} className="px-2.5 py-1.5 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors flex items-center gap-1 font-bold text-xs shadow-sm" title="Edit Post">
+                                <Edit3 size={14} /> Edit
+                              </button>
+                              <button onClick={() => handleGotAMate(roommate.id)} className="px-2.5 py-1.5 text-green-600 bg-green-50 hover:bg-green-100 rounded-lg transition-colors flex items-center justify-center font-bold text-xs shadow-sm" title="Found Roommate (Close Post)">
                                 Got a Mate!
                               </button>
-                              <button onClick={() => handleDeletePost(roommate.id)} className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete Post">
+                              <button onClick={() => handleDeletePost(roommate.id)} className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete Post">
                                 <Trash2 size={16} />
                               </button>
                             </div>
@@ -1934,16 +1988,134 @@ const RoommatesPage = () => {
 
               </div>
               <div className="p-6 bg-gray-50 border-t border-gray-100 flex gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-3 px-4 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors">Cancel</button>
+                <button type="button" onClick={() => { setIsModalOpen(false); setEditingPostId(null); }} className="flex-1 py-3 px-4 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition-colors">Cancel</button>
                 <button type="submit" disabled={submitting} className={`flex-1 py-3 px-4 text-white rounded-xl font-bold transition-colors shadow-md shadow-primary-600/20 flex items-center justify-center gap-2 ${submitting ? 'bg-primary-400 cursor-not-allowed' : 'bg-primary-600 hover:bg-primary-700'}`}>
                   {submitting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
-                  {submitting ? 'Posting...' : 'Post Request'}
+                  {submitting ? 'Saving...' : (editingPostId ? 'Update Request' : 'Post Request')}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* Full Detail Roommate Modal (Mobile & Tap-to-expand) */}
+      {selectedDetailRoommate && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl border border-gray-100 relative animate-scaleIn">
+            <button
+              onClick={() => setSelectedDetailRoommate(null)}
+              className="absolute top-4 right-4 z-10 w-9 h-9 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full flex items-center justify-center font-bold text-lg transition-colors"
+            >
+              ×
+            </button>
+
+            {/* Header / Cover */}
+            <div className="p-6 bg-gradient-to-r from-primary-600 via-indigo-600 to-purple-600 text-white rounded-t-3xl relative">
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 bg-white text-primary-700 rounded-2xl flex items-center justify-center font-bold text-2xl border-2 border-white shadow-lg overflow-hidden flex-shrink-0">
+                  {selectedDetailRoommate.user?.profilePhoto ? (
+                    <img src={selectedDetailRoommate.user.profilePhoto} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    selectedDetailRoommate.user?.name?.charAt(0) || 'U'
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl font-black flex items-center gap-2">
+                    {maskName(selectedDetailRoommate.user?.name) || 'User'}
+                    {selectedDetailRoommate.user?.isVerified && <BadgeCheck size={20} className="text-blue-300" />}
+                  </h2>
+                  <p className="text-xs text-primary-100 mt-0.5">{selectedDetailRoommate.location}</p>
+                  <div className="flex gap-2 mt-2">
+                    {selectedDetailRoommate.gender && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">
+                        👤 {selectedDetailRoommate.gender}
+                      </span>
+                    )}
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/20 text-white">
+                      🏠 {selectedDetailRoommate.propertyType || 'Room'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Images Carousel */}
+              {selectedDetailRoommate.images && selectedDetailRoommate.images.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-black uppercase text-gray-400 mb-2">Photos</h4>
+                  <div className="flex gap-2 overflow-x-auto pb-2">
+                    {selectedDetailRoommate.images.map((img, idx) => (
+                      <img key={idx} src={img} alt="" className="w-40 h-28 object-cover rounded-xl border border-gray-200 shadow-sm flex-shrink-0" />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Financials */}
+              <div className="grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                <div>
+                  <span className="text-[11px] font-bold text-gray-400 block uppercase">Total Rent</span>
+                  <span className="text-lg font-black text-gray-900">₹{selectedDetailRoommate.budget?.toLocaleString('en-IN') || 'N/A'}<span className="text-xs font-normal text-gray-500">/mo</span></span>
+                </div>
+                <div>
+                  <span className="text-[11px] font-bold text-gray-400 block uppercase">Deposit</span>
+                  <span className="text-lg font-black text-gray-900">₹{selectedDetailRoommate.deposit?.toLocaleString('en-IN') || '0'}</span>
+                </div>
+                {selectedDetailRoommate.totalCapacity > 1 && (
+                  <div className="col-span-2 pt-2 border-t border-gray-200 flex justify-between items-center text-xs font-bold text-emerald-700">
+                    <span>Per Head Rent Split ({selectedDetailRoommate.totalCapacity} members):</span>
+                    <span className="text-base font-black">₹{Math.round(selectedDetailRoommate.budget / selectedDetailRoommate.totalCapacity).toLocaleString('en-IN')} / mo</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Details & Specs */}
+              <div>
+                <h4 className="text-xs font-black uppercase text-gray-400 mb-3">Preferences & Lifestyle</h4>
+                <div className="flex flex-wrap gap-2 text-xs font-medium">
+                  {selectedDetailRoommate.availableFrom && <span className="bg-green-50 text-green-700 px-3 py-1 rounded-full border border-green-200">⏱ Move-in: {selectedDetailRoommate.availableFrom}</span>}
+                  {selectedDetailRoommate.targetOccupation && <span className="bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200">Prefers {selectedDetailRoommate.targetOccupation}</span>}
+                  {selectedDetailRoommate.targetGender && selectedDetailRoommate.targetGender !== 'Any' && <span className="bg-pink-50 text-pink-700 px-3 py-1 rounded-full border border-pink-200">Prefers {selectedDetailRoommate.targetGender}</span>}
+                  {selectedDetailRoommate.dietaryPref && <span className="bg-orange-50 text-orange-700 px-3 py-1 rounded-full border border-orange-200">Diet: {selectedDetailRoommate.dietaryPref}</span>}
+                  {selectedDetailRoommate.smokingPref && <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full border border-gray-200">{selectedDetailRoommate.smokingPref}</span>}
+                  {selectedDetailRoommate.drinkingPref && <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full border border-gray-200">{selectedDetailRoommate.drinkingPref}</span>}
+                  {selectedDetailRoommate.sleepSchedule && <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full border border-gray-200">Sleep: {selectedDetailRoommate.sleepSchedule}</span>}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3 pt-4 border-t border-gray-100">
+                <button
+                  onClick={() => {
+                    setSelectedDetailRoommate(null);
+                    handleSendRequest(selectedDetailRoommate.id);
+                  }}
+                  className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 rounded-xl shadow-md transition-all active:scale-95 text-sm"
+                >
+                  Send Roommate Request
+                </button>
+                <button
+                  onClick={() => {
+                    const recipientId = selectedDetailRoommate.user?.id;
+                    setSelectedDetailRoommate(null);
+                    if (!isAuthenticated) {
+                      showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') });
+                      return;
+                    }
+                    navigate(`/messages?user=${recipientId}`);
+                  }}
+                  className="flex-1 bg-gray-900 hover:bg-black text-white font-bold py-3 rounded-xl shadow-md transition-all active:scale-95 text-sm flex items-center justify-center gap-2"
+                >
+                  <MessageCircle size={16} /> Direct Message
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Modal {...modalConfig} onCancel={closeModal} />
     </>
   );

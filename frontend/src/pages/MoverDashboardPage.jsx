@@ -573,7 +573,7 @@ const MoverDashboardPage = () => {
   const activeBlockingJob = myJobs.find(j => j.status === 'IN_TRANSIT' || j.status === 'ASSIGNED');
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-16">
+    <div className="bg-gray-50 dark:bg-slate-900 min-h-screen pb-16 transition-colors">
       {/* ── Sticky Header & Tabs ── */}
       <div className="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-white/5 sticky top-16 z-30 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">

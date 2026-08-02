@@ -58,6 +58,8 @@ const AdminDashboardPage = () => {
   const [bookings, setBookings] = useState([]);
   const [movingRequests, setMovingRequests] = useState([]);
   const [roommateRequests, setRoommateRequests] = useState([]);
+  const [roommatePosts, setRoommatePosts] = useState([]);
+  const [roommateSubTab, setRoommateSubTab] = useState('posts');
   const [stats, setStats] = useState({ users: 0, listings: 0, bookings: 0 });
   const [analytics, setAnalytics] = useState(null);
   const [dataLoading, setDataLoading] = useState(true);
@@ -88,14 +90,15 @@ const AdminDashboardPage = () => {
     const fetchAll = async () => {
       setDataLoading(true);
       try {
-        const [usersRes, listingsRes, bookingsRes, statsRes, analyticsRes, movingRes, roommateRequestsRes] = await Promise.all([
+        const [usersRes, listingsRes, bookingsRes, statsRes, analyticsRes, movingRes, roommateRequestsRes, roommatePostsRes] = await Promise.all([
           api.get('/admin/users'),
           api.get('/admin/listings'),
           api.get('/admin/bookings'),
           api.get('/admin/stats'),
           api.get('/admin/analytics'),
           api.get('/moving/admin/all'),
-          api.get('/roommates/requests/all').catch(() => ({ data: [] }))
+          api.get('/roommates/requests/all').catch(() => ({ data: [] })),
+          api.get('/roommates/posts/all').catch(() => ({ data: [] }))
         ]);
         setUsers(usersRes.data);
         setListings(listingsRes.data);
@@ -104,6 +107,7 @@ const AdminDashboardPage = () => {
         setAnalytics(analyticsRes.data);
         setMovingRequests(movingRes.data);
         setRoommateRequests(roommateRequestsRes.data);
+        setRoommatePosts(roommatePostsRes.data);
         setError(null);
       } catch (err) {
         console.error('Admin fetch error', err);
@@ -353,6 +357,34 @@ const AdminDashboardPage = () => {
       },
       onCancel: closeModal
     });
+  };
+
+  const deleteRoommatePost = (id) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Roommate Post',
+      message: 'This will permanently delete this roommate post and all its associated requests. Continue?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/roommates/admin/${id}`);
+          setRoommatePosts(prev => prev.filter(p => p.id !== id));
+          showModal({ type: 'alert', title: 'Deleted', message: 'Post deleted successfully.', onConfirm: closeModal });
+        } catch (err) {
+          setError(err.response?.data?.message || 'Failed to delete roommate post.');
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  const updateRoommatePostStatus = async (id, status) => {
+    try {
+      const res = await api.put(`/roommates/${id}/admin-status?status=${status}`);
+      setRoommatePosts(prev => prev.map(p => p.id === id ? { ...p, status: res.data.status } : p));
+    } catch (err) {
+      setError(err.response?.data?.message || 'Failed to update post status.');
+    }
   };
 
   const deleteBooking = (id) => {
@@ -1225,65 +1257,160 @@ const AdminDashboardPage = () => {
 
             {/* Roommate Requests Tab */}
             {activeTab === 'roommates' && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden mt-6">
-                <div className="p-6 border-b border-gray-100 dark:border-white/10">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <Users size={20} className="text-primary-600" /> All Roommate Requests ({roommateRequests.length})
-                  </h2>
+              <div className="space-y-6">
+                {/* Sub-tabs for Posts vs Requests */}
+                <div className="flex gap-3">
+                  <button onClick={() => setRoommateSubTab('posts')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${roommateSubTab === 'posts' ? 'bg-primary-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 hover:bg-gray-50'}`}>
+                    📋 All Posts ({roommatePosts.length})
+                  </button>
+                  <button onClick={() => setRoommateSubTab('requests')} className={`px-5 py-2.5 rounded-xl text-sm font-bold transition-all ${roommateSubTab === 'requests' ? 'bg-primary-600 text-white shadow-md' : 'bg-white dark:bg-slate-800 text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-white/10 hover:bg-gray-50'}`}>
+                    💌 All Requests ({roommateRequests.length})
+                  </button>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-slate-700/50">
-                      <tr>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sender</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Receiver</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Post Details</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                      {roommateRequests.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="text-center py-12 text-gray-400">No roommate requests found.</td>
-                        </tr>
-                      ) : roommateRequests.map(r => (
-                        <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
-                          <td className="px-6 py-4">
-                            <p className="font-medium text-gray-900 dark:text-white">{r.sender?.name}</p>
-                            <p className="text-xs text-gray-500">{r.sender?.email}</p>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="font-medium text-gray-900 dark:text-white">{r.receiver?.name}</p>
-                            <p className="text-xs text-gray-500">{r.receiver?.email}</p>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-200">ID: {r.postId}</p>
-                            <p className="text-xs text-gray-500">{r.postLocation} ({r.postPropertyType})</p>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                              r.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
-                              r.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                              r.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
-                              'bg-yellow-100 text-yellow-700'
-                            }`}>
-                              {r.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col items-start gap-2">
-                              <span className="text-sm text-gray-500">
-                                {new Date(r.createdAt).toLocaleDateString()}
-                              </span>
-                              <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-medium hover:bg-red-100 flex items-center gap-1"><Trash2 size={12} /> Delete</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+
+                {/* Posts Section */}
+                {roommateSubTab === 'posts' && (
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between">
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Home size={20} className="text-primary-600" /> All Roommate Posts
+                      </h2>
+                      <div className="flex items-center gap-3 text-xs font-bold">
+                        <span className="bg-green-50 text-green-700 px-2.5 py-1 rounded-lg">{roommatePosts.filter(p => p.status === 'ACTIVE').length} Active</span>
+                        <span className="bg-amber-50 text-amber-700 px-2.5 py-1 rounded-lg">{roommatePosts.filter(p => p.status === 'FULFILLED').length} Fulfilled</span>
+                        <span className="bg-gray-100 text-gray-600 px-2.5 py-1 rounded-lg">{roommatePosts.filter(p => p.status === 'INACTIVE').length} Inactive</span>
+                      </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 dark:bg-slate-700/50">
+                          <tr>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">User</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Location</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Budget</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Details</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                          {roommatePosts.length === 0 ? (
+                            <tr><td colSpan={6} className="text-center py-12 text-gray-400">No roommate posts found.</td></tr>
+                          ) : roommatePosts.map(p => (
+                            <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                              <td className="px-5 py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-9 h-9 bg-gradient-to-br from-primary-100 to-primary-200 text-primary-700 rounded-xl flex items-center justify-center font-bold text-sm overflow-hidden flex-shrink-0">
+                                    {p.user?.profilePhoto ? <img src={p.user.profilePhoto} alt="" className="w-full h-full object-cover" /> : (p.user?.name?.charAt(0) || 'U')}
+                                  </div>
+                                  <div>
+                                    <p className="font-bold text-gray-900 dark:text-white text-sm">{p.user?.name || 'Unknown'}</p>
+                                    <p className="text-[11px] text-gray-500">{p.user?.email || 'N/A'}</p>
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-5 py-4">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-200 truncate max-w-[200px]">{p.location || 'N/A'}</p>
+                                <p className="text-[11px] text-gray-500">{p.propertyType || 'Room'} {p.gender && `• ${p.gender}`}</p>
+                              </td>
+                              <td className="px-5 py-4">
+                                <p className="font-bold text-primary-600 text-sm">₹{p.budget?.toLocaleString('en-IN') || 'N/A'}/mo</p>
+                                {p.deposit > 0 && <p className="text-[11px] text-gray-500">Deposit: ₹{p.deposit?.toLocaleString('en-IN')}</p>}
+                              </td>
+                              <td className="px-5 py-4">
+                                <div className="flex flex-wrap gap-1">
+                                  {p.vacancies && <span className="text-[10px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded font-bold">{p.vacancies} vacancy</span>}
+                                  {p.targetGender && p.targetGender !== 'Any' && <span className="text-[10px] bg-pink-50 text-pink-700 px-1.5 py-0.5 rounded font-bold">For: {p.targetGender}</span>}
+                                  {p.dietaryPref && p.dietaryPref !== 'Any' && <span className="text-[10px] bg-green-50 text-green-700 px-1.5 py-0.5 rounded font-bold">{p.dietaryPref}</span>}
+                                </div>
+                              </td>
+                              <td className="px-5 py-4">
+                                <select
+                                  value={p.status}
+                                  onChange={(e) => updateRoommatePostStatus(p.id, e.target.value)}
+                                  className={`text-xs font-bold px-2.5 py-1.5 rounded-lg border outline-none cursor-pointer transition-colors ${
+                                    p.status === 'ACTIVE' ? 'bg-green-50 text-green-700 border-green-200' :
+                                    p.status === 'FULFILLED' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                                    'bg-gray-100 text-gray-600 border-gray-200'
+                                  }`}
+                                >
+                                  <option value="ACTIVE">ACTIVE</option>
+                                  <option value="FULFILLED">FULFILLED</option>
+                                  <option value="INACTIVE">INACTIVE</option>
+                                </select>
+                              </td>
+                              <td className="px-5 py-4">
+                                <button onClick={() => deleteRoommatePost(p.id)} className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 flex items-center gap-1 transition-colors">
+                                  <Trash2 size={12} /> Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* Requests Section */}
+                {roommateSubTab === 'requests' && (
+                  <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden">
+                    <div className="p-6 border-b border-gray-100 dark:border-white/10">
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <Users size={20} className="text-primary-600" /> All Roommate Requests ({roommateRequests.length})
+                      </h2>
+                    </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-gray-50 dark:bg-slate-700/50">
+                          <tr>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sender</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Receiver</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Post Details</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                            <th className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                          {roommateRequests.length === 0 ? (
+                            <tr><td colSpan={5} className="text-center py-12 text-gray-400">No roommate requests found.</td></tr>
+                          ) : roommateRequests.map(r => (
+                            <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                              <td className="px-5 py-4">
+                                <p className="font-medium text-gray-900 dark:text-white text-sm">{r.sender?.name}</p>
+                                <p className="text-[11px] text-gray-500">{r.sender?.email}</p>
+                              </td>
+                              <td className="px-5 py-4">
+                                <p className="font-medium text-gray-900 dark:text-white text-sm">{r.receiver?.name}</p>
+                                <p className="text-[11px] text-gray-500">{r.receiver?.email}</p>
+                              </td>
+                              <td className="px-5 py-4">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-200">#{r.postId}</p>
+                                <p className="text-[11px] text-gray-500">{r.postLocation} • {r.postPropertyType}</p>
+                              </td>
+                              <td className="px-5 py-4">
+                                <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                  r.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                  r.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                  r.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
+                                  'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                  {r.status}
+                                </span>
+                              </td>
+                              <td className="px-5 py-4">
+                                <div className="flex flex-col items-start gap-2">
+                                  <span className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</span>
+                                  <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs bg-red-50 text-red-600 px-2.5 py-1 rounded-lg font-bold hover:bg-red-100 flex items-center gap-1 transition-colors"><Trash2 size={12} /> Delete</button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 

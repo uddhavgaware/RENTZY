@@ -99,5 +99,40 @@ public class RoommateController {
         List<RoommateRequestDTO> requests = service.getAllRequests();
         return ResponseEntity.ok(requests);
     }
-}
 
+    // ── Tenant: Update own post ────────────────────────────────
+    @PutMapping("/{id}")
+    @CacheEvict(value = "roommates", allEntries = true)
+    public ResponseEntity<RoommatePostDTO> updatePost(
+            @PathVariable Long id,
+            @RequestBody RoommatePostRequest request,
+            Authentication authentication) {
+        RoommatePostDTO updated = service.updatePost(id, request, authentication.getName());
+        return ResponseEntity.ok(updated);
+    }
+
+    // ── Admin: Get all posts (regardless of status) ────────────
+    @GetMapping("/posts/all")
+    public ResponseEntity<List<RoommatePostDTO>> getAllPostsAdmin() {
+        List<RoommatePostDTO> posts = service.getAllPostsAdmin();
+        return ResponseEntity.ok(posts);
+    }
+
+    // ── Admin: Delete any post ─────────────────────────────────
+    @DeleteMapping("/admin/{id}")
+    @CacheEvict(value = "roommates", allEntries = true)
+    public ResponseEntity<Void> adminDeletePost(@PathVariable Long id) {
+        service.adminDeletePost(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ── Admin: Update any post's status ────────────────────────
+    @PutMapping("/{id}/admin-status")
+    @CacheEvict(value = "roommates", allEntries = true)
+    public ResponseEntity<RoommatePostDTO> adminUpdatePostStatus(
+            @PathVariable Long id,
+            @RequestParam String status) {
+        RoommatePostDTO updated = service.adminUpdatePostStatus(id, status);
+        return ResponseEntity.ok(updated);
+    }
+}

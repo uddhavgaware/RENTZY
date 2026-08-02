@@ -349,6 +349,87 @@ public class RoommateService {
                 .stream().map(this::toRequestDTO).collect(Collectors.toList());
     }
 
+    @Transactional
+    public RoommatePostDTO updatePost(Long id, RoommatePostRequest request, String userEmail) {
+        RoommatePost post = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        if (!post.getUser().getEmail().equals(userEmail)) {
+            throw new RuntimeException("Not authorized to update this post");
+        }
+        post.setLocation(request.getLocation());
+        post.setBudget(request.getBudget());
+        post.setDeposit(request.getDeposit());
+        post.setPropertyType(request.getPropertyType());
+        post.setLatitude(request.getLatitude());
+        post.setLongitude(request.getLongitude());
+        post.setVacancies(request.getVacancies());
+        post.setTotalCapacity(request.getTotalCapacity());
+        post.setPreferences(request.getPreferences());
+        post.setGender(request.getGender());
+        post.setTargetOccupation(request.getTargetOccupation());
+        post.setTargetGender(request.getTargetGender());
+        post.setMaintenanceIncluded(request.getMaintenanceIncluded());
+        post.setAvailableFrom(request.getAvailableFrom());
+        post.setAgePreference(request.getAgePreference());
+        post.setDietaryPref(request.getDietaryPref());
+        post.setSmokingPref(request.getSmokingPref());
+        post.setDrinkingPref(request.getDrinkingPref());
+        post.setPetsPref(request.getPetsPref());
+        post.setSleepSchedule(request.getSleepSchedule());
+        post.setCleanlinessLevel(request.getCleanlinessLevel());
+        post.setElectricityBill(request.getElectricityBill());
+        post.setWaterSupply(request.getWaterSupply());
+        post.setMaintenance(request.getMaintenance());
+        post.setFacing(request.getFacing());
+        post.setAreaSqft(request.getAreaSqft());
+
+        // Handle images — upload new base64 ones
+        if (request.getImages() != null) {
+            List<String> processedImages = request.getImages().stream().map(image -> {
+                if (image != null && image.startsWith("data:image")) {
+                    try {
+                        return cloudinaryService.uploadBase64(image);
+                    } catch (Exception e) {
+                        return null;
+                    }
+                }
+                return image;
+            }).filter(img -> img != null).collect(Collectors.toList());
+            post.setImages(processedImages);
+        }
+
+        RoommatePost saved = repository.save(post);
+        return RoommatePostDTO.fromEntity(saved);
+    }
+
+    @Transactional
+    public void adminDeletePost(Long id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Post not found");
+        }
+        // Delete associated requests first
+        RoommatePost post = repository.findById(id).orElseThrow();
+        requestRepository.deleteByPost(post);
+        repository.deleteById(id);
+    }
+
+    @Transactional
+    public RoommatePostDTO adminUpdatePostStatus(Long id, String status) {
+        RoommatePost post = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+        post.setStatus(status);
+        RoommatePost saved = repository.save(post);
+        return RoommatePostDTO.fromEntity(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoommatePostDTO> getAllPostsAdmin() {
+        return repository.findAll(org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Direction.DESC, "id"))
+                .stream()
+                .map(RoommatePostDTO::fromEntity)
+                .collect(Collectors.toList());
+    }
+
     private RoommateRequestDTO toRequestDTO(RoommateRequest req) {
         RoommateUserDTO senderDto = RoommateUserDTO.builder()
             .id(req.getSender().getId())

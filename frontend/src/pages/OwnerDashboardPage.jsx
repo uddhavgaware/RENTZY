@@ -281,7 +281,7 @@ const OwnerDashboardPage = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex gap-3 mb-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-2 rounded-2xl border border-white/50 dark:border-white/10 shadow-sm w-fit">
+        <div className="flex gap-3 mb-8 bg-white/70 dark:bg-slate-800/70 backdrop-blur-xl p-2 rounded-2xl border border-white/50 dark:border-white/10 shadow-sm w-full max-w-full overflow-x-auto hide-scrollbar">
           <button
             onClick={() => setActiveTab('properties')}
             className={`px-5 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'properties' ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700'}`}
