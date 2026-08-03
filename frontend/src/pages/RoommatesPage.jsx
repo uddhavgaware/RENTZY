@@ -1487,7 +1487,7 @@ const RoommatesPage = () => {
                                       <span className="text-base block mb-0.5">{util.icon}</span>
                                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block leading-none mb-1">{util.label}</span>
                                       <span className={`text-[11px] font-black ${util.value === 'Included' || util.value === '24 Hrs Water' ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                        {util.value === 'Included' || util.value === '24 Hrs Water' ? (util.label === 'Water' ? '24 Hrs' : 'Included') : 'Not Incl.'}
+                                        {util.value === 'Included' || util.value === '24 Hrs Water' ? (util.label === 'Water' ? '24 Hrs Water' : 'Included') : 'Not Incl.'}
                                       </span>
                                     </div>
                                   ))}
