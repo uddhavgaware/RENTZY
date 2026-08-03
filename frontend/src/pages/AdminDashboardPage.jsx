@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Home, BarChart3, Trash2, ShieldCheck, TrendingUp, DollarSign, AlertCircle, BadgeCheck, Truck, MapPin, ChevronDown, ChevronRight } from 'lucide-react';
+import { Users, Home, BarChart3, Trash2, ShieldCheck, TrendingUp, DollarSign, AlertCircle, BadgeCheck, Truck, MapPin, ChevronDown, ChevronRight, Mail, Send, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -72,6 +72,15 @@ const AdminDashboardPage = () => {
   const [selectedCity, setSelectedCity] = useState('All');
   const [selectedMovingRequestForMap, setSelectedMovingRequestForMap] = useState(null);
   const [isSatellite, setIsSatellite] = useState(false);
+
+  // Email Blast State
+  const [emailTarget, setEmailTarget] = useState('all'); // 'all' | 'specific'
+  const [emailTargetAddress, setEmailTargetAddress] = useState('');
+  const [emailCategory, setEmailCategory] = useState('welcome');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [emailBody, setEmailBody] = useState('');
+  const [emailSending, setEmailSending] = useState(false);
+  const [emailResult, setEmailResult] = useState(null);
 
   const showModal = (config) => setModalConfig({ ...config, isOpen: true });
   const closeModal = () => {
@@ -435,6 +444,7 @@ const AdminDashboardPage = () => {
     { id: 'moving', label: 'Movers', icon: Truck },
     { id: 'roommates', label: 'Roommates', icon: Users },
     { id: 'regions', label: 'Regions', icon: MapPin },
+    { id: 'email-blast', label: 'Email Blast', icon: Mail },
   ];
 
   // ── India Regions Data ──────────────────────────────────────────────────────
@@ -1838,6 +1848,165 @@ const AdminDashboardPage = () => {
               <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500"></div> Drop</div>
               <div className="flex items-center gap-2"><div className="w-6 border-b-2 border-dashed border-blue-500"></div> Route</div>
             </div>
+          </div>
+        </div>
+      )}
+      {/* ─── Email Blast Tab ──────────────────────────────────────────────── */}
+      {activeTab === 'email-blast' && (
+        <div className="space-y-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-md">
+              <Mail size={20} className="text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Admin Email Blast</h2>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Send categorized emails to specific users or all users at once</p>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-slate-800 rounded-3xl border border-gray-100 dark:border-white/10 shadow-sm p-8 space-y-7">
+
+            {/* Category Picker */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">📂 Email Category</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { id: 'welcome', label: '👋 Welcome', desc: 'Onboarding / greeting email' },
+                  { id: 'profile_reminder', label: '📋 Profile Reminder', desc: 'Nudge to complete profile' },
+                  { id: 'security', label: '🔒 Security Alert', desc: 'Security or login notice' },
+                  { id: 'promotion', label: '🎉 Promotion', desc: 'Offer / discount / feature launch' },
+                  { id: 'announcement', label: '📢 Announcement', desc: 'Platform news or update' },
+                  { id: 'custom', label: '✍️ Custom', desc: 'Write your own email' },
+                ].map(cat => (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      setEmailCategory(cat.id);
+                      setEmailResult(null);
+                      const subjects = {
+                        welcome: 'Welcome to RentXY — Your journey begins here! 🏠',
+                        profile_reminder: '📋 Complete your RentXY profile for better matches',
+                        security: '🔒 Important Security Notice from RentXY',
+                        promotion: '🎉 Special Offer Just for You — RentXY',
+                        announcement: '📢 Big News from RentXY!',
+                        custom: '',
+                      };
+                      setEmailSubject(subjects[cat.id]);
+                    }}
+                    className={`p-3 rounded-xl border-2 text-left transition-all ${
+                      emailCategory === cat.id
+                        ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30'
+                        : 'border-gray-200 dark:border-white/10 hover:border-indigo-300'
+                    }`}
+                  >
+                    <p className="font-bold text-sm text-gray-800 dark:text-white">{cat.label}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{cat.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Target Picker */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">🎯 Send To</label>
+              <div className="flex gap-3 flex-wrap">
+                {[
+                  { id: 'all', label: '👥 All Users', desc: `${users.length} users` },
+                  { id: 'incomplete', label: '⚠️ Incomplete Profiles', desc: "Users who haven't finished setup" },
+                  { id: 'specific', label: '📧 Specific Email', desc: 'Single user or address' },
+                ].map(t => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => { setEmailTarget(t.id); setEmailResult(null); }}
+                    className={`px-4 py-3 rounded-xl border-2 text-left transition-all ${
+                      emailTarget === t.id
+                        ? 'border-green-500 bg-green-50 dark:bg-green-900/20'
+                        : 'border-gray-200 dark:border-white/10 hover:border-green-300'
+                    }`}
+                  >
+                    <p className="font-bold text-sm text-gray-800 dark:text-white">{t.label}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{t.desc}</p>
+                  </button>
+                ))}
+              </div>
+              {emailTarget === 'specific' && (
+                <input
+                  type="email"
+                  value={emailTargetAddress}
+                  onChange={e => setEmailTargetAddress(e.target.value)}
+                  placeholder="Enter email address (e.g. user@gmail.com)..."
+                  className="mt-3 w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+              )}
+            </div>
+
+            {/* Subject */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">📝 Subject</label>
+              <input
+                type="text"
+                value={emailSubject}
+                onChange={e => setEmailSubject(e.target.value)}
+                placeholder="Email subject line..."
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Body */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
+                💬 Message Body <span className="font-normal text-gray-400">(optional — leave blank to use default template)</span>
+              </label>
+              <textarea
+                value={emailBody}
+                onChange={e => setEmailBody(e.target.value)}
+                rows={6}
+                placeholder={`Write your custom message here, or leave blank to use the default '${emailCategory}' template...`}
+                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              />
+            </div>
+
+            {/* Result Banner */}
+            {emailResult && (
+              <div className={`flex items-center gap-3 p-4 rounded-xl border ${
+                emailResult.success
+                  ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-700 dark:text-green-300'
+                  : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-700 dark:text-red-300'
+              }`}>
+                {emailResult.success ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+                <p className="text-sm font-semibold">{emailResult.message}</p>
+              </div>
+            )}
+
+            {/* Send Button */}
+            <button
+              type="button"
+              disabled={emailSending || (emailTarget === 'specific' && !emailTargetAddress.trim()) || !emailSubject.trim()}
+              onClick={async () => {
+                setEmailSending(true);
+                setEmailResult(null);
+                try {
+                  const payload = { category: emailCategory, subject: emailSubject, body: emailBody, target: emailTarget };
+                  if (emailTarget === 'specific') payload.email = emailTargetAddress.trim();
+                  const res = await api.post('/admin/emails/send', payload);
+                  setEmailResult({ success: true, message: res.data.message || '✅ Emails sent successfully!' });
+                } catch (err) {
+                  setEmailResult({ success: false, message: err.response?.data?.error || '❌ Failed to send. Check backend logs.' });
+                } finally {
+                  setEmailSending(false);
+                }
+              }}
+              className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-2xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] text-sm"
+            >
+              {emailSending ? (
+                <><div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" /> Sending...</>
+              ) : (
+                <><Send size={16} /> Send Email{emailTarget === 'all' ? ` to All ${users.length} Users` : emailTarget === 'incomplete' ? ' to Incomplete Profile Users' : ''}</>
+              )}
+            </button>
+
           </div>
         </div>
       )}

@@ -81,4 +81,17 @@ public class EmailService {
             System.err.println("Failed to send admin action email: " + e.getMessage());
         }
     }
+
+    public void sendCustomHtmlEmail(String to, String subject, String htmlContent) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send email to " + to, e);
+        }
+    }
 }

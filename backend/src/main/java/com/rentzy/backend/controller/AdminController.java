@@ -397,4 +397,118 @@ public class AdminController {
         profileReminderService.sendDemoEmail(demoUser);
         return ResponseEntity.ok(Map.of("message", "✅ Demo reminder email sent to " + targetEmail));
     }
+
+    // ─── Email Blast Endpoint ─────────────────────────────────────────────────
+
+    @PostMapping("/emails/send")
+    public ResponseEntity<?> sendEmailBlast(@RequestBody Map<String, String> body) {
+        String callerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User caller = userRepository.findByEmail(callerEmail).orElse(null);
+        if (caller == null || caller.getRole() != User.Role.ADMIN) {
+            return ResponseEntity.status(403).body(Map.of("error", "Admin access required"));
+        }
+
+        String category = body.getOrDefault("category", "custom");
+        String subject  = body.get("subject");
+        String msgBody  = body.getOrDefault("body", "");
+        String target   = body.getOrDefault("target", "all");
+        String specificEmail = body.get("email");
+
+        if (subject == null || subject.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "subject is required"));
+        }
+
+        // Resolve recipients
+        java.util.List<User> recipients;
+        if ("specific".equals(target)) {
+            if (specificEmail == null || specificEmail.isBlank()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "email is required for specific target"));
+            }
+            User target_user = userRepository.findByEmail(specificEmail).orElse(null);
+            if (target_user != null) {
+                recipients = java.util.List.of(target_user);
+            } else {
+                // Still send even if not a registered user (ad-hoc email)
+                User ghost = new User();
+                ghost.setName("User");
+                ghost.setEmail(specificEmail);
+                recipients = java.util.List.of(ghost);
+            }
+        } else if ("incomplete".equals(target)) {
+            recipients = userRepository.findUsersNeedingProfileReminder(LocalDateTime.now().minusYears(10));
+        } else {
+            recipients = userRepository.findByIsDeletedFalse();
+        }
+
+        int sent = 0;
+        for (User recipient : recipients) {
+            try {
+                String html = buildCategoryEmail(recipient, category, subject, msgBody);
+                emailService.sendCustomHtmlEmail(recipient.getEmail(), subject, html);
+                sent++;
+            } catch (Exception e) {
+                System.err.println("[EmailBlast] Failed for " + recipient.getEmail() + ": " + e.getMessage());
+            }
+        }
+
+        return ResponseEntity.ok(Map.of("message", "✅ Sent to " + sent + " of " + recipients.size() + " recipient(s)."));
+    }
+
+    private String buildCategoryEmail(User user, String category, String subject, String customBody) {
+        String firstName = user.getName() != null ? user.getName().split(" ")[0] : "there";
+        String content;
+        String headerColor;
+        String emoji;
+
+        if (customBody != null && !customBody.isBlank()) {
+            content = "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>" + customBody.replace("\n", "<br/>") + "</p>";
+        } else {
+            content = switch (category) {
+                case "welcome" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>Welcome to <strong>RentXY</strong> — India's smartest platform to find rooms, roommates, and trusted movers! 🎉</p>" +
+                    "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>Here's what you can do on RentXY:</p>" +
+                    "<ul style='color:#4b5563;font-size:14px;line-height:2;'><li>🏠 Browse verified room listings</li><li>🤝 Find compatible roommates with Smart Match AI</li><li>🚚 Book trusted movers</li><li>💸 Split expenses with your roommates</li></ul>";
+                case "security" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>This is an important security notice from the RentXY team.</p>" +
+                    "<div style='background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px 18px;margin:20px 0;'><p style='color:#dc2626;font-weight:700;margin:0 0 6px;'>⚠️ Action May Be Required</p><p style='color:#7f1d1d;font-size:13px;margin:0;'>If you did not initiate any recent activity on your account, please secure it immediately by changing your password.</p></div>";
+                case "promotion" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>We have an <strong>exciting offer</strong> exclusively for you! 🎁</p>" +
+                    "<div style='background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:14px;padding:20px;text-align:center;margin:20px 0;'><p style='font-size:24px;font-weight:900;color:#92400e;margin:0;'>LIMITED TIME OFFER</p><p style='color:#78350f;font-size:14px;margin:8px 0 0;'>Check the RentXY app for the latest deals!</p></div>";
+                case "announcement" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>We have some exciting news to share with you from the RentXY team! 📣</p>";
+                case "profile_reminder" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>Your RentXY profile is incomplete. A complete profile means <strong>better roommate matches</strong> and faster bookings!</p>" +
+                    "<a href='https://rentxy.in/profile' style='display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-weight:700;font-size:15px;'>Complete My Profile →</a>";
+                default -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;'>" + subject + "</p>";
+            };
+        }
+
+        headerColor = switch (category) {
+            case "welcome"          -> "linear-gradient(135deg,#10b981,#059669)";
+            case "security"         -> "linear-gradient(135deg,#ef4444,#dc2626)";
+            case "promotion"        -> "linear-gradient(135deg,#f59e0b,#d97706)";
+            case "announcement"     -> "linear-gradient(135deg,#3b82f6,#2563eb)";
+            case "profile_reminder" -> "linear-gradient(135deg,#4f46e5,#7c3aed)";
+            default                 -> "linear-gradient(135deg,#64748b,#475569)";
+        };
+        emoji = switch (category) {
+            case "welcome" -> "👋"; case "security" -> "🔒"; case "promotion" -> "🎉";
+            case "announcement" -> "📢"; case "profile_reminder" -> "📋"; default -> "✉️";
+        };
+
+        return """
+            <!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/></head>
+            <body style="margin:0;padding:0;font-family:'Segoe UI',Arial,sans-serif;background:#f0f4ff;">
+            <table width="100%%" cellpadding="0" cellspacing="0" style="background:#f0f4ff;padding:40px 20px;">
+            <tr><td align="center"><table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%%;">
+            <tr><td style="background:%s;border-radius:20px 20px 0 0;padding:40px;text-align:center;">
+              <div style="font-size:44px;margin-bottom:10px;">%s</div>
+              <h1 style="color:#fff;margin:0;font-size:26px;font-weight:800;">RentXY</h1>
+              <p style="color:rgba(255,255,255,0.85);margin:8px 0 0;font-size:14px;">%s</p>
+            </td></tr>
+            <tr><td style="background:#ffffff;padding:40px;">
+              <h2 style="color:#1e1b4b;font-size:20px;margin:0 0 16px;">Hey %s!</h2>
+              %s
+              <p style="color:#9ca3af;font-size:12px;margin:32px 0 0;border-top:1px solid #f3f4f6;padding-top:20px;">
+                © 2025 RentXY · This email was sent to %s · Powered by RentXY Admin
+              </p>
+            </td></tr>
+            </table></td></tr></table></body></html>
+            """.formatted(headerColor, emoji, subject, firstName, content, user.getEmail());
+    }
 }
