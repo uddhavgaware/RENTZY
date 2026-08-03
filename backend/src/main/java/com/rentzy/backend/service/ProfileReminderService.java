@@ -66,6 +66,18 @@ public class ProfileReminderService {
         log.info("[ProfileReminder] Job complete. Sent {}/{} reminders.", successCount, usersToRemind.size());
     }
 
+    /**
+     * Public method for admin demo/test — sends the reminder email to any given user object.
+     */
+    public void sendDemoEmail(User user) {
+        try {
+            sendReminderEmail(user);
+            log.info("[ProfileReminder] Demo email sent to: {}", user.getEmail());
+        } catch (MessagingException e) {
+            throw new RuntimeException("Failed to send demo reminder email", e);
+        }
+    }
+
     private void sendReminderEmail(User user) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");

@@ -36,6 +36,7 @@ public class AdminController {
     private final RoommateRequestRepository roommateRequestRepository;
     private final RoommatePostRepository roommatePostRepository;
     private final com.rentzy.backend.repository.BookingRepository bookingRepository;
+    private final com.rentzy.backend.service.ProfileReminderService profileReminderService;
 
     @GetMapping("/users")
     public ResponseEntity<List<User>> getAllUsers() {
@@ -353,5 +354,47 @@ public class AdminController {
             "dailyTrend", dailyTrend,
             "referralCampaigns", new ArrayList<>(referralCampaigns.values())
         ));
+    }
+
+    // ─── Demo/Test Endpoints for Profile Reminder Emails ─────────────────────────
+
+    /**
+     * Immediately triggers the full scheduled reminder job.
+     * Useful for testing — sends emails to ALL users with incomplete profiles.
+     * Only ADMIN can call this.
+     */
+    @PostMapping("/reminders/trigger")
+    public ResponseEntity<?> triggerReminderJob() {
+        String callerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User caller = userRepository.findByEmail(callerEmail).orElse(null);
+        if (caller == null || caller.getRole() != User.Role.ADMIN) {
+            return ResponseEntity.status(403).body(Map.of("error", "Admin access required"));
+        }
+        profileReminderService.sendProfileCompletionReminders();
+        return ResponseEntity.ok(Map.of("message", "✅ Reminder job triggered! Emails sent to all eligible users."));
+    }
+
+    /**
+     * Sends a demo reminder email to a specific email address for preview.
+     * Only ADMIN can call this.
+     */
+    @PostMapping("/reminders/test")
+    public ResponseEntity<?> sendTestReminderEmail(@RequestBody Map<String, String> body) {
+        String callerEmail = SecurityContextHolder.getContext().getAuthentication().getName();
+        User caller = userRepository.findByEmail(callerEmail).orElse(null);
+        if (caller == null || caller.getRole() != User.Role.ADMIN) {
+            return ResponseEntity.status(403).body(Map.of("error", "Admin access required"));
+        }
+        String targetEmail = body.get("email");
+        if (targetEmail == null || targetEmail.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "email field is required"));
+        }
+        // Create a fake incomplete user with the target email for demo
+        User demoUser = new User();
+        demoUser.setName("Demo User");
+        demoUser.setEmail(targetEmail);
+        demoUser.setProfileCompleted(false);
+        profileReminderService.sendDemoEmail(demoUser);
+        return ResponseEntity.ok(Map.of("message", "✅ Demo reminder email sent to " + targetEmail));
     }
 }
