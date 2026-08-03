@@ -441,17 +441,31 @@ public class AdminController {
         }
 
         int sent = 0;
+        java.util.List<String> errors = new java.util.ArrayList<>();
         for (User recipient : recipients) {
             try {
                 String html = buildCategoryEmail(recipient, category, subject, msgBody);
                 emailService.sendCustomHtmlEmail(recipient.getEmail(), subject, html);
                 sent++;
+                System.out.println("[EmailBlast] ✅ Sent to: " + recipient.getEmail());
             } catch (Exception e) {
-                System.err.println("[EmailBlast] Failed for " + recipient.getEmail() + ": " + e.getMessage());
+                String err = recipient.getEmail() + ": " + e.getMessage();
+                System.err.println("[EmailBlast] ❌ Failed for " + err);
+                errors.add(err);
             }
         }
 
-        return ResponseEntity.ok(Map.of("message", "✅ Sent to " + sent + " of " + recipients.size() + " recipient(s)."));
+        if (sent == 0 && !errors.isEmpty()) {
+            return ResponseEntity.status(500).body(Map.of(
+                "message", "❌ Failed to send emails.",
+                "error", errors.get(0),
+                "tip", "Check MAIL_USERNAME and MAIL_PASSWORD on Render. Make sure you used a Gmail App Password (not your regular password)."
+            ));
+        }
+
+        String msg = "✅ Sent to " + sent + " of " + recipients.size() + " recipient(s).";
+        if (!errors.isEmpty()) msg += " ⚠️ Failed: " + errors.size() + " — " + errors.get(0);
+        return ResponseEntity.ok(Map.of("message", msg));
     }
 
     private String buildCategoryEmail(User user, String category, String subject, String customBody) {
