@@ -8,6 +8,43 @@ import api, { isNativePlatform } from '../services/api';
 import Truecaller from '../plugins/Truecaller';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 
+// Resend OTP button with 60s cooldown
+const ResendOtpButton = ({ email }) => {
+  const [countdown, setCountdown] = useState(30);
+  const [resendStatus, setResendStatus] = useState('');
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown(c => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
+
+  const handleResend = async () => {
+    setResendStatus('sending');
+    try {
+      await api.post('/auth/resend-email-otp', { email });
+      setResendStatus('sent');
+      setCountdown(60);
+    } catch {
+      setResendStatus('error');
+    }
+  };
+
+  if (countdown > 0 && resendStatus !== 'error') {
+    return <span className="text-gray-400 text-xs">Resend in {countdown}s</span>;
+  }
+  return (
+    <button
+      type="button"
+      onClick={handleResend}
+      disabled={resendStatus === 'sending'}
+      className="text-primary-600 hover:underline font-medium text-xs disabled:opacity-50"
+    >
+      {resendStatus === 'sending' ? 'Sending...' : resendStatus === 'sent' ? '✅ Sent!' : resendStatus === 'error' ? '❌ Retry' : 'Resend OTP'}
+    </button>
+  );
+};
+
 const AuthPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -350,8 +387,9 @@ const AuthPage = () => {
                     <button disabled={loading} type="submit" className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-xl text-sm font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 transition-all shadow-lg shadow-green-600/25">
                       {loading ? 'Verifying...' : 'Verify & Create Account'}
                     </button>
-                    <div className="text-center">
-                      <button type="button" onClick={() => setEmailOtpSent(false)} className="text-sm text-primary-600 hover:underline font-medium">Change Email Address</button>
+                    <div className="flex items-center justify-between text-sm">
+                      <button type="button" onClick={() => setEmailOtpSent(false)} className="text-primary-600 hover:underline font-medium">Change Email</button>
+                      <ResendOtpButton email={emailToVerify} />
                     </div>
                   </form>
                 )}

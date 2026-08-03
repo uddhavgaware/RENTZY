@@ -71,10 +71,16 @@ public class AuthService {
                 
         repository.save(user);
 
-        // Generate and send OTP
+        // Generate and send OTP — fire-and-forget so registration never fails due to SMTP errors
         String otp = String.format("%06d", new Random().nextInt(999999));
         emailOtpStorage.put(request.getEmail(), otp);
-        emailService.sendEmailOtp(request.getEmail(), otp);
+        try {
+            emailService.sendEmailOtp(request.getEmail(), otp);
+        } catch (Exception e) {
+            // Log but don't fail registration — user can request resend
+            System.err.println("[EMAIL] Failed to send OTP to " + request.getEmail() + ": " + e.getMessage());
+            System.err.println("[EMAIL] FALLBACK OTP for " + request.getEmail() + " is: " + otp);
+        }
         
         return AuthenticationResponse.builder()
                 .token("") // No token yet, needs verification
@@ -107,6 +113,14 @@ public class AuthService {
                 .token(jwtToken)
                 .message("Email verified successfully")
                 .build();
+    }
+
+    public void resendEmailOtp(String email) {
+        repository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("No account found with this email"));
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        emailOtpStorage.put(email, otp);
+        emailService.sendEmailOtp(email, otp);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -368,7 +382,12 @@ public class AuthService {
         tokenRepository.save(resetToken);
 
         String resetLink = frontendUrl + "/reset-password?token=" + token;
-        emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+        try {
+            emailService.sendPasswordResetEmail(user.getEmail(), resetLink);
+        } catch (Exception e) {
+            System.err.println("[EMAIL] Failed to send password reset to " + user.getEmail() + ": " + e.getMessage());
+            throw new RuntimeException("Unable to send password reset email. Please check your email configuration or try again later.");
+        }
     }
 
     public void resetPassword(String token, String newPassword) {
