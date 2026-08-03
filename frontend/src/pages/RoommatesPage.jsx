@@ -1553,166 +1553,163 @@ const RoommatesPage = () => {
                                 </div>
                               </div>
 
-                              {/* ✨ AI Compatibility Match Section */}
-                              <div className="pt-1">
-                                {!cardMatches[roommate.id] ? (
-                                  <button
-                                    type="button"
-                                    onClick={(e) => { e.stopPropagation(); handleAnalyzeCardMatch(roommate); }}
-                                    disabled={analyzingCardId === roommate.id}
-                                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-md shadow-purple-500/25 disabled:opacity-50 active:scale-95 group relative overflow-hidden"
-                                  >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-[sweep_2s_infinite]"></div>
-                                    {analyzingCardId === roommate.id ? (
-                                      <>
-                                        <Sparkles size={16} className="animate-pulse" />
-                                        <span className="animate-pulse tracking-wide">Gemini is analyzing...</span>
-                                      </>
-                                    ) : (
-                                      <>
-                                        <Sparkles size={16} className="group-hover:animate-pulse" />
-                                        <span className="tracking-wide">AI Compatibility Match & Advice</span>
-                                      </>
-                                    )}
-                                  </button>
-                                ) : (
-                                  <div className="relative bg-gradient-to-br from-indigo-50/90 to-purple-50/90 dark:from-indigo-950/40 dark:to-purple-950/40 text-gray-800 dark:text-gray-100 p-4 rounded-xl text-xs space-y-2 border border-purple-200 dark:border-purple-800/50 shadow-sm animate-fadeIn overflow-hidden group">
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-purple-400/20 to-transparent rounded-full translate-x-8 -translate-y-8 pointer-events-none"></div>
-                                    <div className="flex items-center justify-between relative z-10 border-b border-purple-100 dark:border-purple-900/30 pb-2">
-                                      <span className="font-bold text-sm text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
-                                        <Sparkles size={16} className="text-purple-500 animate-pulse" />
-                                        <span>Gemini Match Analysis</span>
-                                      </span>
-                                      <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black px-2.5 py-1 rounded-lg text-[11px] shadow-md shadow-purple-500/20 border border-purple-500/30">
-                                        {cardMatches[roommate.id].matchScore}
-                                      </span>
-                                    </div>
-                                    <div className="relative z-10 pt-1">
-                                      <p className="text-gray-700 dark:text-purple-50 text-[11.5px] leading-relaxed mb-2 font-medium">
+                              {/* ✨ Expanded Actions Row (AI Match, Action Buttons, Show Less) */}
+                              <div className="flex flex-col md:flex-row gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-white/10 w-full items-stretch">
+                                {/* AI Match Section */}
+                                <div className="flex-[1.2]">
+                                  {!cardMatches[roommate.id] ? (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => { e.stopPropagation(); handleAnalyzeCardMatch(roommate); }}
+                                      disabled={analyzingCardId === roommate.id}
+                                      className="w-full h-full min-h-[44px] bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-purple-500/25 disabled:opacity-50 active:scale-95 group relative overflow-hidden"
+                                    >
+                                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:animate-[sweep_2s_infinite]"></div>
+                                      {analyzingCardId === roommate.id ? (
+                                        <>
+                                          <Sparkles size={14} className="animate-pulse" />
+                                          <span className="animate-pulse tracking-wide">Analyzing...</span>
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Sparkles size={14} className="group-hover:animate-pulse" />
+                                          <span className="tracking-wide">AI Compatibility Match</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  ) : (
+                                    <div className="h-full w-full relative bg-gradient-to-br from-indigo-50/90 to-purple-50/90 dark:from-indigo-950/40 dark:to-purple-950/40 text-gray-800 dark:text-gray-100 p-3 rounded-xl text-xs space-y-1.5 border border-purple-200 dark:border-purple-800/50 shadow-sm animate-fadeIn overflow-hidden flex flex-col justify-center">
+                                      <div className="flex items-center justify-between relative z-10 border-b border-purple-100 dark:border-purple-900/30 pb-1.5">
+                                        <span className="font-bold text-[11px] text-purple-700 dark:text-purple-300 flex items-center gap-1">
+                                          <Sparkles size={12} className="text-purple-500 animate-pulse" />
+                                          Gemini Match
+                                        </span>
+                                        <span className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black px-2 py-0.5 rounded flex-shrink-0 text-[10px] shadow-sm">
+                                          {cardMatches[roommate.id].matchScore}
+                                        </span>
+                                      </div>
+                                      <p className="text-gray-700 dark:text-purple-50 text-[10px] leading-snug font-medium z-10 relative">
                                         {cardMatches[roommate.id].analysis}
                                       </p>
-                                      {cardMatches[roommate.id].icebreaker && (
-                                        <div className="mt-2.5 bg-white/60 dark:bg-black/20 rounded-lg p-2.5 border border-purple-100 dark:border-purple-900/20">
-                                          <p className="text-[10px] font-bold text-purple-600 dark:text-purple-400 mb-1 uppercase tracking-wider flex items-center gap-1"><MessageCircle size={10} /> Suggested Icebreaker</p>
-                                          <p className="text-gray-600 dark:text-gray-300 text-[11px] italic">"{cardMatches[roommate.id].icebreaker}"</p>
-                                        </div>
-                                      )}
                                     </div>
-                                  </div>
-                                )}
-                              </div>
+                                  )}
+                                </div>
 
-                              {/* Action Buttons */}
-                              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 pt-3 border-t border-gray-100 dark:border-white/10 max-w-2xl mx-auto w-full">
-                                {isAdminOrCreator ? (
-                                  <>
-                                    {isPostCreator && (
-                                      <>
+                                {/* Action Buttons */}
+                                <div className="flex-[1.5] flex flex-col sm:flex-row gap-3">
+                                  {isAdminOrCreator ? (
+                                    <>
+                                      {isPostCreator && (
                                         <button
                                           type="button"
                                           onClick={() => handleEditPost(roommate)}
-                                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
+                                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95"
                                         >
-                                          <Edit3 size={15} /> Edit Post
+                                          <Edit3 size={14} /> Edit Post
                                         </button>
+                                      )}
+                                      {isPostCreator && (
                                         <button
                                           type="button"
                                           onClick={() => handleGotAMate(roommate.id)}
-                                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
+                                          className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95"
                                         >
-                                          <Check size={15} /> Mark Fulfilled
+                                          <Check size={14} /> Mark Fulfilled
                                         </button>
-                                      </>
-                                    )}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleDeletePost(roommate.id)}
-                                      className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
-                                    >
-                                      <Trash2 size={15} /> Delete Post
-                                    </button>
-                                  </>
-                                ) : (
-                                  <>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleSendRequest(roommate.id)}
-                                      className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-4 rounded-xl shadow-md shadow-pink-500/20 hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
-                                    >
-                                      <Users size={15} /> Send Roommate Request
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const recipientId = roommate.user?.id;
-                                        if (!isAuthenticated) {
-                                          showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') });
-                                          return;
-                                        }
-                                        let url = `/messages?user=${recipientId}`;
-                                        if (cardMatches[roommate.id]?.icebreaker) {
-                                          url += `&text=${encodeURIComponent(cardMatches[roommate.id].icebreaker)}`;
-                                        }
-                                        navigate(url);
-                                      }}
-                                      className="flex-1 bg-slate-900 hover:bg-black text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
-                                    >
-                                      <MessageCircle size={15} /> Direct Message
-                                    </button>
-                                  </>
-                                )}
+                                      )}
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeletePost(roommate.id)}
+                                        className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-3 rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95"
+                                      >
+                                        <Trash2 size={14} /> Delete Post
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSendRequest(roommate.id)}
+                                        className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-3 rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95"
+                                      >
+                                        <Users size={14} /> Send Request
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          if (!isAuthenticated) { showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') }); return; }
+                                          let url = `/messages?user=${roommate.user?.id}`;
+                                          if (cardMatches[roommate.id]?.icebreaker) {
+                                            url += `&text=${encodeURIComponent(cardMatches[roommate.id].icebreaker)}`;
+                                          }
+                                          navigate(url);
+                                        }}
+                                        className="flex-1 bg-slate-900 hover:bg-black text-white font-bold py-2 px-3 rounded-xl shadow-md transition-all text-xs flex items-center justify-center gap-1.5 active:scale-95"
+                                      >
+                                        <MessageCircle size={14} /> Direct Message
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
+
+                                {/* Show Less Toggle */}
+                                <div className="flex-1 md:max-w-[140px]">
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleExpandCard(roommate.id)}
+                                    className="w-full h-full min-h-[44px] bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95"
+                                  >
+                                    Show Less <ChevronLeft size={14} className="rotate-90" />
+                                  </button>
+                                </div>
                               </div>
                             </div>
                           )}
                         </div>
 
-                        {/* Bottom Action: Toggle Expand / Collapse and Quick Actions */}
-                        <div className={`pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex flex-col gap-2 ${isExpanded ? 'max-w-2xl mx-auto w-full' : ''}`}>
-                          {!isExpanded && !isAdminOrCreator && (
-                            <div className="flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => handleSendRequest(roommate.id)}
-                                className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm hover:shadow-md active:scale-95"
-                              >
-                                <Users size={13} /> Request
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  if (!isAuthenticated) { showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') }); return; }
-                                  navigate(`/messages?user=${roommate.user?.id}`);
-                                }}
-                                className="flex-1 bg-slate-800 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm hover:shadow-md active:scale-95"
-                              >
-                                <MessageCircle size={13} /> Message
-                              </button>
-                            </div>
-                          )}
-                          {!isExpanded && isPostCreator && (
-                            <div className="flex gap-2">
-                              <button type="button" onClick={() => handleEditPost(roommate)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
-                                <Edit3 size={13} /> Edit
-                              </button>
-                              <button type="button" onClick={() => handleDeletePost(roommate.id)} className="flex-1 bg-white hover:bg-red-600 text-red-600 hover:text-white border border-red-200 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
-                                <Trash2 size={13} /> Delete
-                              </button>
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => toggleExpandCard(roommate.id)}
-                            className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all cursor-pointer"
-                          >
-                            {isExpanded ? (
-                              <>Show Less ▲</>
-                            ) : (
-                              <>
-                                <Eye size={15} /> Show All Details ▼
-                              </>
+                        {/* Collapsed Actions */}
+                        {!isExpanded && (
+                          <div className="pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex flex-col gap-2 w-full">
+                            {!isAdminOrCreator && (
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSendRequest(roommate.id)}
+                                  className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95"
+                                >
+                                  <Users size={13} /> Request
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (!isAuthenticated) { showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') }); return; }
+                                    navigate(`/messages?user=${roommate.user?.id}`);
+                                  }}
+                                  className="flex-1 bg-slate-800 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95"
+                                >
+                                  <MessageCircle size={13} /> Message
+                                </button>
+                              </div>
                             )}
-                          </button>
-                        </div>
+                            {isPostCreator && (
+                              <div className="flex gap-2">
+                                <button type="button" onClick={() => handleEditPost(roommate)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                  <Edit3 size={13} /> Edit
+                                </button>
+                                <button type="button" onClick={() => handleDeletePost(roommate.id)} className="flex-1 bg-white hover:bg-red-600 text-red-600 hover:text-white border border-red-200 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                  <Trash2 size={13} /> Delete
+                                </button>
+                              </div>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => toggleExpandCard(roommate.id)}
+                              className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all"
+                            >
+                              <Eye size={15} /> Show All Details <ChevronRight size={15} className="rotate-90" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
