@@ -1892,7 +1892,68 @@ const AdminDashboardPage = () => {
                         announcement: '📢 Big News from RentXY!',
                         custom: '',
                       };
+                      const bodies = {
+                        welcome: `Welcome to RentXY — India's smartest platform to find rooms, roommates, and trusted movers! 🎉
+
+Here's what you can do on RentXY:
+🏠 Browse verified room listings
+🤝 Find compatible roommates with Smart Match AI
+🚚 Book trusted movers
+💸 Split expenses with your roommates easily
+
+We're thrilled to have you on board. Start exploring now at rentxy.in and find your perfect home!
+
+Your data is 100% encrypted and we never share your information with anyone.`,
+
+                        profile_reminder: `Hi! Your RentXY profile is still incomplete.
+
+A complete profile means:
+✅ Better roommate matches
+✅ More trust from other users
+✅ Faster booking approvals
+
+Please take 2 minutes to complete your profile at rentxy.in/profile — it makes a huge difference!
+
+Missing steps usually include: phone number, occupation, gender, and date of birth.`,
+
+                        security: `This is an important security notice from the RentXY team.
+
+We detected some activity on your account that we want to make you aware of.
+
+⚠️ If you did NOT perform any recent login or account changes, please:
+1. Change your password immediately at rentxy.in/profile
+2. Contact our support team
+
+If this was you, no action is needed. Your account data is always encrypted and protected.
+
+Stay safe,
+The RentXY Security Team`,
+
+                        promotion: `We have an exciting offer exclusively for you! 🎁
+
+For a limited time, enjoy special benefits on RentXY:
+🌟 Priority listing visibility for your posts
+🤝 Unlimited roommate requests
+🚚 Discounted mover bookings
+
+Open the RentXY app or visit rentxy.in to claim your offer before it expires!
+
+Terms and conditions apply.`,
+
+                        announcement: `We have some exciting news to share with you! 📣
+
+The RentXY team has been working hard to bring you new features and improvements to make your home-finding journey smoother than ever.
+
+Visit rentxy.in to check out the latest updates and let us know what you think!
+
+Thank you for being part of the RentXY community. 🏠
+
+— The RentXY Team`,
+
+                        custom: '',
+                      };
                       setEmailSubject(subjects[cat.id]);
+                      setEmailBody(bodies[cat.id]);
                     }}
                     className={`p-3 rounded-xl border-2 text-left transition-all ${
                       emailCategory === cat.id
