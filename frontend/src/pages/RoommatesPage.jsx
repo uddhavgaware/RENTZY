@@ -1333,9 +1333,25 @@ const RoommatesPage = () => {
                           </div>
 
                           {/* Location */}
-                          <div className="flex items-center text-xs font-semibold text-gray-700 dark:text-gray-200 mb-2 truncate">
-                            <MapPin size={14} className="text-primary-500 mr-1 flex-shrink-0" />
-                            <span className="truncate">{roommate.location}</span>
+                          <div className="flex items-center justify-between mb-2 gap-2">
+                            <div className="flex items-center text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">
+                              <MapPin size={14} className="text-primary-500 mr-1 flex-shrink-0" />
+                              <span className="truncate">{roommate.location}</span>
+                            </div>
+                            {roommate.locationCoordinates?.lat && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setMapCenter([roommate.locationCoordinates.lat, roommate.locationCoordinates.lng]);
+                                  setIsMapView(true);
+                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                }}
+                                className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95"
+                              >
+                                <MapIcon size={12} /> View in Map
+                              </button>
+                            )}
                           </div>
 
                           {/* Split Rent Badge - Green Card like Mobile */}
