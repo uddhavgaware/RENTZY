@@ -1338,19 +1338,27 @@ const RoommatesPage = () => {
                             <span className="truncate">{roommate.location}</span>
                           </div>
 
-                          {/* Rent / Split Badge */}
-                          <div className="bg-primary-50/70 dark:bg-slate-700/50 p-2.5 rounded-xl mb-3 border border-primary-100/50 dark:border-white/5 flex items-center justify-between">
-                            <div>
-                              <span className="text-[9px] font-bold uppercase text-primary-600 dark:text-primary-300 block">Total Rent</span>
-                              <span className="text-sm font-black text-gray-900 dark:text-white">₹{displayBudget}<span className="text-[10px] font-normal text-gray-500">/mo</span></span>
-                            </div>
-                            {splitRent && (
-                              <div className="text-right">
-                                <span className="text-[9px] font-bold uppercase text-emerald-600 block">Per Head</span>
-                                <span className="text-sm font-black text-emerald-700 dark:text-emerald-400">₹{splitRent.toLocaleString('en-IN')}<span className="text-[10px] font-normal text-gray-500">/mo</span></span>
+                          {/* Split Rent Badge - Green Card like Mobile */}
+                          {splitRent ? (
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 border border-green-200 dark:border-green-800/50 rounded-xl p-3 mb-3">
+                              <p className="text-[10px] text-green-600 dark:text-green-400 font-bold mb-1">💰 Split Rent Among {roommate.totalCapacity} Members</p>
+                              <div className="flex items-end justify-between">
+                                <div>
+                                  <span className="text-lg font-extrabold text-green-700 dark:text-green-300">₹{splitRent.toLocaleString('en-IN')}</span>
+                                  <span className="text-[11px] text-green-600 dark:text-green-400 font-medium"> / person / mo</span>
+                                </div>
+                                <Users size={22} className="text-green-400 flex-shrink-0" />
                               </div>
-                            )}
-                          </div>
+                              {splitDeposit && <p className="text-[11px] text-green-600 dark:text-green-400 mt-0.5 font-semibold">Deposit: ₹{splitDeposit.toLocaleString('en-IN')} / person</p>}
+                            </div>
+                          ) : (
+                            <div className="bg-primary-50/70 dark:bg-slate-700/50 p-2.5 rounded-xl mb-3 border border-primary-100/50 dark:border-white/5 flex items-center justify-between">
+                              <div>
+                                <span className="text-[9px] font-bold uppercase text-primary-600 dark:text-primary-300 block">Total Rent</span>
+                                <span className="text-sm font-black text-gray-900 dark:text-white">₹{displayBudget}<span className="text-[10px] font-normal text-gray-500">/mo</span></span>
+                              </div>
+                            </div>
+                          )}
 
                           {/* Quick Badges (When Collapsed) */}
                           {!isExpanded && (
@@ -1587,8 +1595,38 @@ const RoommatesPage = () => {
                           )}
                         </div>
 
-                        {/* Bottom Action: Toggle Expand / Collapse */}
-                        <div className={`pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex items-center justify-between gap-2 ${isExpanded ? 'max-w-2xl mx-auto w-full' : ''}`}>
+                          {/* Quick Actions - Always Visible */}
+                          {!isExpanded && !isAdminOrCreator && (
+                            <div className="flex gap-2 mb-2">
+                              <button
+                                type="button"
+                                onClick={() => handleSendRequest(roommate.id)}
+                                className="flex-1 bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm hover:shadow-md active:scale-95"
+                              >
+                                <Users size={13} /> Request
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!isAuthenticated) { showModal({ type: 'alert', title: 'Sign In Required', message: 'Please log in to message.', onConfirm: () => navigate('/auth') }); return; }
+                                  navigate(`/messages?user=${roommate.user?.id}`);
+                                }}
+                                className="flex-1 bg-slate-800 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm hover:shadow-md active:scale-95"
+                              >
+                                <MessageCircle size={13} /> Message
+                              </button>
+                            </div>
+                          )}
+                          {!isExpanded && isPostCreator && (
+                            <div className="flex gap-2 mb-2">
+                              <button type="button" onClick={() => handleEditPost(roommate)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                <Edit3 size={13} /> Edit
+                              </button>
+                              <button type="button" onClick={() => handleDeletePost(roommate.id)} className="flex-1 bg-white hover:bg-red-600 text-red-600 hover:text-white border border-red-200 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
+                                <Trash2 size={13} /> Delete
+                              </button>
+                            </div>
+                          )}
                           <button
                             type="button"
                             onClick={() => toggleExpandCard(roommate.id)}
