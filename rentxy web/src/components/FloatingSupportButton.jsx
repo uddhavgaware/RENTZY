@@ -196,11 +196,11 @@ const FloatingSupportButton = () => {
   };
 
   return (
-    <div className="fixed bottom-28 md:bottom-6 right-6 z-[1050] flex flex-col items-end gap-3 font-sans select-none">
+    <div className="fixed bottom-28 md:bottom-6 right-3 sm:right-6 z-[1050] flex flex-col items-end gap-3 font-sans select-none">
 
       {/* Interactive AI Chat Window */}
       {open && (
-        <div className="animate-slide-up bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden w-80 sm:w-96 flex flex-col h-[480px]">
+        <div className="animate-slide-up bg-white dark:bg-gray-900 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-800 overflow-hidden w-[calc(100vw-24px)] max-w-sm sm:max-w-sm sm:w-96 flex flex-col" style={{ maxHeight: 'calc(100svh - 9rem)', minHeight: '320px' }}>
           {/* Header */}
           <div className="bg-gradient-to-r from-indigo-600 via-primary-600 to-indigo-700 px-5 py-4 flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">

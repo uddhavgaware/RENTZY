@@ -65,6 +65,7 @@ const AdminDashboardPage = () => {
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [expandedStates, setExpandedStates] = useState({});
+  const [expandedRM, setExpandedRM] = useState({});
   const [expandedCities, setExpandedCities] = useState({});
   const [selectedState, setSelectedState] = useState('All');
   const [selectedCity, setSelectedCity] = useState('All');
@@ -1224,68 +1225,187 @@ const AdminDashboardPage = () => {
             )}
 
             {/* Roommate Requests Tab */}
-            {activeTab === 'roommates' && (
-              <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden mt-6">
-                <div className="p-6 border-b border-gray-100 dark:border-white/10">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                    <Users size={20} className="text-primary-600" /> All Roommate Requests ({roommateRequests.length})
-                  </h2>
+            {activeTab === 'roommates' && (() => {
+              const toggleRM = (id) => setExpandedRM(prev => ({ ...prev, [id]: !prev[id] }));
+
+              return (
+                <div className="bg-white dark:bg-slate-800 rounded-2xl border border-gray-100 dark:border-white/10 shadow-sm overflow-hidden mt-6">
+                  <div className="p-6 border-b border-gray-100 dark:border-white/10 flex items-center justify-between flex-wrap gap-3">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                      <Users size={20} className="text-primary-600" /> All Roommate Requests ({roommateRequests.length})
+                    </h2>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 bg-gray-50 dark:bg-slate-700 px-3 py-1.5 rounded-full font-medium">
+                      Tap a row to expand full details on mobile
+                    </span>
+                  </div>
+
+                  {roommateRequests.length === 0 ? (
+                    <div className="text-center py-16 text-gray-400 dark:text-gray-500">
+                      <Users size={40} className="mx-auto mb-3 opacity-30" />
+                      <p className="font-medium">No roommate requests found.</p>
+                    </div>
+                  ) : (
+                    <>
+                      {/* ── Desktop Table (hidden on mobile) ── */}
+                      <div className="hidden md:block overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-gray-50 dark:bg-slate-700/50">
+                            <tr>
+                              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sender</th>
+                              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Receiver</th>
+                              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Post Details</th>
+                              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                              <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date &amp; Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-50 dark:divide-white/5">
+                            {roommateRequests.map(r => (
+                              <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
+                                <td className="px-6 py-4">
+                                  <p className="font-semibold text-gray-900 dark:text-white">{r.sender?.name || '—'}</p>
+                                  <p className="text-xs text-gray-500">{r.sender?.email || '—'}</p>
+                                  {r.sender?.phone && <p className="text-xs text-gray-400 mt-0.5">📞 {r.sender.phone}</p>}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <p className="font-semibold text-gray-900 dark:text-white">{r.receiver?.name || '—'}</p>
+                                  <p className="text-xs text-gray-500">{r.receiver?.email || '—'}</p>
+                                  {r.receiver?.phone && <p className="text-xs text-gray-400 mt-0.5">📞 {r.receiver.phone}</p>}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">Post #{r.postId || 'N/A'}</p>
+                                  <p className="text-sm font-medium text-gray-800 dark:text-gray-200">{r.postLocation || 'Location not set'}</p>
+                                  {r.postPropertyType && (
+                                    <span className="text-[10px] font-bold bg-primary-50 dark:bg-primary-950/30 text-primary-700 dark:text-primary-300 px-2 py-0.5 rounded-full mt-1 inline-block">
+                                      {r.postPropertyType}
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4">
+                                  <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                    r.status === 'ACCEPTED' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' :
+                                    r.status === 'REJECTED' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' :
+                                    r.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-gray-400' :
+                                    'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                  }`}>
+                                    {r.status || 'PENDING'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4">
+                                  <div className="flex flex-col items-start gap-1.5">
+                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                      📅 {r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}
+                                    </span>
+                                    {r.updatedAt && (
+                                      <span className="text-[10px] text-gray-400 dark:text-gray-500">
+                                        Updated: {new Date(r.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                                      </span>
+                                    )}
+                                    <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 px-2 py-1 rounded font-medium hover:bg-red-100 dark:hover:bg-red-950/50 flex items-center gap-1 mt-1 transition-colors">
+                                      <Trash2 size={12} /> Delete
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* ── Mobile Cards (shown only on mobile) ── */}
+                      <div className="md:hidden divide-y divide-gray-100 dark:divide-white/5">
+                        {roommateRequests.map(r => (
+                          <div key={r.id} className="p-4">
+                            {/* Card Header Row — always visible, tap to expand */}
+                            <button
+                              onClick={() => toggleRM(r.id)}
+                              className="w-full flex items-center justify-between text-left gap-3"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <div className="w-9 h-9 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 flex items-center justify-center font-bold text-sm flex-shrink-0">
+                                  {r.sender?.name?.charAt(0) || '?'}
+                                </div>
+                                <div className="min-w-0">
+                                  <p className="font-bold text-gray-900 dark:text-white text-sm truncate">
+                                    {r.sender?.name || '—'} → {r.receiver?.name || '—'}
+                                  </p>
+                                  <p className="text-xs text-gray-500 truncate">{r.postLocation || 'No location'}</p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                  r.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
+                                  r.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
+                                  r.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
+                                  'bg-yellow-100 text-yellow-700'
+                                }`}>
+                                  {r.status || 'PENDING'}
+                                </span>
+                                <ChevronDown size={16} className={`text-gray-400 transition-transform duration-200 ${expandedRM[r.id] ? 'rotate-180' : ''}`} />
+                              </div>
+                            </button>
+
+                            {/* Expandable Detail Panel */}
+                            {expandedRM[r.id] && (
+                              <div className="mt-3 space-y-3 animate-fade-in">
+                                {/* Sender Block */}
+                                <div className="bg-blue-50 dark:bg-blue-950/20 rounded-xl p-3 border border-blue-100 dark:border-blue-900/30">
+                                  <p className="text-[10px] font-black uppercase tracking-wider text-blue-500 mb-1">Sender</p>
+                                  <p className="font-semibold text-gray-900 dark:text-white text-sm">{r.sender?.name || '—'}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">{r.sender?.email || '—'}</p>
+                                  {r.sender?.phone && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">📞 {r.sender.phone}</p>}
+                                </div>
+
+                                {/* Receiver Block */}
+                                <div className="bg-purple-50 dark:bg-purple-950/20 rounded-xl p-3 border border-purple-100 dark:border-purple-900/30">
+                                  <p className="text-[10px] font-black uppercase tracking-wider text-purple-500 mb-1">Receiver</p>
+                                  <p className="font-semibold text-gray-900 dark:text-white text-sm">{r.receiver?.name || '—'}</p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">{r.receiver?.email || '—'}</p>
+                                  {r.receiver?.phone && <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">📞 {r.receiver.phone}</p>}
+                                </div>
+
+                                {/* Post Details */}
+                                <div className="bg-gray-50 dark:bg-slate-700/30 rounded-xl p-3 border border-gray-100 dark:border-white/10">
+                                  <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1">Post Details</p>
+                                  <div className="flex items-center justify-between">
+                                    <div>
+                                      <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{r.postLocation || 'Location not set'}</p>
+                                      {r.postPropertyType && (
+                                        <span className="text-[10px] font-bold bg-primary-100 dark:bg-primary-950/50 text-primary-700 dark:text-primary-300 px-2 py-0.5 rounded-full mt-1 inline-block">
+                                          {r.postPropertyType}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-xs text-gray-400 font-mono bg-gray-100 dark:bg-slate-700 px-2 py-1 rounded-lg">
+                                      #{r.postId || 'N/A'}
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Dates & Delete */}
+                                <div className="flex items-center justify-between">
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
+                                    <p>📅 Sent: {r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</p>
+                                    {r.updatedAt && (
+                                      <p>🔄 Updated: {new Date(r.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                                    )}
+                                  </div>
+                                  <button
+                                    onClick={() => deleteRoommateRequest(r.id)}
+                                    className="text-xs bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 px-3 py-2 rounded-xl font-bold hover:bg-red-100 dark:hover:bg-red-950/50 flex items-center gap-1.5 transition-colors"
+                                  >
+                                    <Trash2 size={13} /> Delete
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50 dark:bg-slate-700/50">
-                      <tr>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Sender</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Receiver</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Post Details</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date & Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-white/5">
-                      {roommateRequests.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="text-center py-12 text-gray-400">No roommate requests found.</td>
-                        </tr>
-                      ) : roommateRequests.map(r => (
-                        <tr key={r.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/30 transition-colors">
-                          <td className="px-6 py-4">
-                            <p className="font-medium text-gray-900 dark:text-white">{r.sender?.name}</p>
-                            <p className="text-xs text-gray-500">{r.sender?.email}</p>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="font-medium text-gray-900 dark:text-white">{r.receiver?.name}</p>
-                            <p className="text-xs text-gray-500">{r.receiver?.email}</p>
-                          </td>
-                          <td className="px-6 py-4">
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-200">ID: {r.postId}</p>
-                            <p className="text-xs text-gray-500">{r.postLocation} ({r.postPropertyType})</p>
-                          </td>
-                          <td className="px-6 py-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                              r.status === 'ACCEPTED' ? 'bg-green-100 text-green-700' :
-                              r.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                              r.status === 'CANCELLED' ? 'bg-gray-100 text-gray-700' :
-                              'bg-yellow-100 text-yellow-700'
-                            }`}>
-                              {r.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="flex flex-col items-start gap-2">
-                              <span className="text-sm text-gray-500">
-                                {new Date(r.createdAt).toLocaleDateString()}
-                              </span>
-                              <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs bg-red-50 text-red-600 px-2 py-1 rounded font-medium hover:bg-red-100 flex items-center gap-1"><Trash2 size={12} /> Delete</button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
+              );
+            })()}
 
             {/* Regions Tab */}
             {activeTab === 'regions' && (() => {
