@@ -234,6 +234,9 @@ public class User implements UserDetails {
     private LocalDateTime lastActiveAt;
 
     @Column
+    private LocalDateTime lastReminderSentAt;
+
+    @Column
     private String referralCode;
 
     @Column(length = 1000)
