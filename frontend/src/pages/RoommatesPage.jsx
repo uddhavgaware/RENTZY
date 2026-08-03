@@ -1653,9 +1653,10 @@ const RoommatesPage = () => {
                                     <button
                                       type="button"
                                       onClick={() => handleSharePost(roommate)}
-                                      className="flex-1 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 font-bold py-3 px-4 rounded-xl shadow-sm hover:shadow-md transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
+                                      className="p-3 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all flex items-center justify-center cursor-pointer active:scale-95 flex-shrink-0"
+                                      title="Share Post"
                                     >
-                                      <Share2 size={15} /> Share
+                                      <Share2 size={20} />
                                     </button>
                                   </>
                                 )}
@@ -1688,9 +1689,10 @@ const RoommatesPage = () => {
                               <button
                                 type="button"
                                 onClick={() => handleSharePost(roommate)}
-                                className="flex-shrink-0 bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center transition-all shadow-sm hover:shadow-md active:scale-95"
+                                className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all flex items-center justify-center flex-shrink-0"
+                                title="Share Post"
                               >
-                                <Share2 size={13} />
+                                <Share2 size={16} />
                               </button>
                             </div>
                           )}
