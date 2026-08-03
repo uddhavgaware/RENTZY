@@ -1202,7 +1202,12 @@ const RoommatesPage = () => {
                               <div className="flex flex-col gap-2">
                                 <button onClick={(e) => {
                                   e.stopPropagation();
-                                  window.open(`https://www.google.com/maps/search/?api=1&query=${roommate.locationCoordinates.lat},${roommate.locationCoordinates.lng}`, '_blank');
+                                  const lat = roommate.locationCoordinates?.lat || roommate.latitude;
+                                  const lng = roommate.locationCoordinates?.lng || roommate.longitude;
+                                  const query = lat && lng
+                                    ? `${lat},${lng}`
+                                    : encodeURIComponent(roommate.location || '');
+                                  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
                                 }} className="w-full bg-indigo-50 border border-indigo-200 text-indigo-700 py-1.5 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-colors shadow-sm flex items-center justify-center gap-1">
                                   <MapIcon size={12} /> Open in Google Maps
                                 </button>
@@ -1346,18 +1351,21 @@ const RoommatesPage = () => {
                               <MapPin size={14} className="text-primary-500 mr-1 flex-shrink-0" />
                               <span className="truncate">{roommate.location}</span>
                             </div>
-                            {roommate.locationCoordinates?.lat && (
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  window.open(`https://www.google.com/maps/search/?api=1&query=${roommate.locationCoordinates.lat},${roommate.locationCoordinates.lng}`, '_blank');
-                                }}
-                                className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95"
-                              >
-                                <MapIcon size={12} /> Open in GMaps
-                              </button>
-                            )}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const lat = roommate.locationCoordinates?.lat || roommate.latitude;
+                                const lng = roommate.locationCoordinates?.lng || roommate.longitude;
+                                const query = lat && lng
+                                  ? `${lat},${lng}`
+                                  : encodeURIComponent(roommate.location || '');
+                                window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                              }}
+                              className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95"
+                            >
+                              <MapIcon size={12} /> View in Maps
+                            </button>
                           </div>
 
                           {/* Split Rent Badge - Green Card like Mobile */}
