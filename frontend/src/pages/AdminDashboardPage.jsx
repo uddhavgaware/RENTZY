@@ -1480,8 +1480,8 @@ const AdminDashboardPage = () => {
                                 </select>
                               </td>
                               <td className="px-5 py-4">
-                                <button onClick={() => deleteRoommatePost(p.id)} className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 flex items-center gap-1 transition-colors">
-                                  <Trash2 size={12} /> Delete
+                                <button onClick={() => deleteRoommatePost(p.id)} className="bg-red-50 hover:bg-red-600 text-red-600 hover:text-white border border-red-200 px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all duration-300 flex items-center gap-2">
+                                  <Trash2 size={16} /> Delete
                                 </button>
                               </td>
                             </tr>
@@ -1541,7 +1541,7 @@ const AdminDashboardPage = () => {
                               <td className="px-5 py-4">
                                 <div className="flex flex-col items-start gap-2">
                                   <span className="text-xs text-gray-500">{new Date(r.createdAt).toLocaleDateString()}</span>
-                                  <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs bg-red-50 text-red-600 px-2.5 py-1 rounded-lg font-bold hover:bg-red-100 flex items-center gap-1 transition-colors"><Trash2 size={12} /> Delete</button>
+                                  <button onClick={() => deleteRoommateRequest(r.id)} className="bg-red-50 hover:bg-red-600 text-red-600 hover:text-white border border-red-200 px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-all duration-300 flex items-center gap-2"><Trash2 size={16} /> Delete</button>
                                 </div>
                               </td>
                             </tr>

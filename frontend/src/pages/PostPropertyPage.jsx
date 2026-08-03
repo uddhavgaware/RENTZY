@@ -625,7 +625,7 @@ const PostPropertyPage = () => {
                       <label className="block text-xs font-bold text-gray-600 mb-1.5">Water Supply</label>
                       <select name="waterSupply" value={formData.waterSupply} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-3 py-2 text-xs font-semibold focus:ring-1 focus:ring-primary-500 focus:border-transparent outline-none bg-white">
                         <option value="Not Included">Not Included</option>
-                        <option value="Included">Included</option>
+                        <option value="24 Hrs Water">24 Hrs Water</option>
                       </select>
                     </div>
                     <div>

@@ -543,7 +543,7 @@ const ListingDetailsPage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {[
                     { label: 'Electricity Bill', value: listing.electricityBill || 'Not Included', icon: '⚡' },
-                    { label: 'Water Supply', value: listing.waterSupply || 'Not Included', icon: '💧' },
+                    { label: 'Water Supply', value: listing.waterSupply === 'Included' ? '24 Hrs Water' : (listing.waterSupply || 'Not Included'), icon: '💧' },
                     { label: 'Maintenance', value: listing.maintenance || 'Not Included', icon: '🛠️' }
                   ].map((util, idx) => (
                     <div key={idx} className="flex items-center gap-3.5 p-4 bg-gradient-to-br from-gray-50 to-gray-100/70 dark:from-slate-800 dark:to-slate-800/70 border border-gray-200/50 dark:border-white/5 rounded-2xl hover:shadow-md transition-all duration-300">

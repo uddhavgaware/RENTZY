@@ -1187,7 +1187,18 @@ const RoommatesPage = () => {
                                 {roommate.dietaryPref !== 'Any' && <span className="bg-green-50 text-green-700 px-1.5 py-0.5 rounded text-[10px] font-bold">{roommate.dietaryPref}</span>}
                               </div>
                               {roommate.availableFrom && <div className="text-xs text-green-600 font-bold mb-2">⏱ Move-in: {roommate.availableFrom}</div>}
-                              <div className="text-primary-700 font-bold mb-3 text-lg">₹{roommate.budget}/mo</div>
+                              
+                              <div className="text-primary-700 font-bold mb-1 text-lg">₹{roommate.budget}/mo</div>
+                              {roommate.deposit > 0 && <div className="text-gray-600 font-medium text-xs mb-3">Dep: ₹{roommate.deposit}</div>}
+                              
+                              {roommate.totalCapacity > 1 && (
+                                <div className="bg-green-50 border border-green-200 text-green-700 p-2 rounded-lg text-xs font-bold mb-2">
+                                  💰 Split: ₹{Math.round(roommate.budget / roommate.totalCapacity)}/mo
+                                  {roommate.deposit > 0 && <br />}
+                                  {roommate.deposit > 0 && `Dep: ₹${Math.round(roommate.deposit / roommate.totalCapacity)} / person`}
+                                </div>
+                              )}
+
                               <div className="flex gap-2">
                                 <button onClick={() => {
                                   setIsMapView(false);
@@ -1412,14 +1423,14 @@ const RoommatesPage = () => {
                                 <div className="grid grid-cols-3 gap-2">
                                   {[
                                     { label: 'Electricity', value: roommate.electricityBill || 'Not Included', icon: '⚡' },
-                                    { label: 'Water', value: roommate.waterSupply || 'Not Included', icon: '💧' },
+                                    { label: 'Water', value: roommate.waterSupply === 'Included' ? '24 Hrs Water' : (roommate.waterSupply || 'Not Included'), icon: '💧' },
                                     { label: 'Maintenance', value: roommate.maintenance || 'Not Included', icon: '🛠️' }
                                   ].map((util, idx) => (
                                     <div key={idx} className="p-2.5 rounded-xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-white/10 text-center">
                                       <span className="text-base block mb-0.5">{util.icon}</span>
                                       <span className="text-[9px] font-bold text-gray-400 uppercase tracking-wider block leading-none mb-1">{util.label}</span>
-                                      <span className={`text-[11px] font-black ${util.value === 'Included' ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
-                                        {util.value === 'Included' ? 'Included' : 'Not Incl.'}
+                                      <span className={`text-[11px] font-black ${util.value === 'Included' || util.value === '24 Hrs Water' ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+                                        {util.value === 'Included' || util.value === '24 Hrs Water' ? (util.label === 'Water' ? '24 Hrs' : 'Included') : 'Not Incl.'}
                                       </span>
                                     </div>
                                   ))}
@@ -1896,8 +1907,8 @@ const RoommatesPage = () => {
                     <div>
                       <label className="block text-[10px] font-bold text-gray-500 mb-1">Water Supply</label>
                       <select value={postFormData.waterSupply} onChange={(e) => setPostFormData({ ...postFormData, waterSupply: e.target.value })} className="w-full border border-gray-200 rounded-xl px-2 py-1.5 text-xs font-semibold focus:ring-1 focus:ring-primary-500 outline-none bg-white">
-                        <option value="Not Included">Not Incl.</option>
-                        <option value="Included">Included</option>
+                        <option value="Not Included">Not Included</option>
+                        <option value="24 Hrs Water">24 Hrs Water</option>
                       </select>
                     </div>
                     <div>
