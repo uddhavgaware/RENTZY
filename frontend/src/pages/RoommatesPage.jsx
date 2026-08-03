@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, Minus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon, Map as MapIcon, List, Home, Building2, Edit3, Eye, Check, Sparkles } from 'lucide-react';
+import { Search, MapPin, Briefcase, IndianRupee, MessageCircle, Plus, Minus, X, Users, Trash2, Info, BadgeCheck, Navigation, ChevronLeft, ChevronRight, Image as ImageIcon, Map as MapIcon, List, Home, Building2, Edit3, Eye, Check, Sparkles, Share2, Maximize2, Minimize2 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { divIcon } from 'leaflet';
@@ -73,6 +73,7 @@ const RoommatesPage = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
@@ -439,6 +440,24 @@ const RoommatesPage = () => {
       flatSize: roommate.preferences?.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)) || '1BHK',
     });
     setIsModalOpen(true);
+  };
+
+  const handleSharePost = async (roommate) => {
+    const url = `${window.location.origin}/roommates?id=${roommate.id}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Roommate/Room listing in ${roommate.location}`,
+          text: `Check out this listing in ${roommate.location} for ₹${roommate.budget}/mo on RentXY!`,
+          url: url
+        });
+      } catch (err) {
+        console.log('Share canceled or failed', err);
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      showModal({ type: 'alert', title: 'Link Copied', message: 'Share link copied to clipboard!', onConfirm: closeModal });
+    }
   };
 
   const handleAnalyzeCardMatch = async (roommate) => {
@@ -1498,17 +1517,30 @@ const RoommatesPage = () => {
                               <div>
                                 <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Preferences & Lifestyle</h4>
                                 <div className="flex flex-wrap gap-1.5 text-xs font-semibold">
-                                  {roommate.targetOccupation && <span className="bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">Prefers {roommate.targetOccupation}</span>}
-                                  {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300 px-2.5 py-0.5 rounded-full border border-pink-200 dark:border-pink-800">Prefers {roommate.targetGender}</span>}
-                                  {roommate.dietaryPref && <span className="bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 px-2.5 py-0.5 rounded-full border border-orange-200 dark:border-orange-800">Diet: {roommate.dietaryPref}</span>}
-                                  {roommate.smokingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{roommate.smokingPref}</span>}
-                                  {roommate.drinkingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{roommate.drinkingPref}</span>}
-                                  {roommate.petsPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{roommate.petsPref}</span>}
-                                  {roommate.sleepSchedule && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">Sleep: {roommate.sleepSchedule}</span>}
-                                  {roommate.cleanlinessLevel && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">Cleanliness: {roommate.cleanlinessLevel}</span>}
-                                  {roommate.preferences?.filter(p => !['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)).map((pref, idx) => (
-                                    <span key={idx} className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{pref}</span>
-                                  ))}
+                                  {roommate.targetOccupation && <span className="bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">💼 Prefers {roommate.targetOccupation}</span>}
+                                  {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300 px-2.5 py-0.5 rounded-full border border-pink-200 dark:border-pink-800">👤 Prefers {roommate.targetGender}</span>}
+                                  {roommate.dietaryPref && <span className="bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 px-2.5 py-0.5 rounded-full border border-orange-200 dark:border-orange-800">🥗 Diet: {roommate.dietaryPref}</span>}
+                                  {roommate.smokingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">🚬 {roommate.smokingPref}</span>}
+                                  {roommate.drinkingPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">🍻 {roommate.drinkingPref}</span>}
+                                  {roommate.petsPref && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">🐾 {roommate.petsPref}</span>}
+                                  {roommate.sleepSchedule && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">😴 Sleep: {roommate.sleepSchedule}</span>}
+                                  {roommate.cleanlinessLevel && <span className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">✨ Cleanliness: {roommate.cleanlinessLevel}</span>}
+                                  {roommate.preferences?.filter(p => !['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)).map((pref, idx) => {
+                                    let icon = '✔️';
+                                    const pLower = pref.toLowerCase();
+                                    if(pLower.includes('cctv')) icon = '📹';
+                                    else if(pLower.includes('water')) icon = '💧';
+                                    else if(pLower.includes('wifi')) icon = '📶';
+                                    else if(pLower.includes('ac')) icon = '❄️';
+                                    else if(pLower.includes('tv')) icon = '📺';
+                                    else if(pLower.includes('parking')) icon = '🚗';
+                                    else if(pLower.includes('security')) icon = '👮';
+                                    else if(pLower.includes('gym')) icon = '🏋️';
+                                    else if(pLower.includes('backup') || pLower.includes('power')) icon = '⚡';
+                                    return (
+                                      <span key={idx} className="bg-gray-100 text-gray-700 dark:bg-slate-800 dark:text-gray-300 px-2.5 py-0.5 rounded-full border border-gray-200 dark:border-white/10">{icon} {pref}</span>
+                                    );
+                                  })}
                                 </div>
                               </div>
 
@@ -1618,6 +1650,13 @@ const RoommatesPage = () => {
                                     >
                                       <MessageCircle size={15} /> Direct Message
                                     </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSharePost(roommate)}
+                                      className="flex-1 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 font-bold py-3 px-4 rounded-xl shadow-sm hover:shadow-md transition-all text-xs sm:text-sm flex items-center justify-center gap-2 cursor-pointer active:scale-95 hover:scale-[1.02]"
+                                    >
+                                      <Share2 size={15} /> Share
+                                    </button>
                                   </>
                                 )}
                               </div>
@@ -1645,6 +1684,13 @@ const RoommatesPage = () => {
                                 className="flex-1 bg-slate-800 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm hover:shadow-md active:scale-95"
                               >
                                 <MessageCircle size={13} /> Message
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleSharePost(roommate)}
+                                className="flex-shrink-0 bg-white hover:bg-gray-50 border border-gray-200 text-gray-800 font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center transition-all shadow-sm hover:shadow-md active:scale-95"
+                              >
+                                <Share2 size={13} />
                               </button>
                             </div>
                           )}
@@ -1892,7 +1938,7 @@ const RoommatesPage = () => {
                 </div>
 
                 {/* Embedded Post Map */}
-                <div className="mt-4 h-[220px] w-full rounded-xl overflow-hidden border-2 border-primary-200 relative z-0">
+                <div className={`mt-4 w-full overflow-hidden border-2 border-primary-200 relative z-0 transition-all duration-300 ${isMapExpanded ? 'fixed inset-0 z-[600] h-[100dvh] w-screen rounded-none' : 'h-[220px] rounded-xl'}`}>
                   {/* Map Search Overlay */}
                   <div className="absolute top-2 left-2 right-2 z-[500] rounded-xl p-1 flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg">
                     <div className="pl-2 pr-1.5 text-gray-400">
@@ -1914,6 +1960,14 @@ const RoommatesPage = () => {
                       className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-2.5 py-1 text-[10px] font-semibold flex items-center transition-colors active:scale-95 ml-1 flex-shrink-0"
                     >
                       Search
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsMapExpanded(!isMapExpanded)}
+                      className="bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg p-1 text-[10px] font-semibold flex items-center transition-colors active:scale-95 ml-1 flex-shrink-0"
+                      title={isMapExpanded ? "Minimize Map" : "Maximize Map"}
+                    >
+                      {isMapExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
                     </button>
                   </div>
 
@@ -2191,10 +2245,10 @@ const RoommatesPage = () => {
         >
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 z-20 w-12 h-12 bg-red-600 hover:bg-red-700 text-white rounded-full flex items-center justify-center font-bold text-3xl transition-all shadow-lg active:scale-95"
+            className="absolute top-4 right-4 z-20 w-12 h-12 bg-white/10 hover:bg-red-600 text-white rounded-full flex items-center justify-center font-bold transition-all border border-white/20 active:scale-95 backdrop-blur-sm shadow-xl"
             title="Close"
           >
-            ×
+            <X size={24} />
           </button>
 
           <div className="absolute top-4 left-4 z-20 bg-black/60 text-white px-4 py-2 rounded-full text-sm font-bold border border-white/20">
