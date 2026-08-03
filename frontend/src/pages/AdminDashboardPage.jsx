@@ -1893,60 +1893,134 @@ const AdminDashboardPage = () => {
                         custom: '',
                       };
                       const bodies = {
-                        welcome: `Welcome to RentXY — India's smartest platform to find rooms, roommates, and trusted movers! 🎉
+                        welcome:
+`Welcome to RentXY — India's smartest platform to find verified rooms, compatible roommates, and trusted movers! 🎉
 
-Here's what you can do on RentXY:
-🏠 Browse verified room listings
-🤝 Find compatible roommates with Smart Match AI
-🚚 Book trusted movers
-💸 Split expenses with your roommates easily
+We are genuinely excited to have you here.
 
-We're thrilled to have you on board. Start exploring now at rentxy.in and find your perfect home!
+Here's everything you can do on RentXY:
 
-Your data is 100% encrypted and we never share your information with anyone.`,
+🏠 FIND ROOMS  
+Browse hundreds of verified room listings across Pune, Mumbai, Bangalore & more. Every listing is posted by real owners — no brokers, no fake listings.
 
-                        profile_reminder: `Hi! Your RentXY profile is still incomplete.
+🤝 FIND ROOMMATES  
+Our Smart Match AI compares your lifestyle preferences (sleep schedule, diet, habits) with other users and shows you the most compatible matches — so you don't just find a roommate, you find the RIGHT one.
 
-A complete profile means:
-✅ Better roommate matches
-✅ More trust from other users
-✅ Faster booking approvals
+🚚 BOOK MOVERS  
+Need help relocating? Book trusted, verified movers directly through the app. Track your move in real-time.
 
-Please take 2 minutes to complete your profile at rentxy.in/profile — it makes a huge difference!
+💸 SPLIT EXPENSES  
+Already living with roommates? Use our Split Expenses feature to fairly divide rent, electricity, groceries, and more — no awkward conversations needed.
 
-Missing steps usually include: phone number, occupation, gender, and date of birth.`,
+🔒 YOUR PRIVACY MATTERS  
+We collect only what's necessary to give you a better experience. Your data is fully encrypted, never sold, and never shared with any third party. Your Google login credentials are never stored by us — only your name and email are used for identification.
 
-                        security: `This is an important security notice from the RentXY team.
+Ready to find your perfect home? Visit rentxy.in and get started!
 
-We detected some activity on your account that we want to make you aware of.
+Warm regards,
+The RentXY Team`,
 
-⚠️ If you did NOT perform any recent login or account changes, please:
-1. Change your password immediately at rentxy.in/profile
-2. Contact our support team
+                        profile_reminder:
+`Your RentXY profile is still incomplete — and we'd love to help you get the most out of the platform! 📋
 
-If this was you, no action is needed. Your account data is always encrypted and protected.
+A complete profile unlocks the full power of RentXY. Here's exactly WHY we ask for each piece of information:
+
+📱 PHONE NUMBER  
+Why we ask: Owners and roommates need a quick way to reach you. It also helps verify you're a real person, which builds trust in the community. We never share your number publicly without your permission.
+
+💼 OCCUPATION (Student / Professional / Business)  
+Why we ask: Many listings are specifically designed for students or working professionals. Knowing your occupation helps us show you the most relevant rooms and match you with compatible roommates.
+
+👤 GENDER  
+Why we ask: Many users (especially women) search for gender-specific accommodations for safety and comfort. We use this only for filtering — it's never used for any other purpose.
+
+🎂 DATE OF BIRTH  
+Why we ask: Age group matters for roommate compatibility. A 22-year-old student and a 35-year-old professional have very different lifestyles. Knowing your age helps us find truly compatible matches.
+
+🌙 LIFESTYLE PREFERENCES (Diet, Sleep, Habits)  
+Why we ask: This powers our Smart Match AI. The more we know about your lifestyle, the better we can match you with someone whose habits align with yours — reducing future conflicts.
+
+All of this information is stored securely and encrypted. We will NEVER sell or share it.
+
+👉 Complete your profile now: rentxy.in/profile
+
+It takes less than 2 minutes and makes a huge difference in the quality of your matches!
+
+— The RentXY Team`,
+
+                        security:
+`This is an official security notice from the RentXY team. Please read carefully. 🔒
+
+We are reaching out because we noticed some account activity that we want to make you aware of. This is a precautionary message sent to ensure your account remains safe.
+
+⚠️ WHAT TO DO IF THIS WASN'T YOU:
+1. Visit rentxy.in/profile immediately
+2. Change your password to something strong and unique
+3. Make sure no unknown devices are logged in
+4. Reply to this email or contact us at support@rentxy.in
+
+✅ IF THIS WAS YOU:
+No action is needed. Your account is safe and protected.
+
+🔐 HOW WE PROTECT YOUR DATA:
+• All passwords are hashed using BCrypt — we cannot see your actual password
+• All data is transmitted over HTTPS (encrypted in transit)  
+• Your Google login token is verified by Google's servers — we never see your Google password
+• We never store payment card details (payments are handled by Razorpay)
+• Your personal info is never sold or shared with advertisers
+
+If you have any concerns, please reach out to us directly. Your security is our highest priority.
 
 Stay safe,
-The RentXY Security Team`,
+The RentXY Security Team
+support@rentxy.in`,
 
-                        promotion: `We have an exciting offer exclusively for you! 🎁
+                        promotion:
+`We have something special lined up just for you! 🎉
 
-For a limited time, enjoy special benefits on RentXY:
-🌟 Priority listing visibility for your posts
-🤝 Unlimited roommate requests
-🚚 Discounted mover bookings
+As a valued RentXY member, you've been selected for an exclusive offer that we think you'll love.
 
-Open the RentXY app or visit rentxy.in to claim your offer before it expires!
+🌟 WHAT'S INCLUDED:
+• Priority visibility for your room/roommate posts (appear at the top of search results)
+• Unlimited roommate connection requests this month
+• Early access to new premium features before they launch publicly
+• Discounts on mover bookings through the RentXY app
 
-Terms and conditions apply.`,
+⏳ THIS OFFER IS TIME-LIMITED  
+Log into your account at rentxy.in to see the offer details and claim it before it expires.
 
-                        announcement: `We have some exciting news to share with you! 📣
+💬 WHY ARE WE OFFERING THIS?  
+We want to reward our early community members who helped shape RentXY into what it is today. Your feedback, usage, and trust in the platform mean everything to us.
 
-The RentXY team has been working hard to bring you new features and improvements to make your home-finding journey smoother than ever.
+🔒 No credit card required. No hidden charges. This is our way of saying thank you.
 
-Visit rentxy.in to check out the latest updates and let us know what you think!
+Visit rentxy.in to claim your offer now!
 
-Thank you for being part of the RentXY community. 🏠
+— The RentXY Team`,
+
+                        announcement:
+`Big news from the RentXY team! 📢
+
+We've been heads-down building something exciting, and we're finally ready to share it with you.
+
+🚀 WHAT'S NEW ON RENTXY:
+
+✅ Smart Match AI Upgrade  
+Our roommate matching algorithm just got smarter. It now considers 12+ lifestyle factors including cleanliness level, noise tolerance, and work-from-home habits to find you a truly compatible roommate.
+
+✅ Real-Time Map View  
+Browse all available rooms on an interactive map. Click any pin to see photos, rent, and split cost — then open it directly in Google Maps.
+
+✅ Mover Booking Improvements  
+You can now track your moving request status in real-time, chat directly with movers, and leave reviews after the move.
+
+✅ Split Expense Settlements  
+Settle group expenses directly within the app — no more manual UPI transfers or confusing spreadsheets.
+
+💬 YOUR FEEDBACK SHAPES RENTXY  
+Have a suggestion or ran into an issue? Hit reply to this email or use the support chat on rentxy.in. We read every message.
+
+Thank you for being part of our journey. The best is yet to come! 🏠
 
 — The RentXY Team`,
 

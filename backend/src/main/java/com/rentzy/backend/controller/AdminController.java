@@ -461,20 +461,94 @@ public class AdminController {
         String emoji;
 
         if (customBody != null && !customBody.isBlank()) {
-            content = "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>" + customBody.replace("\n", "<br/>") + "</p>";
+            content = "<p style='color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 20px;'>"
+                    + customBody.replace("\n\n", "</p><p style='color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 20px;'>")
+                               .replace("\n", "<br/>")
+                    + "</p>";
         } else {
             content = switch (category) {
-                case "welcome" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>Welcome to <strong>RentXY</strong> — India's smartest platform to find rooms, roommates, and trusted movers! 🎉</p>" +
-                    "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>Here's what you can do on RentXY:</p>" +
-                    "<ul style='color:#4b5563;font-size:14px;line-height:2;'><li>🏠 Browse verified room listings</li><li>🤝 Find compatible roommates with Smart Match AI</li><li>🚚 Book trusted movers</li><li>💸 Split expenses with your roommates</li></ul>";
-                case "security" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>This is an important security notice from the RentXY team.</p>" +
-                    "<div style='background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px 18px;margin:20px 0;'><p style='color:#dc2626;font-weight:700;margin:0 0 6px;'>⚠️ Action May Be Required</p><p style='color:#7f1d1d;font-size:13px;margin:0;'>If you did not initiate any recent activity on your account, please secure it immediately by changing your password.</p></div>";
-                case "promotion" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>We have an <strong>exciting offer</strong> exclusively for you! 🎁</p>" +
-                    "<div style='background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:14px;padding:20px;text-align:center;margin:20px 0;'><p style='font-size:24px;font-weight:900;color:#92400e;margin:0;'>LIMITED TIME OFFER</p><p style='color:#78350f;font-size:14px;margin:8px 0 0;'>Check the RentXY app for the latest deals!</p></div>";
-                case "announcement" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>We have some exciting news to share with you from the RentXY team! 📣</p>";
-                case "profile_reminder" -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;margin:0 0 20px;'>Your RentXY profile is incomplete. A complete profile means <strong>better roommate matches</strong> and faster bookings!</p>" +
-                    "<a href='https://rentxy.in/profile' style='display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;text-decoration:none;padding:14px 32px;border-radius:50px;font-weight:700;font-size:15px;'>Complete My Profile →</a>";
-                default -> "<p style='color:#4b5563;font-size:15px;line-height:1.7;'>" + subject + "</p>";
+                case "welcome" ->
+                    "<p style='color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 16px;'>We are <strong>genuinely excited</strong> to have you here. RentXY is India's smartest platform to find verified rooms, compatible roommates, and trusted movers — all in one place. 🎉</p>" +
+                    "<div style='background:#f8f7ff;border-radius:14px;padding:20px 24px;margin:20px 0;border:1px solid #e0e7ff;'>" +
+                      "<p style='color:#4f46e5;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px;'>What you can do on RentXY</p>" +
+                      "<div style='margin-bottom:12px;'><p style='margin:0;font-size:14px;color:#1e1b4b;font-weight:700;'>🏠 Find Verified Rooms</p><p style='margin:4px 0 0;font-size:13px;color:#6b7280;'>Hundreds of listings across Pune, Mumbai &amp; Bangalore — posted by real owners. No brokers, no fake listings.</p></div>" +
+                      "<div style='margin-bottom:12px;'><p style='margin:0;font-size:14px;color:#1e1b4b;font-weight:700;'>🤝 Smart Roommate Matching</p><p style='margin:4px 0 0;font-size:13px;color:#6b7280;'>Our AI compares your lifestyle (sleep, diet, habits) to find you a truly compatible match — not just any roommate.</p></div>" +
+                      "<div style='margin-bottom:12px;'><p style='margin:0;font-size:14px;color:#1e1b4b;font-weight:700;'>🚚 Book Trusted Movers</p><p style='margin:4px 0 0;font-size:13px;color:#6b7280;'>Verified movers, real-time tracking, and reviews from the community.</p></div>" +
+                      "<div><p style='margin:0;font-size:14px;color:#1e1b4b;font-weight:700;'>💸 Split Expenses Fairly</p><p style='margin:4px 0 0;font-size:13px;color:#6b7280;'>Split rent, electricity, and groceries with your roommates — no awkward conversations needed.</p></div>" +
+                    "</div>" +
+                    "<div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px 20px;margin:20px 0;'>" +
+                      "<p style='color:#15803d;font-weight:700;font-size:14px;margin:0 0 6px;'>🔒 Your Privacy is Our Priority</p>" +
+                      "<p style='color:#166534;font-size:13px;margin:0;line-height:1.6;'>We collect only what's necessary to give you a better experience. Your data is fully encrypted, <strong>never sold</strong>, and never shared with any third party. Your Google credentials are never stored by us — only your name and email are used for login.</p>" +
+                    "</div>" +
+                    "<div style='text-align:center;margin:28px 0;'><a href='https://rentxy.in' style='display:inline-block;background:linear-gradient(135deg,#10b981,#059669);color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-weight:700;font-size:15px;box-shadow:0 4px 14px rgba(16,185,129,0.35);'>Start Exploring RentXY →</a></div>";
+
+                case "profile_reminder" ->
+                    "<p style='color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 16px;'>Your RentXY profile is still <strong>incomplete</strong> — and we'd love to help you get the most out of the platform! A complete profile directly improves the quality of your roommate matches and how quickly owners respond to you. 📋</p>" +
+                    "<div style='background:#f8f7ff;border-radius:14px;padding:20px 24px;margin:20px 0;border:1px solid #e0e7ff;'>" +
+                      "<p style='color:#4f46e5;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px;'>Why we ask for each detail</p>" +
+                      "<div style='margin-bottom:14px;border-bottom:1px solid #e0e7ff;padding-bottom:14px;'><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>📱 Phone Number</p><p style='margin:0;font-size:13px;color:#6b7280;line-height:1.6;'><strong>Why:</strong> Owners and roommates need a direct way to reach you. It also verifies you're a real person, building trust. We never show your number publicly without your permission.</p></div>" +
+                      "<div style='margin-bottom:14px;border-bottom:1px solid #e0e7ff;padding-bottom:14px;'><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>💼 Occupation (Student / Professional / Business)</p><p style='margin:0;font-size:13px;color:#6b7280;line-height:1.6;'><strong>Why:</strong> Many listings are designed for students or working professionals. This helps us show you the most relevant rooms and match you with like-minded roommates.</p></div>" +
+                      "<div style='margin-bottom:14px;border-bottom:1px solid #e0e7ff;padding-bottom:14px;'><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>👤 Gender</p><p style='margin:0;font-size:13px;color:#6b7280;line-height:1.6;'><strong>Why:</strong> Many users (especially women) prefer gender-specific accommodations for safety and comfort. We use this only for filtering results — never for any other purpose.</p></div>" +
+                      "<div style='margin-bottom:14px;border-bottom:1px solid #e0e7ff;padding-bottom:14px;'><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>🎂 Date of Birth</p><p style='margin:0;font-size:13px;color:#6b7280;line-height:1.6;'><strong>Why:</strong> Age group is key for compatibility. A 22-year-old student and a 35-year-old professional have very different schedules and lifestyles. This helps us find truly compatible matches.</p></div>" +
+                      "<div><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>🌙 Lifestyle Preferences (Diet, Sleep, Habits)</p><p style='margin:0;font-size:13px;color:#6b7280;line-height:1.6;'><strong>Why:</strong> This powers our Smart Match AI. The more we know about your lifestyle, the better we match you with someone whose habits align — reducing future conflicts between roommates.</p></div>" +
+                    "</div>" +
+                    "<div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:16px 20px;margin:20px 0;'>" +
+                      "<p style='color:#15803d;font-weight:700;font-size:14px;margin:0 0 4px;'>🔒 100% Safe &amp; Encrypted</p>" +
+                      "<p style='color:#166534;font-size:13px;margin:0;'>All this information is stored with end-to-end encryption. We will <strong>NEVER</strong> sell or share your data.</p>" +
+                    "</div>" +
+                    "<div style='text-align:center;margin:28px 0;'><a href='https://rentxy.in/profile' style='display:inline-block;background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-weight:700;font-size:15px;box-shadow:0 4px 14px rgba(79,70,229,0.35);'>✅ Complete My Profile (2 mins)</a></div>";
+
+                case "security" ->
+                    "<p style='color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 16px;'>This is an <strong>official security notice</strong> from the RentXY team. We are reaching out because we noticed some activity on your account and want to ensure everything is safe. 🔒</p>" +
+                    "<div style='background:#fef2f2;border:1px solid #fecaca;border-radius:14px;padding:20px 24px;margin:20px 0;'>" +
+                      "<p style='color:#dc2626;font-weight:800;font-size:13px;margin:0 0 12px;'>⚠️ IF THIS WASN'T YOU — Act Now:</p>" +
+                      "<p style='color:#7f1d1d;font-size:13px;margin:0 0 6px;line-height:1.6;'>1. Visit <a href='https://rentxy.in/profile' style='color:#dc2626;'>rentxy.in/profile</a> and change your password immediately</p>" +
+                      "<p style='color:#7f1d1d;font-size:13px;margin:0 0 6px;line-height:1.6;'>2. Make sure no unknown devices are logged into your account</p>" +
+                      "<p style='color:#7f1d1d;font-size:13px;margin:0;line-height:1.6;'>3. Contact us at <a href='mailto:support@rentxy.in' style='color:#dc2626;'>support@rentxy.in</a></p>" +
+                    "</div>" +
+                    "<div style='background:#f0fdf4;border:1px solid #bbf7d0;border-radius:14px;padding:20px 24px;margin:20px 0;'>" +
+                      "<p style='color:#15803d;font-weight:700;font-size:14px;margin:0 0 12px;'>🔐 How RentXY Protects Your Data</p>" +
+                      "<p style='color:#166534;font-size:13px;margin:0 0 6px;'>• All passwords are hashed using BCrypt — <strong>we cannot see your actual password</strong></p>" +
+                      "<p style='color:#166534;font-size:13px;margin:0 0 6px;'>• All data is transmitted over HTTPS (encrypted in transit)</p>" +
+                      "<p style='color:#166534;font-size:13px;margin:0 0 6px;'>• Your Google login is verified by Google's servers — <strong>we never see your Google password</strong></p>" +
+                      "<p style='color:#166534;font-size:13px;margin:0 0 6px;'>• We never store payment card details (handled by Razorpay)</p>" +
+                      "<p style='color:#166534;font-size:13px;margin:0;'>• Your personal info is <strong>never sold or shared with advertisers</strong></p>" +
+                    "</div>" +
+                    "<p style='color:#6b7280;font-size:13px;text-align:center;margin:16px 0 0;'>✅ If this was you — no action needed. Your account is safe.</p>";
+
+                case "promotion" ->
+                    "<p style='color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 16px;'>As a valued RentXY member, you've been selected for an <strong>exclusive offer</strong> that we think you'll love! 🎉</p>" +
+                    "<div style='background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:14px;padding:24px;text-align:center;margin:20px 0;border:1px solid #fcd34d;'>" +
+                      "<p style='font-size:28px;font-weight:900;color:#92400e;margin:0 0 6px;'>🌟 LIMITED TIME OFFER</p>" +
+                      "<p style='color:#78350f;font-size:14px;margin:0;font-weight:600;'>Exclusively for early RentXY community members</p>" +
+                    "</div>" +
+                    "<div style='background:#f8f7ff;border-radius:14px;padding:20px 24px;margin:20px 0;border:1px solid #e0e7ff;'>" +
+                      "<p style='color:#4f46e5;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px;'>What's included</p>" +
+                      "<p style='color:#1e1b4b;font-size:14px;margin:0 0 8px;'>🌟 <strong>Priority listing visibility</strong> — your posts appear at the top of search results</p>" +
+                      "<p style='color:#1e1b4b;font-size:14px;margin:0 0 8px;'>🤝 <strong>Unlimited roommate requests</strong> this month — connect with as many people as you want</p>" +
+                      "<p style='color:#1e1b4b;font-size:14px;margin:0 0 8px;'>🚀 <strong>Early access to new features</strong> before they launch publicly</p>" +
+                      "<p style='color:#1e1b4b;font-size:14px;margin:0;'>🚚 <strong>Discounts on mover bookings</strong> through the RentXY app</p>" +
+                    "</div>" +
+                    "<p style='color:#4b5563;font-size:14px;line-height:1.7;margin:0 0 20px;'><strong>💬 Why are we offering this?</strong> We want to reward our early community members who helped shape RentXY. Your feedback, usage, and trust in the platform mean everything to us. This is our way of saying <em>thank you</em>.</p>" +
+                    "<div style='text-align:center;margin:28px 0;'><a href='https://rentxy.in' style='display:inline-block;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-weight:700;font-size:15px;box-shadow:0 4px 14px rgba(245,158,11,0.35);'>Claim My Offer Now →</a></div>" +
+                    "<p style='color:#9ca3af;font-size:12px;text-align:center;margin:0;'>🔒 No credit card required. No hidden charges. Terms and conditions apply.</p>";
+
+                case "announcement" ->
+                    "<p style='color:#4b5563;font-size:15px;line-height:1.8;margin:0 0 16px;'>We've been heads-down building something exciting, and we're finally ready to share it with you. 📢</p>" +
+                    "<div style='background:#f8f7ff;border-radius:14px;padding:20px 24px;margin:20px 0;border:1px solid #e0e7ff;'>" +
+                      "<p style='color:#4f46e5;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:1px;margin:0 0 14px;'>🚀 What's New on RentXY</p>" +
+                      "<div style='margin-bottom:14px;'><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>✅ Smart Match AI Upgrade</p><p style='margin:0;font-size:13px;color:#6b7280;'>Now considers 12+ lifestyle factors (cleanliness, noise tolerance, work-from-home habits) for even better roommate matching.</p></div>" +
+                      "<div style='margin-bottom:14px;'><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>✅ Real-Time Map View</p><p style='margin:0;font-size:13px;color:#6b7280;'>Browse rooms on an interactive map. Click any pin to see photos, rent, split cost — then open it directly in Google Maps.</p></div>" +
+                      "<div style='margin-bottom:14px;'><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>✅ Mover Booking Improvements</p><p style='margin:0;font-size:13px;color:#6b7280;'>Track your moving request in real-time, chat with movers directly, and leave reviews after the move.</p></div>" +
+                      "<div><p style='margin:0 0 4px;font-size:14px;color:#1e1b4b;font-weight:700;'>✅ Split Expense Settlements</p><p style='margin:0;font-size:13px;color:#6b7280;'>Settle group expenses within the app — no more manual UPI transfers or confusing spreadsheets.</p></div>" +
+                    "</div>" +
+                    "<div style='background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 20px;margin:20px 0;'>" +
+                      "<p style='color:#1d4ed8;font-weight:700;font-size:14px;margin:0 0 4px;'>💬 Your Feedback Shapes RentXY</p>" +
+                      "<p style='color:#1e40af;font-size:13px;margin:0;'>Have a suggestion or ran into an issue? Hit reply or use the support chat on rentxy.in — we read every single message.</p>" +
+                    "</div>" +
+                    "<div style='text-align:center;margin:28px 0;'><a href='https://rentxy.in' style='display:inline-block;background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;text-decoration:none;padding:14px 36px;border-radius:50px;font-weight:700;font-size:15px;box-shadow:0 4px 14px rgba(59,130,246,0.35);'>Explore What's New →</a></div>";
+
+                default -> "<p style='color:#4b5563;font-size:15px;line-height:1.8;'>" + subject + "</p>";
             };
         }
 
