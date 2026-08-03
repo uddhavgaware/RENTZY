@@ -1365,26 +1365,35 @@ const RoommatesPage = () => {
                           </div>
 
                           {/* Location */}
-                          <div className="flex items-center justify-between mb-2 gap-2">
-                            <div className="flex items-center text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">
+                          <div className="flex items-start justify-between mb-2 gap-2">
+                            <div className="flex items-center text-xs font-semibold text-gray-700 dark:text-gray-200 truncate mt-1">
                               <MapPin size={14} className="text-primary-500 mr-1 flex-shrink-0" />
                               <span className="truncate">{roommate.location}</span>
                             </div>
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                const lat = roommate.locationCoordinates?.lat || roommate.latitude;
-                                const lng = roommate.locationCoordinates?.lng || roommate.longitude;
-                                const query = lat && lng
-                                  ? `${lat},${lng}`
-                                  : encodeURIComponent(roommate.location || '');
-                                window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-                              }}
-                              className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95"
-                            >
-                              <MapIcon size={12} /> View in Maps
-                            </button>
+                            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); handleSharePost(roommate); }}
+                                className="flex items-center gap-1 text-[10px] font-bold bg-white hover:bg-gray-50 text-gray-700 px-2 py-1 rounded-md transition-all border border-gray-200 cursor-pointer shadow-sm active:scale-95 w-full justify-center"
+                              >
+                                <Share2 size={12} /> Share
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  const lat = roommate.locationCoordinates?.lat || roommate.latitude;
+                                  const lng = roommate.locationCoordinates?.lng || roommate.longitude;
+                                  const query = lat && lng
+                                    ? `${lat},${lng}`
+                                    : encodeURIComponent(roommate.location || '');
+                                  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                                }}
+                                className="flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95 w-full justify-center"
+                              >
+                                <MapIcon size={12} /> View in Maps
+                              </button>
+                            </div>
                           </div>
 
                           {/* Split Rent Badge - Green Card like Mobile */}
@@ -1650,14 +1659,6 @@ const RoommatesPage = () => {
                                     >
                                       <MessageCircle size={15} /> Direct Message
                                     </button>
-                                    <button
-                                      type="button"
-                                      onClick={() => handleSharePost(roommate)}
-                                      className="p-3 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all flex items-center justify-center cursor-pointer active:scale-95 flex-shrink-0"
-                                      title="Share Post"
-                                    >
-                                      <Share2 size={20} />
-                                    </button>
                                   </>
                                 )}
                               </div>
@@ -1685,14 +1686,6 @@ const RoommatesPage = () => {
                                 className="flex-1 bg-slate-800 hover:bg-black text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-sm hover:shadow-md active:scale-95"
                               >
                                 <MessageCircle size={13} /> Message
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handleSharePost(roommate)}
-                                className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all flex items-center justify-center flex-shrink-0"
-                                title="Share Post"
-                              >
-                                <Share2 size={16} />
                               </button>
                             </div>
                           )}
