@@ -2128,7 +2128,10 @@ Thank you for being part of our journey. The best is yet to come! 🏠
                   const res = await api.post('/admin/emails/send', payload);
                   setEmailResult({ success: true, message: res.data.message || '✅ Emails sent successfully!' });
                 } catch (err) {
-                  setEmailResult({ success: false, message: err.response?.data?.error || '❌ Failed to send. Check backend logs.' });
+                  const errData = err.response?.data;
+                  const msg = errData?.error || errData?.message || err.message || 'Unknown error';
+                  const tip = errData?.tip || '';
+                  setEmailResult({ success: false, message: `❌ ${msg}${tip ? ' — ' + tip : ''}` });
                 } finally {
                   setEmailSending(false);
                 }
