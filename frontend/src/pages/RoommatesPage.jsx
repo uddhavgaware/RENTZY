@@ -444,19 +444,41 @@ const RoommatesPage = () => {
 
   const handleSharePost = async (roommate) => {
     const url = `${window.location.origin}/roommates?id=${roommate.id}`;
+    
+    // Build a rich share message
+    const flatSize = roommate.flatSize || roommate.preferences?.find(p => ['1BHK','2BHK','3BHK','4BHK+','1RK'].includes(p)) || '';
+    const vacancy = roommate.totalCapacity > 1 ? `${roommate.vacancyCount ?? roommate.totalCapacity} vacanc${(roommate.vacancyCount ?? roommate.totalCapacity) === 1 ? 'y' : 'ies'}` : '1 vacancy';
+    const postedBy = roommate.user?.name ? `Posted by ${roommate.user.name.split(' ')[0]}` : '';
+    const moveIn = roommate.availableFrom ? `Available from ${roommate.availableFrom}` : 'Move-in now';
+    const flatLabel = flatSize ? `${flatSize} flat` : 'room';
+    const locationShort = (roommate.location || '').split(',').slice(0, 2).join(',').trim();
+
+    const shareText = [
+      `🏠 ${flatSize ? flatSize + ' ' : ''}Roommate Listing on RentXY`,
+      `📍 ${locationShort}`,
+      `💰 ₹${roommate.budget?.toLocaleString('en-IN') || '?'}/mo${roommate.totalCapacity > 1 ? ' (split: ₹' + Math.round(roommate.budget / roommate.totalCapacity).toLocaleString('en-IN') + '/person)' : ''}`,
+      `🚪 ${vacancy} in ${flatLabel}`,
+      postedBy,
+      `📅 ${moveIn}`,
+      `\n👉 You can request to be their roommate directly on RentXY!`,
+    ].filter(Boolean).join('\n');
+
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Roommate/Room listing in ${roommate.location}`,
-          text: `Check out this listing in ${roommate.location} for ₹${roommate.budget}/mo on RentXY!`,
+          title: `${flatSize ? flatSize + ' ' : ''}Room in ${locationShort} — ₹${roommate.budget?.toLocaleString('en-IN')}/mo`,
+          text: shareText,
           url: url
         });
       } catch (err) {
-        console.log('Share canceled or failed', err);
+        if (err.name !== 'AbortError') {
+          navigator.clipboard.writeText(`${shareText}\n${url}`);
+          showModal({ type: 'alert', title: 'Link Copied!', message: 'Post details copied to clipboard.', onConfirm: closeModal });
+        }
       }
     } else {
-      navigator.clipboard.writeText(url);
-      showModal({ type: 'alert', title: 'Link Copied', message: 'Share link copied to clipboard!', onConfirm: closeModal });
+      navigator.clipboard.writeText(`${shareText}\n${url}`);
+      showModal({ type: 'alert', title: 'Link Copied!', message: 'Post details copied to clipboard.', onConfirm: closeModal });
     }
   };
 

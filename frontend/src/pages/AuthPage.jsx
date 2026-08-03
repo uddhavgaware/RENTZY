@@ -86,6 +86,15 @@ const AuthPage = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
 
+      {/* ─── Full-screen loading overlay during Google sign-in ─── */}
+      {loading && (
+        <div className="fixed inset-0 z-[9999] bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
+          <div className="w-14 h-14 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" />
+          <p className="text-gray-700 dark:text-gray-200 font-semibold text-base">Signing you in...</p>
+          <p className="text-gray-400 text-sm">Please wait a moment</p>
+        </div>
+      )}
+
       {/* ─── LEFT: Cinematic Branding Panel ─── */}
       <div className="hidden lg:flex lg:w-[45%] relative overflow-hidden bg-gradient-to-br from-primary-900 via-primary-800 to-indigo-900 flex-col justify-between p-12">
         {/* Decorative blobs */}
