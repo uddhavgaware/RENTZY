@@ -455,7 +455,7 @@ const RoommatesPage = () => {
 
     const shareText = [
       `🏠 ${flatSize ? flatSize + ' ' : ''}Roommate Listing on RentXY`,
-      `📍 ${locationShort}`,
+      `📍 ${roommate.location || locationShort}`,
       `💰 ₹${roommate.budget?.toLocaleString('en-IN') || '?'}/mo${roommate.totalCapacity > 1 ? ' (split: ₹' + Math.round(roommate.budget / roommate.totalCapacity).toLocaleString('en-IN') + '/person)' : ''}`,
       `🚪 ${vacancy} in ${flatLabel}`,
       postedBy,
