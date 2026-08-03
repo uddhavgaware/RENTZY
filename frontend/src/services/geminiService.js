@@ -497,68 +497,6 @@ Return ONLY a JSON object with this exact schema:
     }
   },
 
-  /**
-   * AI Compatibility Match Analysis between two roommate profiles
-   */
-  analyzeRoommateMatch: async (currentUser = {}, roommatePost = {}) => {
-    const prompt = `You are a smart roommate compatibility expert for RentXY, an Indian rental platform.
-
-Analyze the compatibility between these two people and provide a match report:
-
-Person 1 (Current User):
-- Diet: ${currentUser.dietaryPref || 'Not specified'}
-- Smoking: ${currentUser.smokingPref || 'Not specified'}
-- Drinking: ${currentUser.drinkingPref || 'Not specified'}
-- Sleep: ${currentUser.sleepSchedule || 'Not specified'}
-- Cleanliness: ${currentUser.cleanlinessLevel || 'Not specified'}
-- College/Work: ${currentUser.collegeName || currentUser.companyName || 'Not specified'}
-
-Person 2 (Roommate Listing):
-- Location: ${roommatePost.location || 'Not specified'}
-- Budget: ₹${roommatePost.budget || 0}/mo
-- Diet Pref: ${roommatePost.dietaryPref || 'Any'}
-- Smoking Pref: ${roommatePost.smokingPref || 'Any'}
-- Drinking Pref: ${roommatePost.drinkingPref || 'Any'}
-- Sleep Schedule: ${roommatePost.sleepSchedule || 'Any'}
-- Cleanliness: ${roommatePost.cleanlinessLevel || 'Any'}
-- Looking for: ${roommatePost.targetGender || 'Any'} ${roommatePost.targetOccupation || ''}
-- Available From: ${roommatePost.availableFrom || 'Now'}
-
-Return ONLY a JSON object with this schema:
-{
-  "matchScore": "87%",
-  "analysis": "A 2-3 sentence natural analysis of compatibility. Mention specific alignment or mismatches in lifestyle and preferences. Keep it friendly and practical.",
-  "icebreaker": "A fun, friendly opening message suggestion to start conversation (1 sentence, under 100 chars)"
-}`;
-
-    try {
-      const responseText = await callGeminiAPI(
-        prompt,
-        'You are a friendly, expert roommate compatibility advisor.',
-        [],
-        true
-      );
-      const parsed = JSON.parse(responseText);
-      return {
-        matchScore: parsed.matchScore || 'N/A',
-        analysis: parsed.analysis || 'Compatibility analysis unavailable.',
-        icebreaker: parsed.icebreaker || null,
-      };
-    } catch (error) {
-      console.warn('Gemini Roommate Match fallback:', error);
-      // Fallback: compute a basic score without AI
-      let score = 50;
-      if (currentUser.dietaryPref && roommatePost.dietaryPref && (currentUser.dietaryPref === roommatePost.dietaryPref || roommatePost.dietaryPref === 'Any')) score += 15;
-      if (currentUser.smokingPref && roommatePost.smokingPref && (currentUser.smokingPref === roommatePost.smokingPref || roommatePost.smokingPref === 'Any')) score += 10;
-      if (currentUser.sleepSchedule && roommatePost.sleepSchedule && (currentUser.sleepSchedule === roommatePost.sleepSchedule || roommatePost.sleepSchedule === 'Any')) score += 10;
-      score = Math.min(score, 95);
-      return {
-        matchScore: `${score}%`,
-        analysis: `Based on your lifestyle preferences, you appear to be a ${score >= 75 ? 'strong' : 'moderate'} match with this listing. Both of you share similar preferences on key factors. We recommend connecting to discuss further details about the space.`,
-        icebreaker: `Hey! Saw your listing in ${roommatePost.location || 'the area'} — looks like we might be a good match! 😊`,
-      };
-    }
-  }
 };
 
 export default geminiService;

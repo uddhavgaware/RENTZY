@@ -1558,7 +1558,7 @@ const RoommatesPage = () => {
                                 {!cardMatches[roommate.id] ? (
                                   <button
                                     type="button"
-                                    onClick={() => handleAnalyzeCardMatch(roommate)}
+                                    onClick={(e) => { e.stopPropagation(); handleAnalyzeCardMatch(roommate); }}
                                     disabled={analyzingCardId === roommate.id}
                                     className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2.5 transition-all shadow-md shadow-purple-500/25 disabled:opacity-50 active:scale-95 group relative overflow-hidden"
                                   >
