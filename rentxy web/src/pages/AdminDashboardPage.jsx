@@ -1300,8 +1300,8 @@ const AdminDashboardPage = () => {
                                         Updated: {new Date(r.updatedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
                                       </span>
                                     )}
-                                    <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 px-2 py-1 rounded font-medium hover:bg-red-100 dark:hover:bg-red-950/50 flex items-center gap-1 mt-1 transition-colors">
-                                      <Trash2 size={12} /> Delete
+                                    <button onClick={() => deleteRoommateRequest(r.id)} className="text-xs text-red-600 bg-red-50 hover:bg-red-600 hover:text-white dark:bg-red-950/30 dark:hover:bg-red-600 dark:text-red-400 dark:hover:text-white border border-red-200 dark:border-red-900/50 px-2.5 py-1.5 rounded-lg font-bold shadow-sm transition-all flex items-center gap-1.5 mt-1">
+                                      <Trash2 size={13} /> Delete
                                     </button>
                                   </div>
                                 </td>
@@ -1382,7 +1382,7 @@ const AdminDashboardPage = () => {
                                 </div>
 
                                 {/* Dates & Delete */}
-                                <div className="flex items-center justify-between">
+                                <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
                                   <div className="text-xs text-gray-500 dark:text-gray-400 space-y-0.5">
                                     <p>📅 Sent: {r.createdAt ? new Date(r.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : 'N/A'}</p>
                                     {r.updatedAt && (
@@ -1391,9 +1391,9 @@ const AdminDashboardPage = () => {
                                   </div>
                                   <button
                                     onClick={() => deleteRoommateRequest(r.id)}
-                                    className="text-xs bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 px-3 py-2 rounded-xl font-bold hover:bg-red-100 dark:hover:bg-red-950/50 flex items-center gap-1.5 transition-colors"
+                                    className="text-xs text-red-600 bg-red-50 hover:bg-red-600 hover:text-white dark:bg-red-950/30 dark:hover:bg-red-600 dark:text-red-400 dark:hover:text-white border border-red-200 dark:border-red-900/50 px-3 py-1.5 rounded-lg font-bold shadow-sm transition-all flex items-center gap-1.5 active:scale-95"
                                   >
-                                    <Trash2 size={13} /> Delete
+                                    <Trash2 size={14} /> Delete
                                   </button>
                                 </div>
                               </div>
