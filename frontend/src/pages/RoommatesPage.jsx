@@ -1199,14 +1199,22 @@ const RoommatesPage = () => {
                                 </div>
                               )}
 
-                              <div className="flex gap-2">
-                                <button onClick={() => {
-                                  setIsMapView(false);
-                                  setTimeout(() => {
-                                    document.getElementById(`roommate-card-${roommate.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                  }, 100);
-                                }} className="flex-1 bg-white border border-primary-600 text-primary-600 py-1.5 rounded-xl text-xs font-bold hover:bg-primary-50 transition-colors shadow-sm">Details</button>
-                                <button onClick={() => navigate(`/messages?user=${roommate.user?.id}`)} className="flex-1 bg-primary-600 text-white py-1.5 rounded-xl text-xs font-bold hover:bg-primary-700 transition-colors shadow-sm">Message</button>
+                              <div className="flex flex-col gap-2">
+                                <button onClick={(e) => {
+                                  e.stopPropagation();
+                                  window.open(`https://www.google.com/maps/search/?api=1&query=${roommate.locationCoordinates.lat},${roommate.locationCoordinates.lng}`, '_blank');
+                                }} className="w-full bg-indigo-50 border border-indigo-200 text-indigo-700 py-1.5 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-colors shadow-sm flex items-center justify-center gap-1">
+                                  <MapIcon size={12} /> Open in Google Maps
+                                </button>
+                                <div className="flex gap-2">
+                                  <button onClick={() => {
+                                    setIsMapView(false);
+                                    setTimeout(() => {
+                                      document.getElementById(`roommate-card-${roommate.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    }, 100);
+                                  }} className="flex-1 bg-white border border-primary-600 text-primary-600 py-1.5 rounded-xl text-xs font-bold hover:bg-primary-50 transition-colors shadow-sm">Details</button>
+                                  <button onClick={() => navigate(`/messages?user=${roommate.user?.id}`)} className="flex-1 bg-primary-600 text-white py-1.5 rounded-xl text-xs font-bold hover:bg-primary-700 transition-colors shadow-sm">Message</button>
+                                </div>
                               </div>
                             </div>
                           </Popup>
@@ -1343,13 +1351,11 @@ const RoommatesPage = () => {
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  setMapCenter([roommate.locationCoordinates.lat, roommate.locationCoordinates.lng]);
-                                  setIsMapView(true);
-                                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  window.open(`https://www.google.com/maps/search/?api=1&query=${roommate.locationCoordinates.lat},${roommate.locationCoordinates.lng}`, '_blank');
                                 }}
                                 className="flex-shrink-0 flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95"
                               >
-                                <MapIcon size={12} /> View in Map
+                                <MapIcon size={12} /> Open in GMaps
                               </button>
                             )}
                           </div>
