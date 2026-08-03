@@ -1595,9 +1595,10 @@ const RoommatesPage = () => {
                           )}
                         </div>
 
-                          {/* Quick Actions - Always Visible */}
+                        {/* Bottom Action: Toggle Expand / Collapse and Quick Actions */}
+                        <div className={`pt-3 mt-3 border-t border-gray-100 dark:border-white/5 flex flex-col gap-2 ${isExpanded ? 'max-w-2xl mx-auto w-full' : ''}`}>
                           {!isExpanded && !isAdminOrCreator && (
-                            <div className="flex gap-2 mb-2">
+                            <div className="flex gap-2">
                               <button
                                 type="button"
                                 onClick={() => handleSendRequest(roommate.id)}
@@ -1618,7 +1619,7 @@ const RoommatesPage = () => {
                             </div>
                           )}
                           {!isExpanded && isPostCreator && (
-                            <div className="flex gap-2 mb-2">
+                            <div className="flex gap-2">
                               <button type="button" onClick={() => handleEditPost(roommate)} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all active:scale-95">
                                 <Edit3 size={13} /> Edit
                               </button>
@@ -1640,7 +1641,6 @@ const RoommatesPage = () => {
                               </>
                             )}
                           </button>
-                          {/* Quick action buttons removed to declutter desktop view, use expanded view instead */}
                         </div>
                       </div>
                     );
