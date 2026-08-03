@@ -249,28 +249,28 @@ const LandingPage = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="max-w-3xl mx-auto backdrop-blur-2xl bg-white/10 sm:bg-white/20 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 shadow-[0_8px_40px_rgba(0,0,0,0.3)] border border-white/30 sm:border-white/60"
+          className="max-w-3xl mx-auto backdrop-blur-xl bg-white/20 dark:bg-black/20 rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 flex flex-col sm:flex-row gap-2.5 shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-white/60 dark:border-white/10"
         >
           {/* Location input */}
-          <div className="flex-1 flex items-center bg-white/15 sm:bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl px-4 py-3.5 sm:py-3 gap-3 border border-white/30 sm:border-white/50 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
-            <MapPin size={20} className="text-indigo-300 sm:text-indigo-500 flex-shrink-0" />
+          <div className="flex-1 flex items-center bg-white/95 dark:bg-gray-800/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 dark:border-gray-700 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
+            <MapPin size={20} className="text-indigo-500 flex-shrink-0" />
             <input
               type="text"
               value={heroLocation}
               onChange={(e) => setHeroLocation(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleHeroSearch()}
               placeholder={placeholders[placeholderIndex]}
-              className="bg-transparent border-none outline-none w-full text-white sm:text-gray-900 placeholder-white/60 sm:placeholder-gray-400 font-semibold text-base transition-all duration-500"
+              className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 font-semibold text-base transition-all duration-500"
             />
           </div>
 
           {/* Property type */}
-          <div className="flex items-center bg-white/15 sm:bg-white/95 backdrop-blur-md rounded-xl sm:rounded-2xl px-4 py-3.5 sm:py-3 gap-3 border border-white/30 sm:border-white/50 sm:w-48 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
-            <Home size={20} className="text-indigo-300 sm:text-indigo-500 flex-shrink-0" />
+          <div className="flex items-center bg-white/95 dark:bg-gray-800/90 rounded-xl sm:rounded-2xl px-4 py-3 gap-3 border border-white/50 dark:border-gray-700 sm:w-48 focus-within:ring-2 focus-within:ring-indigo-400 transition-all">
+            <Home size={20} className="text-indigo-500 flex-shrink-0" />
             <select
               value={heroType}
               onChange={(e) => setHeroType(e.target.value)}
-              className="bg-transparent border-none outline-none w-full text-white sm:text-gray-900 font-semibold cursor-pointer text-base appearance-none [&>option]:text-gray-900"
+              className="bg-transparent border-none outline-none w-full text-gray-900 dark:text-white font-semibold cursor-pointer text-base appearance-none [&>option]:text-gray-900"
             >
               <option value="">All Types</option>
               <option value="pg">PG / Hostel</option>
@@ -281,7 +281,7 @@ const LandingPage = () => {
           {/* Search button */}
           <button
             onClick={handleHeroSearch}
-            className="bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl sm:rounded-2xl px-8 py-4 sm:py-3.5 font-bold text-base transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 flex-shrink-0 border border-white/20"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl sm:rounded-2xl px-8 py-3.5 font-bold text-base transition-all hover:scale-[1.02] active:scale-95 shadow-lg shadow-indigo-500/20 flex items-center justify-center gap-2 flex-shrink-0"
           >
             <Search size={20} />
             Search
