@@ -824,7 +824,7 @@ const RoommatesPage = () => {
     <>
       <PremiumHero
         title="Find Your"
-        highlightText="Perfect Match"
+        highlightText="Roommates"
         highlightColorClass="text-pink-400"
         subtitle="Connect with like-minded people, split the rent, and make lifelong friends in your new city."
         videoSrc="https://videos.pexels.com/video-files/5977797/5977797-uhd_2560_1440_25fps.mp4"
