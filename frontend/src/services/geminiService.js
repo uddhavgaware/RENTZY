@@ -38,6 +38,11 @@ const callGeminiAPI = async (prompt, systemInstruction = '', history = [], jsonM
       // Gemini roles must strictly be 'user' or 'model'
       const role = msg.sender === 'ai' ? 'model' : 'user';
       
+      // Gemini API strictly requires that the first message in history is from a 'user'
+      if (contents.length === 0 && role === 'model') {
+        continue;
+      }
+
       // Prevent consecutive messages from the same role (Gemini API requirement)
       if (contents.length > 0 && contents[contents.length - 1].role === role) {
          contents[contents.length - 1].parts[0].text += `\n\n${text}`;

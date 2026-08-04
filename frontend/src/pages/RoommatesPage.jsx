@@ -13,6 +13,16 @@ function MapUpdater({ center }) {
   return null;
 }
 
+function MapResizeUpdater({ isExpanded }) {
+  const map = useMap();
+  useEffect(() => {
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 300);
+  }, [isExpanded, map]);
+  return null;
+}
+
 function CustomZoomControl() {
   const map = useMap();
   return (
@@ -447,20 +457,22 @@ const RoommatesPage = () => {
     
     // Build a rich share message
     const flatSize = roommate.flatSize || roommate.preferences?.find(p => ['1BHK','2BHK','3BHK','4BHK+','1RK'].includes(p)) || '';
-    const vacancy = roommate.totalCapacity > 1 ? `${roommate.vacancyCount ?? roommate.totalCapacity} vacanc${(roommate.vacancyCount ?? roommate.totalCapacity) === 1 ? 'y' : 'ies'}` : '1 vacancy';
+    const vCount = roommate.vacancies || roommate.vacancyCount || 1;
+    const vacancy = roommate.totalCapacity > 1 ? `${vCount} out of ${roommate.totalCapacity} vacanc${vCount === 1 ? 'y' : 'ies'}` : '1 vacancy';
     const postedBy = roommate.user?.name ? `Posted by ${roommate.user.name.split(' ')[0]}` : '';
-    const moveIn = roommate.availableFrom ? `Available from ${roommate.availableFrom}` : 'Move-in now';
+    const moveIn = roommate.availableFrom ? (roommate.availableFrom.toLowerCase() === 'immediately' ? 'Available Immediately' : `Available from ${roommate.availableFrom}`) : 'Move-in now';
     const flatLabel = flatSize ? `${flatSize} flat` : 'room';
     const locationShort = (roommate.location || '').split(',').slice(0, 2).join(',').trim();
 
     const shareText = [
       `🏠 ${flatSize ? flatSize + ' ' : ''}Roommate Listing on RentXY`,
       `📍 ${roommate.location || locationShort}`,
-      `💰 ₹${roommate.budget?.toLocaleString('en-IN') || '?'}/mo${roommate.totalCapacity > 1 ? ' (split: ₹' + Math.round(roommate.budget / roommate.totalCapacity).toLocaleString('en-IN') + '/person)' : ''}`,
+      `💰 Rent: ₹${roommate.budget?.toLocaleString('en-IN') || '?'}/mo${roommate.totalCapacity > 1 ? ' (split: ₹' + Math.round(roommate.budget / roommate.totalCapacity).toLocaleString('en-IN') + '/person)' : ''}`,
+      roommate.deposit > 0 ? `💸 Deposit: ₹${roommate.deposit.toLocaleString('en-IN')}${roommate.totalCapacity > 1 ? ' (split: ₹' + Math.round(roommate.deposit / roommate.totalCapacity).toLocaleString('en-IN') + '/person)' : ''}` : null,
       `🚪 ${vacancy} in ${flatLabel}`,
       postedBy,
       `📅 ${moveIn}`,
-      `\n👉 You can request to be their roommate directly on RentXY!`,
+      `\n👉 You can request to be their roommate directly on RentXY! ${url}`
     ].filter(Boolean).join('\n');
 
     if (navigator.share) {
@@ -1925,6 +1937,7 @@ const RoommatesPage = () => {
                     <MapContainer center={mapCenter} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
                       <CustomZoomControl />
                       <MapUpdater center={mapCenter} />
+                      <MapResizeUpdater isExpanded={isMapExpanded} />
                       <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
                       <Marker
                         position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter}
@@ -2118,6 +2131,30 @@ const RoommatesPage = () => {
                       <input type="number" min="1" value={postFormData.totalCapacity}
                         onChange={(e) => setPostFormData({ ...postFormData, totalCapacity: e.target.value })}
                         className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm" />
+                    </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="block text-xs font-medium text-gray-500 mb-1">Available From</label>
+                    <div className="flex gap-3 items-center">
+                      <select 
+                        value={postFormData.availableFrom === 'Immediately' ? 'Immediately' : 'Date'}
+                        onChange={(e) => {
+                          if (e.target.value === 'Immediately') setPostFormData({ ...postFormData, availableFrom: 'Immediately' });
+                          else setPostFormData({ ...postFormData, availableFrom: '' });
+                        }}
+                        className="w-1/3 py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none bg-white"
+                      >
+                        <option value="Immediately">Immediately</option>
+                        <option value="Date">Specific Date</option>
+                      </select>
+                      {postFormData.availableFrom !== 'Immediately' && (
+                         <input 
+                           type="date"
+                           value={postFormData.availableFrom}
+                           onChange={(e) => setPostFormData({ ...postFormData, availableFrom: e.target.value })}
+                           className="w-2/3 py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm"
+                         />
+                      )}
                     </div>
                   </div>
                 </div>
