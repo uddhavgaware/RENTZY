@@ -70,11 +70,11 @@ const FloatingSupportButton = () => {
 
     // Intent detection
     const isGreeting = /^(hi|hello|hey|yo|sup|hola)\b/i.test(lower);
-    const wantsRoommate = /roommate|roomie|flatmate|partner|friend|match/i.test(lower);
-    const wantsMover = /packer|mover|moving|shift|truck|relocat/i.test(lower);
-    const wantsPost = /owner|list|post|rent out|add property|hostel|pg|flat/i.test(lower) && /my|list|post|add|rent out|want/i.test(lower);
-    const wantsHostelOrPG = /hostel|pg|paying guest|co-living/i.test(lower);
-    const wantsBrokerage = /brokerage|free|charge|commission|fee/i.test(lower);
+    const wantsRoommate = /\b(roommate|roomie|flatmate|partner|friend|match)\b/i.test(lower);
+    const wantsMover = /\b(packer|mover|moving|shift|truck|relocat)\b/i.test(lower);
+    const wantsPost = /\b(owner|list|post|rent out|add property|hostel|pg|flat)\b/i.test(lower) && /\b(my|list|post|add|rent out|want)\b/i.test(lower);
+    const wantsHostelOrPG = /\b(hostel|pg|paying guest|co-living)\b/i.test(lower);
+    const wantsBrokerage = /\b(brokerage|free|charge|commission|fee)\b/i.test(lower);
 
     // Extract location keywords (Indian cities/areas)
     const locationPatterns = /(?:in|near|at|around|from)\s+([a-z\s]+?)(?:\s+under|\s+below|\s+within|\s+for|\s*$)/i;
@@ -98,7 +98,7 @@ const FloatingSupportButton = () => {
       if (budgetMatch[2] && /lakh/i.test(budgetMatch[2])) maxBudget *= 100000;
     }
 
-    const wantsProperty = /flat|room|pg|hostel|house|apartment|property|rent/i.test(lower);
+    const wantsProperty = /\b(flat|room|pg|hostel|house|apartment|property|rent)\b/i.test(lower);
 
     try {
       let replyText = '';
