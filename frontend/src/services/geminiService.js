@@ -1,7 +1,7 @@
 // RENTXY Gemini AI Service
 // Uses Google AI Studio / Gemini API for intelligent property matchmaking, description generation, and real estate assistant
 
-const DEFAULT_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+import api from './api';
 
 const MODELS = [
   'gemini-1.5-flash',
@@ -13,10 +13,7 @@ const MODELS = [
 /**
  * Call Gemini REST API with fallback models
  */
-const callGeminiAPI = async (prompt, systemInstruction = '', history = [], jsonMode = false, apiKey = DEFAULT_API_KEY) => {
-  if (!apiKey || apiKey === 'placeholder') {
-    throw new Error('Valid Gemini API Key is required');
-  }
+const callGeminiAPI = async (prompt, systemInstruction = '', history = [], jsonMode = false) => {
 
   const contents = [];
   let systemInjected = false;
@@ -69,8 +66,6 @@ const callGeminiAPI = async (prompt, systemInstruction = '', history = [], jsonM
 
   for (const model of MODELS) {
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      
       const generationConfig = {
         temperature: 0.7,
         topK: 40,
@@ -83,23 +78,15 @@ const callGeminiAPI = async (prompt, systemInstruction = '', history = [], jsonM
         generationConfig.responseMimeType = "application/json";
       }
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const response = await api.post('/ai/generate', {
+        model: model,
+        payload: {
           contents: contents,
           generationConfig: generationConfig
-        }),
+        }
       });
 
-      if (!response.ok) {
-        const errData = await response.json().catch(() => ({}));
-        console.warn(`Model ${model} failed:`, errData.error?.message || response.statusText);
-        lastError = new Error(errData.error?.message || `HTTP ${response.status}`);
-        continue; // try next model in fallback list
-      }
-
-      const data = await response.json();
+      const data = response.data;
       const generatedText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
       if (generatedText) {
         return generatedText.trim();
