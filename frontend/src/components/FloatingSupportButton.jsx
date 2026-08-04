@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { MessageSquare, X, Send, Bot, User, ArrowRight, Loader2, Minimize2, Maximize2, RotateCcw, Paperclip, CheckCircle2, ChevronRight, Zap, Sparkles } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, ArrowRight, Loader2, Minimize2, Maximize2, RotateCcw, Paperclip, CheckCircle2, ChevronRight, Zap, Sparkles, MessageCircle, HelpCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../services/api';
 import geminiService from '../services/geminiService';

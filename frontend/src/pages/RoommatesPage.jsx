@@ -1350,6 +1350,30 @@ const RoommatesPage = () => {
                       >
                         {/* Top: Header & User Info */}
                         <div>
+                          <div className="flex items-center gap-2 mb-3">
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); handleSharePost(roommate); }}
+                              className="flex items-center gap-1 text-[10px] font-bold bg-white hover:bg-gray-50 text-gray-700 px-2 py-1 rounded-md transition-all border border-gray-200 cursor-pointer shadow-sm active:scale-95"
+                            >
+                              <Share2 size={12} /> Share
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                const lat = roommate.locationCoordinates?.lat || roommate.latitude;
+                                const lng = roommate.locationCoordinates?.lng || roommate.longitude;
+                                const query = lat && lng
+                                  ? `${lat},${lng}`
+                                  : encodeURIComponent(roommate.location || '');
+                                window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+                              }}
+                              className="flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95"
+                            >
+                              <MapIcon size={12} /> View in Maps
+                            </button>
+                          </div>
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2.5">
                               <div
@@ -1391,30 +1415,6 @@ const RoommatesPage = () => {
                             <div className="flex items-center text-xs font-semibold text-gray-700 dark:text-gray-200 truncate mt-1">
                               <MapPin size={14} className="text-primary-500 mr-1 flex-shrink-0" />
                               <span className="truncate">{roommate.location}</span>
-                            </div>
-                            <div className="flex flex-col items-end gap-1.5 flex-shrink-0">
-                              <button
-                                type="button"
-                                onClick={(e) => { e.stopPropagation(); handleSharePost(roommate); }}
-                                className="flex items-center gap-1 text-[10px] font-bold bg-white hover:bg-gray-50 text-gray-700 px-2 py-1 rounded-md transition-all border border-gray-200 cursor-pointer shadow-sm active:scale-95 w-full justify-center"
-                              >
-                                <Share2 size={12} /> Share
-                              </button>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  const lat = roommate.locationCoordinates?.lat || roommate.latitude;
-                                  const lng = roommate.locationCoordinates?.lng || roommate.longitude;
-                                  const query = lat && lng
-                                    ? `${lat},${lng}`
-                                    : encodeURIComponent(roommate.location || '');
-                                  window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
-                                }}
-                                className="flex items-center gap-1 text-[10px] font-bold bg-primary-50 hover:bg-primary-100 text-primary-700 px-2 py-1 rounded-md transition-all border border-primary-100 cursor-pointer shadow-sm active:scale-95 w-full justify-center"
-                              >
-                                <MapIcon size={12} /> View in Maps
-                              </button>
                             </div>
                           </div>
 
@@ -2259,7 +2259,7 @@ const RoommatesPage = () => {
         >
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 z-20 w-12 h-12 bg-white/10 hover:bg-red-600 text-white rounded-full flex items-center justify-center font-bold transition-all border border-white/20 active:scale-95 backdrop-blur-sm shadow-xl"
+            className="absolute top-4 right-4 z-[9999] w-12 h-12 bg-white/10 hover:bg-red-600 text-white rounded-full flex items-center justify-center font-bold transition-all border border-white/20 active:scale-95 backdrop-blur-sm shadow-xl"
             title="Close"
           >
             <X size={24} />

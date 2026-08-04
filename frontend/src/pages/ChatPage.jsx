@@ -619,15 +619,15 @@ const ChatPage = () => {
                   </button>
                 </div>
               )}
-              <form onSubmit={handleSendMessage} className="flex items-end bg-gray-50 border border-gray-200 rounded-2xl focus-within:border-primary-400 focus-within:ring-1 focus-within:ring-primary-400 transition-all">
+              <form onSubmit={handleSendMessage} className="flex items-center bg-gray-50 border border-gray-200 rounded-2xl focus-within:border-primary-400 focus-within:ring-1 focus-within:ring-primary-400 transition-all">
                 <input 
                   type="text" 
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type a message..." 
-                  className="flex-1 bg-transparent border-none outline-none resize-none p-3 text-gray-800 placeholder-gray-400 h-12"
+                  className="flex-1 bg-transparent border-none outline-none p-3 text-gray-800 placeholder-gray-400"
                 />
-                <div className="p-1 flex-shrink-0">
+                <div className="p-2 flex-shrink-0">
                   <button type="submit" disabled={!newMessage.trim()} className="w-10 h-10 bg-primary-600 hover:bg-primary-700 text-white rounded-xl flex items-center justify-center transition-all active:scale-95 shadow-sm shadow-primary-600/30 disabled:opacity-50 disabled:cursor-not-allowed">
                     <Send size={18} className="ml-1" />
                   </button>
