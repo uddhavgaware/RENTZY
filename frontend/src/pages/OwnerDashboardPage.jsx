@@ -599,11 +599,11 @@ const OwnerDashboardPage = () => {
                       const q = billSearchQuery.toLowerCase().trim();
                       if (!q) return true;
                       return (
-                        (b.tenantName || '').toLowerCase().includes(q) ||
-                        (b.roomBed?.roomNumber || '').toLowerCase().includes(q) ||
-                        (b.roomBed?.ownerProperty?.name || '').toLowerCase().includes(q) ||
-                        (b.billingMonth || '').toLowerCase().includes(q) ||
-                        (b.status || '').toLowerCase().includes(q)
+                        String(b.tenantName || '').toLowerCase().includes(q) ||
+                        String(b.roomBed?.roomNumber || '').toLowerCase().includes(q) ||
+                        String(b.roomBed?.ownerProperty?.name || '').toLowerCase().includes(q) ||
+                        String(b.billingMonth || '').toLowerCase().includes(q) ||
+                        String(b.status || '').toLowerCase().includes(q)
                       );
                     }).map(b => (
                       <tr key={b.id} className="hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors">

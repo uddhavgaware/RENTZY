@@ -772,6 +772,51 @@ const PostPropertyPage = () => {
               <div className="space-y-6 animate-fadeIn">
                 <h2 className="text-xl font-bold text-gray-900 border-b pb-4">Location & Pricing</h2>
                 
+                {/* Map Picker */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
+                    <MapIcon size={16} className="text-gray-500" /> Pin on Map First
+                  </label>
+                  <div className="mb-3 bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2">
+                    <MapPin size={16} className="text-blue-500" />
+                    Tip: Pin your location on the map first to automatically fill in the address below!
+                  </div>
+                  <div className="h-[250px] rounded-xl overflow-hidden border border-gray-200 shadow-inner z-0 relative">
+                    {/* Map Search Overlay */}
+                    <div className="absolute top-3 left-3 right-3 z-[500] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
+                      <div className="pl-3 pr-2 text-gray-400">
+                        <MapPin size={16} className="text-primary-500" />
+                      </div>
+                      <input 
+                        type="text" 
+                        value={mapSearchQuery}
+                        onChange={(e) => setMapSearchQuery(e.target.value)}
+                        placeholder="Search area, landmark or street..." 
+                        className="w-full outline-none text-xs bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleMapSearch(e);
+                        }}
+                      />
+                      <button 
+                        type="button"
+                        onClick={handleMapSearch}
+                        className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
+                      >
+                        Search
+                      </button>
+                    </div>
+
+                    <MapContainer center={mapCenter} zoom={11} scrollWheelZoom={true} className="h-full w-full">
+                      <MapUpdater center={mapCenter} />
+                      <TileLayer
+                        attribution='&copy; Google Maps'
+                        url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
+                      />
+                      <LocationMarker position={mapPosition} setPosition={setMapPosition} />
+                    </MapContainer>
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Building / Society Name</label>
                   <input type="text" name="buildingName" value={formData.buildingName} onChange={handleChange} className="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition-all" placeholder="e.g. Maple Heights, Sai Residency" />
@@ -821,48 +866,6 @@ const PostPropertyPage = () => {
                       pattern="[0-9]{6}"
                       required 
                     />
-                  </div>
-                </div>
-
-                {/* Map Picker */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
-                    <MapIcon size={16} className="text-gray-500" /> Pin on Map
-                  </label>
-                  <p className="text-xs text-gray-400 mb-3">Click on the map to accurately pin your property's location. This helps tenants find it easily.</p>
-                  <div className="h-[250px] rounded-xl overflow-hidden border border-gray-200 shadow-inner z-0 relative">
-                    {/* Map Search Overlay */}
-                    <div className="absolute top-3 left-3 right-3 z-[500] glass-premium rounded-xl p-1.5 flex items-center shadow-lg border border-white/50 bg-white/95 backdrop-blur-sm">
-                      <div className="pl-3 pr-2 text-gray-400">
-                        <MapPin size={16} className="text-primary-500" />
-                      </div>
-                      <input 
-                        type="text" 
-                        value={mapSearchQuery}
-                        onChange={(e) => setMapSearchQuery(e.target.value)}
-                        placeholder="Search area, landmark or street..." 
-                        className="w-full outline-none text-xs bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') handleMapSearch(e);
-                        }}
-                      />
-                      <button 
-                        type="button"
-                        onClick={handleMapSearch}
-                        className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-3 py-1.5 text-xs font-semibold flex items-center shadow-sm transition-colors active:scale-95 ml-1 flex-shrink-0"
-                      >
-                        Search
-                      </button>
-                    </div>
-
-                    <MapContainer center={mapCenter} zoom={11} scrollWheelZoom={true} className="h-full w-full">
-                      <MapUpdater center={mapCenter} />
-                      <TileLayer
-                        attribution='&copy; Google Maps'
-                        url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}"
-                      />
-                      <LocationMarker position={mapPosition} setPosition={setMapPosition} />
-                    </MapContainer>
                   </div>
                 </div>
 

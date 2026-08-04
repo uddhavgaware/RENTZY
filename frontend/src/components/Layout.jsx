@@ -23,9 +23,9 @@ const Layout = ({ children }) => {
   const hideFooterRoutes = ['/messages'];
 
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <div className={`flex flex-col font-sans ${hideFooterRoutes.includes(location.pathname) ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
       <Navbar />
-      <main className="flex-grow w-full relative pb-28 md:pb-0 overflow-hidden">
+      <main className={`flex-1 w-full relative ${hideFooterRoutes.includes(location.pathname) ? 'pb-0 overflow-hidden h-0' : 'pb-28 md:pb-0'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}

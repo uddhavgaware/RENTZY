@@ -98,13 +98,15 @@ const FloatingSupportButton = () => {
       if (budgetMatch[2] && /lakh/i.test(budgetMatch[2])) maxBudget *= 100000;
     }
 
+    const wantsProperty = /flat|room|pg|hostel|house|apartment|property|rent/i.test(lower);
+
     try {
       let replyText = '';
       let actionButton = null;
       let listingCards = null;
 
-      // 1. Search database for real listing matches if location/budget/brokerage mentioned
-      if (searchLocation || maxBudget || (!isGreeting && !wantsPost)) {
+      // 1. Search database for real listing matches if location/budget/property mentioned
+      if (searchLocation || maxBudget || wantsProperty) {
         try {
           const params = {};
           if (searchLocation) params.location = searchLocation;

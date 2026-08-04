@@ -83,7 +83,7 @@ const RoommatesPage = () => {
   const [isMapView, setIsMapView] = useState(false);
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
   const [modalMapSearchQuery, setModalMapSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState('aiMatch');
 
   // Smart Commute / Proximity Algo Filter
   const [commuteRefName, setCommuteRefName] = useState('');
@@ -135,7 +135,7 @@ const RoommatesPage = () => {
   const [showPreferencesSetup, setShowPreferencesSetup] = useState(false);
 
   useEffect(() => {
-    if (activeTab === 'smartMatch' && !hasPreferences) {
+    if (activeTab === 'aiMatch' && !hasPreferences) {
       setShowPreferencesSetup(true);
     }
   }, [activeTab, hasPreferences]);
@@ -545,7 +545,7 @@ const RoommatesPage = () => {
     setLoading(true);
     try {
       let response;
-      if (activeTab === 'smartMatch') {
+      if (activeTab === 'aiMatch') {
         response = await api.get('/roommates/matches', { params: { _t: Date.now() } });
       } else {
         response = await api.get('/roommates', {
@@ -553,8 +553,8 @@ const RoommatesPage = () => {
         });
       }
 
-      const results = activeTab === 'smartMatch' ? response.data : (response.data.content || []);
-      setHasMore(activeTab === 'smartMatch' ? false : !response.data.last);
+      const results = activeTab === 'aiMatch' ? response.data : (response.data.content || []);
+      setHasMore(activeTab === 'aiMatch' ? false : !response.data.last);
 
       if (isAppend) {
         setRoommates(prev => [...prev, ...results]);
@@ -925,14 +925,14 @@ const RoommatesPage = () => {
               <button
                 onClick={() => {
                   if (!isAuthenticated) {
-                    showModal({ type: 'alert', title: 'Login Required', message: 'Please log in to use Smart Match.', onConfirm: closeModal });
+                    showModal({ type: 'alert', title: 'Login Required', message: 'Please log in to use AI Match.', onConfirm: closeModal });
                     return;
                   }
-                  setActiveTab('smartMatch');
+                  setActiveTab('aiMatch');
                 }}
-                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'smartMatch' ? 'bg-pink-600 text-white shadow-md' : 'bg-white text-gray-600 hover:bg-pink-50 border border-gray-200'}`}
+                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'aiMatch' ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20' : 'bg-white text-gray-600 hover:bg-purple-50 hover:text-purple-600 border border-gray-200'}`}
               >
-                🔥 Smart Matches
+                ✨ AI Matches
               </button>
               <button
                 onClick={() => setActiveTab('girls')}
@@ -1054,14 +1054,14 @@ const RoommatesPage = () => {
           </div>
 
           {/* Roommates Grid / Preferences Setup */}
-          {activeTab === 'smartMatch' && showPreferencesSetup ? (
+          {activeTab === 'aiMatch' && showPreferencesSetup ? (
             <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 max-w-2xl mx-auto mb-12 animate-scaleIn">
               <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-pink-100 text-pink-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <BadgeCheck size={32} />
+                <div className="w-16 h-16 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Sparkles size={32} />
                 </div>
                 <h2 className="text-2xl font-black text-gray-900">Set Your Preferences</h2>
-                <p className="text-gray-500 mt-2">Tell us about your lifestyle so we can find your perfect roommate matches.</p>
+                <p className="text-gray-500 mt-2">Tell us about your lifestyle so we can find your perfect AI roommate matches.</p>
               </div>
 
               <form onSubmit={handleSavePreferences} className="space-y-6">
@@ -1350,7 +1350,7 @@ const RoommatesPage = () => {
                       >
                         {/* Top: Header & User Info */}
                         <div>
-                          <div className="flex items-center gap-2 mb-3">
+                          <div className="flex items-center gap-2 mb-3 flex-wrap">
                             <button
                               type="button"
                               onClick={(e) => { e.stopPropagation(); handleSharePost(roommate); }}
@@ -1373,6 +1373,15 @@ const RoommatesPage = () => {
                             >
                               <MapIcon size={12} /> View in Maps
                             </button>
+                            {user && roommate.user?.id === user.id && (
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); handleEditPost(roommate); }}
+                                className="flex items-center gap-1 text-[10px] font-bold bg-orange-50 hover:bg-orange-100 text-orange-700 px-2 py-1 rounded-md transition-all border border-orange-200 cursor-pointer shadow-sm active:scale-95 ml-auto"
+                              >
+                                <Edit3 size={12} /> Edit Post
+                              </button>
+                            )}
                           </div>
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-2.5">
@@ -1412,9 +1421,9 @@ const RoommatesPage = () => {
 
                           {/* Location */}
                           <div className="flex items-start justify-between mb-2 gap-2">
-                            <div className="flex items-center text-xs font-semibold text-gray-700 dark:text-gray-200 truncate mt-1">
-                              <MapPin size={14} className="text-primary-500 mr-1 flex-shrink-0" />
-                              <span className="truncate">{roommate.location}</span>
+                            <div className="flex items-start text-xs font-semibold text-gray-700 dark:text-gray-200 mt-1">
+                              <MapPin size={14} className="text-primary-500 mr-1 flex-shrink-0 mt-0.5" />
+                              <span className="leading-snug">{roommate.location}</span>
                             </div>
                           </div>
 
@@ -1523,6 +1532,11 @@ const RoommatesPage = () => {
                                     </div>
                                   ))}
                                 </div>
+                                {(!roommate.electricityBill || roommate.electricityBill === 'Not Included') && (
+                                  <div className="mt-2 text-[10px] font-bold text-orange-600 bg-orange-50 dark:bg-orange-950/40 dark:text-orange-400 px-2.5 py-1.5 rounded-lg border border-orange-100 dark:border-orange-900/50 flex items-center gap-1.5">
+                                    ⚡ Elec bill will be divided among all members
+                                  </div>
+                                )}
                               </div>
 
                               {/* Specifications */}
@@ -1865,9 +1879,67 @@ const RoommatesPage = () => {
 
                 {/* Section: Location */}
                 <div>
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center gap-2 mb-2">
                     <div className="w-6 h-6 bg-primary-100 rounded-lg flex items-center justify-center"><MapPin size={12} className="text-primary-600" /></div>
                     <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wider">Location</h3>
+                  </div>
+                  <div className="mb-3 bg-blue-50 border border-blue-200 text-blue-700 px-3 py-2 rounded-lg text-[11px] font-semibold flex items-center gap-2">
+                    <MapPin size={14} className="text-blue-500 flex-shrink-0" />
+                    Tip: Pin your location on the map first to automatically fill in the address below!
+                  </div>
+
+                  {/* Embedded Post Map */}
+                  <div className={`mt-3 mb-4 w-full overflow-hidden border-2 border-primary-200 relative z-0 transition-all duration-300 ${isMapExpanded ? 'fixed inset-0 z-[600] h-[100dvh] w-screen rounded-none' : 'h-[220px] rounded-xl'}`}>
+                    {/* Map Search Overlay */}
+                    <div className="absolute top-2 left-2 right-2 z-[500] rounded-xl p-1 flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg">
+                      <div className="pl-2 pr-1.5 text-gray-400">
+                        <MapPin size={14} className="text-primary-500" />
+                      </div>
+                      <input
+                        type="text"
+                        value={modalMapSearchQuery}
+                        onChange={(e) => setModalMapSearchQuery(e.target.value)}
+                        placeholder="Search exact area / building on map..."
+                        className="w-full outline-none text-[11px] bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') handleModalMapSearch(e);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleModalMapSearch}
+                        className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-2.5 py-1 text-[10px] font-semibold flex items-center transition-colors active:scale-95 ml-1 flex-shrink-0"
+                      >
+                        Search
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsMapExpanded(!isMapExpanded)}
+                        className="bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg p-1 text-[10px] font-semibold flex items-center transition-colors active:scale-95 ml-1 flex-shrink-0"
+                        title={isMapExpanded ? "Minimize Map" : "Maximize Map"}
+                      >
+                        {isMapExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                      </button>
+                    </div>
+
+                    <MapContainer center={mapCenter} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
+                      <CustomZoomControl />
+                      <MapUpdater center={mapCenter} />
+                      <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
+                      <Marker
+                        position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter}
+                        icon={createCustomIcon('Room')}
+                      />
+                      <ModalLocationPicker />
+                    </MapContainer>
+
+                    <div className="absolute bottom-2 left-2 z-[500] bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black text-primary-700 shadow-md border border-primary-100 flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
+                      Roommate Request
+                    </div>
+                    <div className="absolute bottom-2 right-14 z-[500] bg-white/95 backdrop-blur-md px-2 py-1 rounded-md text-[8px] font-black text-gray-500 shadow-md border border-gray-100">
+                      Click Map to Pick Pin
+                    </div>
                   </div>
 
                   {/* Building / Society Name */}
@@ -1951,60 +2023,6 @@ const RoommatesPage = () => {
                   </div>
                 </div>
 
-                {/* Embedded Post Map */}
-                <div className={`mt-4 w-full overflow-hidden border-2 border-primary-200 relative z-0 transition-all duration-300 ${isMapExpanded ? 'fixed inset-0 z-[600] h-[100dvh] w-screen rounded-none' : 'h-[220px] rounded-xl'}`}>
-                  {/* Map Search Overlay */}
-                  <div className="absolute top-2 left-2 right-2 z-[500] rounded-xl p-1 flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg">
-                    <div className="pl-2 pr-1.5 text-gray-400">
-                      <MapPin size={14} className="text-primary-500" />
-                    </div>
-                    <input
-                      type="text"
-                      value={modalMapSearchQuery}
-                      onChange={(e) => setModalMapSearchQuery(e.target.value)}
-                      placeholder="Search exact area / building on map..."
-                      className="w-full outline-none text-[11px] bg-transparent font-medium text-gray-800 placeholder-gray-400 py-1"
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleModalMapSearch(e);
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={handleModalMapSearch}
-                      className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-2.5 py-1 text-[10px] font-semibold flex items-center transition-colors active:scale-95 ml-1 flex-shrink-0"
-                    >
-                      Search
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setIsMapExpanded(!isMapExpanded)}
-                      className="bg-white text-gray-700 border border-gray-200 hover:bg-gray-100 rounded-lg p-1 text-[10px] font-semibold flex items-center transition-colors active:scale-95 ml-1 flex-shrink-0"
-                      title={isMapExpanded ? "Minimize Map" : "Maximize Map"}
-                    >
-                      {isMapExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-                    </button>
-                  </div>
-
-                  <MapContainer center={mapCenter} zoom={13} zoomControl={false} style={{ height: '100%', width: '100%' }}>
-                    <CustomZoomControl />
-                    <MapUpdater center={mapCenter} />
-                    <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
-                    <Marker
-                      position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter}
-                      icon={createCustomIcon('Room')}
-                    />
-                    <ModalLocationPicker />
-                  </MapContainer>
-
-                  <div className="absolute bottom-2 left-2 z-[500] bg-white/95 backdrop-blur-md px-2.5 py-1 rounded-full text-[9px] font-black text-primary-700 shadow-md border border-primary-100 flex items-center gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                    Roommate Request
-                  </div>
-                  <div className="absolute bottom-2 right-14 z-[500] bg-white/95 backdrop-blur-md px-2 py-1 rounded-md text-[8px] font-black text-gray-500 shadow-md border border-gray-100">
-                    Click Map to Pick Pin
-                  </div>
-                </div>
-
                 {/* Section: Property */}
                 <div className="space-y-4">
                   {/* Configuration/Flat Size Select Option */}
@@ -2055,6 +2073,11 @@ const RoommatesPage = () => {
                       </select>
                     </div>
                   </div>
+                  {postFormData.electricityBill === 'Not Included' && (
+                    <p className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1.5 rounded-lg border border-orange-100 flex items-center gap-1">
+                      ⚡ Elec bill will be divided among all members
+                    </p>
+                  )}
                 </div>
 
                 {/* Section: Budget */}
@@ -2259,7 +2282,7 @@ const RoommatesPage = () => {
         >
           <button
             onClick={closeLightbox}
-            className="absolute top-4 right-4 z-[9999] w-12 h-12 bg-white/10 hover:bg-red-600 text-white rounded-full flex items-center justify-center font-bold transition-all border border-white/20 active:scale-95 backdrop-blur-sm shadow-xl"
+            className="absolute top-6 right-6 z-[9999] w-12 h-12 bg-black/60 hover:bg-red-600 text-white rounded-full flex items-center justify-center font-bold transition-all border-2 border-white/50 active:scale-95 backdrop-blur-sm shadow-2xl"
             title="Close"
           >
             <X size={24} />

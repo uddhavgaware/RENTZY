@@ -1,103 +1,43 @@
 import React, { useState } from 'react';
-import { X, CreditCard, Lock, CheckCircle2, Loader2, Smartphone, ShieldCheck, DollarSign } from 'lucide-react';
+import { X, ShieldCheck, CheckCircle2, Upload, FileImage, Info } from 'lucide-react';
 import api from '../services/api';
 
 const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
-  const [step, setStep] = useState('ready'); // ready | processing | success | error
-  const [paymentMethod, setPaymentMethod] = useState('upi'); // default to upi so they immediately see the test QR!
-  const [activeUpiApp, setActiveUpiApp] = useState('');
+  const [step, setStep] = useState('ready'); // ready | success | error
+  const [screenshotUrl, setScreenshotUrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const title = listing ? listing.title : bill ? `Bill for ${bill.billingMonth || 'Current Month'}` : 'RentXY Checkout';
   const amount = listing ? (listing.price * 3) : bill ? bill.totalAmount : 0;
-  const description = listing ? `Deposit & Rent for ${listing.title}` : bill ? `Utility & Rent Bill payment` : 'Payment';
 
-  const handlePay = async () => {
+  const handleSimulateUpload = () => {
+    // Simulate image upload for demonstration
+    setIsUploading(true);
+    setTimeout(() => {
+      setScreenshotUrl('https://via.placeholder.com/150?text=Payment+Screenshot');
+      setIsUploading(false);
+    }, 1000);
+  };
+
+  const handleSettle = async () => {
+    if (bill && !screenshotUrl) {
+      setErrorMsg('Payment screenshot is compulsory for bills.');
+      return;
+    }
+    
     setStep('processing');
-    setErrorMsg('');
-
     try {
-      // 1. Create a Razorpay order via backend
-      const orderRes = await api.post('/payments/create-order', { bookingId: bookingId || (bill ? bill.id : 1) });
-      const { orderId, amount: rzpAmount, currency, keyId } = orderRes.data;
-
-      // 2. Open Razorpay Checkout with method configuration
-      const options = {
-        key: keyId || 'rzp_test_demo12345',
-        amount: rzpAmount || (amount * 100),
-        currency: currency || 'INR',
-        name: 'RentXY Secure Checkout',
-        description: description,
-        order_id: orderId,
-        handler: async (response) => {
-          // 3. Verify payment on backend
-          try {
-            await api.post('/payments/verify', {
-              bookingId: bookingId || (bill ? bill.id : null),
-              billId: bill ? bill.id : null,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            });
-            setStep('success');
-            if (onSuccess) onSuccess(bill ? bill.id : bookingId);
-          } catch (verifyErr) {
-            console.error('Verification failed', verifyErr);
-            setErrorMsg('Payment verification failed. Please contact support.');
-            setStep('error');
-          }
-        },
-        prefill: {
-          name: 'RentXY User',
-          email: 'user@rentxy.in',
-          contact: '9876543210',
-        },
-        notes: {
-          bookingId: bookingId || '',
-          billId: bill ? bill.id : '',
-        },
-        theme: {
-          color: '#6366f1',
-        },
-        modal: {
-          ondismiss: () => {
-            setStep('ready');
-          },
-        },
-      };
-
-      if (window.Razorpay) {
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', (response) => {
-          console.error('Payment failed', response.error);
-          setErrorMsg(response.error.description || 'Payment failed. Please try again.');
-          setStep('error');
-        });
-        rzp.open();
-      } else {
-        // Fallback simulation if Razorpay script is blocked or offline
-        setTimeout(() => {
-          setStep('success');
-          if (onSuccess) onSuccess(bill ? bill.id : bookingId);
-        }, 1500);
-      }
-    } catch (err) {
-      console.error('Order creation failed, switching to test simulation', err);
-      // In demo/test environment without live API keys, simulate successful Razorpay payment!
+      // If we had a real backend endpoint for this, we would call it here.
+      // For now, we simulate success.
       setTimeout(() => {
         setStep('success');
         if (onSuccess) onSuccess(bill ? bill.id : bookingId);
-      }, 1500);
+      }, 1000);
+    } catch (err) {
+      setErrorMsg('Failed to submit payment proof.');
+      setStep('error');
     }
-  };
-
-  const handleSimulateUpiScan = (appName = 'UPI Gateway') => {
-    setActiveUpiApp(typeof appName === 'string' ? appName : 'UPI Scanner');
-    setStep('processing');
-    setTimeout(() => {
-      setStep('success');
-      if (onSuccess) onSuccess(bill ? bill.id : bookingId);
-    }, 2800);
   };
 
   return (
@@ -114,7 +54,7 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
               <ShieldCheck size={24} className="text-white" />
             </div>
             <div>
-              <p className="text-white/80 text-[11px] uppercase tracking-widest font-bold">Razorpay Secure Checkout</p>
+              <p className="text-white/80 text-[11px] uppercase tracking-widest font-bold">RentXY Payment Portal</p>
               <p className="font-black text-lg leading-tight line-clamp-1">{title}</p>
             </div>
           </div>
@@ -126,261 +66,91 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
 
         {/* Body content */}
         <div className="overflow-y-auto flex-1">
-          {/* Step: Ready */}
           {step === 'ready' && (
-            <div className="p-6 space-y-5">
-              {/* Payment Method Tabs */}
-              <div className="flex gap-2 p-1 bg-gray-100 dark:bg-slate-800 rounded-2xl border border-gray-200 dark:border-white/5">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('upi')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-black transition-all ${
-                    paymentMethod === 'upi'
-                      ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md shadow-primary-600/25 scale-[1.02]'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <Smartphone size={16} />
-                  UPI / QR Scan (Test)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-black transition-all ${
-                    paymentMethod === 'card'
-                      ? 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white shadow-md shadow-primary-600/25 scale-[1.02]'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  }`}
-                >
-                  <CreditCard size={16} />
-                  Card / NetBanking
-                </button>
+            <div className="p-6 space-y-6">
+              
+              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-center">
+                <p className="text-sm font-bold text-amber-800">🚧 Online Pay Coming Soon!</p>
+                <p className="text-xs text-amber-700 mt-1">Direct bank integrations are currently under maintenance. Please settle the amount directly with the owner.</p>
               </div>
 
-              {/* Payment Summary */}
-              <div className="bg-gray-50 dark:bg-slate-800/60 rounded-2xl p-4 space-y-2.5 border border-gray-100 dark:border-white/5">
-                <h3 className="text-xs font-black uppercase tracking-wider text-gray-400">Payment Breakdown</h3>
-                {listing ? (
-                  <>
-                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                      <span>Monthly Rent Advance</span>
-                      <span className="font-bold text-gray-900 dark:text-white">₹{listing.price?.toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                      <span>Refundable Deposit (2 months)</span>
-                      <span className="font-bold text-gray-900 dark:text-white">₹{(listing.price * 2)?.toLocaleString('en-IN')}</span>
-                    </div>
-                  </>
-                ) : bill ? (
-                  <>
-                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                      <span>Bill Amount Due</span>
-                      <span className="font-bold text-gray-900 dark:text-white">₹{bill.totalAmount?.toLocaleString('en-IN')}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-600 dark:text-gray-300">
-                      <span>Platform Fee & Brokerage</span>
-                      <span className="font-bold text-emerald-600">₹0 (FREE)</span>
-                    </div>
-                  </>
-                ) : null}
-                <div className="border-t border-gray-200 dark:border-white/10 pt-2.5 flex justify-between text-sm">
-                  <span className="font-black text-gray-900 dark:text-white">Total Due Now</span>
-                  <span className="font-black text-primary-600 dark:text-primary-400">₹{amount?.toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-
-              {/* Payment instructions / QR based on selected method */}
-              {paymentMethod === 'upi' ? (
-                <div className="bg-gradient-to-b from-purple-50/80 via-white to-purple-50/40 dark:from-purple-950/20 dark:via-slate-800 dark:to-slate-800 border-2 border-purple-200 dark:border-purple-800/50 rounded-3xl p-5 text-center space-y-4 shadow-sm">
-                  <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-black uppercase tracking-wider border border-purple-200 dark:border-purple-700">
-                    <Smartphone size={14} /> Scan Test UPI QR Code
-                  </div>
+              {bill && (
+                <div className="space-y-3 border-t border-gray-100 pt-4">
+                  <h3 className="text-sm font-bold text-gray-800">Upload Payment Screenshot</h3>
+                  <p className="text-xs text-gray-500">To mark this bill as paid, it is compulsory to upload a screenshot of your payment. The owner will verify and confirm it.</p>
                   
-                  {/* QR Code Container with Animated Scanner Beam */}
-                  <div className="bg-white p-3.5 rounded-2xl border-2 border-dashed border-purple-300 inline-block shadow-md mx-auto relative group overflow-hidden">
-                    {/* Active laser beam animation directly over QR */}
-                    <div className="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-emerald-500 to-transparent shadow-lg shadow-emerald-500/80 animate-[bounce_2s_infinite] pointer-events-none z-20" />
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=upi://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Secure%20Checkout&am=${amount}&cu=INR`}
-                      alt="Test UPI QR Code"
-                      className="w-44 h-44 object-contain mx-auto relative z-10"
-                    />
-                    <p className="text-[10px] font-black text-gray-400 mt-1.5 uppercase tracking-widest relative z-10">Razorpay · Verified UPI Merchant</p>
-                  </div>
-
-                  <p className="text-xs text-gray-600 dark:text-gray-300 max-w-xs mx-auto leading-relaxed">
-                    Scan with <strong>Google Pay, PhonePe, Paytm, or BHIM</strong> to transfer <strong>₹{amount?.toLocaleString('en-IN')}</strong>.
-                  </p>
-
-                  {/* 1-Click Mobile UPI App Intent Launchers */}
-                  <div className="pt-3 border-t border-purple-100 dark:border-purple-800/30">
-                    <p className="text-[11px] font-extrabold text-purple-700 dark:text-purple-300 uppercase tracking-wider mb-2.5">
-                      ⚡ Or Click to Launch UPI App Directly (Mobile Intent)
-                    </p>
-                    <div className="grid grid-cols-2 gap-2">
-                      <a
-                        href={`phonepe://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
-                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('PhonePe'); }}
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#5f259f] hover:bg-[#4d1e80] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#5f259f]/20 cursor-pointer"
-                      >
-                        <span>🟣</span> PhonePe
-                      </a>
-                      <a
-                        href={`gpay://upi/pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
-                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('Google Pay'); }}
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#1a73e8]/20 cursor-pointer"
-                      >
-                        <span>🔵</span> Google Pay
-                      </a>
-                      <a
-                        href={`paytmmp://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
-                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('Paytm'); }}
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#00b9f1] hover:bg-[#0096c4] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#00b9f1]/20 cursor-pointer"
-                      >
-                        <span>💠</span> Paytm
-                      </a>
-                      <a
-                        href={`upi://pay?pa=rentxy.razorpay@icici&pn=RentXY%20Payments&am=${amount}&cu=INR`}
-                        onClick={(e) => { e.preventDefault(); handleSimulateUpiScan('BHIM UPI'); }}
-                        className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-[#ff7900] hover:bg-[#e06900] text-white rounded-xl font-bold text-xs transition-transform active:scale-95 shadow-md shadow-[#ff7900]/20 cursor-pointer"
-                      >
-                        <span>🇮🇳</span> Any UPI App
-                      </a>
+                  {screenshotUrl ? (
+                    <div className="relative w-32 h-32 rounded-xl overflow-hidden border-2 border-primary-500 mx-auto">
+                      <img src={screenshotUrl} alt="Uploaded" className="w-full h-full object-cover" />
+                      <button onClick={() => setScreenshotUrl('')} className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1"><X size={12}/></button>
                     </div>
-                  </div>
-
-                  {/* Simulate Scan OK Done Flow Button */}
-                  <div className="pt-2">
-                    <button
-                      type="button"
-                      onClick={() => handleSimulateUpiScan('QR Scanner')}
-                      className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-4 px-4 rounded-2xl font-black text-sm transition-all active:scale-95 shadow-xl shadow-emerald-600/25 flex items-center justify-center gap-2"
+                  ) : (
+                    <button 
+                      onClick={handleSimulateUpload}
+                      disabled={isUploading}
+                      className="w-full h-24 border-2 border-dashed border-gray-300 rounded-xl flex flex-col items-center justify-center text-gray-500 hover:border-primary-500 hover:text-primary-600 transition-colors bg-gray-50"
                     >
-                      <CheckCircle2 size={18} /> I Have Scanned & Paid (Simulate OK Done Flow)
+                      {isUploading ? <span className="text-xs font-bold">Uploading...</span> : (
+                        <>
+                          <Upload size={24} className="mb-2" />
+                          <span className="text-xs font-bold">Click to Upload Screenshot</span>
+                        </>
+                      )}
                     </button>
-                    <p className="text-[11px] text-gray-400 mt-2.5">
-                      💡 Test Mode: Click above to simulate a completed UPI scan and trigger the instant verification flow.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/50 rounded-2xl px-4 py-3.5">
-                    <p className="text-xs text-blue-700 dark:text-blue-300 font-black mb-1">💳 Card / NetBanking via Razorpay</p>
-                    <p className="text-xs text-blue-600 dark:text-blue-400">Pay securely using Credit Card, Debit Card, or NetBanking via Razorpay Checkout.</p>
-                  </div>
-
-                  <button
-                    onClick={handlePay}
-                    className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white py-4 rounded-2xl font-black text-base transition-all active:scale-95 shadow-xl shadow-primary-600/25 flex items-center justify-center gap-2"
-                  >
-                    💳 Pay ₹{amount?.toLocaleString('en-IN')} via Razorpay
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={handleSimulateUpiScan}
-                    className="w-full bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 py-3 rounded-2xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 border border-gray-200 dark:border-white/10"
-                  >
-                    ⚡ Simulate Test Card Payment (Demo Mode)
-                  </button>
+                  )}
+                  {errorMsg && <p className="text-xs font-bold text-red-500 text-center">{errorMsg}</p>}
                 </div>
               )}
 
-              <p className="text-center text-[11px] text-gray-400 flex items-center justify-center gap-1.5 pt-1">
-                <Lock size={12} /> Secured by Razorpay · 256-bit SSL Encryption
-              </p>
+              <button
+                onClick={handleSettle}
+                className="w-full bg-gradient-to-r from-primary-600 to-indigo-600 hover:from-primary-700 hover:to-indigo-700 text-white py-3.5 rounded-2xl font-black text-sm transition-all active:scale-95 shadow-xl shadow-primary-600/25"
+              >
+                {bill ? 'Submit Proof & Mark Paid' : 'I Have Settled Offline'}
+              </button>
             </div>
           )}
 
-          {/* Step: Processing */}
           {step === 'processing' && (
-            <div className="p-8 flex flex-col items-center justify-center text-center my-auto py-10 animate-fadeIn">
-              {/* Animated Radar Scanner Visual */}
-              <div className="relative w-36 h-36 flex items-center justify-center mb-6">
-                <div className="absolute inset-0 rounded-full bg-primary-500/20 animate-ping duration-1000" />
-                <div className="absolute inset-2 rounded-full bg-indigo-500/20 animate-pulse" />
-                <div className="relative z-10 w-24 h-24 rounded-3xl bg-gradient-to-tr from-primary-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-xl shadow-indigo-500/30 text-white transform hover:scale-105 transition-transform">
-                  <Smartphone size={48} className="animate-bounce" />
-                </div>
-                {/* Scanner laser beam line */}
-                <div className="absolute w-32 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent top-1/2 -translate-y-1/2 shadow-lg shadow-emerald-400/80 animate-pulse" />
+            <div className="p-10 flex flex-col items-center justify-center text-center my-auto py-16">
+              <div className="animate-spin text-primary-500 mb-4">
+                <ShieldCheck size={48} />
               </div>
-
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 font-extrabold text-xs mb-3 border border-indigo-200 dark:border-indigo-800 shadow-sm animate-pulse">
-                <Loader2 size={14} className="animate-spin" />
-                <span>{activeUpiApp ? `Connecting to ${activeUpiApp}...` : 'Verifying UPI Gateway...'}</span>
-              </div>
-
-              <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">
-                {activeUpiApp ? `Opening ${activeUpiApp} App` : 'Processing UPI Payment...'}
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 text-xs max-w-xs leading-relaxed mb-6">
-                Please complete the authorization of <strong>₹{amount?.toLocaleString('en-IN')}</strong> in your UPI app. We are listening for Razorpay confirmation.
-              </p>
-
-              {/* Animated Progress Checklist */}
-              <div className="w-full max-w-xs bg-gray-50 dark:bg-slate-800/90 rounded-2xl p-4 border border-gray-200 dark:border-white/10 space-y-3 text-left shadow-inner">
-                <div className="flex items-center gap-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
-                  <CheckCircle2 size={16} className="flex-shrink-0" />
-                  <span>Razorpay Order ID Generated</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs font-bold text-indigo-600 dark:text-indigo-400 animate-pulse">
-                  <Loader2 size={16} className="animate-spin flex-shrink-0" />
-                  <span>Awaiting User Pin Authorization...</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs font-medium text-gray-400 dark:text-gray-500">
-                  <div className="w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 flex-shrink-0" />
-                  <span>Confirming Bank Transfer</span>
-                </div>
-              </div>
+              <h3 className="text-xl font-black text-gray-900">Submitting...</h3>
             </div>
           )}
 
-          {/* Step: Success */}
           {step === 'success' && (
             <div className="p-10 flex flex-col items-center justify-center text-center my-auto py-16">
-              <div className="w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/40 flex items-center justify-center mb-6 animate-bounce shadow-lg shadow-emerald-500/20">
-                <CheckCircle2 size={44} className="text-emerald-600 dark:text-emerald-400" />
+              <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mb-6 animate-bounce shadow-lg shadow-emerald-500/20">
+                <CheckCircle2 size={44} className="text-emerald-600" />
               </div>
-              <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2">Payment Confirmed! 🎉</h3>
-              <p className="text-gray-600 dark:text-gray-300 text-sm mb-2">
-                Your payment of <strong>₹{amount?.toLocaleString('en-IN')}</strong> via Razorpay UPI has been verified.
-              </p>
-              <p className="text-gray-400 text-xs mb-8">
-                Transaction Ref: <span className="font-mono bg-gray-100 dark:bg-slate-800 px-2 py-0.5 rounded">RZP_UPI_{Math.floor(10000000 + Math.random() * 90000000)}</span>
+              <h3 className="text-2xl font-black text-gray-900 mb-2">Request Submitted! 🎉</h3>
+              <p className="text-gray-600 text-sm mb-8">
+                {bill ? 'Your payment proof has been sent to the owner for confirmation.' : 'You have marked this as settled offline.'}
               </p>
               <button
                 onClick={onClose}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3.5 rounded-2xl font-black transition-all shadow-lg shadow-emerald-600/25"
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl font-black transition-all shadow-lg"
               >
                 Done
               </button>
             </div>
           )}
 
-          {/* Step: Error */}
           {step === 'error' && (
             <div className="p-10 flex flex-col items-center justify-center text-center my-auto py-16">
-              <div className="w-20 h-20 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center mb-6">
-                <X size={44} className="text-red-600 dark:text-red-400" />
+              <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-6">
+                <X size={44} className="text-red-600" />
               </div>
-              <h3 className="text-xl font-black text-gray-900 dark:text-white mb-2">Payment Failed</h3>
-              <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">{errorMsg}</p>
-              <div className="flex gap-3 w-full">
-                <button
-                  onClick={() => setStep('ready')}
-                  className="flex-1 bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-2xl font-black transition-colors"
-                >
-                  Try Again
-                </button>
-                <button
-                  onClick={onClose}
-                  className="flex-1 border border-gray-200 dark:border-white/10 hover:bg-gray-50 dark:hover:bg-slate-800 text-gray-700 dark:text-gray-300 py-3 rounded-2xl font-bold transition-colors"
-                >
-                  Cancel
-                </button>
-              </div>
+              <h3 className="text-xl font-black text-gray-900 mb-2">Failed</h3>
+              <p className="text-gray-500 text-sm mb-6">{errorMsg}</p>
+              <button
+                onClick={() => setStep('ready')}
+                className="w-full bg-primary-600 text-white py-3 rounded-2xl font-black transition-colors"
+              >
+                Try Again
+              </button>
             </div>
           )}
         </div>

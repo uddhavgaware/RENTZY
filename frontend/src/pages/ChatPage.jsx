@@ -3,7 +3,7 @@ import { Search, Send, MoreVertical, Phone, Video, Info, ArrowLeft, Check, Check
 import { chatService } from '../services/chatService';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Modal from '../components/Modal';
 
 const maskName = (name) => {
@@ -15,6 +15,7 @@ const maskName = (name) => {
 
 const ChatPage = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [activeChat, setActiveChat] = useState(null);
   const [showMobileChat, setShowMobileChat] = useState(false);
@@ -331,11 +332,16 @@ const ChatPage = () => {
 
   return (
     <>
-    <div className="bg-gray-50 h-[calc(100vh-80px)] sm:h-[calc(100dvh-64px)] w-full flex flex-col md:flex-row overflow-hidden relative">
+    <div className="bg-gray-50 h-full w-full flex flex-col md:flex-row overflow-hidden relative">
       {/* Sidebar - Contacts List */}
       <div className={`w-full md:w-80 lg:w-96 bg-white border-r border-gray-200 flex-col flex-shrink-0 ${showMobileChat ? 'hidden md:flex' : 'flex'}`}>
         <div className="p-4 border-b border-gray-100">
-          <h2 className="text-xl font-bold text-gray-900 mb-3">Messages</h2>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-xl font-bold text-gray-900">Messages</h2>
+            <button onClick={() => navigate(user?.role === 'OWNER' ? '/owner-dashboard' : (user?.role === 'MOVER' ? '/mover-dashboard' : '/dashboard'))} className="text-gray-500 hover:text-red-500 transition-colors p-1.5 bg-gray-50 rounded-full hover:bg-red-50 border border-gray-100 shadow-sm" title="Exit Messages">
+              <X size={18} />
+            </button>
+          </div>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <input 
