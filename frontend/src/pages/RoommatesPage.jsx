@@ -1787,7 +1787,7 @@ const RoommatesPage = () => {
       {/* Post Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 animate-fadeIn">
-          <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden shadow-2xl shadow-gray-900/20" style={{ animation: 'slideUp 0.3s ease-out' }}>
+        <div className="bg-white rounded-3xl w-full max-w-lg max-h-[92vh] flex flex-col overflow-hidden shadow-2xl shadow-gray-900/20 relative" style={{ animation: 'slideUp 0.3s ease-out' }}>
 
             {/* Premium Gradient Header */}
             <div className="bg-gradient-to-br from-primary-600 via-primary-700 to-purple-700 px-6 py-5 flex justify-between items-start flex-shrink-0 relative overflow-hidden">
@@ -1901,7 +1901,7 @@ const RoommatesPage = () => {
                   </div>
 
                   {/* Embedded Post Map */}
-                  <div className={`mt-3 mb-4 w-full overflow-hidden border-2 border-primary-200 relative z-0 transition-all duration-300 ${isMapExpanded ? 'fixed inset-0 z-[600] h-[100dvh] w-screen rounded-none' : 'h-[220px] rounded-xl'}`}>
+                  <div className={`w-full overflow-hidden border-2 border-primary-200 z-0 transition-all duration-300 ${isMapExpanded ? 'absolute inset-0 z-[60] h-full rounded-none m-0' : 'relative h-[220px] rounded-xl mt-3 mb-4'}`}>
                     {/* Map Search Overlay */}
                     <div className="absolute top-2 left-2 right-2 z-[500] rounded-xl p-1 flex items-center bg-white/95 backdrop-blur-md border border-gray-200 shadow-lg">
                       <div className="pl-2 pr-1.5 text-gray-400">
@@ -2241,7 +2241,7 @@ const RoommatesPage = () => {
                       '24/7 Security 👮‍♂️', 'Washing Machine 🧺', 'Study Table 🪑', 'Parking 🅿️',
                       'No Light Bill ⚡', 'CCTV 📹', 'Pantry 🍽️', 'Locker 🔐'
                     ].map((tag) => {
-                      const cleanTag = tag.split(' ')[0];
+                      const cleanTag = tag.replace(/[^\w\s/.-]/gi, '').trim();
                       const isSelected = postFormData.preferences?.includes(cleanTag);
                       return (
                         <button
