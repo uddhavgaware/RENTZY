@@ -25,7 +25,7 @@ const Layout = ({ children }) => {
   return (
     <div className={`flex flex-col font-sans ${hideFooterRoutes.includes(location.pathname) ? 'h-screen h-[100dvh] overflow-hidden' : 'min-h-screen'}`}>
       <Navbar />
-      <main className={`flex-1 w-full relative ${hideFooterRoutes.includes(location.pathname) ? 'pb-0 overflow-hidden h-0' : 'pb-28 md:pb-0'}`}>
+      <main className={`flex flex-col flex-1 w-full relative ${hideFooterRoutes.includes(location.pathname) ? 'pb-0 overflow-hidden h-0' : 'pb-28 md:pb-0'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -34,7 +34,7 @@ const Layout = ({ children }) => {
             exit="out"
             variants={pageVariants}
             transition={pageTransition}
-            className="w-full h-full"
+            className="w-full h-full flex flex-col flex-1"
           >
             {children}
           </motion.div>
