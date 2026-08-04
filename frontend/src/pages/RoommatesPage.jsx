@@ -472,7 +472,7 @@ const RoommatesPage = () => {
       `🚪 ${vacancy} in ${flatLabel}`,
       postedBy,
       `📅 ${moveIn}`,
-      `\n👉 You can request to be their roommate directly on RentXY! ${url}`
+      `\n👉 You can request to be their roommate directly on RentXY!`
     ].filter(Boolean).join('\n');
 
     if (navigator.share) {
