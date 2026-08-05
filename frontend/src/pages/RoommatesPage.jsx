@@ -93,7 +93,7 @@ const RoommatesPage = () => {
   const [isMapView, setIsMapView] = useState(false);
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
   const [modalMapSearchQuery, setModalMapSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('aiMatch');
+  const [activeTab, setActiveTab] = useState('all');
 
   // Smart Commute / Proximity Algo Filter
   const [commuteRefName, setCommuteRefName] = useState('');
@@ -947,16 +947,16 @@ const RoommatesPage = () => {
                 ✨ AI Matches
               </button>
               <button
-                onClick={() => setActiveTab('girls')}
-                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'girls' ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20' : 'bg-white text-gray-600 hover:bg-pink-50 hover:text-pink-600 border border-gray-200'}`}
-              >
-                👩 Girls Section (Women Only)
-              </button>
-              <button
                 onClick={() => setActiveTab('boys')}
                 className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'boys' ? 'bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-md shadow-blue-500/20' : 'bg-white text-gray-600 hover:bg-blue-50 hover:text-blue-600 border border-gray-200'}`}
               >
                 👨 Boys Section (Men Only)
+              </button>
+              <button
+                onClick={() => setActiveTab('girls')}
+                className={`px-6 py-2.5 rounded-full font-bold text-sm transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'girls' ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white shadow-md shadow-pink-500/20' : 'bg-white text-gray-600 hover:bg-pink-50 hover:text-pink-600 border border-gray-200'}`}
+              >
+                👩 Girls Section (Women Only)
               </button>
             </div>
 
