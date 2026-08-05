@@ -172,6 +172,7 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated: !!user,
     isOwner: user?.role === 'OWNER',
+    isBroker: user?.role === 'BROKER',
     isAdmin: user?.role === 'ADMIN',
     login,
     loginWithGoogle,

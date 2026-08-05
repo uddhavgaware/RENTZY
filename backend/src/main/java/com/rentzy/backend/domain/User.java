@@ -302,6 +302,7 @@ public class User implements UserDetails {
         TENANT,
         OWNER,
         ADMIN,
-        MOVER
+        MOVER,
+        BROKER
     }
 }

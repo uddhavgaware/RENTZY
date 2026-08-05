@@ -31,6 +31,7 @@ const MoverDashboardPage = lazy(() => import('./pages/MoverDashboardPage'));
 const OwnerProfilePage = lazy(() => import('./pages/OwnerProfilePage'));
 const OwnerDashboardPage = lazy(() => import('./pages/OwnerDashboardPage'));
 const TenantDashboardPage = lazy(() => import('./pages/TenantDashboardPage'));
+const BrokerDashboardPage = lazy(() => import('./pages/BrokerDashboardPage'));
 const BuildingProfilePage = lazy(() => import('./pages/BuildingProfilePage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const FaqPage = lazy(() => import('./pages/FaqPage'));
@@ -223,6 +224,7 @@ function App() {
                 <Route path="/mover-dashboard" element={<ProtectedRoute><MoverDashboardPage /></ProtectedRoute>} />
                 <Route path="/owner-dashboard" element={<ProtectedRoute><OwnerDashboardPage /></ProtectedRoute>} />
                 <Route path="/tenant-dashboard" element={<ProtectedRoute><TenantDashboardPage /></ProtectedRoute>} />
+                <Route path="/broker-dashboard" element={<ProtectedRoute><BrokerDashboardPage /></ProtectedRoute>} />
                 <Route path="/split-expenses" element={<ProtectedRoute><SplitExpensesPage /></ProtectedRoute>} />
 
                 {/* Admin only */}

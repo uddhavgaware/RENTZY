@@ -289,6 +289,11 @@ const Navbar = () => {
                     <Home size={14} />PG/Flat Owner
                   </Link>
                 )}
+                {user?.role === 'BROKER' && (
+                  <Link to="/broker-dashboard" className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg text-xs font-semibold transition-colors">
+                    <Home size={14} />Broker
+                  </Link>
+                )}
                 {isAdmin && (
                   <Link to="/admin" className="flex items-center gap-1.5 px-3 py-1.5 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg text-xs font-semibold transition-colors">
                     <ShieldCheck size={14} />Admin

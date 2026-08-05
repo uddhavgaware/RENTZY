@@ -111,7 +111,7 @@ const LocationMarker = ({ position, setPosition }) => {
 };
 
 const PostPropertyPage = () => {
-  const { isOwner } = useAuth();
+  const { isOwner, isBroker } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -194,7 +194,7 @@ const PostPropertyPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    listedBy: 'VERIFIED_OWNER',
+    listedBy: isBroker ? 'BROKER' : 'VERIFIED_OWNER',
     type: 'Flat',
     tenantPreference: 'Anyone',
     configuration: '1BHK',

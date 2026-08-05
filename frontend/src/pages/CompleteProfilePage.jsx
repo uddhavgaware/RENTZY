@@ -186,7 +186,7 @@ const CompleteProfilePage = () => {
 
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">I am a</label>
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, role: 'TENANT' })}
@@ -208,6 +208,17 @@ const CompleteProfilePage = () => {
                   >
                     <span className="block font-bold">Owner</span>
                     <span className="text-xs text-gray-500">Listing a property</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, role: 'BROKER' })}
+                    className={`p-4 rounded-xl border-2 text-center transition-all ${formData.role === 'BROKER'
+                        ? 'border-orange-500 bg-orange-50 text-orange-700'
+                        : 'border-gray-200 hover:border-orange-200'
+                      }`}
+                  >
+                    <span className="block font-bold">Broker</span>
+                    <span className="text-xs text-gray-500">Agent/Consultant</span>
                   </button>
                   <button
                     type="button"

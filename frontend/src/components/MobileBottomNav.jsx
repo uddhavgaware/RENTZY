@@ -27,6 +27,14 @@ const MobileBottomNav = () => {
         { path: '/post-property', icon: Building2, label: 'Post' },
         { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
       ];
+    } else if (role === 'BROKER') {
+      return [
+        { path: '/', icon: Home, label: 'Home' },
+        { path: '/messages', icon: MessageSquare, label: 'Chat' },
+        { path: '/broker-dashboard', icon: Building2, label: 'Dashboard' },
+        { path: '/post-property', icon: Building2, label: 'Post' },
+        { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
+      ];
     } else if (role === 'MOVER') {
       return [
         { path: '/', icon: Home, label: 'Home' },
