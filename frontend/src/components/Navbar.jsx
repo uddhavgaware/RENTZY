@@ -86,7 +86,6 @@ const Navbar = () => {
     { name: 'Split', path: '/split-expenses', icon: Split },
     { name: 'Movers', path: '/movers', icon: Truck },
     { name: 'Offices', path: '/offices', icon: Briefcase },
-    { name: 'Warehouses', path: '/warehouses', icon: Warehouse },
   ];
 
   useEffect(() => {
