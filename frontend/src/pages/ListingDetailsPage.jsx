@@ -492,16 +492,7 @@ const ListingDetailsPage = () => {
                             <BadgeCheck size={14} className="text-green-500 fill-green-100" /> Verified Owner
                           </span>
                         )}
-                        {listing.listedBy === 'ROOMMATE_FLATMATE' && (
-                          <span className="flex items-center gap-1 bg-indigo-100 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
-                            👥 Roommate / Flatmate
-                          </span>
-                        )}
-                        {listing.listedBy === 'PG_HOSTEL' && (
-                          <span className="flex items-center gap-1 bg-purple-100 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-full text-xs font-bold shadow-sm">
-                            🏢 PG / Hostel
-                          </span>
-                        )}
+
                       </h3>
                       <p className="text-xs text-gray-400 font-medium">Member since {new Date(listing.owner.createdAt || Date.now()).getFullYear()}</p>
                     </div>

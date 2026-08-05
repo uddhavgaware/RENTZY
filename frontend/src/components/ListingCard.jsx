@@ -236,16 +236,6 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
               <BadgeCheck size={13} className="fill-emerald-100" /> ID Verified Owner
             </span>
           )}
-          {listing.listedBy === 'ROOMMATE_FLATMATE' && (
-            <span className="inline-flex items-center gap-1 bg-indigo-100/80 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide">
-              👥 Roommate / Flatmate
-            </span>
-          )}
-          {listing.listedBy === 'PG_HOSTEL' && (
-            <span className="inline-flex items-center gap-1 bg-purple-100/80 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200/60 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide">
-              🏢 PG / Hostel
-            </span>
-          )}
         </div>
 
         {/* Gender Theme Badge if PG/Hostel */}

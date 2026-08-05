@@ -564,9 +564,7 @@ const PostPropertyPage = () => {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                     {[
                       { id: 'VERIFIED_OWNER', label: 'Verified Owner' },
-                      { id: 'BROKER', label: 'Broker (Label Compulsory)' },
-                      { id: 'ROOMMATE_FLATMATE', label: 'Roommate / Flatmate' },
-                      { id: 'PG_HOSTEL', label: 'PG / Hostel' }
+                      { id: 'BROKER', label: 'Broker (Label Compulsory)' }
                     ].map((lister) => (
                       <label key={lister.id} className="cursor-pointer">
                         <input type="radio" name="listedBy" value={lister.id} checked={formData.listedBy === lister.id} onChange={handleChange} className="peer sr-only" />
