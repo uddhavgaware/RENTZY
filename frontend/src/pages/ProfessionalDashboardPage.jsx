@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Plus, Users, Zap, FileText, Send, CheckCircle2, AlertCircle, DollarSign, Bed, Phone, Trash2, ChevronRight, Share2, Copy, Pencil, X } from 'lucide-react';
+import { Home, Plus, Users, Zap, FileText, Send, CheckCircle2, AlertCircle, DollarSign, Bed, Phone, Trash2, ChevronRight, Share2, Copy, Pencil, X, Edit3 } from 'lucide-react';
+import ListingCard from '../components/ListingCard';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
@@ -19,11 +20,13 @@ const StatCard = ({ icon: Icon, label, value, color, subtitle }) => (
   </div>
 );
 
-const OwnerDashboardPage = () => {
+const ProfessionalDashboardPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('properties');
+  const [activeTab, setActiveTab] = useState(user?.role === 'BROKER' ? 'listings' : 'properties');
   const [properties, setProperties] = useState([]);
+  const [listings, setListings] = useState([]);
+  const [leads, setLeads] = useState([]);
   const [bills, setBills] = useState([]);
   const [stats, setStats] = useState({ totalProperties: 0, totalBeds: 0, occupiedBeds: 0, vacantBeds: 0, totalCollected: 0, totalPending: 0 });
   const [loading, setLoading] = useState(true);
@@ -31,6 +34,7 @@ const OwnerDashboardPage = () => {
   const [bedSearchQuery, setBedSearchQuery] = useState({});
   const [expandedProperties, setExpandedProperties] = useState({});
   const [billSearchQuery, setBillSearchQuery] = useState('');
+  const activeLeads = leads.filter(l => l.status === 'PENDING').length;
 
   const toggleProperty = (id) => setExpandedProperties(prev => ({ ...prev, [id]: !prev[id] }));
 
@@ -56,14 +60,18 @@ const OwnerDashboardPage = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [propsRes, billsRes, statsRes] = await Promise.all([
-        api.get('/owner/properties/my'),
-        api.get('/owner/bills/my'),
-        api.get('/owner/properties/stats')
+      const [propsRes, billsRes, statsRes, listingsRes, leadsRes] = await Promise.all([
+        api.get('/owner/properties/my').catch(()=>({data:[]})),
+        api.get('/owner/bills/my').catch(()=>({data:[]})),
+        api.get('/owner/properties/stats').catch(()=>({data:{}})),
+        api.get('/listings/my').catch(()=>({data:[]})),
+        api.get('/bookings/owner').catch(()=>({data:[]}))
       ]);
       setProperties(propsRes.data);
       setBills(billsRes.data);
-      setStats(statsRes.data);
+      setStats(statsRes.data || {});
+      setListings(listingsRes.data || []);
+      setLeads(leadsRes.data || []);
       // Auto-expand the first property only
       if (propsRes.data.length > 0) {
         setExpandedProperties({ [propsRes.data[0].property.id]: true });
@@ -78,6 +86,36 @@ const OwnerDashboardPage = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  
+  const handleDeleteListing = async (listingId) => {
+    showModal({
+      type: 'confirm',
+      title: 'Delete Listing',
+      message: 'Are you sure you want to delete this listing?',
+      onConfirm: async () => {
+        closeModal();
+        try {
+          await api.delete(`/listings/${listingId}`);
+          fetchData();
+          showModal({ type: 'alert', title: 'Deleted', message: 'Listing deleted successfully.', onConfirm: closeModal });
+        } catch (err) {
+          showModal({ type: 'alert', title: 'Error', message: 'Failed to delete listing.', onConfirm: closeModal });
+        }
+      },
+      onCancel: closeModal
+    });
+  };
+
+  const handleConfirmLead = async (bookingId) => {
+    try {
+      await api.post(`/bookings/${bookingId}/confirm`);
+      fetchData();
+      showModal({ type: 'alert', title: 'Success', message: 'Lead confirmed!', onConfirm: closeModal });
+    } catch (err) {
+      showModal({ type: 'alert', title: 'Error', message: 'Failed to confirm lead.', onConfirm: closeModal });
+    }
+  };
 
   const handleAddProperty = async (e) => {
     e.preventDefault();
@@ -970,4 +1008,4 @@ const OwnerDashboardPage = () => {
   );
 };
 
-export default OwnerDashboardPage;
+export default ProfessionalDashboardPage;
