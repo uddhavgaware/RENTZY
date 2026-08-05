@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Building2, Home, Search, Star } from 'lucide-react';
 import PremiumHero from '../components/PremiumHero';
 import FeaturedListings from '../components/FeaturedListings';
+import PortalEnhancements from '../components/PortalEnhancements';
 
 const FlatRentalPortal = () => {
   const navigate = useNavigate();
@@ -56,6 +57,8 @@ const FlatRentalPortal = () => {
         subtitle="Highly rated apartments curated just for you."
         badge="Hot Properties"
       />
+
+      <PortalEnhancements type="flat" />
 
       {/* Short teaser section below the fold */}
       <section className="py-24 px-4 bg-gradient-to-b from-white to-blue-50/50 dark:from-slate-900 dark:to-blue-950/20 text-center border-t border-gray-100 dark:border-white/5">

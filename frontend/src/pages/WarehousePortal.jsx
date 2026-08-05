@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Warehouse, Truck, Package, Activity, Navigation2 } from 'lucide-react';
 import PremiumHero from '../components/PremiumHero';
 import FeaturedListings from '../components/FeaturedListings';
+import PortalEnhancements from '../components/PortalEnhancements';
 
 const WarehousePortal = () => {
   const navigate = useNavigate();
@@ -61,6 +62,8 @@ const WarehousePortal = () => {
         subtitle="Prime industrial real estate for your operational needs."
         badge="Verified Logistics"
       />
+
+      <PortalEnhancements type="warehouse" />
 
       <section className="py-24 px-4 bg-gradient-to-b from-white to-amber-50/50 dark:from-slate-900 dark:to-amber-950/20 text-center border-t border-gray-100 dark:border-white/5">
         <div className="w-20 h-20 rounded-3xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-8 shadow-inner shadow-amber-500/20">

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Briefcase, Laptop, Users, Building, Coffee } from 'lucide-react';
 import PremiumHero from '../components/PremiumHero';
 import FeaturedListings from '../components/FeaturedListings';
+import PortalEnhancements from '../components/PortalEnhancements';
 
 const OfficeSpacePortal = () => {
   const navigate = useNavigate();
@@ -62,6 +63,8 @@ const OfficeSpacePortal = () => {
         badge="Top Commercial"
       />
       
+      <PortalEnhancements type="office" />
+
       <section className="py-24 px-4 bg-gradient-to-b from-white to-emerald-50/50 dark:from-slate-900 dark:to-emerald-950/20 text-center border-t border-gray-100 dark:border-white/5">
         <div className="w-20 h-20 rounded-3xl bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto mb-8 shadow-inner shadow-emerald-500/20">
           <Briefcase size={40} className="text-emerald-600 dark:text-emerald-400" />

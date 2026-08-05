@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Users, ShieldCheck, Sparkles, ArrowRight, CheckCircle2, Home } from 'lucide-react';
 import PremiumHero from '../components/PremiumHero';
 import ListingCard from '../components/ListingCard';
+import PortalEnhancements from '../components/PortalEnhancements';
 import api from '../services/api';
 
 const PgHostelPortal = () => {
@@ -235,6 +236,8 @@ const PgHostelPortal = () => {
           </div>
         </div>
       </section>
+
+      <PortalEnhancements type="pg" />
     </div>
   );
 };
