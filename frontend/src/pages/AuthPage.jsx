@@ -289,7 +289,6 @@ const AuthPage = () => {
                     console.error('Google Login Error:', errorRes);
                     setError('Google Login Failed: ' + (errorRes?.error || errorRes?.message || 'Check console for details'));
                   }}
-                  ux_mode="redirect"
                   theme="outline" size="large" shape="pill"
                 />
               )}
