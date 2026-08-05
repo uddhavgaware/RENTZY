@@ -16,15 +16,12 @@ const PgHostelPortal = () => {
     const fetchPgListings = async () => {
       setLoading(true);
       try {
-        const [pgRes, hostelRes] = await Promise.all([
-          api.get('/listings', { params: { type: 'pg', size: 30, _t: Date.now() } }),
-          api.get('/listings', { params: { type: 'Hostel', size: 30, _t: Date.now() } })
-        ]);
-        const data = [
-          ...(pgRes.data?.content || pgRes.data || []),
-          ...(hostelRes.data?.content || hostelRes.data || [])
-        ];
-        setListings(data);
+        const res = await api.get('/listings', { params: { size: 100, _t: Date.now() } });
+        const allListings = res.data?.content || res.data || [];
+        const pgData = allListings.filter(l => 
+          l && l.type && ['PG', 'Hostel', 'Co-living Space', 'PG/Hostel'].includes(l.type)
+        );
+        setListings(pgData);
       } catch (err) {
         console.error('Failed to fetch PG listings', err);
       } finally {
@@ -48,11 +45,23 @@ const PgHostelPortal = () => {
     const title = (l.title || '').toLowerCase();
     const desc = (l.description || '').toLowerCase();
 
+    const isGirlsMatch = pref.includes('women') || pref.includes('girl') || pref.includes('female') || 
+                         title.includes('women') || title.includes('girl') || title.includes('female') || 
+                         desc.includes('women only') || desc.includes('girls only');
+
+    const isBoysMatch = (pref.includes('men') && !pref.includes('women')) || pref.includes('boy') || pref.includes('male') || 
+                        (title.includes('men') && !title.includes('women')) || title.includes('boy') || title.includes('male') || 
+                        desc.includes('men only') || desc.includes('boys only');
+
+    const isUnisex = pref === 'anyone' || pref === 'students' || pref === 'any' || !pref || 
+                     title.includes('unisex') || desc.includes('unisex') || 
+                     (!isGirlsMatch && !isBoysMatch);
+
     if (activeTab === 'girls') {
-      return pref.includes('women') || pref.includes('girl') || pref.includes('female') || title.includes('women') || title.includes('girl') || title.includes('female') || desc.includes('women only') || desc.includes('girls only') || pref === 'anyone' || !pref;
+      return isGirlsMatch || isUnisex;
     }
     if (activeTab === 'boys') {
-      return pref.includes('men') || pref.includes('boy') || pref.includes('male') || title.includes('men') || title.includes('boy') || title.includes('male') || desc.includes('men only') || desc.includes('boys only') || pref === 'anyone' || !pref;
+      return isBoysMatch || isUnisex;
     }
     return true;
   });
