@@ -194,6 +194,7 @@ const PostPropertyPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
+    listedBy: 'VERIFIED_OWNER',
     type: 'Flat',
     tenantPreference: 'Anyone',
     configuration: '1BHK',
@@ -558,6 +559,29 @@ const PostPropertyPage = () => {
               <div className="space-y-6 animate-fadeIn">
                 <h2 className="text-xl font-bold text-gray-900 border-b pb-4">Basic Information</h2>
                 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Who is listing this property? <span className="text-red-400">*</span></label>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    {[
+                      { id: 'VERIFIED_OWNER', label: 'Verified Owner' },
+                      { id: 'BROKER', label: 'Broker (Label Compulsory)' },
+                      { id: 'ROOMMATE_FLATMATE', label: 'Roommate / Flatmate' },
+                      { id: 'PG_HOSTEL', label: 'PG / Hostel' }
+                    ].map((lister) => (
+                      <label key={lister.id} className="cursor-pointer">
+                        <input type="radio" name="listedBy" value={lister.id} checked={formData.listedBy === lister.id} onChange={handleChange} className="peer sr-only" />
+                        <div className={`rounded-xl border border-gray-200 dark:border-white/10 p-3 text-center transition-all dark:bg-slate-800 ${
+                          formData.listedBy === lister.id 
+                            ? (lister.id === 'BROKER' ? 'border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-900/30' : 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/30')
+                            : 'hover:bg-gray-50'
+                        }`}>
+                          <span className="font-medium text-sm">{lister.label}</span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Property Type</label>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

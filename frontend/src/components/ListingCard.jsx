@@ -224,12 +224,29 @@ const ListingCard = ({ listing, wishlisted: initialWishlisted = false, onWishlis
           )}
         </div>
 
-        {/* Verified badge */}
-        {listing.owner?.kycStatus === 'APPROVED' && (
-          <span className="inline-flex items-center gap-1 text-emerald-600 text-xs font-semibold mb-1.5">
-            <BadgeCheck size={13} className="fill-emerald-100" /> ID Verified Owner
-          </span>
-        )}
+        {/* Listed By & Verified badges */}
+        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+          {listing.listedBy === 'BROKER' && (
+            <span className="inline-flex items-center gap-1 bg-orange-100/80 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 border border-orange-200/60 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide">
+              ⚠️ Broker Listing
+            </span>
+          )}
+          {(!listing.listedBy || listing.listedBy === 'VERIFIED_OWNER') && listing.owner?.kycStatus === 'APPROVED' && (
+            <span className="inline-flex items-center gap-1 text-emerald-600 text-[11px] font-semibold">
+              <BadgeCheck size={13} className="fill-emerald-100" /> ID Verified Owner
+            </span>
+          )}
+          {listing.listedBy === 'ROOMMATE_FLATMATE' && (
+            <span className="inline-flex items-center gap-1 bg-indigo-100/80 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-200/60 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide">
+              👥 Roommate / Flatmate
+            </span>
+          )}
+          {listing.listedBy === 'PG_HOSTEL' && (
+            <span className="inline-flex items-center gap-1 bg-purple-100/80 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200/60 px-2 py-0.5 rounded-md text-[10px] font-bold tracking-wide">
+              🏢 PG / Hostel
+            </span>
+          )}
+        </div>
 
         {/* Gender Theme Badge if PG/Hostel */}
         {pgTheme === 'girls' && (
