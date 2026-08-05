@@ -520,8 +520,11 @@ const DashboardPage = () => {
 
     if (role === 'OWNER') {
       baseTabs.push(
-        { id: 'owner-portal', name: 'Owner Portal', icon: Home },
-        { id: 'maintenance', name: 'Maintenance', icon: Wrench }
+        { id: 'owner-portal', name: 'Owner Portal', icon: Home }
+      );
+    } else if (role === 'BROKER') {
+      baseTabs.push(
+        { id: 'owner-portal', name: 'Broker Portal', icon: Home }
       );
     } else if (role === 'MOVER') {
       baseTabs.push(

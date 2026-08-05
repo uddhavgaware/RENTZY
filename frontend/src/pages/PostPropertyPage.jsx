@@ -387,13 +387,13 @@ const PostPropertyPage = () => {
     );
   }
 
-  if (!isOwner && !isSubmitted) {
+  if (!isOwner && !isBroker && !isSubmitted) {
     return (
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center border border-gray-100">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
           <p className="text-gray-500 mb-8">
-            You must be registered as a Property Owner to post listings.
+            You must be registered as a Property Owner or Broker to post listings.
           </p>
           <button
             onClick={() => navigate('/dashboard')}
