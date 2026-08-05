@@ -99,7 +99,7 @@ const PortalEnhancements = ({ type = "flat" }) => {
             
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
               <h2 className="text-3xl sm:text-4xl font-black text-gray-900 dark:text-white mb-6 tracking-tight">
-                Why <span className={textColors[config.accent]}>RentZY</span> is the smart choice.
+                Why <span className={textColors[config.accent]}>RentXY</span> is the smart choice.
               </h2>
               <p className="text-gray-500 dark:text-gray-400 text-lg mb-8">
                 We've eliminated the middlemen to bring you direct access to premium properties. Save money, save time, and rent with absolute confidence.
@@ -157,7 +157,7 @@ const PortalEnhancements = ({ type = "flat" }) => {
                   <div className="text-yellow-400 flex gap-1 mb-3">
                     {[1,2,3,4,5].map(i => <Star key={i} size={16} fill="currentColor" />)}
                   </div>
-                  <p className="text-gray-700 dark:text-gray-300 italic mb-4">"Found my dream space within 2 days of using RentZY. The zero brokerage feature saved me ₹45,000!"</p>
+                  <p className="text-gray-700 dark:text-gray-300 italic mb-4">"Found my dream space within 2 days of using RentXY. The zero brokerage feature saved me ₹45,000!"</p>
                   <p className="text-sm font-bold text-gray-900 dark:text-white">— Priya S., Verified User</p>
                 </div>
               </div>
