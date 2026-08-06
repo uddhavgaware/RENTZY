@@ -824,7 +824,7 @@ const RoommatesPage = () => {
     <>
       <PremiumHero
         title="Find Your"
-        highlightText="Perfect roommate"
+        highlightText="Perfect Roommate"
         highlightColorClass="text-pink-400"
         subtitle="Connect with like-minded people, split the rent, and make lifelong friends in your new city."
         videoSrc="https://videos.pexels.com/video-files/5977797/5977797-uhd_2560_1440_25fps.mp4"
@@ -1351,6 +1351,7 @@ const RoommatesPage = () => {
                     const displayDeposit = roommate.deposit ? roommate.deposit.toLocaleString('en-IN') : 'N/A';
 
                     const isExpanded = expandedCardId === roommate.id;
+                    const flatSizeVal = roommate.flatSize || roommate.preferences?.find(p => ['1BHK', '2BHK', '3BHK', '4BHK+', '1RK'].includes(p)) || '';
 
                     return (
                       <div
@@ -1417,7 +1418,9 @@ const RoommatesPage = () => {
                                   {maskName(roommate.user?.name) || 'User'}
                                   {roommate.user?.isVerified && <BadgeCheck size={14} className="text-blue-500 flex-shrink-0" />}
                                 </h3>
-                                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate">{roommate.propertyType || 'Room'} • {roommate.gender || 'Any'}</p>
+                                <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate">
+                                  {roommate.propertyType || 'Room'}{flatSizeVal ? ` (${flatSizeVal})` : ''} • {roommate.gender || 'Any'}
+                                </p>
                               </div>
                             </div>
                             {matchScore !== null && (
@@ -1574,6 +1577,7 @@ const RoommatesPage = () => {
                               <div>
                                 <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-2">Preferences & Lifestyle</h4>
                                 <div className="flex flex-wrap gap-1.5 text-xs font-semibold">
+                                  {flatSizeVal && <span className="bg-purple-50 text-purple-700 dark:bg-purple-950/50 dark:text-purple-300 px-2.5 py-0.5 rounded-full border border-purple-200 dark:border-purple-800">🏠 Flat Type: {flatSizeVal}</span>}
                                   {roommate.targetOccupation && <span className="bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-200 dark:border-blue-800">💼 Prefers {roommate.targetOccupation}</span>}
                                   {roommate.targetGender && roommate.targetGender !== 'Any' && <span className="bg-pink-50 text-pink-700 dark:bg-pink-950/50 dark:text-pink-300 px-2.5 py-0.5 rounded-full border border-pink-200 dark:border-pink-800">👤 Prefers {roommate.targetGender}</span>}
                                   {roommate.dietaryPref && <span className="bg-orange-50 text-orange-700 dark:bg-orange-950/50 dark:text-orange-300 px-2.5 py-0.5 rounded-full border border-orange-200 dark:border-orange-800">🥗 Diet: {roommate.dietaryPref}</span>}

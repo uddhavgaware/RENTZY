@@ -49,7 +49,7 @@ const MobileBottomNav = () => {
       { path: '/listings', icon: Search, label: 'Search' },
       { path: '/messages', icon: MessageSquare, label: 'Chat' },
       { path: '/split-expenses', icon: PieChart, label: 'Split' },
-      { path: '/roommates', icon: Users, label: 'Mates' },
+      { path: '/roommates', icon: Users, label: 'Find Your Perfect Roommate' },
       { path: isAuthenticated ? '/dashboard' : '/auth', icon: User, label: isAuthenticated ? 'Account' : 'Login' },
     ];
   };

@@ -70,7 +70,7 @@ const Navbar = () => {
       { name: 'Home', path: '/' },
       { name: 'Flats', path: '/flats' },
       { name: 'PG/Hostels', path: '/pgs' },
-      { name: 'Roommates', path: '/roommates' },
+      { name: 'Find Your Perfect Roommate', path: '/roommates' },
       { name: 'Split', path: '/split-expenses' },
       { name: 'Movers', path: '/movers' },
     ];
@@ -82,7 +82,7 @@ const Navbar = () => {
     { name: 'Home', path: '/', icon: Home },
     { name: 'Flats', path: '/flats', icon: Building2 },
     { name: 'PG/Hostels', path: '/pgs', icon: Warehouse },
-    { name: 'Roommates', path: '/roommates', icon: Users },
+    { name: 'Find Your Perfect Roommate', path: '/roommates', icon: Users },
     { name: 'Split', path: '/split-expenses', icon: Split },
     { name: 'Movers', path: '/movers', icon: Truck },
     { name: 'Offices', path: '/offices', icon: Briefcase },

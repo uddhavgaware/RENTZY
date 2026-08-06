@@ -11,7 +11,7 @@ import {
   Heart, Star, AlertCircle, CheckCircle, Clock, ArrowRight,
   Wallet, IndianRupee, Split, UserPlus, Settings, BarChart3,
   CircleDollarSign, HandCoins, ArrowUpRight, ArrowDownLeft,
-  Sparkles, Shield, Eye, Loader2
+  Sparkles, Shield, Eye, Loader2, LogOut
 } from 'lucide-react';
 
 // ─── Constants ──────────────────────────────────────
@@ -88,6 +88,7 @@ const SplitExpensesPage = () => {
   const [toast, setToast] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, type: '', id: null, extraId: null, title: '', message: '', onConfirm: null });
 
   // Data from API
   const [expenses, setExpenses] = useState([]);
@@ -249,6 +250,44 @@ const SplitExpensesPage = () => {
     } finally { setActionLoading(false); }
   };
 
+  const confirmDeleteGroup = (gid, groupName) => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'delete_group',
+      id: gid,
+      title: '🗑️ Delete Group',
+      message: `Are you sure you want to delete the group "${groupName}"? This action is permanent and cannot be undone.`,
+      onConfirm: () => handleDeleteGroup(gid)
+    });
+  };
+
+  const handleLeaveGroup = async (gid, memberId) => {
+    setActionLoading(true);
+    try {
+      await api.delete(`/split/groups/${gid}/members/${memberId}`);
+      setGroups(prev => prev.filter(g => g.id !== gid));
+      if (activeGroup === gid) {
+        const remaining = groups.filter(g => g.id !== gid);
+        setActiveGroup(remaining.length > 0 ? remaining[0].id : null);
+      }
+      showToast('You have exited the group');
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to exit group', 'error');
+    } finally { setActionLoading(false); }
+  };
+
+  const confirmLeaveGroup = (gid, memberId, groupName) => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'leave_group',
+      id: gid,
+      extraId: memberId,
+      title: '🚪 Exit Group',
+      message: `Are you sure you want to exit the group "${groupName}"?`,
+      onConfirm: () => handleLeaveGroup(gid, memberId)
+    });
+  };
+
   const handleUpdateGroup = async () => {
     if (!groupForm.name.trim()) return;
     setActionLoading(true);
@@ -379,6 +418,17 @@ const SplitExpensesPage = () => {
     } catch (err) {
       showToast('Failed to delete expense', 'error');
     }
+  };
+
+  const confirmDeleteExpense = (id, expenseDesc) => {
+    setConfirmModal({
+      isOpen: true,
+      type: 'delete_expense',
+      id: id,
+      title: '🗑️ Delete Expense',
+      message: `Are you sure you want to delete the expense "${expenseDesc}"?`,
+      onConfirm: () => handleDeleteExpense(id)
+    });
   };
 
   const handleSettle = async (transaction) => {
@@ -577,7 +627,7 @@ const SplitExpensesPage = () => {
                             <p className="text-xs text-gray-400 dark:text-gray-500">{g.members?.length || 0} member{(g.members?.length || 0) !== 1 ? 's' : ''}</p>
                           </div>
                         </button>
-                        {g.createdBy?.id === user?.id && (
+                        {g.createdBy?.id === user?.id ? (
                           <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-100 dark:border-white/5 p-0.5">
                             <button onClick={(e) => { e.stopPropagation(); setGroupForm({ name: g.name, description: g.description || '' }); setActiveGroup(g.id); setShowEditGroup(true); }} className="p-1.5 rounded-md text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20" title="Edit Group">
                               <Edit3 size={14} />
@@ -585,8 +635,14 @@ const SplitExpensesPage = () => {
                             <button onClick={(e) => { e.stopPropagation(); setActiveGroup(g.id); setShowInviteModal(true); }} className="p-1.5 rounded-md text-gray-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-900/20" title="Invite Link">
                               <UserPlus size={14} />
                             </button>
-                            <button onClick={(e) => { e.stopPropagation(); handleDeleteGroup(g.id); }} className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" title="Delete Group">
+                            <button onClick={(e) => { e.stopPropagation(); confirmDeleteGroup(g.id, g.name); }} className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" title="Delete Group">
                               <Trash2 size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all bg-white dark:bg-slate-900 rounded-lg shadow-sm border border-gray-100 dark:border-white/5 p-0.5">
+                            <button onClick={(e) => { e.stopPropagation(); const myMember = g.members?.find(m => m.user?.id === user?.id); if (myMember) { confirmLeaveGroup(g.id, myMember.id, g.name); } }} className="p-1.5 rounded-md text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20" title="Exit Group">
+                              <LogOut size={14} />
                             </button>
                           </div>
                         )}
@@ -754,11 +810,11 @@ const SplitExpensesPage = () => {
                                       ))}
                                     </div>
                                   </div>
-                                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
+                                  <div className="flex gap-1 flex-shrink-0">
                                     {(exp.paidBy?.id === user?.id || currentGroup?.createdBy?.id === user?.id) && (
                                       <>
                                         <button onClick={() => handleEditExpense(exp)} className="p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-400 hover:text-blue-600 transition-colors"><Edit3 size={14} /></button>
-                                        <button onClick={() => handleDeleteExpense(exp.id)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
+                                        <button onClick={() => confirmDeleteExpense(exp.id, exp.description)} className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>
                                       </>
                                     )}
                                   </div>
@@ -1432,6 +1488,33 @@ const SplitExpensesPage = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Action Confirmation Modal ── */}
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center" onClick={e => e.stopPropagation()}>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">{confirmModal.title}</h3>
+            <p className="text-gray-500 dark:text-gray-400 mb-6 text-sm leading-relaxed">{confirmModal.message}</p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))} 
+                className="flex-1 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-all active:scale-95 text-sm"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={async () => {
+                  setConfirmModal(prev => ({ ...prev, isOpen: false }));
+                  if (confirmModal.onConfirm) await confirmModal.onConfirm();
+                }} 
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg active:scale-95 text-sm"
+              >
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}
