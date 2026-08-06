@@ -113,6 +113,7 @@ const ListingsPage = () => {
   const [tenantPreference, setTenantPreference] = useState('');
   const [sortBy, setSortBy] = useState('');
   const [furnishingFilter, setFurnishingFilter] = useState('');
+  const [zeroBrokerageOnly, setZeroBrokerageOnly] = useState(false);
   const [alertSaved, setAlertSaved] = useState(false);
 
   // Commute Proximity
@@ -243,6 +244,10 @@ const ListingsPage = () => {
         results = results.filter(listing => listing && listing.tenantPreference === tenantPreference);
       }
 
+      if (zeroBrokerageOnly) {
+        results = results.filter(listing => listing && (listing.listedBy === 'VERIFIED_OWNER' || !listing.listedBy));
+      }
+
       if (commuteCoords) {
         results = results.map(listing => {
           if (!listing.latitude || !listing.longitude) return { ...listing, distanceToCommute: null };
@@ -282,7 +287,7 @@ const ListingsPage = () => {
     setPage(0);
     fetchListings(0, false);
     setAlertSaved(false);
-  }, [appliedLocation, activeType, minPrice, maxPrice, selectedAmenities, messAvailableOnly, furnishingFilter, tenantPreference, commuteCoords, maxDistance, sortBy]);
+  }, [appliedLocation, activeType, minPrice, maxPrice, selectedAmenities, messAvailableOnly, furnishingFilter, tenantPreference, commuteCoords, maxDistance, sortBy, zeroBrokerageOnly]);
 
   const toggleAmenity = (amenity) => {
     setSelectedAmenities(prev =>
@@ -303,6 +308,7 @@ const ListingsPage = () => {
     setMaxDistance('');
     setAppliedLocation('');
     setSearchInput('');
+    setZeroBrokerageOnly(false);
   };
 
   const handleSaveSearch = async () => {
@@ -327,7 +333,8 @@ const ListingsPage = () => {
     (messAvailableOnly ? 1 : 0) +
     (tenantPreference ? 1 : 0) +
     (furnishingFilter ? 1 : 0) +
-    (commuteCoords ? 1 : 0);
+    (commuteCoords ? 1 : 0) +
+    (zeroBrokerageOnly ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-slate-900 pb-10 pt-24 relative overflow-hidden">
@@ -403,7 +410,7 @@ const ListingsPage = () => {
               exit={{ opacity: 0, height: 0 }}
               className="overflow-hidden mb-8"
             >
-              <div className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-xl grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-slate-800 border border-gray-100 dark:border-white/10 rounded-3xl p-6 md:p-8 shadow-xl grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div>
                   <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider mb-3">Price Range</h4>
                   <div className="flex gap-2">
@@ -437,7 +444,21 @@ const ListingsPage = () => {
                   </select>
                 </div>
 
-                <div className="md:col-span-3 pt-6 border-t border-gray-100 dark:border-white/5">
+                <div>
+                  <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider mb-3">Verification</h4>
+                  <button
+                    onClick={() => setZeroBrokerageOnly(!zeroBrokerageOnly)}
+                    className={`w-full py-3 px-4 text-xs font-bold rounded-xl border transition-all ${
+                      zeroBrokerageOnly 
+                        ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-500/20' 
+                        : 'bg-gray-50 border-transparent text-gray-600 dark:text-gray-300 dark:bg-slate-900'
+                    }`}
+                  >
+                    🚫 Zero Brokerage Only
+                  </button>
+                </div>
+
+                <div className="md:col-span-4 pt-6 border-t border-gray-100 dark:border-white/5">
                   <h4 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-wider mb-3">Amenities</h4>
                   <div className="flex flex-wrap gap-2">
                     {AMENITIES_LIST.map(a => (
