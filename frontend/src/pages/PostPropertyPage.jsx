@@ -92,6 +92,12 @@ const MapUpdater = ({ center }) => {
   useEffect(() => {
     if (center) {
       map.setView(center, 13);
+      const timers = [
+        setTimeout(() => map.invalidateSize(), 100),
+        setTimeout(() => map.invalidateSize(), 300),
+        setTimeout(() => map.invalidateSize(), 800),
+      ];
+      return () => timers.forEach(clearTimeout);
     }
   }, [center, map]);
   return null;

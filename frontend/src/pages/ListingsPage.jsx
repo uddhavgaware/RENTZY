@@ -22,6 +22,12 @@ function MapUpdater({ center }) {
   const map = useMap();
   useEffect(() => {
     map.setView(center, map.getZoom());
+    const timers = [
+      setTimeout(() => map.invalidateSize(), 100),
+      setTimeout(() => map.invalidateSize(), 300),
+      setTimeout(() => map.invalidateSize(), 800),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [center, map]);
   return null;
 }

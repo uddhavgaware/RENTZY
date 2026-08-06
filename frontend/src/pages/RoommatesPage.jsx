@@ -9,6 +9,12 @@ function MapUpdater({ center }) {
   const map = useMap();
   useEffect(() => {
     map.setView(center, map.getZoom());
+    const timers = [
+      setTimeout(() => map.invalidateSize(), 100),
+      setTimeout(() => map.invalidateSize(), 300),
+      setTimeout(() => map.invalidateSize(), 800),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [center, map]);
   return null;
 }
@@ -381,7 +387,7 @@ const RoommatesPage = () => {
     images: [],
     latitude: null,
     longitude: null,
-    propertyType: 'Room',
+    propertyType: 'Flat',
     electricityBill: 'Not Included',
     waterSupply: 'Not Included',
     maintenance: 'Not Included',
@@ -440,7 +446,7 @@ const RoommatesPage = () => {
       images: roommate.images || [],
       latitude: roommate.latitude || null,
       longitude: roommate.longitude || null,
-      propertyType: roommate.propertyType || 'Room',
+      propertyType: roommate.propertyType || 'Flat',
       electricityBill: roommate.electricityBill || 'Not Included',
       waterSupply: roommate.waterSupply || 'Not Included',
       maintenance: roommate.maintenance || 'Not Included',
@@ -676,7 +682,7 @@ const RoommatesPage = () => {
       setIsModalOpen(false);
       const wasEditing = !!editingPostId;
       setEditingPostId(null);
-      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Room', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
+      setPostFormData({ location: '', buildingName: '', areaName: '', villageCityTown: '', taluka: '', district: '', pincode: '', budget: '', deposit: '', preferences: '', vacancies: 1, totalCapacity: 2, images: [], latitude: null, longitude: null, propertyType: 'Flat', electricityBill: 'Not Included', waterSupply: 'Not Included', maintenance: 'Not Included', facing: '', areaSqft: '', gender: '', flatSize: '1BHK' });
 
       showModal({
         type: 'alert',
@@ -1217,7 +1223,7 @@ const RoommatesPage = () => {
                     {displayedRoommates.map(roommate => {
                       if (!roommate.latitude || !roommate.longitude) return null;
                       return (
-                        <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon('Room')}>
+                        <Marker key={roommate.id} position={[roommate.latitude, roommate.longitude]} icon={createCustomIcon(roommate.propertyType || 'Flat')}>
                           <Popup className="roommate-popup">
                             <div className="p-2 min-w-[200px]">
                               <div className="flex items-center justify-between mb-2">
@@ -1419,7 +1425,7 @@ const RoommatesPage = () => {
                                   {roommate.user?.isVerified && <BadgeCheck size={14} className="text-blue-500 flex-shrink-0" />}
                                 </h3>
                                 <p className="text-[11px] text-gray-500 dark:text-gray-400 font-medium truncate">
-                                  {roommate.propertyType || 'Room'}{flatSizeVal ? ` (${flatSizeVal})` : ''} • {roommate.gender || 'Any'}
+                                  {roommate.propertyType || 'Flat'}{flatSizeVal ? ` (${flatSizeVal})` : ''} • {roommate.gender || 'Any'}
                                 </p>
                               </div>
                             </div>
@@ -1945,7 +1951,7 @@ const RoommatesPage = () => {
                       <TileLayer url="https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}" attribution='&copy; Google Maps' />
                       <Marker
                         position={postFormData.latitude && postFormData.longitude ? [postFormData.latitude, postFormData.longitude] : mapCenter}
-                        icon={createCustomIcon('Room')}
+                        icon={createCustomIcon(postFormData.propertyType || 'Flat')}
                       />
                       <ModalLocationPicker />
                     </MapContainer>
@@ -2043,9 +2049,25 @@ const RoommatesPage = () => {
                 {/* Section: Property */}
                 <div className="space-y-4">
                   {/* Configuration/Flat Size Select Option */}
+                {/* Section: Property */}
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">
-                      Flat Size / Room Configuration
+                      Property Type
+                    </label>
+                    <select
+                      value={postFormData.propertyType}
+                      onChange={(e) => setPostFormData({ ...postFormData, propertyType: e.target.value })}
+                      className="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none text-sm appearance-none bg-white font-semibold text-gray-700"
+                    >
+                      <option value="Flat">Flat</option>
+                      <option value="Room">Room</option>
+                      <option value="Hostel">PG / Hostel</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-gray-500 mb-1.5 uppercase tracking-wider">
+                      Flat Size / Configuration
                     </label>
                     <select
                       value={postFormData.flatSize}
@@ -2059,6 +2081,7 @@ const RoommatesPage = () => {
                       <option value="1RK">1 RK (1 Room, Kitchen)</option>
                     </select>
                   </div>
+                </div>
                 </div>
 
                 {/* Utility & Maintenance Inclusions */}
