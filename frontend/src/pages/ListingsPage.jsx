@@ -358,6 +358,7 @@ const ListingsPage = () => {
                 type="text"
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && setAppliedLocation(searchInput)}
                 placeholder="Where do you want to live? (e.g. Hinjewadi, Koramangala)"
                 className="w-full pl-12 pr-4 py-4 bg-white/10 dark:bg-slate-800/50 border-none rounded-2xl text-white font-bold outline-none placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 transition-all"
               />
@@ -379,6 +380,13 @@ const ListingsPage = () => {
                 </div>
               )}
             </div>
+
+            <button
+              onClick={() => setAppliedLocation(searchInput)}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all active:scale-95 flex-shrink-0 shadow-lg shadow-indigo-500/20"
+            >
+              <Search size={18} /> Search
+            </button>
 
             <button
               onClick={handleLiveLocation}
