@@ -78,6 +78,8 @@ const SplitExpensesPage = () => {
   const [showEditGroup, setShowEditGroup] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSettle, setShowSettle] = useState(null);
+  const [showCustomSettleModal, setShowCustomSettleModal] = useState(false);
+  const [customSettleForm, setCustomSettleForm] = useState({ fromUserId: '', toUserId: '', amount: '' });
   const [showMemberStats, setShowMemberStats] = useState(null);
   const [showUpiModal, setShowUpiModal] = useState(null);
   const [showUpiConfig, setShowUpiConfig] = useState(false);
@@ -450,6 +452,48 @@ const SplitExpensesPage = () => {
       });
       setShowSettle(null);
       setPaymentScreenshot(null);
+      showToast('Settlement recorded!');
+      await refreshGroupData();
+    } catch (err) {
+      showToast('Failed to record settlement', 'error');
+    } finally { setActionLoading(false); }
+  };
+
+  const handleCustomSettle = async (e) => {
+    if (e) e.preventDefault();
+    if (!customSettleForm.fromUserId || !customSettleForm.toUserId || !customSettleForm.amount) {
+      showToast('Please fill all fields', 'error');
+      return;
+    }
+    if (customSettleForm.fromUserId.toString() === customSettleForm.toUserId.toString()) {
+      showToast('Payer and receiver cannot be the same person', 'error');
+      return;
+    }
+    const amt = parseFloat(customSettleForm.amount);
+    if (isNaN(amt) || amt <= 0) {
+      showToast('Please enter a valid amount', 'error');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      let uploadedUrl = null;
+      if (paymentScreenshot) {
+         const formData = new FormData();
+         formData.append('files', paymentScreenshot);
+         const res = await api.post('/upload', formData, { headers: { 'Content-Type': 'multipart/form-data' }});
+         if (res.data && res.data.length > 0) uploadedUrl = res.data[0];
+      }
+
+      await api.post(`/split/groups/${activeGroup}/settlements`, {
+        fromUserId: parseInt(customSettleForm.fromUserId),
+        toUserId: parseInt(customSettleForm.toUserId),
+        amount: amt,
+        paymentScreenshotUrl: uploadedUrl
+      });
+      setShowCustomSettleModal(false);
+      setPaymentScreenshot(null);
+      setCustomSettleForm({ fromUserId: '', toUserId: '', amount: '' });
       showToast('Settlement recorded!');
       await refreshGroupData();
     } catch (err) {
@@ -831,7 +875,15 @@ const SplitExpensesPage = () => {
                     {activeView === 'balances' && (
                     <div className="space-y-4 animate-fade-in">
                       <div className="bg-white dark:bg-slate-900 rounded-2xl p-5 shadow-lg shadow-gray-200/40 dark:shadow-black/20 border border-gray-100/80 dark:border-white/5">
-                        <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4">Individual Balances</h3>
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Individual Balances</h3>
+                          <button onClick={() => {
+                            setCustomSettleForm({ fromUserId: '', toUserId: '', amount: '' });
+                            setShowCustomSettleModal(true);
+                          }} className="flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 font-semibold text-xs px-3 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm">
+                            <HandCoins size={14} />Settle Separately
+                          </button>
+                        </div>
                         <div className="space-y-3">
                           {(balanceData.memberBalances || []).map((mb, i) => (
                             <div key={mb.userId} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-800 rounded-xl p-1 -m-1 transition-colors" onClick={() => handleViewMemberStats(mb.userId)}>
@@ -860,6 +912,28 @@ const SplitExpensesPage = () => {
                                   </div>
                                 )}
                                 <Eye size={14} className="text-gray-300" />
+                                {mb.userId !== user?.id && (
+                                  <button onClick={(e) => {
+                                    e.stopPropagation();
+                                    const amountVal = Math.abs(mb.balance).toFixed(2);
+                                    if (mb.balance > 0) {
+                                      setCustomSettleForm({
+                                        fromUserId: user?.id,
+                                        toUserId: mb.userId,
+                                        amount: amountVal
+                                      });
+                                    } else {
+                                      setCustomSettleForm({
+                                        fromUserId: mb.userId,
+                                        toUserId: user?.id,
+                                        amount: amountVal
+                                      });
+                                    }
+                                    setShowCustomSettleModal(true);
+                                  }} className="ml-1 flex items-center gap-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm shadow-emerald-500/20 whitespace-nowrap">
+                                    <HandCoins size={12} />Settle
+                                  </button>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -901,6 +975,14 @@ const SplitExpensesPage = () => {
                                 </button>
                               </div>
                             ))}
+                            <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5 text-center">
+                              <button onClick={() => {
+                                setCustomSettleForm({ fromUserId: '', toUserId: '', amount: '' });
+                                setShowCustomSettleModal(true);
+                              }} className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 transition-colors">
+                                Want to pay separately? Record a direct settlement
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1241,6 +1323,114 @@ const SplitExpensesPage = () => {
               <button onClick={() => { setShowSettle(null); setPaymentScreenshot(null); }} className="flex-1 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-all active:scale-95">Cancel</button>
               <button onClick={() => handleSettle(showSettle)} disabled={actionLoading}
                 className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2">
+                {actionLoading && <Loader2 size={16} className="animate-spin" />} Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+        );
+      })()}
+
+      {/* ── Custom/Direct Settle Modal ── */}
+      {showCustomSettleModal && (() => {
+        const receiver = members.find(u => u.id === parseInt(customSettleForm.toUserId));
+        const payer = members.find(u => u.id === parseInt(customSettleForm.fromUserId));
+        return (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => { setShowCustomSettleModal(false); setPaymentScreenshot(null); }}>
+          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 dark:from-emerald-900/30 dark:to-teal-900/30 flex items-center justify-center mx-auto mb-4">
+              <HandCoins size={28} className="text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-4">Settle Separately</h3>
+
+            <div className="space-y-4 text-left mb-6">
+              {/* Payer Select */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1.5">Who Sent Money? (Payer)</label>
+                <select 
+                  value={customSettleForm.fromUserId} 
+                  onChange={e => setCustomSettleForm(prev => ({ ...prev, fromUserId: e.target.value }))}
+                  className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white cursor-pointer"
+                >
+                  <option value="">Select Roommate</option>
+                  {members.map(m => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Receiver Select */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1.5">Who Received Money? (Receiver)</label>
+                <select 
+                  value={customSettleForm.toUserId} 
+                  onChange={e => setCustomSettleForm(prev => ({ ...prev, toUserId: e.target.value }))}
+                  className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white cursor-pointer"
+                >
+                  <option value="">Select Roommate</option>
+                  {members.map(m => (
+                    <option key={m.id} value={m.id}>{m.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Amount Input */}
+              <div>
+                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1.5">Amount ({CURRENCY})</label>
+                <input 
+                  type="number" 
+                  placeholder="0.00" 
+                  min="0" 
+                  step="0.01" 
+                  value={customSettleForm.amount} 
+                  onChange={e => setCustomSettleForm(prev => ({ ...prev, amount: e.target.value }))}
+                  className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white"
+                />
+              </div>
+            </div>
+
+            {/* UPI Section */}
+            {payer?.id === user?.id && receiver && (receiver.upiId || receiver.upiQrUrl) && (
+              <div className="mb-6 bg-gray-50 dark:bg-slate-800 p-4 rounded-2xl border border-gray-200 dark:border-white/10 text-left">
+                <h4 className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-3">Payment Details</h4>
+                {receiver.upiQrUrl && (
+                  <div className="flex flex-col items-center mb-4">
+                    <img src={receiver.upiQrUrl} alt="UPI QR Code" className="w-40 h-40 object-contain rounded-xl border border-gray-200 dark:border-gray-700 bg-white" />
+                    <p className="text-xs text-gray-500 mt-2">Scan to pay directly via any UPI app</p>
+                  </div>
+                )}
+                {receiver.upiId && (
+                  <div className="space-y-2">
+                    <p className="text-sm text-gray-700 dark:text-gray-300"><strong>UPI ID:</strong> {receiver.upiId}</p>
+                    <a href={`upi://pay?pa=${receiver.upiId}&pn=${encodeURIComponent(receiver.name)}&am=${customSettleForm.amount}&cu=INR`}
+                       className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 rounded-xl transition-all shadow-md active:scale-95">
+                      Pay via UPI App
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {payer?.id === user?.id && receiver && !receiver.upiId && !receiver.upiQrUrl && (
+              <div className="mb-6 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 p-3 rounded-xl text-xs font-medium text-left">
+                {receiver.name} has not added their UPI details to their profile. You will need to ask them for their payment info.
+              </div>
+            )}
+
+            <div className="w-full h-px bg-gray-100 dark:bg-white/10 mb-6" />
+
+            <div className="mb-6 text-left">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Upload Payment Screenshot (Optional)</label>
+              <input type="file" accept="image/*" onChange={e => setPaymentScreenshot(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer" />
+              {paymentScreenshot && <p className="text-xs text-emerald-600 mt-2">Selected: {paymentScreenshot.name}</p>}
+            </div>
+
+            <h4 className="text-sm font-bold text-gray-900 dark:text-white mb-3">Mark as Settled?</h4>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">Only confirm this if you have already sent or received the money.</p>
+            <div className="flex gap-3">
+              <button onClick={() => { setShowCustomSettleModal(false); setPaymentScreenshot(null); }} className="flex-1 bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl transition-all active:scale-95">Cancel</button>
+              <button onClick={handleCustomSettle} disabled={actionLoading || !customSettleForm.fromUserId || !customSettleForm.toUserId || !customSettleForm.amount}
+                className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold py-3 rounded-xl transition-all active:scale-95 shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 disabled:opacity-50">
                 {actionLoading && <Loader2 size={16} className="animate-spin" />} Confirm
               </button>
             </div>
