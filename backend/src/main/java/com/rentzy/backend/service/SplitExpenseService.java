@@ -329,8 +329,8 @@ public class SplitExpenseService {
             net.merge(s.getToUser().getId(), -s.getAmount(), Double::sum);
         }
 
-        // Calculate minimum transactions to settle
-        List<Map<String, Object>> transactions = calculateMinTransactions(net);
+        // Calculate pairwise transactions directly (no simplification)
+        List<Map<String, Object>> transactions = calculatePairwiseTransactions(expenses, settlements, members);
 
         // Per-member balances
         List<Map<String, Object>> memberBalances = new ArrayList<>();
@@ -412,33 +412,65 @@ public class SplitExpenseService {
         }
     }
 
-    private List<Map<String, Object>> calculateMinTransactions(Map<Long, Double> net) {
-        List<long[]> debtors = new ArrayList<>();  // [userId, amount * 100]
-        List<long[]> creditors = new ArrayList<>();
+    private List<Map<String, Object>> calculatePairwiseTransactions(List<SplitExpense> expenses, List<SplitSettlement> settlements, List<SplitGroupMember> members) {
+        Map<Long, Map<Long, Double>> debtMap = new HashMap<>();
 
-        net.forEach((id, amt) -> {
-            if (amt < -0.01) debtors.add(new long[]{id, Math.round(-amt * 100)});
-            else if (amt > 0.01) creditors.add(new long[]{id, Math.round(amt * 100)});
-        });
+        for (SplitGroupMember m1 : members) {
+            debtMap.put(m1.getUser().getId(), new HashMap<>());
+            for (SplitGroupMember m2 : members) {
+                debtMap.get(m1.getUser().getId()).put(m2.getUser().getId(), 0.0);
+            }
+        }
 
-        debtors.sort((a, b) -> Long.compare(b[1], a[1]));
-        creditors.sort((a, b) -> Long.compare(b[1], a[1]));
+        for (SplitExpense exp : expenses) {
+            Long creditor = exp.getPaidBy().getId();
+            for (SplitExpenseShare share : exp.getShares()) {
+                Long debtor = share.getUser().getId();
+                if (!debtor.equals(creditor)) {
+                    double currentDebt = debtMap.get(debtor).getOrDefault(creditor, 0.0);
+                    debtMap.get(debtor).put(creditor, currentDebt + share.getAmount());
+                }
+            }
+        }
+
+        for (SplitSettlement s : settlements) {
+            Long debtor = s.getFromUser().getId();
+            Long creditor = s.getToUser().getId();
+            double currentDebt = debtMap.get(debtor).getOrDefault(creditor, 0.0);
+            debtMap.get(debtor).put(creditor, currentDebt - s.getAmount());
+        }
 
         List<Map<String, Object>> transactions = new ArrayList<>();
-        int i = 0, j = 0;
-        while (i < debtors.size() && j < creditors.size()) {
-            long payment = Math.min(debtors.get(i)[1], creditors.get(j)[1]);
-            if (payment > 0) {
-                Map<String, Object> t = new HashMap<>();
-                t.put("fromUserId", debtors.get(i)[0]);
-                t.put("toUserId", creditors.get(j)[0]);
-                t.put("amount", payment / 100.0);
-                transactions.add(t);
+        List<Long> memberIds = members.stream().map(m -> m.getUser().getId()).collect(Collectors.toList());
+
+        for (int i = 0; i < memberIds.size(); i++) {
+            for (int j = i + 1; j < memberIds.size(); j++) {
+                Long u1 = memberIds.get(i);
+                Long u2 = memberIds.get(j);
+
+                double u1OwesU2 = debtMap.get(u1).getOrDefault(u2, 0.0);
+                double u2OwesU1 = debtMap.get(u2).getOrDefault(u1, 0.0);
+
+                if (u1OwesU2 > u2OwesU1) {
+                    double diff = u1OwesU2 - u2OwesU1;
+                    if (diff > 0.01) {
+                        Map<String, Object> t = new HashMap<>();
+                        t.put("fromUserId", u1);
+                        t.put("toUserId", u2);
+                        t.put("amount", Math.round(diff * 100.0) / 100.0);
+                        transactions.add(t);
+                    }
+                } else if (u2OwesU1 > u1OwesU2) {
+                    double diff = u2OwesU1 - u1OwesU2;
+                    if (diff > 0.01) {
+                        Map<String, Object> t = new HashMap<>();
+                        t.put("fromUserId", u2);
+                        t.put("toUserId", u1);
+                        t.put("amount", Math.round(diff * 100.0) / 100.0);
+                        transactions.add(t);
+                    }
+                }
             }
-            debtors.get(i)[1] -= payment;
-            creditors.get(j)[1] -= payment;
-            if (debtors.get(i)[1] <= 0) i++;
-            if (creditors.get(j)[1] <= 0) j++;
         }
         return transactions;
     }
