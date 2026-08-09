@@ -930,7 +930,7 @@ const SplitExpensesPage = () => {
                                       });
                                     }
                                     setShowCustomSettleModal(true);
-                                  }} className="ml-1 flex items-center gap-1 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm shadow-emerald-500/20 whitespace-nowrap">
+                                  }} className={`ml-1 flex items-center gap-1 bg-gradient-to-r ${mb.balance > 0 ? 'from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-red-500/20' : 'from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-emerald-500/20'} text-white font-bold text-xs px-2.5 py-1.5 rounded-lg transition-all active:scale-95 shadow-sm whitespace-nowrap`}>
                                     <HandCoins size={12} />Settle
                                   </button>
                                 )}
@@ -973,7 +973,7 @@ const SplitExpensesPage = () => {
                                 </div>
                                 {(user?.id === t.fromUserId || user?.id === t.toUserId) && (
                                   <button onClick={() => setShowSettle(t)}
-                                    className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition-all active:scale-95 shadow-md shadow-emerald-500/20 whitespace-nowrap">
+                                    className={`flex items-center gap-1.5 bg-gradient-to-r ${t.fromUserId === user?.id ? 'from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 shadow-red-500/20' : 'from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-emerald-500/20'} text-white font-bold text-xs px-4 py-2 rounded-lg transition-all active:scale-95 shadow-md whitespace-nowrap`}>
                                     <HandCoins size={14} />Settle
                                   </button>
                                 )}
