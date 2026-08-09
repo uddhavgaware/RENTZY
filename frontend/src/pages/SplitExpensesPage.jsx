@@ -967,12 +967,16 @@ const SplitExpensesPage = () => {
                                     <ArrowRight size={14} className="text-gray-400" />
                                     <span className="font-semibold text-sm text-gray-800 dark:text-gray-200">{getMemberName(t.toUserId)}</span>
                                   </div>
-                                  <p className="font-black text-emerald-600 dark:text-emerald-400 text-base mt-0.5">{formatCurrency(t.amount)}</p>
+                                  <p className={`font-black text-base mt-0.5 ${t.fromUserId === user?.id ? 'text-red-500 dark:text-red-400' : t.toUserId === user?.id ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-600 dark:text-gray-400'}`}>
+                                    {formatCurrency(t.amount)}
+                                  </p>
                                 </div>
-                                <button onClick={() => setShowSettle(t)}
-                                  className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition-all active:scale-95 shadow-md shadow-emerald-500/20 whitespace-nowrap">
-                                  <HandCoins size={14} />Settle
-                                </button>
+                                {(user?.id === t.fromUserId || user?.id === t.toUserId) && (
+                                  <button onClick={() => setShowSettle(t)}
+                                    className="flex items-center gap-1.5 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition-all active:scale-95 shadow-md shadow-emerald-500/20 whitespace-nowrap">
+                                    <HandCoins size={14} />Settle
+                                  </button>
+                                )}
                               </div>
                             ))}
                             <div className="mt-4 pt-3 border-t border-gray-100 dark:border-white/5 text-center">
@@ -1335,6 +1339,16 @@ const SplitExpensesPage = () => {
       {showCustomSettleModal && (() => {
         const receiver = members.find(u => u.id === parseInt(customSettleForm.toUserId));
         const payer = members.find(u => u.id === parseInt(customSettleForm.fromUserId));
+
+        // Enforce logged-in user is involved
+        const allowedPayers = customSettleForm.toUserId && customSettleForm.toUserId.toString() !== user?.id?.toString()
+          ? members.filter(m => m.id === user?.id)
+          : members;
+
+        const allowedReceivers = customSettleForm.fromUserId && customSettleForm.fromUserId.toString() !== user?.id?.toString()
+          ? members.filter(m => m.id === user?.id)
+          : members;
+
         return (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm animate-fade-in p-4" onClick={() => { setShowCustomSettleModal(false); setPaymentScreenshot(null); }}>
           <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 dark:border-white/10 animate-slide-up text-center overflow-y-auto max-h-[90vh]" onClick={e => e.stopPropagation()}>
@@ -1353,8 +1367,8 @@ const SplitExpensesPage = () => {
                   className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white cursor-pointer"
                 >
                   <option value="">Select Roommate</option>
-                  {members.map(m => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
+                  {allowedPayers.map(m => (
+                    <option key={m.id} value={m.id}>{m.name} {m.id === user?.id ? '(You)' : ''}</option>
                   ))}
                 </select>
               </div>
@@ -1368,8 +1382,8 @@ const SplitExpensesPage = () => {
                   className="w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-slate-800 rounded-xl px-4 py-3 focus:ring-2 focus:ring-emerald-500/40 outline-none text-sm text-gray-900 dark:text-white cursor-pointer"
                 >
                   <option value="">Select Roommate</option>
-                  {members.map(m => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
+                  {allowedReceivers.map(m => (
+                    <option key={m.id} value={m.id}>{m.name} {m.id === user?.id ? '(You)' : ''}</option>
                   ))}
                 </select>
               </div>

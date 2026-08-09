@@ -287,6 +287,10 @@ public class SplitExpenseService {
     @Transactional
     public SplitSettlement addSettlement(Long groupId, String email, Long fromUserId, Long toUserId, Double amount, String paymentScreenshotUrl) {
         assertMember(groupId, email);
+        User requester = findUser(email);
+        if (!fromUserId.equals(requester.getId()) && !toUserId.equals(requester.getId())) {
+            throw new RuntimeException("You can only record settlements that involve you as the payer or receiver");
+        }
         SplitGroup group = findGroup(groupId);
         User fromUser = userRepository.findById(fromUserId)
                 .orElseThrow(() -> new RuntimeException("From user not found"));
