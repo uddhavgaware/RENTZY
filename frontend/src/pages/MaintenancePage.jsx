@@ -33,7 +33,7 @@ const MaintenancePage = () => {
 
         {/* Description */}
         <p className="text-slate-300 text-sm md:text-base leading-relaxed mb-8">
-          We are currently migrating our backend services to a new platform to ensure faster speeds and better reliability. Please come back later.
+          RentXY is currently under maintenance. Please try again another day.
         </p>
 
         {/* Action Button */}
