@@ -96,7 +96,7 @@ const ListingsPage = () => {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [wishlistIds, setWishlistIds] = useState([]);
-  const [isMapView, setIsMapView] = useState(false); // Used on mobile
+  const [viewMode, setViewMode] = useState('split'); // 'split' | 'list' | 'map'
   const [hoveredListingId, setHoveredListingId] = useState(null);
   const [mapCenter, setMapCenter] = useState([18.5204, 73.8567]);
   const [modalConfig, setModalConfig] = useState({ isOpen: false });
@@ -510,19 +510,60 @@ const ListingsPage = () => {
             ))}
           </div>
 
+          {/* Mobile View Toggle */}
           <button
-            onClick={() => setIsMapView(!isMapView)}
+            onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
             className="lg:hidden flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold text-sm shadow-lg shadow-indigo-500/20"
           >
-            {isMapView ? <><List size={18} /> List View</> : <><MapIcon size={18} /> Map View</>}
+            {viewMode === 'map' ? <><List size={18} /> List View</> : <><MapIcon size={18} /> Map View</>}
           </button>
+
+          {/* Desktop View Mode Segmented Control */}
+          <div className="hidden lg:flex items-center bg-white dark:bg-slate-800 border border-gray-200 dark:border-white/5 rounded-2xl p-1 shadow-sm gap-1">
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                viewMode === 'list' 
+                  ? 'bg-indigo-600 text-white shadow-md' 
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+              }`}
+            >
+              <List size={14} /> Grid View
+            </button>
+            <button
+              onClick={() => setViewMode('split')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                viewMode === 'split' 
+                  ? 'bg-indigo-600 text-white shadow-md' 
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+              }`}
+            >
+              <SlidersHorizontal size={14} /> Split View
+            </button>
+            <button
+              onClick={() => setViewMode('map')}
+              className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                viewMode === 'map' 
+                  ? 'bg-indigo-600 text-white shadow-md' 
+                  : 'text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-slate-700/50'
+              }`}
+            >
+              <MapIcon size={14} /> Map View
+            </button>
+          </div>
         </div>
 
         {/* Airbnb-style Split-Screen Area */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           
           {/* Left: Scrollable Listings */}
-          <div className={`lg:col-span-7 space-y-6 ${isMapView ? 'hidden lg:block' : ''}`}>
+          <div className={`transition-all duration-300 ${
+            viewMode === 'map' 
+              ? 'hidden' 
+              : viewMode === 'list' 
+              ? 'col-span-12 lg:col-span-12 space-y-6' 
+              : 'col-span-12 lg:col-span-7 space-y-6'
+          }`}>
             
             {loading ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -568,7 +609,13 @@ const ListingsPage = () => {
           </div>
 
           {/* Right: Sticky Map */}
-          <div className={`lg:col-span-5 lg:sticky lg:top-28 h-[calc(100vh-140px)] rounded-3xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-xl relative z-0 ${!isMapView ? 'hidden lg:block' : 'w-full h-[600px] lg:h-[calc(100vh-140px)]'}`}>
+          <div className={`rounded-3xl overflow-hidden border border-gray-200 dark:border-white/10 shadow-xl relative z-0 transition-all duration-300 ${
+            viewMode === 'list'
+              ? 'hidden'
+              : viewMode === 'map'
+              ? 'col-span-12 lg:col-span-12 w-full h-[600px] lg:h-[calc(100vh-140px)]'
+              : 'hidden lg:block lg:col-span-5 lg:sticky lg:top-28 h-[calc(100vh-140px)]'
+          }`}>
             <MapContainer
               center={mapCenter}
               zoom={13}

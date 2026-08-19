@@ -13,6 +13,8 @@ import toast from 'react-hot-toast';
 import PwaInstallBanner from './components/PwaInstallBanner';
 import NotificationPermissionModal from './components/NotificationPermissionModal';
 import ZomatoNotificationToast from './components/ZomatoNotificationToast';
+import MaintenancePage from './pages/MaintenancePage';
+
 
 const LandingPage = lazy(() => import('./pages/LandingPage'));
 const ListingsPage = lazy(() => import('./pages/ListingsPage'));
@@ -175,6 +177,12 @@ function NetworkStatusHandler() {
 }
 
 function App() {
+  const IS_MAINTENANCE = true; // Toggle maintenance mode here
+
+  if (IS_MAINTENANCE) {
+    return <MaintenancePage />;
+  }
+
   // Google Client ID from VITE_GOOGLE_CLIENT_ID or fallback to production Client ID
   const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '872152634254-62koq8amssj0d0l6gqnta33kv3is670u.apps.googleusercontent.com';
 

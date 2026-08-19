@@ -2,14 +2,17 @@ import React, { useState } from 'react';
 import { X, ShieldCheck, CheckCircle2, Upload, FileImage, Info } from 'lucide-react';
 import api from '../services/api';
 
-const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
+const PaymentModal = ({ isOpen, listing, bill, bookingId, onClose, onCancel, onSuccess, amount: amountOverride }) => {
+  if (isOpen === false) return null;
+
+  const handleClose = onClose || onCancel;
   const [step, setStep] = useState('ready'); // ready | success | error
   const [screenshotUrl, setScreenshotUrl] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
   const title = listing ? listing.title : bill ? `Bill for ${bill.billingMonth || 'Current Month'}` : 'RentXY Checkout';
-  const amount = listing ? (listing.price * 3) : bill ? bill.totalAmount : 0;
+  const amount = amountOverride || (listing ? (listing.price * 3) : bill ? bill.totalAmount : 0);
 
   const handleSimulateUpload = () => {
     // Simulate image upload for demonstration
@@ -46,7 +49,7 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
 
         {/* Header */}
         <div className="bg-gradient-to-r from-primary-700 via-primary-600 to-indigo-600 p-6 text-white relative flex-shrink-0">
-          <button onClick={onClose} className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors bg-black/20 hover:bg-black/40 p-1.5 rounded-full">
+          <button onClick={handleClose} className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors bg-black/20 hover:bg-black/40 p-1.5 rounded-full">
             <X size={20} />
           </button>
           <div className="flex items-center gap-3 mb-4">
@@ -130,7 +133,7 @@ const PaymentModal = ({ listing, bill, bookingId, onClose, onSuccess }) => {
                 {bill ? 'Your payment proof has been sent to the owner for confirmation.' : 'You have marked this as settled offline.'}
               </p>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3.5 rounded-2xl font-black transition-all shadow-lg"
               >
                 Done

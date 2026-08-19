@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, Star, Wifi, AirVent, Tv, Wind, Car, Shield, Dumbbell, CheckCircle2, ArrowLeft, Heart, Send, User, BadgeCheck, Image as ImageIcon, Share2, Calendar, Phone } from 'lucide-react';
+import { MapPin, Star, Wifi, AirVent, Tv, Wind, Car, Shield, Dumbbell, CheckCircle2, ArrowLeft, Heart, Send, User, BadgeCheck, Image as ImageIcon, Share2, Calendar, Phone, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import { divIcon } from 'leaflet';
@@ -363,7 +363,18 @@ const ListingDetailsPage = () => {
         )}
       </AnimatePresence>
 
-      <PaymentModal isOpen={showPayment} bookingId={bookingId} amount={listing.price} onCancel={() => setShowPayment(false)} onSuccess={() => { setShowPayment(false); navigate('/tenant/dashboard'); }} />
+      {showPayment && (
+        <PaymentModal
+          isOpen={showPayment}
+          bookingId={bookingId}
+          amount={listing.price}
+          onClose={() => setShowPayment(false)}
+          onSuccess={() => {
+            setShowPayment(false);
+            navigate('/tenant-dashboard');
+          }}
+        />
+      )}
       <Modal {...modalConfig} onCancel={closeModal} />
     </div>
   );
