@@ -2,12 +2,17 @@
 FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
+# If building from repo root, cd to backend. Otherwise build in current dir. Place jar at /app/app.jar
+RUN if [ -f "backend/pom.xml" ]; then \
+      cd backend && mvn clean package -DskipTests && cp target/*.jar /app/app.jar; \
+    else \
+      mvn clean package -DskipTests && cp target/*.jar /app/app.jar; \
+    fi
 
 # Run stage
 FROM eclipse-temurin:21-jre
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/app.jar app.jar
 EXPOSE 8080
 
 # This specifically activates application-prod.properties when run in Docker!
