@@ -33,6 +33,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // ── Public: Auth endpoints ──
                 .requestMatchers("/api/auth/**").permitAll()
+                // ── Public: Actuator (Health Checks) ──
+                .requestMatchers("/actuator/**").permitAll()
                 // ── Public: Static uploads ──
                 .requestMatchers("/uploads/**").permitAll()
                 // ── Public: WebSocket ──
